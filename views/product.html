@@ -8111,27 +8111,44 @@
 </style>
 
 <style id="product-gallery-larger-safe">
-/* بزرگ‌تر شدن واقعی گالری، بدون زوم/برش و با فضای امن برای کنترل‌ها. */
+/* گالری بزرگ‌تر، با حفظ کامل نسبت تصویر و فاصله از ابزارهای کناری. */
 @media (min-width: 769px) {
   .product-layout {
-    grid-template-columns: minmax(0, 1.16fr) minmax(0, 1.34fr);
+    grid-template-columns: minmax(0, 1.42fr) minmax(0, 1.08fr);
     gap: 30px;
   }
   .product-gallery {
-    padding-right: 52px;
-    transform: translateX(28px);
+    padding-right: 0;
+    transform: translateX(12px);
+  }
+  .gallery-main {
+    min-height: 760px;
+    padding: 0 58px 0 12px;
+    box-sizing: border-box;
   }
   .gallery-main svg,
   .gallery-main img {
-    max-height: 800px !important;
+    max-width: 100% !important;
+    max-height: 740px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
   .gallery-actions {
-    right: 4px !important;
+    right: 10px !important;
   }
 }
 @media (max-width: 768px) {
   body.mobile-product-flow-active .product-gallery {
-    height: clamp(280px, 42dvh, 360px);
+    height: clamp(320px, 49dvh, 430px);
+  }
+  body.mobile-product-flow-active .gallery-main svg,
+  body.mobile-product-flow-active .gallery-main img {
+    max-height: calc(100% - 26px) !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
 }
 </style>
