@@ -372,3 +372,43 @@
 .header + .navbar {
   margin-top: -1px !important;
 }
+
+/* لینک‌های تصویری برندهای کنسول در منوی دسته‌بندی */
+.megamenu-console-logo-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.megamenu-console-logo-link {
+  width: 96px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+.megamenu-console-logo-link img {
+  width: 52px;
+  height: 52px;
+  display: block;
+  object-fit: contain;
+}
+.megamenu-console-logo-link:hover,
+.megamenu-console-logo-link:focus-visible {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  transform: translateY(-1px);
+}
+@media (max-width: 768px) {
+  .megamenu-console-logo-link {
+    width: 86px;
+    height: 62px;
+  }
+  .megamenu-console-logo-link img {
+    width: 48px;
+    height: 48px;
+  }
+}
