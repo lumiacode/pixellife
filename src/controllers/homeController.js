@@ -7,7 +7,7 @@ const viewCache = new Map();
 
 // با هر انتشار، URL فایل‌های CSS و JS عوض می‌شود تا مرورگری که نسخهٔ
 // قدیمی را با قانون کش قبلی نگه داشته نیز ناچار به دریافت نسخهٔ تازه باشد.
-const ASSET_REVISION = "20260913-chatbot-icon";
+const ASSET_REVISION = "20260913-chatbot-icon-only";
 
 function injectAssetRevision(html) {
   return html.replace(
