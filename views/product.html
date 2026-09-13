@@ -1506,22 +1506,27 @@
         }
       }
 
-      /* قلب علاقه‌مندی بدون وابستگی به فونت آیکون نمایش داده می‌شود */
+      /* لوگوی ارسالی علاقه‌مندی؛ رنگ آن در حالت انتخاب آبی می‌شود. */
       #wishBtn i {
         display: none;
       }
+      .gallery-actions #wishBtn,
+      .gallery-actions #wishBtn.active {
+        border-color: transparent;
+        background: transparent;
+        color: #4b5563;
+      }
       #wishBtn::before {
-        content: "♡";
-        font-family: Arial, sans-serif;
-        font-size: 27px;
-        font-weight: 400;
-        line-height: 1;
-        transform: translateY(-1px);
+        content: "";
+        width: 27px;
+        height: 27px;
+        display: block;
+        background: #4b5563;
+        -webkit-mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC1UlEQVR4nO2YW4hNURjHf5ThOC6TR9eJhyGUazyhXMYrLxQzSnIZ4yjl+sDjiCeXMjmeJN4M5VKmNOZBRk0uRQkPhEJCZmjMDPq01NfXOWavffbZ22j/atVu7/X/r++cvdba6/sgJSUlJSVmRgIrgRywF9gBLAMyHh4Zp8k5j5zzFO+yMRe4AHQDPwu0j8ApYPpfPGYCTcCnIh7dbgwZKzIqgKNAb5FBbesBjgBZ5ZF1Hj0BPXpdfxm7JIYAzcb8B3AHOA4cBvLA4wJBPADGAxPctX3+yGnF4wTQ7rx1n2YXQ2iajOEVoLpI33nAddP/FfDa3LsGzCniUQ1cNf1lWoZiIdCnjBoD6hqKrBO5Vx/Qo1Hp+lws3rSZV+nDEqBL6TuBRZ4el5T+lqeWKWZBVfkauG3ys2tLQ+ir1MYha2Oyj3iL+gGthCdrdiNfWlUcm32EJ5VwP8lxQMUhO1VgLithLclRG3YdtihhDclRo+KQmELtAKtIjtUqjos+wrwSBt27y8F2FcdpH+EuJTxHcpxXcez0Ec5WwndRHKpCMBR4r+KY5SMeDDxX4jriZ4Ma/5mLyYt9yuCp+0fiogJ4osbfHcZktHmFB4mPQ2YKSyyhqDdnouWUnxUmedpWipnMu5vK7IPvocqTSeatt4WZ+5aJ7jXqTKuS6Kk0mdtbl81FwmLguzK/XeIp0zLCeerkxzd/6Je1JkNr8SylFCNjzl4yxhrKxFaTJsp5fVQJflnghvH0+uKGYY8ZUCoUY0L4iKbdeIl3LDSYEogsvrEe+nHAQ1OqkYNbrKwzhao3wIIAOimpvDTfl40keF7X1Ydv/WRwda7Pn/5dCecbv5FT4gszl88Cw1WfYcAx00cKXvP5R5D5f7dA6VCKuVOB++bZvSg/UlEh+/kZE2ina/pePqLvR9lYD3wpUFr8CmxigDAN6FDBd7h7A4pBwAzX5DolJSXlP+QXGqc6vJorG4MAAAAASUVORK5CYII=") center / contain no-repeat;
+        mask: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC1UlEQVR4nO2YW4hNURjHf5ThOC6TR9eJhyGUazyhXMYrLxQzSnIZ4yjl+sDjiCeXMjmeJN4M5VKmNOZBRk0uRQkPhEJCZmjMDPq01NfXOWavffbZ22j/atVu7/X/r++cvdba6/sgJSUlJSVmRgIrgRywF9gBLAMyHh4Zp8k5j5zzFO+yMRe4AHQDPwu0j8ApYPpfPGYCTcCnIh7dbgwZKzIqgKNAb5FBbesBjgBZ5ZF1Hj0BPXpdfxm7JIYAzcb8B3AHOA4cBvLA4wJBPADGAxPctX3+yGnF4wTQ7rx1n2YXQ2iajOEVoLpI33nAddP/FfDa3LsGzCniUQ1cNf1lWoZiIdCnjBoD6hqKrBO5Vx/Qo1Hp+lws3rSZV+nDEqBL6TuBRZ4el5T+lqeWKWZBVfkauG3ys2tLQ+ir1MYha2Oyj3iL+gGthCdrdiNfWlUcm32EJ5VwP8lxQMUhO1VgLithLclRG3YdtihhDclRo+KQmELtAKtIjtUqjos+wrwSBt27y8F2FcdpH+EuJTxHcpxXcez0Ec5WwndRHKpCMBR4r+KY5SMeDDxX4jriZ4Ma/5mLyYt9yuCp+0fiogJ4osbfHcZktHmFB4mPQ2YKSyyhqDdnouWUnxUmedpWipnMu5vK7IPvocqTSeatt4WZ+5aJ7jXqTKuS6Kk0mdtbl81FwmLguzK/XeIp0zLCeerkxzd/6Je1JkNr8SylFCNjzl4yxhrKxFaTJsp5fVQJflnghvH0+uKGYY8ZUCoUY0L4iKbdeIl3LDSYEogsvrEe+nHAQ1OqkYNbrKwzhao3wIIAOimpvDTfl40keF7X1Ydv/WRwda7Pn/5dCecbv5FT4gszl88Cw1WfYcAx00cKXvP5R5D5f7dA6VCKuVOB++bZvSg/UlEh+/kZE2ina/pePqLvR9lYD3wpUFr8CmxigDAN6FDBd7h7A4pBwAzX5DolJSXlP+QXGqc6vJorG4MAAAAASUVORK5CYII=") center / contain no-repeat;
       }
       #wishBtn.active::before {
-        content: "♥";
-        font-size: 21px;
-        color: var(--red);
+        background: var(--blue);
       }
 
       .product-title {
