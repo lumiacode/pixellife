@@ -2169,7 +2169,31 @@
           transform: translateY(0);
         }
       }
-    </style>
+    
+    /* کنترل‌های بنر: پایینِ سمت راست و کنار هم */
+    .hero-nav-btn {
+      top: auto;
+      bottom: 22px;
+      transform: none;
+    }
+    .hero-nav-btn.prev {
+      right: 70px;
+      left: auto;
+    }
+    .hero-nav-btn.next {
+      right: 16px;
+      left: auto;
+    }
+    @media (max-width: 768px) {
+      .hero-nav-btn {
+        bottom: 14px;
+        width: 38px;
+        height: 38px;
+      }
+      .hero-nav-btn.prev { right: 60px; }
+      .hero-nav-btn.next { right: 12px; }
+    }
+</style>
   <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
   </head>
   <body>
