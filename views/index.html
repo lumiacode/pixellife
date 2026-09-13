@@ -2268,6 +2268,12 @@
         font-size: 11px;
       }
     }
+
+    /* تنها یک اسلاید در بنر اصلی باقی مانده است؛ کنترل‌های ناوبری نیاز نیستند. */
+    .hero-slider-container:has(.hero-slide:only-child) .hero-nav-btn,
+    .hero-slider-container:has(.hero-slide:only-child) .hero-dots {
+      display: none;
+    }
 </style>
   <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
   </head>
@@ -2618,14 +2624,7 @@
                 <b>مشاهده محصولات <i class="ti ti-arrow-left"></i></b>
               </span>
             </a>
-            
-            <!-- اسلاید دوم (سامسونگ) -->
-            <a class="hero-slide" href="/samsung" style="min-width: 100%; display: block; padding: 0;">
-              <img src="/images/samsung-s26-banner.webp" alt="بنر سامسونگ S26" loading="lazy" decoding="async" style="width: 100%; height: auto; display: block;">
-            </a>
-            <a class="hero-slide" href="/console" style="min-width: 100%; display: block; padding: 0;">
-              <img src="/images/ps5-pro-banner.webp" alt="PS5 Pro banner" loading="lazy" decoding="async" style="width: 100%; height: auto; display: block;">
-            </a>
+
 
           </div>
 
