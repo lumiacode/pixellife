@@ -8,18 +8,18 @@
       style.textContent = `
         #plAssistantToggle {
           position: fixed; right: 22px; bottom: 92px; z-index: 1750;
-          width: 60px; height: 60px; padding: 0; border: 1.5px solid #e2e8f0; border-radius: 50%;
+          width: 54px; height: 54px; padding: 0; border: 0; border-radius: 0;
           display: grid; place-items: center; cursor: pointer;
-          background: #fff !important;
-          box-shadow: 0 4px 14px rgba(15, 23, 42, .12) !important;
+          background: transparent !important;
+          box-shadow: none !important;
           outline: none !important;
           transform: none !important;
           appearance: none;
         }
         #plAssistantToggle:hover,
         #plAssistantToggle:active,
-        #plAssistantToggle:focus { background: #fff !important; border-color: #cbd5e1; box-shadow: 0 4px 14px rgba(15, 23, 42, .12) !important; outline: none !important; transform: none !important; }
-        #plAssistantToggle img { width: 48px; height: 48px; display: block; object-fit: contain; }
+        #plAssistantToggle:focus { background: transparent !important; border-color: transparent; box-shadow: none !important; outline: none !important; transform: none !important; }
+        #plAssistantToggle img { width: 54px; height: 54px; display: block; object-fit: contain; }
 
         #plAssistant {
           position: fixed; right: 22px; bottom: 158px; z-index: 1749;
@@ -45,8 +45,8 @@
         .pl-ai-form button { border:0; border-radius:10px; padding:0 13px; background:#75acf0; color:#fff; font:700 12px Vazirmatn,Tahoma,sans-serif; cursor:pointer; }
 
         @media (max-width: 768px) {
-          #plAssistantToggle { right: 16px; bottom: 84px; width: 58px; height: 58px; }
-          #plAssistantToggle img { width: 46px; height: 46px; }
+          #plAssistantToggle { right: 16px; bottom: 84px; width: 52px; height: 52px; }
+          #plAssistantToggle img { width: 52px; height: 52px; }
           #plAssistant { right: 16px; bottom: 148px; max-height: min(500px, calc(100vh - 170px)); }
         }
       `;
