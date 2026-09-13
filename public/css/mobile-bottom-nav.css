@@ -366,6 +366,25 @@
     stroke-linejoin: round;
   }
 
+  /* آیکون‌های تصویری دسته‌ها: هم‌اندازهٔ آیکون‌های قبلی در موبایل */
+  .mobile-category-sheet__icon-image {
+    width: 31px;
+    height: 31px;
+    display: block;
+    flex: 0 0 31px;
+    object-fit: contain;
+  }
+  .mobile-category-sheet__content-head .mobile-category-sheet__icon-image {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+  .mobile-category-sheet__thumb .mobile-category-sheet__icon-image {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+  }
+
   .mobile-category-sheet__rail-item.is-active {
     border-right-color: #2563eb;
     background: #fff;
