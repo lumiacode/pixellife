@@ -180,6 +180,16 @@ router.get("/", async (req, res) => {
           ],
         };
         filter.$and = Array.isArray(filter.$and) ? [...filter.$and, consoleProducts] : [consoleProducts];
+      } else if (normalizedCategory === "موبایل") {
+        // نام دسته در محصولات قدیمی همیشه یکسان نیست. گوشی‌های واقعی را از
+        // روی عنوان مدل هم پیدا می‌کنیم، بدون اینکه لوازم جانبی وارد این لیست شوند.
+        const mobileProducts = {
+          $or: [
+            { category: categoryPattern(category) },
+            { name: { $regex: "^(?:گوشی\\s*موبایل|iphone|آیفون|ایفون|سامسونگ\\s*galaxy|samsung\\s*galaxy|شیائومی\\s*(?:mi|redmi|poco)?|xiaomi\\s*(?:mi|redmi|poco)?|redmi|poco)", $options: "i" } },
+          ],
+        };
+        filter.$and = Array.isArray(filter.$and) ? [...filter.$and, mobileProducts] : [mobileProducts];
       } else {
         filter.category = categoryPattern(category);
       }
