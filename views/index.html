@@ -1244,6 +1244,16 @@
         background: var(--bg);
       }
 
+      /* جایگاه خالی بنر لوازم جانبی موبایل — تصویر بعداً افزوده می‌شود. */
+      .accessories-banner-slot {
+        height: 400px;
+        margin: 0 0 40px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--white);
+        overflow: hidden;
+      }
+
       .hero-slider-track {
         /* ترتیب فیزیکی اسلایدها باید مستقل از RTL باشد. */
         direction: ltr;
@@ -1929,6 +1939,13 @@
           min-height: 0;
           border-radius: 18px;
         }
+        .accessories-banner-slot {
+          height: auto;
+          aspect-ratio: 1.65 / 1;
+          min-height: 0;
+          margin-bottom: 28px;
+          border-radius: 18px;
+        }
         .hero-slide,
         .hero-slide > img {
           height: 100% !important;
@@ -2574,6 +2591,9 @@
           </p>
         </div>
       </section>
+
+      <!-- جایگاه خالی بنر لوازم جانبی موبایل؛ فعلاً بدون تصویر و لینک -->
+      <section class="accessories-banner-slot" aria-label="جایگاه بنر لوازم جانبی موبایل"></section>
 
       <!-- ═══ PRODUCT GRID (لوازم جانبی موبایل) ═══ -->
       <section class="product-section" aria-labelledby="mobileAccessoriesTitle">
