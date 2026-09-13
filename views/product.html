@@ -7375,7 +7375,7 @@
             specsToggleBtn.addEventListener("click", () => {
               expanded = !expanded;
               document
-                .querySelectorAll("#specsTableWrap .hidden-spec")
+                .querySelectorAll("#fullSpecsSection .hidden-spec")
                 .forEach(
                   (row) => (row.style.display = expanded ? "grid" : "none"),
                 );
