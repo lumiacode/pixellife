@@ -8111,36 +8111,47 @@
 </style>
 
 <style id="product-gallery-larger-safe">
-/* گالری طبیعی: تصویر بدون برش، کشیدگی یا فضای خالی اضافی. */
+/* قوانین گالری دسکتاپ: بندانگشتی‌ها بلافاصله پس از تصویر، ابزارها در حاشیهٔ بیرونی. */
 @media (min-width: 769px) {
   .product-layout {
     grid-template-columns: minmax(0, 1.16fr) minmax(0, 1.34fr);
     gap: 30px;
   }
   .product-gallery {
-    padding-right: 0;
-    transform: translateX(28px);
+    padding-right: 48px;
+    transform: translateX(48px);
+    gap: 8px;
   }
   .gallery-main {
-    min-height: 620px;
+    min-height: 0;
+    height: auto;
     padding: 0;
-    box-sizing: content-box;
+    overflow: visible;
   }
   .gallery-main svg,
   .gallery-main img {
     max-width: 100% !important;
-    max-height: 720px !important;
+    max-height: 630px !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
+    transform: scale(1.06) !important;
+    transform-origin: top center !important;
   }
-  /* نشان وضعیت در بالا می‌ماند؛ دکمه‌های علاقه‌مندی و اشتراک‌گذاری زیر آن‌اند. */
+  .gallery-main:hover svg,
+  .gallery-main:hover img {
+    transform: scale(1.06) !important;
+  }
   .gallery-actions {
-    top: 96px !important;
-    right: 16px !important;
+    top: 10px !important;
+    right: 0 !important;
+    flex-direction: column;
   }
   #galleryImgHolder {
     margin-bottom: 0 !important;
+  }
+  .gallery-thumbs {
+    margin-top: 0 !important;
   }
 }
 @media (max-width: 768px) {
