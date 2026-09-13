@@ -577,3 +577,31 @@
   }
 
 }
+
+@media (max-width: 768px) {
+  /* لینک‌های تصویری پلی‌استیشن و ایکس‌باکس در کشوی دسته‌بندی */
+  .mobile-category-sheet__console-logo-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 8px 0 4px;
+  }
+  .mobile-category-sheet__console-logo-link {
+    min-height: 82px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background: #f8fbff;
+  }
+  .mobile-category-sheet__console-logo-link img {
+    width: 54px;
+    height: 54px;
+    display: block;
+    object-fit: contain;
+  }
+  .mobile-category-sheet__console-logo-link:active {
+    border-color: #2563eb;
+    background: #eff6ff;
+  }
+}
