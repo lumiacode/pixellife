@@ -8110,6 +8110,32 @@
 }
 </style>
 
+<style id="product-gallery-larger-safe">
+/* بزرگ‌تر شدن واقعی گالری، بدون زوم/برش و با فضای امن برای کنترل‌ها. */
+@media (min-width: 769px) {
+  .product-layout {
+    grid-template-columns: minmax(0, 1.16fr) minmax(0, 1.34fr);
+    gap: 30px;
+  }
+  .product-gallery {
+    padding-right: 52px;
+    transform: translateX(28px);
+  }
+  .gallery-main svg,
+  .gallery-main img {
+    max-height: 800px !important;
+  }
+  .gallery-actions {
+    right: 4px !important;
+  }
+}
+@media (max-width: 768px) {
+  body.mobile-product-flow-active .product-gallery {
+    height: clamp(280px, 42dvh, 360px);
+  }
+}
+</style>
+
 <style id="desktop-purchase-price-design">
 @media (min-width: 769px) {
   .desktop-purchase-price {
