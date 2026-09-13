@@ -155,6 +155,14 @@ router.get("/", async (req, res) => {
         "samsung": "سامسونگ|samsung",
         "شیائومی": "شیائومی|xiaomi",
         "xiaomi": "شیائومی|xiaomi",
+        "سونی": "سونی|sony|play\\s*station|پلی[‌\\s-]*استیشن|ps\\s*[45]",
+        "sony": "سونی|sony|play\\s*station|پلی[‌\\s-]*استیشن|ps\\s*[45]",
+        "playstation": "سونی|sony|play\\s*station|پلی[‌\\s-]*استیشن|ps\\s*[45]",
+        "ps": "سونی|sony|play\\s*station|پلی[‌\\s-]*استیشن|ps\\s*[45]",
+        "ایکس باکس": "ایکس[‌\\s-]*باکس|xbox|microsoft",
+        "ایکس‌باکس": "ایکس[‌\\s-]*باکس|xbox|microsoft",
+        "xbox": "ایکس[‌\\s-]*باکس|xbox|microsoft",
+        "microsoft": "ایکس[‌\\s-]*باکس|xbox|microsoft",
       };
       const requestedBrand = normalizeText(brand).toLowerCase();
       filter.brand = { $regex: brandAliases[requestedBrand] || normalizeText(brand), $options: "i" };
