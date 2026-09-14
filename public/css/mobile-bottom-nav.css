@@ -611,14 +611,14 @@
 @media (max-width: 768px) {
   .mobile-bottom-nav {
     overflow: visible;
-    background: rgba(9, 16, 30, .96);
-    border-top: 1px solid rgba(255, 255, 255, .12);
-    box-shadow: 0 -10px 30px rgba(15, 23, 42, .22);
+    background: #1b1b1b;
+    border-top: 1px solid #353535;
+    box-shadow: 0 -8px 22px rgba(0, 0, 0, .28);
   }
 
   .mobile-bottom-nav__item {
     overflow: visible;
-    color: rgba(203, 213, 225, .62);
+    color: rgba(255, 255, 255, .58);
     transition: color .22s ease;
   }
 
@@ -675,6 +675,6 @@
   }
 
   .mobile-bottom-nav__badge {
-    border-color: #0b1020;
+    border-color: #1b1b1b;
   }
 }
