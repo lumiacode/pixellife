@@ -2,6 +2,17 @@
   const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
   if (!isMobileViewport) return;
 
+  // Samsung Internet و مرورگرهای سازگار، نوار رابط مرورگر را از theme-color می‌خوانند.
+  // آن را با نوار ثابت پایین فروشگاه یک‌رنگ نگه می‌داریم.
+  const browserChromeColor = "#1b1b1b";
+  let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (!themeColorMeta) {
+    themeColorMeta = document.createElement("meta");
+    themeColorMeta.name = "theme-color";
+    document.head.appendChild(themeColorMeta);
+  }
+  themeColorMeta.content = browserChromeColor;
+
   // صفحهٔ محصول نوار خرید ثابتِ خودش را دارد؛ ناوبری عمومی پایین اینجا ساخته نشود.
   const isProductPage = /^\/product(?:\/|$)/.test(window.location.pathname);
   if (isProductPage) return;
