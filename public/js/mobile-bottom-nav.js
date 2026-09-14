@@ -48,6 +48,63 @@
 
   if (!nav) return;
 
+  // نوار پایین با حرکت رو به پایین جمع می‌شود و با اولین اسکرول رو به بالا برمی‌گردد.
+  // آستانهٔ کوچک، لرزش‌های ریزِ لمس و جهش نوار مرورگر را نادیده می‌گیرد.
+  let lastScrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+  let scrollDirection = 0;
+  let scrollDistance = 0;
+  let scrollTicking = false;
+
+  const showBottomNav = () => nav.classList.remove("is-scroll-hidden");
+  const setBottomNavVisibilityFromScroll = () => {
+    scrollTicking = false;
+    const currentY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+    const delta = currentY - lastScrollY;
+
+    if (
+      document.body.classList.contains("mobile-category-sheet-open") ||
+      currentY <= 12
+    ) {
+      showBottomNav();
+      scrollDistance = 0;
+      scrollDirection = 0;
+      lastScrollY = currentY;
+      return;
+    }
+
+    // تغییرات خیلی جزئی (مثل bounce یا تغییر ارتفاع chrome مرورگر) هیچ اثری ندارند.
+    if (Math.abs(delta) < 2) return;
+
+    const direction = delta > 0 ? 1 : -1;
+    if (direction !== scrollDirection) {
+      scrollDirection = direction;
+      scrollDistance = 0;
+    }
+    scrollDistance += Math.abs(delta);
+
+    if (direction === 1 && currentY > 56 && scrollDistance >= 16) {
+      nav.classList.add("is-scroll-hidden");
+      scrollDistance = 0;
+    } else if (direction === -1 && scrollDistance >= 8) {
+      showBottomNav();
+      scrollDistance = 0;
+    }
+
+    lastScrollY = currentY;
+  };
+
+  window.addEventListener("scroll", () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(setBottomNavVisibilityFromScroll);
+  }, { passive: true });
+
+  // با برگشتن به تب یا تغییر اندازهٔ صفحه، نوار در دسترس باقی می‌ماند.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) showBottomNav();
+  });
+  window.addEventListener("resize", showBottomNav);
+
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
   const isCategoryPath = ["/categories", "/mobiles", "/iphone", "/samsung", "/xiaomi", "/accessories", "/accessories/chargers", "/accessories/apple", "/accessories/samsung", "/accessories/xiaomi", "/ipad", "/tablets", "/samsungtab", "/xiaomitab", "/console", "/headphones", "/smartwatches"].includes(path);
 
@@ -138,6 +195,7 @@
 
   const openCategorySheet = () => {
     if (!categorySheet || !categoryBackdrop) return;
+    showBottomNav();
     window.clearTimeout(categorySheetCloseTimer);
     categorySheetOpenedAt = Date.now();
     categorySheet.classList.remove("is-dragging");
