@@ -2274,6 +2274,138 @@
     .hero-slider-container:has(.hero-slide:only-child) .hero-dots {
       display: none;
     }
+
+    /* نوار دسته‌بندی موبایل — ظاهر spotlight بدون وابستگی به React/Tailwind */
+    @media (max-width: 768px) {
+      .categories-section {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0;
+        overflow: visible;
+        margin: 0 0 28px;
+        padding: 7px 4px 5px;
+        direction: rtl;
+        background: rgba(20, 30, 48, .96);
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 18px;
+        box-shadow: 0 14px 30px rgba(25, 40, 67, .18);
+        isolation: isolate;
+      }
+      .categories-section .category-item {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex: 1 1 20%;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 0;
+        min-height: 62px;
+        padding: 5px 2px 3px;
+        overflow: visible;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .categories-section .category-item::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        right: 50%;
+        width: min(48px, 72%);
+        height: 2px;
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 0 12px rgba(255, 255, 255, .9);
+        transform: translateX(50%) scaleX(0);
+        transition: transform .22s ease;
+      }
+      .categories-section .category-item::after {
+        content: "";
+        position: absolute;
+        top: -17px;
+        right: 50%;
+        width: 45px;
+        height: 64px;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,.32), rgba(255,255,255,0));
+        filter: blur(10px);
+        transform: translateX(50%);
+        transition: opacity .22s ease;
+      }
+      .categories-section .category-circle,
+      .categories-section .category-item:nth-child(-n + 5) .category-circle,
+      .categories-section .category-item:nth-child(-n + 5):hover .category-circle {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        animation: none;
+        transform: none;
+        transition: transform .2s ease, filter .2s ease;
+      }
+      .categories-section .category-icon-image {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        object-fit: contain;
+        filter: saturate(.96) brightness(1.08);
+      }
+      .categories-section .category-title,
+      .categories-section .category-item:nth-child(-n + 5):hover .category-title {
+        position: relative;
+        z-index: 1;
+        max-width: 100%;
+        overflow: hidden;
+        color: rgba(255, 255, 255, .7);
+        font-size: 10px;
+        line-height: 1.2;
+        font-weight: 700;
+        text-align: center;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: color .2s ease;
+      }
+      .categories-section .category-item.is-active::before,
+      .categories-section .category-item:active::before,
+      .categories-section .category-item:focus-visible::before {
+        transform: translateX(50%) scaleX(1);
+      }
+      .categories-section .category-item.is-active::after,
+      .categories-section .category-item:active::after,
+      .categories-section .category-item:focus-visible::after {
+        opacity: 1;
+      }
+      .categories-section .category-item.is-active .category-title,
+      .categories-section .category-item:active .category-title,
+      .categories-section .category-item:focus-visible .category-title {
+        color: #fff;
+      }
+      .categories-section .category-item.is-active .category-circle,
+      .categories-section .category-item:active .category-circle,
+      .categories-section .category-item:focus-visible .category-circle {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 3px 7px rgba(255,255,255,.2));
+      }
+    }
+    @media (max-width: 420px) {
+      .categories-section { border-radius: 15px; padding-inline: 2px; }
+      .categories-section .category-item { min-height: 57px; gap: 3px; }
+      .categories-section .category-circle,
+      .categories-section .category-item:nth-child(-n + 5) .category-circle,
+      .categories-section .category-item:nth-child(-n + 5):hover .category-circle,
+      .categories-section .category-icon-image {
+        width: 29px;
+        height: 29px;
+        flex-basis: 29px;
+      }
+      .categories-section .category-title { font-size: 9px; }
+    }
+
 </style>
   <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
   </head>
@@ -4014,6 +4146,34 @@
       });
 
       renderMiniCart();
+    </script>
+
+    <script>
+      // نشانگر نوار دسته‌بندی در موبایل: لمسِ هر دسته، حالت انتخاب‌شده را پیش از رفتن به صفحه نشان می‌دهد.
+      (function () {
+        const categoryBar = document.querySelector(".categories-section");
+        if (!categoryBar) return;
+        const categoryItems = Array.from(categoryBar.querySelectorAll(".category-item"));
+        const mobileQuery = window.matchMedia("(max-width: 768px)");
+
+        function setCategoryActive(item) {
+          categoryItems.forEach((entry) => {
+            const selected = entry === item;
+            entry.classList.toggle("is-active", selected);
+            if (selected) entry.setAttribute("aria-current", "true");
+            else entry.removeAttribute("aria-current");
+          });
+        }
+
+        categoryItems.forEach((item) => {
+          item.addEventListener("click", () => {
+            if (mobileQuery.matches) setCategoryActive(item);
+          });
+        });
+
+        // در صفحهٔ اصلی، اولین دسته به‌عنوان نقطهٔ شروع نوار نمایش داده می‌شود.
+        if (mobileQuery.matches && categoryItems[0]) setCategoryActive(categoryItems[0]);
+      })();
     </script>
     <script src="/auth-modal.js"></script>
     <script src="/js/visit-analytics.js?v=1" defer></script>
