@@ -1827,9 +1827,25 @@
         flex-wrap: wrap;
       }
       .price-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         font-size: 24px;
         font-weight: 800;
         color: var(--text-1);
+      }
+      .discount-price-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        color: #ef4444;
+        font-size: 19px;
+        line-height: 1;
+      }
+      .mobile-purchase-current .discount-price-icon {
+        margin-inline: 4px 0;
+        font-size: 16px;
       }
       .price-value .toman {
         font-size: 13px;
@@ -6629,6 +6645,7 @@
                   <div class="price-value">
                     ${product.price > 0 ? product.price.toLocaleString("fa-IR") : "—"}
                     <span class="toman">تومان</span>
+                    ${discountPct > 0 ? '<i class="ti ti-discount-2 discount-price-icon" aria-label="تخفیف فعال" title="تخفیف فعال"></i>' : ""}
                   </div>
                   ${product.oldPrice > 0 && product.oldPrice > product.price ? `<div class="price-old">${product.oldPrice.toLocaleString("fa-IR")}</div>` : ""}
                   ${discountPct > 0 ? `<div class="price-discount-tag">${discountPct}٪ تخفیف</div>` : ""}
@@ -6683,7 +6700,7 @@
                       ${product.oldPrice > 0 && product.oldPrice > product.price ? `<span class="mobile-purchase-old">${product.oldPrice.toLocaleString("fa-IR")}</span>` : ""}
                       ${discountPct > 0 ? `<span class="mobile-purchase-discount">${discountPct}٪</span>` : ""}
                     </div>
-                    <div class="mobile-purchase-current">${product.price > 0 ? product.price.toLocaleString("fa-IR") : "—"}<span>تومان</span></div>
+                    <div class="mobile-purchase-current">${product.price > 0 ? product.price.toLocaleString("fa-IR") : "—"}<span>تومان</span>${discountPct > 0 ? '<i class="ti ti-discount-2 discount-price-icon" aria-label="تخفیف فعال" title="تخفیف فعال"></i>' : ""}</div>
                   </div>`
             }
           </div>
