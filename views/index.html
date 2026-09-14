@@ -1677,7 +1677,9 @@
       .product-price-meta { display:flex;align-items:center;gap:7px;min-height:20px; }
       .product-price-discount { background:#ef4444;color:#fff!important;border-radius:999px;padding:3px 7px;font-size:10px!important;font-weight:800!important;direction:ltr; }
       .product-price-old { color:#9ca3af!important;font-size:10px!important;font-weight:400!important;text-decoration:line-through;text-decoration-thickness:1px; }
-      .product-price-current { color:var(--text-1)!important;font-size:15px!important;font-weight:700!important; }
+      .product-price-current { color:var(--text-1)!important;font-size:15px!important;font-weight:700!important;display:inline-flex;align-items:center;gap:4px; }
+      .discount-price-icon { display:inline-flex;align-items:center;justify-content:center;color:#ef4444;font-size:17px;line-height:1;vertical-align:middle; }
+      .discount-price-icon::before { font-weight:700; }
 
 
       /* ═══ PIXELLIFE AMAZING OFFERS ═══ */
@@ -3732,7 +3734,7 @@
         const meta = info.discount > 0
           ? `<span class="product-price-meta"><span class="product-price-discount">${info.discount.toLocaleString("fa-IR")}٪</span><span class="product-price-old">${info.original.toLocaleString("fa-IR")}</span></span>`
           : "";
-        return `<div class="${className}">${meta}<span class="product-price-current">${info.final.toLocaleString("fa-IR")} <small>تومان</small></span></div>`;
+        return `<div class="${className}">${meta}<span class="product-price-current">${info.final.toLocaleString("fa-IR")} <small>تومان</small>${info.discount > 0 ? '<i class="ti ti-discount-2 discount-price-icon" aria-label="تخفیف فعال" title="تخفیف فعال"></i>' : ""}</span></div>`;
       }
 
 
