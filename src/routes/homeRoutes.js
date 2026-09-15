@@ -7,6 +7,13 @@ router.get("/", homeController.index);
 router.get("/contact", homeController.contact);
 router.post("/api/contact", homeController.submitContact);
 router.get("/mobiles", homeController.mobiles);
+// یک آدرس اصلی برای کاتالوگ موبایل؛ لینک‌ها و نتایج قدیمی گوگل
+// با ریدایرکت دائمی به همان صفحهٔ واحد منتقل می‌شوند.
+router.get(["/mobile", "/mobile.html", "/mobiles.html"], (req, res) =>
+  res.redirect(301, "/mobiles"),
+);
+router.get("/mobile/samsung", (req, res) => res.redirect(301, "/samsung"));
+router.get("/mobile/xiaomi", (req, res) => res.redirect(301, "/xiaomi"));
 router.get("/categories", homeController.categories);
 router.get("/login", homeController.login);
 router.get("/cart", homeController.cart);
