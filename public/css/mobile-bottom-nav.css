@@ -131,6 +131,17 @@
     transition: color 0.2s ease, transform 0.2s ease;
   }
 
+  /* آیکون اختصاصی سبد خرید، مطابق تصویر ارسالی؛ فقط در ناوبری موبایل. */
+  .mobile-bottom-nav__cart-image {
+    width: 25px;
+    height: 25px;
+    display: block;
+    object-fit: contain;
+    opacity: .62;
+    filter: invert(1);
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
   .mobile-bottom-nav__item.is-active {
     color: #2563eb;
   }
@@ -138,6 +149,10 @@
   .mobile-bottom-nav__item.is-active .mobile-bottom-nav__icon {
     transform: translateY(-1px);
     stroke-width: 2.2;
+  }
+  .mobile-bottom-nav__item.is-active .mobile-bottom-nav__cart-image {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.04);
   }
 
   .mobile-bottom-nav__badge {
