@@ -355,7 +355,7 @@ function injectDatabaseCatalog(html) {
   if (html.includes("/js/database-catalog-amazing-v1.js")) return html;
   return html.replace(
     "</body>",
-    '<script src="/js/database-catalog-amazing-v1.js?v=2"></script>\n</body>',
+    '<script src="/js/database-catalog-amazing-v1.js?v=3"></script>\n</body>',
   );
 }
 
