@@ -2196,6 +2196,81 @@
       .hero-nav-btn.next { right: 66px; }
     }
 
+    /* بنر روشن iPhone Duo — به‌عنوان اسلاید جدا حفظ می‌شود. */
+    .hero-slide.iphone-duo-hero {
+      position: relative;
+      display: block;
+      padding: 0;
+      overflow: hidden;
+      background: #edf1ff;
+    }
+    .iphone-duo-hero picture,
+    .iphone-duo-hero picture img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .iphone-duo-hero picture img {
+      object-fit: cover;
+      object-position: center;
+    }
+    .iphone-duo-copy {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: clamp(32px, 7vw, 128px);
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      direction: rtl;
+      color: #263654;
+      text-align: right;
+      text-shadow: 0 1px 14px rgba(255,255,255,.72);
+    }
+    .iphone-duo-copy strong {
+      direction: ltr;
+      font-size: clamp(36px, 4.25vw, 68px);
+      font-weight: 800;
+      letter-spacing: -.055em;
+      line-height: .95;
+      color: #263b63;
+    }
+    .iphone-duo-copy > span {
+      font-size: clamp(14px, 1.35vw, 21px);
+      font-weight: 700;
+      color: #536987;
+    }
+    .iphone-duo-copy b {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 7px;
+      padding: 10px 16px;
+      border: 1px solid rgba(79,111,172,.2);
+      border-radius: 999px;
+      background: rgba(255,255,255,.68);
+      box-shadow: 0 8px 24px rgba(80,107,157,.12);
+      color: #365d9d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    @media (max-width: 768px) {
+      .iphone-duo-copy {
+        top: 47%;
+        left: 22px;
+        gap: 6px;
+      }
+      .iphone-duo-copy strong { font-size: clamp(27px, 9vw, 39px); }
+      .iphone-duo-copy > span { font-size: 12px; }
+      .iphone-duo-copy b {
+        margin-top: 4px;
+        padding: 7px 11px;
+        font-size: 11px;
+      }
+    }
+
     /* بنر آبشار آیفون — تصویر اختصاصی برای دسکتاپ و موبایل */
     .hero-slide.iphone-waterfall-hero {
       position: relative;
@@ -2625,6 +2700,19 @@
         <div class="hero-slider-container" id="heroSlider">
           <div class="hero-slider-track" id="heroTrack">
             
+            <!-- اسلاید اول: آیفون Duo -->
+            <a class="hero-slide iphone-duo-hero" href="/mobiles" aria-label="مشاهده محصولات آیفون Duo">
+              <picture>
+                <source media="(max-width: 768px)" srcset="/images/iphone-duo-hero-mobile.jpg" />
+                <img src="/images/iphone-duo-hero-desktop.jpg" alt="آیفون Duo؛ نسل تازه‌ای از تجربهٔ اپل" fetchpriority="high" decoding="async">
+              </picture>
+              <span class="iphone-duo-copy">
+                <strong>iPhone Duo</strong>
+                <span>یک تجربهٔ تازه، در یک فرم متفاوت</span>
+                <b>مشاهده محصولات <i class="ti ti-arrow-left"></i></b>
+              </span>
+            </a>
+
             <!-- اسلاید اول: آیفون نارنجی در آبشار؛ تصویر اختصاصی برای هر اندازهٔ نمایش -->
             <a class="hero-slide iphone-waterfall-hero" href="/mobiles" aria-label="مشاهده محصولات آیفون">
               <picture>
@@ -2632,7 +2720,7 @@
                 <img src="/images/iphone-waterfall-hero-desktop.png" alt="آیفون نارنجی در کنار آبشار" fetchpriority="high" decoding="async">
               </picture>
               <span class="iphone-waterfall-copy">
-                <strong>iPhone 18 Pro Max</strong>
+                <strong>iPhone 17 Pro Max</strong>
                 <span>قدرتی تازه، در رنگی متفاوت</span>
                 <b>مشاهده محصولات <i class="ti ti-arrow-left"></i></b>
               </span>
