@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const ContactMessage = require("../models/ContactMessage");
+const Product = require("../models/Product");
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const viewCache = new Map();
@@ -383,7 +384,65 @@ function sendViewWithEnamad(res, fileName) {
   }
 }
 
-function sendSpecialCatalogView(res, options) {
+function escapeCatalogText(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function normalizeCatalogImage(value) {
+  const image = String(value || "").trim();
+  if (!image) return "/images/product-placeholder.svg";
+  if (/^(?:https?:\/\/|data:)/i.test(image)) return image;
+  return "/" + image.replace(/^\/?(?:public\/)?/, "");
+}
+
+function renderServerCatalogCard(product) {
+  const name = escapeCatalogText(product.name);
+  const brand = escapeCatalogText(product.brand);
+  const slug = encodeURIComponent(String(product.slug || ""));
+  const stock = Math.max(0, Number(product.stock) || 0);
+  const outOfStock = product.availability === "out" || stock <= 0;
+  const image = normalizeCatalogImage(product.mainImage || (Array.isArray(product.images) && product.images[0]));
+  const originalPrice = Math.max(0, Number(product.price) || 0);
+  const discount = Math.min(99, Math.max(0, Number(product.discount) || 0));
+  const finalPrice = discount > 0 ? Math.round(originalPrice * (100 - discount) / 100) : originalPrice;
+  const status = outOfStock
+    ? '<span class="pl-catalog-status out"><i class="ti ti-circle-x"></i> ناموجود</span>'
+    : '<span class="pl-catalog-status in"><i class="ti ti-circle-check"></i> موجود</span>';
+  const price = outOfStock
+    ? ""
+    : '<div class="pl-catalog-prices"><span class="pl-catalog-price">' +
+      finalPrice.toLocaleString("fa-IR") + " تومان</span></div>";
+  return '<a href="/product?id=' + slug + '" class="iphone-card pl-catalog-card" data-stock="' +
+    stock + '" style="color:inherit;text-decoration:none;position:relative">' +
+    '<div class="iphone-card-image"><img src="' + escapeCatalogText(image) + '" alt="' + name +
+    '" loading="lazy" decoding="async"></div><div class="iphone-card-body pl-catalog-body">' +
+    '<div class="pl-catalog-brand">' + brand + '</div><div class="iphone-card-name">' + name +
+    '</div><div class="pl-catalog-footer"><div class="pl-catalog-stock">' + status +
+    "</div>" + price + "</div></div></a>";
+}
+
+async function loadMobileCatalogFallback() {
+  try {
+    const category = /^\s*(?:موبایل|mobile|گوشی موبایل|گوشی|phone|آیفون|ایفون|iphone|گوشی اپل|apple phone)\s*$/i;
+    const name = /^(?!.*(?:ipad|آیپد|ایپد|tablet|تبلت|galaxy\s*tab|xiaomi\s*pad|redmi\s*pad))(?:گوشی\s*موبایل|iphone|آیفون|ایفون|سامسونگ\s*galaxy|samsung\s*galaxy|شیائومی\s*(?:mi|redmi|poco)?|xiaomi\s*(?:mi|redmi|poco)?|redmi|poco)/i;
+    const products = await Product.find({ $or: [{ category }, { name }] })
+      .select("name slug brand price discount availability images mainImage stock createdAt")
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean();
+    return products.map(renderServerCatalogCard).join("");
+  } catch (error) {
+    console.error("Mobile catalog server fallback error:", error);
+    return "";
+  }
+}
+
+async function sendSpecialCatalogView(res, options) {
   // صفحهٔ هدفون و ساعت با همان قالب کامل آیفون رندر می‌شود: هدر، ورود،
   // سبد خرید و کارت‌ها دقیقاً با صفحات اصلی فروشگاه هم‌ظاهر هستند.
   const filePath = path.join(__dirname, "../../views/iphone.html");
@@ -405,6 +464,18 @@ function sendSpecialCatalogView(res, options) {
         html.slice(0, gridStart) +
         '<div class="iphone-grid" aria-live="polite"></div>\n      ' +
         html.slice(gridEnd);
+    }
+
+    // صفحهٔ موبایل از ابتدا کارت‌های دیتابیس را داخل HTML دارد. اسکریپت
+    // مرورگر آن‌ها را ارتقا می‌دهد، اما شکست یا کش قدیمی دیگر صفحه را خالی نمی‌کند.
+    if (options.slug === "mobiles") {
+      const serverCards = await loadMobileCatalogFallback();
+      if (serverCards) {
+        html = html.replace(
+          '<div class="iphone-grid" aria-live="polite"></div>',
+          '<div class="iphone-grid" aria-live="polite" style="visibility:visible">' + serverCards + "</div>",
+        );
+      }
     }
 
     html = html
