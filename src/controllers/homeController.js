@@ -7,7 +7,7 @@ const viewCache = new Map();
 
 // با هر انتشار، URL فایل‌های CSS و JS عوض می‌شود تا مرورگری که نسخهٔ
 // قدیمی را با قانون کش قبلی نگه داشته نیز ناچار به دریافت نسخهٔ تازه باشد.
-const ASSET_REVISION = "20260913-chatbot-icon-only";
+const ASSET_REVISION = "20260915-mobile-catalog-cache-fix";
 
 function injectAssetRevision(html) {
   return html.replace(
@@ -382,7 +382,7 @@ function sendSpecialCatalogView(res, options) {
   // صفحهٔ هدفون و ساعت با همان قالب کامل آیفون رندر می‌شود: هدر، ورود،
   // سبد خرید و کارت‌ها دقیقاً با صفحات اصلی فروشگاه هم‌ظاهر هستند.
   const filePath = path.join(__dirname, "../../views/iphone.html");
-  const key = `special-catalog:${options.slug}`;
+  const key = `special-catalog:${options.slug}:${ASSET_REVISION}`;
 
   try {
     res.set("Cache-Control", "no-cache, max-age=0, must-revalidate");
