@@ -3,7 +3,8 @@
   const configs = {
     "/headphones": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", category: "هدفون و هندزفری", title: "هدفون و هندزفری", noFallback: true },
     "/smartwatches": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", category: "ساعت هوشمند", title: "ساعت هوشمند", noFallback: true },
-    "/mobiles": { grid: ".grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", category: "موبایل", title: "همه محصولات موبایل", noFallback: true },
+    // مسیر /mobiles با قالب مشترک iphone.html رندر می‌شود؛ گرید درست همان .iphone-grid است.
+    "/mobiles": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", category: "موبایل", title: "همه محصولات موبایل", noFallback: true },
     "/iphone": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", brand: "اپل", category: "موبایل", noFallback: true },
     "/mobile/apple": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", brand: "اپل", category: "موبایل", noFallback: true },
     "/samsung": { grid: ".samsung-grid", card: "samsung-card", name: "samsung-card-name", image: "samsung-card-image", body: "samsung-card-body", desc: "samsung-card-desc", brand: "سامسونگ", category: "موبایل", noFallback: true },
