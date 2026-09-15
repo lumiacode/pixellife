@@ -352,11 +352,16 @@ function injectDatabaseCatalog(html) {
     "",
   );
 
-  if (html.includes("/js/database-catalog-amazing-v1.js")) return html;
-  return html.replace(
-    "</body>",
-    '<script src="/js/database-catalog-amazing-v1.js?v=3"></script>\n</body>',
-  );
+  // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
+  // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=4"></script>';
+  if (html.includes("/js/database-catalog-amazing-v1.js")) {
+    return html.replace(
+      /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
+      catalogScript,
+    );
+  }
+  return html.replace("</body>", catalogScript + "\n</body>");
 }
 
 function sendViewWithEnamad(res, fileName) {
