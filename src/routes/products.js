@@ -72,7 +72,7 @@ function categoryPattern(category) {
       "گوشی اپل",
       "apple phone",
     ],
-    "تبلت": ["تبلت", "tablet"],
+    "تبلت": ["تبلت", "tablet", "آیپد", "ایپد", "ipad", "ipad pro", "galaxy tab", "xiaomi pad", "redmi pad"],
     "لوازم جانبی موبایل": ["لوازم جانبی موبایل", "mobile accessories", "accessories", "کابل، شارژر و آداپتور", "کابل شارژ و آداپتور", "کابل و شارژر", "chargers", "cables", "chargers and adapters"],
     "کابل، شارژر و آداپتور": ["کابل، شارژر و آداپتور", "کابل شارژ و آداپتور", "کابل و شارژر", "chargers", "cables", "chargers and adapters"],
     // محصولات کنسول در پنل‌های مختلف با نام‌های متفاوتی ثبت شده‌اند. همهٔ
@@ -91,9 +91,14 @@ function categoryPattern(category) {
       "ps5",
       "console",
       "gaming console",
+      "xbox",
+      "microsoft xbox",
+      "ایکس باکس",
+      "ایکس‌باکس",
+      "مایکروسافت ایکس‌باکس",
     ],
-    "هدفون و هندزفری": ["هدفون و هندزفری", "هدفون", "هندزفری", "headphones"],
-    "ساعت هوشمند": ["ساعت هوشمند", "smartwatch", "smart watch"],
+    "هدفون و هندزفری": ["هدفون و هندزفری", "هدفون", "هندزفری", "هدفون بلوتوثی", "هندزفری بلوتوثی", "ایرپاد", "airpods", "headphones", "earphones", "earbuds"],
+    "ساعت هوشمند": ["ساعت هوشمند", "ساعت", "اپل واچ", "apple watch", "گلکسی واچ", "galaxy watch", "smartwatch", "smart watch"],
   };
   const values = aliases[normalized] || [normalized];
   const escaped = values.map((value) => value.replace(/[.*+?^$()|[\]\\]/g, "\\$&"));
@@ -186,7 +191,7 @@ router.get("/", async (req, res) => {
         const mobileProducts = {
           $or: [
             { category: categoryPattern(category) },
-            { name: { $regex: "^(?:گوشی\\s*موبایل|iphone|آیفون|ایفون|سامسونگ\\s*galaxy|samsung\\s*galaxy|شیائومی\\s*(?:mi|redmi|poco)?|xiaomi\\s*(?:mi|redmi|poco)?|redmi|poco)", $options: "i" } },
+            { name: { $regex: "^(?!.*(?:ipad|آیپد|ایپد|tablet|تبلت|galaxy\\s*tab|xiaomi\\s*pad|redmi\\s*pad))(?:گوشی\\s*موبایل|iphone|آیفون|ایفون|سامسونگ\\s*galaxy|samsung\\s*galaxy|شیائومی\\s*(?:mi|redmi|poco)?|xiaomi\\s*(?:mi|redmi|poco)?|redmi|poco)", $options: "i" } },
           ],
         };
         filter.$and = Array.isArray(filter.$and) ? [...filter.$and, mobileProducts] : [mobileProducts];
