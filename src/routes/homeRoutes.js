@@ -9,9 +9,13 @@ router.post("/api/contact", homeController.submitContact);
 router.get("/mobiles", homeController.mobiles);
 // یک آدرس اصلی برای کاتالوگ موبایل؛ لینک‌ها و نتایج قدیمی گوگل
 // با ریدایرکت دائمی به همان صفحهٔ واحد منتقل می‌شوند.
-router.get(["/mobile", "/mobile.html", "/mobiles.html"], (req, res) =>
-  res.redirect(301, "/mobiles"),
-);
+router.get(["/mobile", "/mobile.html", "/mobiles.html"], (req, res) => {
+  // لینک‌های قدیمی گوگل و لینک‌های تازهٔ نوار دسته‌بندی باید دقیقاً به
+  // یک کاتالوگ برسند؛ QueryString هم برای فیلترها حفظ می‌شود.
+  const queryIndex = req.originalUrl.indexOf("?");
+  const query = queryIndex === -1 ? "" : req.originalUrl.slice(queryIndex);
+  res.redirect(301, `/mobiles${query}`);
+});
 router.get("/mobile/samsung", (req, res) => res.redirect(301, "/samsung"));
 router.get("/mobile/xiaomi", (req, res) => res.redirect(301, "/xiaomi"));
 router.get("/categories", homeController.categories);

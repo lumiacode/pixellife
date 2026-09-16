@@ -8,7 +8,7 @@ const viewCache = new Map();
 
 // با هر انتشار، URL فایل‌های CSS و JS عوض می‌شود تا مرورگری که نسخهٔ
 // قدیمی را با قانون کش قبلی نگه داشته نیز ناچار به دریافت نسخهٔ تازه باشد.
-const ASSET_REVISION = "20260915-mobile-catalog-cache-fix";
+const ASSET_REVISION = "20260915-mobile-catalog-and-hero-fit";
 
 function injectAssetRevision(html) {
   return html.replace(
@@ -127,6 +127,12 @@ const MOBILE_HERO_FIX = `
       display: block !important;
       object-fit: cover !important;
       object-position: center !important;
+    }
+
+    /* تصویر عمودی قبلیِ آیفون ۱۷ در قاب افقی اسلایدر بریده می‌شد.
+       نسخهٔ عریض بنر فضای لازم برای گوشی و متن را در موبایل حفظ می‌کند. */
+    .hero-slide.iphone-waterfall-hero img {
+      object-position: 36% center !important;
     }
 
     .hero-nav-btn {
