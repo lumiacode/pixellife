@@ -32,7 +32,7 @@
             <span>دسته‌بندی‌ها</span>
           </button>
           <a class="mobile-bottom-nav__item" data-nav="cart" href="/cart" aria-label="سبد خرید">
-            <img class="mobile-bottom-nav__cart-image" src="/images/mobile-cart-icon.png" alt="" aria-hidden="true" />
+            <img class="mobile-bottom-nav__cart-image mobile-bottom-nav__cart-icon" src="/images/cart-icon.png?v=1" alt="" aria-hidden="true" />
             <span class="mobile-bottom-nav__badge" data-mobile-cart-count>0</span>
             <span>سبد خرید</span>
           </a>

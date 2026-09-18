@@ -141,6 +141,9 @@
     filter: invert(1);
     transition: opacity .2s ease, transform .2s ease;
   }
+  .mobile-bottom-nav__cart-icon {
+    object-fit: contain;
+  }
 
   .mobile-bottom-nav__item.is-active {
     color: #2563eb;

@@ -31,7 +31,8 @@ app.set("trust proxy", 1);
 // =======================
 // Middleware
 // =======================
-/*
+//شروع به روز رسانی
+
 app.use(cors());
 app.use(compression({ threshold: 1024 }));
 
@@ -145,7 +146,9 @@ app.use((req, res, next) => {
     </html>
   `);
 });
-*/
+
+//پایان بستن  به روز رسانی
+
 // فایل‌های عمومی سایت (اسکریپت لیست دسته‌بندی‌ها، CSS، عکس‌ها و فونت‌ها)
 app.use(
   express.static(path.join(__dirname, "../public"), {
@@ -161,10 +164,7 @@ app.use(
       } else if (/\.(?:css|js)$/i.test(filePath)) {
         // تغییرات ظاهری و منطق سایت باید در همهٔ مرورگرها بلافاصله
         // اعتبارسنجی شوند؛ ETag فقط در صورت تغییر، نسخهٔ تازه را دانلود می‌کند.
-        res.setHeader(
-          "Cache-Control",
-          "no-cache, max-age=0, must-revalidate",
-        );
+        res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
       }
     },
   }),
@@ -192,7 +192,10 @@ const productRoutes = require("./routes/products");
 const productPageRoutes = require("./routes/productPage");
 const testEmailRoutes = require("./routes/testEmail");
 const aiAssistantRoutes = require("./routes/aiAssistant");
-const { router: balePaymentRoutes, configureWebhook: configureBaleWebhook } = require("./routes/balePayments");
+const {
+  router: balePaymentRoutes,
+  configureWebhook: configureBaleWebhook,
+} = require("./routes/balePayments");
 
 // Home Page
 app.use("/", homeRoutes);

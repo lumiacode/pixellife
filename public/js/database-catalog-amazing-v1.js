@@ -61,6 +61,17 @@
     document.head.appendChild(style);
   }
 
+  // The previous loading state occupied only one short row. Replacing it with
+  // a full catalog after the API returned changed document height by thousands
+  // of pixels and made a user's active scroll jump. These placeholders reserve
+  // the same grid geometry before any network request completes.
+  if (!document.getElementById("database-catalog-skeleton-style")) {
+    const style = document.createElement("style");
+    style.id = "database-catalog-skeleton-style";
+    style.textContent = ".pl-catalog-skeleton{box-sizing:border-box;min-height:453px;padding:12px;background:#fff;border-inline-end:1px solid #e5e7eb;border-block-end:1px solid #e5e7eb;overflow:hidden}.pl-catalog-skeleton__image{height:250px;margin:44px 0 12px;border-radius:10px;background:linear-gradient(110deg,#f1f5f9 25%,#f8fafc 37%,#f1f5f9 63%);background-size:200% 100%;animation:pl-catalog-skeleton-shimmer 1.5s linear infinite}.pl-catalog-skeleton__line{height:14px;margin:9px 2px;border-radius:999px;background:#e8eef5}.pl-catalog-skeleton__line--short{width:58%}.pl-catalog-skeleton__footer{height:40px;margin:16px 2px 0;border-top:1px solid #f1f5f9;background:linear-gradient(90deg,#eef2f7 38%,transparent 38%);background-size:100% 12px;background-repeat:no-repeat;background-position:center}@keyframes pl-catalog-skeleton-shimmer{to{background-position:-200% 0}}@media(max-width:640px){.pl-catalog-skeleton{min-height:370px;padding:10px}.pl-catalog-skeleton__image{height:205px;margin-top:32px;margin-bottom:10px}.pl-catalog-skeleton__line{height:12px;margin-top:8px}.pl-catalog-skeleton__footer{height:34px;margin-top:12px}}@media(prefers-reduced-motion:reduce){.pl-catalog-skeleton__image{animation:none}}";
+    document.head.appendChild(style);
+  }
+
   if (isAccessoryCatalog && !document.getElementById("accessory-catalog-card-style")) {
     const style = document.createElement("style");
     style.id = "accessory-catalog-card-style";
@@ -335,8 +346,8 @@
   const fallbackHtml = grid.innerHTML;
   grid.dataset.databaseCatalog = "loading";
   grid.setAttribute("aria-busy", "true");
-  grid.innerHTML =
-    '<div class="pl-catalog-loading" role="status">در حال بارگذاری محصولات…</div>';
+  const loadingCard = '<div class="pl-catalog-skeleton" aria-hidden="true"><div class="pl-catalog-skeleton__image"></div><div class="pl-catalog-skeleton__line pl-catalog-skeleton__line--short"></div><div class="pl-catalog-skeleton__line"></div><div class="pl-catalog-skeleton__footer"></div></div>';
+  grid.innerHTML = Array.from({ length: Number(params.get("limit")) || 24 }, () => loadingCard).join("");
   grid.style.visibility = "visible";
 
   const catalogRequestController = new AbortController();
