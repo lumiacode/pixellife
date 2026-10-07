@@ -8,7 +8,7 @@ const viewCache = new Map();
 
 // با هر انتشار، URL فایل‌های CSS و JS عوض می‌شود تا مرورگری که نسخهٔ
 // قدیمی را با قانون کش قبلی نگه داشته نیز ناچار به دریافت نسخهٔ تازه باشد.
-const ASSET_REVISION = "20260915-mobile-catalog-and-hero-fit";
+const ASSET_REVISION = "20261007-enamad-8068827";
 
 function injectAssetRevision(html) {
   return html.replace(
@@ -41,9 +41,9 @@ function sendCachedHtml(res, cacheKey, render) {
 }
 
 const ENAMAD_URL =
-  "https://trustseal.enamad.ir/?id=7320810&Code=NumFm2BnHAPz2uqVZohNfj7I6jfqOEE5";
+  "https://trustseal.enamad.ir/?id=8068827&Code=0B0VgW3sROcQLgvl70GMahis42xHXryh";
 const ENAMAD_LOGO =
-  "https://trustseal.enamad.ir/logo.aspx?id=7320810&Code=NumFm2BnHAPz2uqVZohNfj7I6jfqOEE5";
+  "https://trustseal.enamad.ir/logo.aspx?id=8068827&Code=0B0VgW3sROcQLgvl70GMahis42xHXryh";
 
 const ENAMAD_STYLE = `
 <style id="shared-enamad-style">
