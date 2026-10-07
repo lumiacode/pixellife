@@ -32,7 +32,7 @@ app.set("trust proxy", 1);
 // Middleware
 // =======================
 //شروع به روز رسانی
-/*
+
 app.use(cors());
 app.use(compression({ threshold: 1024 }));
 
@@ -148,7 +148,7 @@ app.use((req, res, next) => {
 });
 
 //پایان بستن کامنت  به روز رسانی
-*/
+
 // فایل‌های عمومی سایت (اسکریپت لیست دسته‌بندی‌ها، CSS، عکس‌ها و فونت‌ها)
 app.use(
   express.static(path.join(__dirname, "../public"), {
