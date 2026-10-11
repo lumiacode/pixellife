@@ -79,7 +79,7 @@ const ENAMAD_STYLE = `
 const ENAMAD_HTML = `
 <a
   referrerpolicy="origin"
-  target="_blank"
+  target="_self"
   rel="noopener"
   href="${ENAMAD_URL}"
   class="ftrust-enamad"
