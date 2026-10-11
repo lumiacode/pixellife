@@ -10,6 +10,9 @@ const Product = require("../models/Product");
 const { withApprovedReviewStats } = require("../services/reviewStats");
 const { streamProductImage } = require("../utils/productImages");
 
+const catalogResponseCache = new Map();
+const CATALOG_CACHE_TTL_MS = 15_000;
+
 // پیشنهاد شگفت‌انگیز پس از زمان پایان، در خود دیتابیس هم غیرفعال شود.
 async function moveCableAndChargerProductsToAccessories() {
   const mobileCategories = /^(?:موبایل|mobile|گوشی موبایل|گوشی|phone|لوازم جانبی موبایل|mobile accessories|accessories)$/i;
@@ -129,6 +132,13 @@ router.get("/image/:id", (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
+    const cacheKey = req.originalUrl;
+    const cached = catalogResponseCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return res.json(cached.payload);
+    }
+    if (cached) catalogResponseCache.delete(cacheKey);
+
     const filter = {};
     const { brand, category, featured, amazing, exclude, limit, sort, search } = req.query;
 
@@ -216,7 +226,9 @@ router.get("/", async (req, res) => {
     const order = sort === "price-asc" ? { price: 1 } : sort === "price-desc" ? { price: -1 } : { amazingOffer: -1, featured: -1, createdAt: -1 };
     const products = await Product.find(filter).select(PRODUCT_CARD_FIELDS).sort(order).limit(safeLimit(limit)).lean();
 
-    res.json({ success: true, products: await withApprovedReviewStats(products.map(serializeProduct)) });
+    const payload = { success: true, products: await withApprovedReviewStats(products.map(serializeProduct)) };
+    catalogResponseCache.set(cacheKey, { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, payload });
+    res.json(payload);
   } catch (error) {
     console.error("Products catalog error:", error);
     res.status(500).json({ success: false, message: error.message });
