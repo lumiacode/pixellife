@@ -79,7 +79,7 @@ const ENAMAD_STYLE = `
 const ENAMAD_HTML = `
 <a
   referrerpolicy="origin"
-  target="_self"
+  target="_blank"
   rel="noopener"
   href="${ENAMAD_URL}"
   class="ftrust-enamad"
@@ -88,7 +88,7 @@ const ENAMAD_HTML = `
   <img
     referrerpolicy="origin"
     src="${ENAMAD_LOGO}"
-    alt="نماد اعتماد الکترونیکی"
+    alt=""
     width="120"
     height="50"
     style="cursor: pointer; display: block; max-height: 48px; width: auto;"
