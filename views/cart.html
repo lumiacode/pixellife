@@ -3435,8 +3435,8 @@
               >
                 <i class="ti ti-lock"></i> تکمیل سفارش
               </button>
-              <a href="/" class="btn-continue-shopping"
-                ><i class="ti ti-arrow-right"></i> ادامه خرید</a
+              <a href="#" class="btn-continue-shopping" id="continueToCheckout"
+                ><i class="ti ti-arrow-left"></i> ادامه به پرداخت</a
               >
             </div>
           </aside>
@@ -4136,6 +4136,13 @@
           document.getElementById("checkoutBtn").click();
         });
 
+      document
+        .getElementById("continueToCheckout")
+        .addEventListener("click", (event) => {
+          event.preventDefault();
+          document.getElementById("checkoutBtn").click();
+        });
+
       /* ═══ دکمه تکمیل سفارش ═══ */
       document.getElementById("checkoutBtn").addEventListener("click", async () => {
         const button = document.getElementById("checkoutBtn");
@@ -4171,9 +4178,11 @@
             }),
           });
           const result = await response.json();
+          if (response.status === 401) {
+            openLoginModal();
+            throw new Error("برای ادامه خرید ابتدا وارد حساب کاربری شوید");
+          }
           if (!response.ok || !result.success) throw new Error(result.message || "ثبت سفارش ناموفق بود");
-          cartData = cartData.filter((item) => !item.available);
-          saveCart();
           showToast("در حال انتقال به درگاه پرداخت...");
           const paymentResponse = await fetch("/api/payments/zarinpal/request", {
             method: "POST",
@@ -4182,6 +4191,8 @@
           });
           const payment = await paymentResponse.json();
           if (!paymentResponse.ok || !payment.success || !payment.paymentUrl) throw new Error(payment.message || "ایجاد پرداخت ناموفق بود");
+          cartData = cartData.filter((item) => !item.available);
+          saveCart();
           window.location.href = payment.paymentUrl;
         } catch (error) {
           showToast(error.message || "ثبت سفارش ناموفق بود");
