@@ -9,12 +9,7 @@
     <script>
       (function () {
         try {
-          var saved = localStorage.getItem("theme");
-          var systemDark =
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
-          var theme = saved || (systemDark ? "dark" : "light");
-          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute("data-theme", "light");
         } catch (e) {}
       })();
     </script>
@@ -549,6 +544,17 @@
       .addr-card.is-default {
         border-color: var(--blue);
       }
+      .addr-card.order-clickable { cursor: pointer; transition: var(--transition); }
+      .addr-card.order-clickable:hover { border-color: var(--blue); box-shadow: var(--shadow-sm); }
+      .order-detail { margin-bottom: 18px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); }
+      .order-detail h3 { margin: 0 0 14px; color: var(--text-1); }
+      .order-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .order-detail-item { padding: 12px; background: var(--bg); border-radius: var(--radius-sm); color: var(--text-2); }
+      .order-detail-item strong { display: block; color: var(--text-1); margin-bottom: 5px; }
+      .order-product { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+      .order-product img { width: 58px; height: 58px; object-fit: contain; border-radius: 8px; background: #fff; }
+      .order-back { display: inline-flex; margin-bottom: 12px; color: var(--blue-dark); font-weight: 700; }
+      @media (max-width: 560px) { .order-detail-grid { grid-template-columns: 1fr; } }
       .addr-card-top {
         display: flex;
         align-items: center;
@@ -813,6 +819,7 @@
           <!-- ── سفارش‌ها ── -->
           <section class="p-pane" id="pane-orders">
             <h2 class="p-main-title">سفارش‌های من</h2>
+            <div id="orderDetail" class="order-detail" hidden></div>
             <div id="ordersList"></div>
             <div class="empty-state" id="ordersEmpty" style="display: none">
               <i class="ti ti-shopping-bag"></i>
@@ -946,15 +953,13 @@
       /* ── تم ── */
       const themeToggle = document.getElementById("themeToggle");
       const themeIcon = document.getElementById("themeIcon");
-      function setTheme(t) {
-        document.documentElement.setAttribute("data-theme", t);
-        localStorage.setItem("theme", t);
-        themeIcon.className = t === "dark" ? "ti ti-sun" : "ti ti-moon";
+      function setTheme() {
+        document.documentElement.setAttribute("data-theme", "light");
+        if (themeIcon) themeIcon.className = "ti ti-sun";
       }
-      setTheme(document.documentElement.getAttribute("data-theme") || "light");
+      setTheme();
       themeToggle.addEventListener("click", () => {
-        const cur = document.documentElement.getAttribute("data-theme");
-        setTheme(cur === "dark" ? "light" : "dark");
+        setTheme();
       });
 
       /* ── کمک‌کننده API ── */
@@ -1052,7 +1057,8 @@
           tab === "info"
             ? "/profile"
             : "/profile/" + (tab === "addresses" ? "addresses" : tab);
-        window.history.replaceState(null, "", path);
+        const orderQuery = tab === "orders" ? window.location.search : "";
+        window.history.replaceState(null, "", path + orderQuery);
         if (tab === "orders") loadOrders();
         if (tab === "wishlist") loadWishlist();
       }
@@ -1173,6 +1179,9 @@
       async function loadOrders() {
         const list = document.getElementById("ordersList");
         const empty = document.getElementById("ordersEmpty");
+        const detail = document.getElementById("orderDetail");
+        detail.hidden = true;
+        detail.innerHTML = "";
         list.innerHTML = '<div class="empty-state"><p>در حال دریافت سفارش‌ها...</p></div>';
         try {
           const res = await apiRequest("/api/orders/my", "GET");
@@ -1181,11 +1190,23 @@
           empty.style.display = orders.length ? "none" : "block";
           orders.forEach((order) => {
             const card = document.createElement("div");
-            card.className = "addr-card";
+            card.className = "addr-card order-clickable";
             const date = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(order.createdAt));
             const itemCount = (order.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
             card.innerHTML = `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${order.orderNumber}</span></div><span class="addr-badge">${orderStatusText[order.status] || order.status}</span></div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · مبلغ: ${Number(order.total || 0).toLocaleString("fa-IR")} تومان</div><div class="addr-card-text">${date}</div>`;
             list.appendChild(card);
+          });
+          const selectedId = new URLSearchParams(window.location.search).get("order");
+          const selected = orders.find((order) => String(order._id) === String(selectedId) || order.orderNumber === selectedId);
+          if (selected) {
+            const products = (selected.items || []).map((item) => `<div class="order-product"><img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}"><div><strong>${escapeHtml(item.name)}</strong><div>${Number(item.quantity || 0).toLocaleString("fa-IR")} عدد · ${Number(item.price || 0).toLocaleString("fa-IR")} تومان</div></div></div>`).join("");
+            detail.innerHTML = `<a class="order-back" href="/profile/orders">← بازگشت به سفارش‌ها</a><h3>جزئیات سفارش <span dir="ltr">${escapeHtml(selected.orderNumber)}</span></h3><div class="order-detail-grid"><div class="order-detail-item"><strong>وضعیت سفارش</strong>${orderStatusText[selected.status] || escapeHtml(selected.status)}</div><div class="order-detail-item"><strong>وضعیت پرداخت</strong>${selected.paymentStatus === "paid" ? "پرداخت‌شده" : "در انتظار پرداخت"}</div><div class="order-detail-item"><strong>مبلغ کل</strong>${Number(selected.total || 0).toLocaleString("fa-IR")} تومان</div><div class="order-detail-item"><strong>آدرس ارسال</strong>${escapeHtml([selected.shippingAddress?.province, selected.shippingAddress?.city, selected.shippingAddress?.fullAddress].filter(Boolean).join("، "))}</div></div><h4>محصولات سفارش</h4>${products || "محصولی ثبت نشده است"}`;
+            detail.hidden = false;
+            list.style.display = "none";
+            empty.style.display = "none";
+          }
+          list.querySelectorAll(".order-clickable").forEach((card, index) => {
+            card.addEventListener("click", () => { window.location.href = "/profile/orders?order=" + encodeURIComponent(orders[index]._id); });
           });
         } catch (_) {
           list.innerHTML = '<div class="empty-state"><p>دریافت سفارش‌ها ناموفق بود. صفحه را دوباره بارگذاری کنید.</p></div>';
