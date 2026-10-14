@@ -4160,7 +4160,7 @@
           }
           if (!checkoutAddress) await loadCheckoutAddress();
           if (!checkoutAddress) {
-            window.location.href = "/profile/addresses";
+            window.location.href = "/profile/addresses?return=/cart";
             return;
           }
           const response = await fetch("/api/orders", {
