@@ -4174,8 +4174,15 @@
           if (!response.ok || !result.success) throw new Error(result.message || "ثبت سفارش ناموفق بود");
           cartData = cartData.filter((item) => !item.available);
           saveCart();
-          showToast(`سفارش ${result.order.orderNumber} ثبت شد`);
-          setTimeout(() => { window.location.href = "/profile/orders"; }, 900);
+          showToast("در حال انتقال به درگاه پرداخت...");
+          const paymentResponse = await fetch("/api/payments/zarinpal/request", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: result.order.id }),
+          });
+          const payment = await paymentResponse.json();
+          if (!paymentResponse.ok || !payment.success || !payment.paymentUrl) throw new Error(payment.message || "ایجاد پرداخت ناموفق بود");
+          window.location.href = payment.paymentUrl;
         } catch (error) {
           showToast(error.message || "ثبت سفارش ناموفق بود");
         } finally {

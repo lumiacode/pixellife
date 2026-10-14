@@ -30,6 +30,12 @@ const orderSchema = new mongoose.Schema(
       expiresAt: { type: Date, default: null },
       paidAt: { type: Date, default: null },
     },
+    zarinpal: {
+      authority: { type: String, default: "", index: true },
+      refId: { type: Number, default: null },
+      cardPan: { type: String, default: "" },
+      paidAt: { type: Date, default: null },
+    },
   },
   { timestamps: true },
 );

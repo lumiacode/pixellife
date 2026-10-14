@@ -29,6 +29,10 @@ const env = {
   baleBotUsername: process.env.BALE_BOT_USERNAME || "pixellifepaybot",
   baleWebhookSecret: process.env.BALE_WEBHOOK_SECRET || "",
   siteUrl: process.env.SITE_URL || "https://pixellife.ir",
+
+  zarinpalMerchantId: process.env.ZARINPAL_MERCHANT_ID || "",
+  zarinpalSandbox: String(process.env.ZARINPAL_SANDBOX || "false").toLowerCase() === "true",
+  zarinpalCallbackUrl: process.env.ZARINPAL_CALLBACK_URL || "https://pixellife.ir/api/payments/zarinpal/callback",
 };
 
 const requiredVars = ["mongoUri", "jwtSecret"];
