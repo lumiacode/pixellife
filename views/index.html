@@ -1913,6 +1913,34 @@
 
       /* ریسپانسیو موبایل */
       @media (max-width: 768px) {
+        html,
+        body {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden !important;
+        }
+        .header,
+        .header-inner,
+        .navbar,
+        .navbar-inner,
+        .page-body,
+        .hero-section,
+        .hero-slider-container,
+        .services-section,
+        .product-section,
+        .footer,
+        .footer-inner,
+        .footer-bottom {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+        }
+        .header-inner,
+        .navbar-inner,
+        .footer-inner,
+        .footer-bottom {
+          overflow: hidden;
+        }
         .services-section {
           grid-template-columns: repeat(2, 1fr);
           gap: 24px 16px;
