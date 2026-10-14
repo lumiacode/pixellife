@@ -47,6 +47,15 @@ const ENAMAD_LOGO =
 
 const ENAMAD_STYLE = `
 <style id="shared-enamad-style">
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .footer-trust {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
   .ftrust-enamad {
     display: flex;
     align-items: center;
