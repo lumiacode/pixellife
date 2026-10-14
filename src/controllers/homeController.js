@@ -78,20 +78,27 @@ const ENAMAD_STYLE = `
   }
   .ftrust-ecunion {
     display: flex;
+    flex: 0 0 92px;
     align-items: center;
     justify-content: center;
     width: 92px;
+    max-width: 92px;
+    min-width: 0;
     height: 60px;
     padding: 5px;
     border: 1px solid var(--border, #e2e8f0);
     border-radius: var(--radius-sm, 8px);
     background: #fff;
     box-sizing: border-box;
+    overflow: hidden;
+    contain: layout paint;
   }
   .ftrust-ecunion img {
     display: block;
     width: 100%;
     height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
   }
   .standalone-enamad-wrap {

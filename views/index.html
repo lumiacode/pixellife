@@ -1205,7 +1205,10 @@
         border-radius: var(--radius-sm);
       }
       .ftrust-ecunion {
+        flex: 0 0 92px;
         width: 92px;
+        max-width: 92px;
+        min-width: 0;
         height: 60px;
         padding: 5px;
         border: 1px solid var(--border);
@@ -1215,10 +1218,14 @@
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
+        overflow: hidden;
+        contain: layout paint;
       }
       .ftrust-ecunion img {
         width: 100%;
         height: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
         display: block;
       }
