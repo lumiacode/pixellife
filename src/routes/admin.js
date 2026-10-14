@@ -43,7 +43,10 @@ router.post("/login", (req, res) => {
   }
   if (password === process.env.ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.json({ success: true });
+    return req.session.save((error) => {
+      if (error) return res.status(500).json({ success: false, message: "نشست ورود ذخیره نشد؛ دوباره تلاش کنید" });
+      return res.json({ success: true });
+    });
   }
   return res
     .status(401)
