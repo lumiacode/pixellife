@@ -67,6 +67,24 @@ const ENAMAD_STYLE = `
     object-fit: contain;
     display: block;
   }
+  .ftrust-ecunion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 92px;
+    height: 60px;
+    padding: 5px;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--radius-sm, 8px);
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .ftrust-ecunion img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
   .standalone-enamad-wrap {
     display: flex;
     justify-content: center;
@@ -93,7 +111,13 @@ const ENAMAD_HTML = `
     height="50"
     style="cursor: pointer; display: block; max-height: 48px; width: auto;"
   />
-</a>`;
+</a>
+<span
+  class="ftrust-ecunion"
+  title="مجوز اتحادیه کشوری کسب‌وکارهای مجازی"
+>
+  <img src="/images/trust/ecunion-logo.png" alt="مجوز اتحادیه کشوری کسب‌وکارهای مجازی" width="82" height="52" loading="lazy" decoding="async" />
+</span>`;
 
 const MOBILE_HERO_FIX = `
 <style id="mobile-hero-fit-fix">
