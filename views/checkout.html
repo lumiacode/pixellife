@@ -538,13 +538,7 @@
             paymentMethod: state.paymentMethod || config.paymentMethods[0].id,
             discountCode: state.discountCode || "",
           });
-          // سفارش در دیتابیس ثبت شده است؛ کالاهای آن از سبد خرید خارج می‌شوند.
-          var remaining = readCart().filter(function (item) { return item && item.available === false; });
-          try {
-            localStorage.setItem(CART_KEY, JSON.stringify(remaining));
-            window.dispatchEvent(new Event("cartUpdated"));
-          } catch (_) {}
-          try { sessionStorage.removeItem(STATE_KEY); } catch (_) {}
+          // سبد خرید تا تأیید پرداخت (صفحهٔ سفارش‌ها) پاک نمی‌شود تا با لغو پرداخت چیزی از دست نرود.
           return order.order;
         }
 
@@ -570,11 +564,6 @@
             var handler = paymentHandlers[state.paymentMethod || config.paymentMethods[0].id] || paymentHandlers.zarinpal;
             location.href = await handler(order);
           } catch (error) {
-            if (order) {
-              // سفارش ساخته شده ولی ایجاد پرداخت ناموفق بود؛ کاربر از صفحهٔ سفارش‌ها دوباره پرداخت می‌کند.
-              location.href = "/profile/orders?order=" + encodeURIComponent(order.id) + "&payment=failed";
-              return;
-            }
             toast(error.message || "ثبت سفارش ناموفق بود");
             if (error.status === 401) showLogin();
             busy = false;

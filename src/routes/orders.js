@@ -7,6 +7,19 @@ const { buildQuote, findPaymentMethod } = require("../services/checkoutPricing")
 const Address = require("../models/Address");
 const { recordBehaviorEvent } = require("../services/behaviorAnalytics");
 
+// هر کاربر در هر زمان فقط یک سفارش در انتظار پرداخت دارد: با ثبت سفارش جدید،
+// سفارش‌های پرداخت‌نشدهٔ قبلی لغو می‌شوند و ظرفیت کد تخفیفشان آزاد می‌شود.
+async function supersedePendingOrders(userId) {
+  const pending = await Order.find({ user: userId, paymentStatus: "unpaid", status: "awaiting_payment", superseded: { $ne: true } });
+  for (const old of pending) {
+    old.status = "cancelled";
+    old.superseded = true;
+    old.statusHistory.push({ status: "cancelled", note: "با ثبت سفارش جدید جایگزین شد" });
+    await old.save();
+    if (old.discountCode) await DiscountCode.updateOne({ code: old.discountCode, usedCount: { $gt: 0 } }, { $inc: { usedCount: -1 } });
+  }
+}
+
 router.post("/", protect, async (req, res, next) => {
   let reservedDiscount = null;
   try {
@@ -16,6 +29,7 @@ router.post("/", protect, async (req, res, next) => {
     if (!address) return res.status(400).json({ success: false, message: "برای ثبت سفارش یک آدرس معتبر انتخاب کنید" });
     const paymentMethod = findPaymentMethod(req.body.paymentMethod || "zarinpal");
     if (!paymentMethod) return res.status(400).json({ success: false, message: "روش پرداخت معتبر نیست" });
+    await supersedePendingOrders(req.user._id);
     const quote = await buildQuote({ items: requestedItems, shippingMethodId: req.body.shippingMethod, discountCode: req.body.discountCode });
     if (quote.discountError) return res.status(400).json({ success: false, message: quote.discountError });
     if (quote.discount) {
@@ -49,6 +63,6 @@ router.post("/", protect, async (req, res, next) => {
 });
 
 router.get("/my", protect, async (req, res, next) => {
-  try { const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 }).lean(); res.json({ success: true, orders }); } catch (error) { next(error); }
+  try { const orders = await Order.find({ user: req.user._id, superseded: { $ne: true } }).sort({ createdAt: -1 }).lean(); res.json({ success: true, orders }); } catch (error) { next(error); }
 });
 module.exports = router;

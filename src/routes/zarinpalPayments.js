@@ -22,6 +22,7 @@ router.post("/request", protect, async (req, res, next) => {
     const order = await Order.findOne({ _id: req.body.orderId, user: req.user._id });
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
     if (order.paymentStatus === "paid") return res.status(400).json({ success: false, message: "این سفارش قبلاً پرداخت شده است" });
+    if (order.status === "cancelled") return res.status(400).json({ success: false, message: "این سفارش لغو شده است؛ سفارش را دوباره از سبد خرید ثبت کنید" });
     const amount = rialAmount(order);
     const result = await axios.post(`${apiBase}/request.json`, {
       merchant_id: env.zarinpalMerchantId,

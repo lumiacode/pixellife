@@ -47,7 +47,11 @@ stub(src("models", "DiscountCode.js"), {
     doc.usedCount += update.$inc.usedCount;
     return before;
   },
-  updateOne: async (cond, update) => { discountDocs.find((d) => d._id === String(cond._id)).usedCount += update.$inc.usedCount; return {}; },
+  updateOne: async (cond, update) => {
+    const doc = discountDocs.find((d) => (cond._id ? d._id === String(cond._id) : d.code === cond.code));
+    if (doc && (!cond.usedCount || doc.usedCount > cond.usedCount.$gt)) doc.usedCount += update.$inc.usedCount;
+    return {};
+  },
 });
 
 // Order: schema واقعی برای اعتبارسنجی، ذخیره‌سازی در حافظه
@@ -56,6 +60,12 @@ const RealOrder = require(realOrderPath);
 const attach = (doc) => { doc.save = async () => { await doc.validate(); }; return doc; };
 stub(src("models", "Order.js"), {
   create: async (data) => { const doc = attach(new RealOrder(data)); await doc.validate(); orders.push(doc); return doc; },
+  find: (q) => {
+    const matches = orders.filter((o) => String(o.user) === String(q.user) && (!q.paymentStatus || o.paymentStatus === q.paymentStatus) && (!q.status || o.status === q.status) && !(q.superseded && q.superseded.$ne === true && o.superseded === true));
+    const result = Promise.resolve(matches);
+    result.sort = () => ({ lean: async () => matches.map((o) => o.toObject()) });
+    return result;
+  },
   findOne: async (q) => orders.find((o) => (q._id ? String(o._id) === String(q._id) : true) && (q.user ? String(o.user) === String(q.user) : true) && (q["zarinpal.authority"] ? o.zarinpal.authority === q["zarinpal.authority"] : true)) || null,
 });
 
@@ -126,7 +136,7 @@ async function call(base, method, url, body) {
   const orderBody = { addressId: address._id, items: [{ productId: "charger-20w", quantity: 2, color: "مشکی", storage: "", warranty: "" }], shippingMethod: "post", paymentMethod: "zarinpal", discountCode: "OFF10" };
   const created = await call(base, "POST", "/api/orders", orderBody);
   assert.strictEqual(created.status, 201, JSON.stringify(created.json));
-  const order = orders[0];
+  let order = orders[0];
   const subtotal = discountedCharger * 2;
   assert.strictEqual(order.subtotal, subtotal);
   assert.strictEqual(order.deliveryFee, 150000);
@@ -141,23 +151,53 @@ async function call(base, method, url, body) {
   assert.strictEqual(order.items[0].price, discountedCharger);
   assert.strictEqual(discountDocs[0].usedCount, 1);
 
-  /* ۶) ظرفیت کد تمام شد: سفارش دوم رد می‌شود و سفارش اضافه نمی‌شود */
+  /* ۶) ظرفیت کد را کاربر دیگری مصرف کرده: سفارش جدید ساخته نمی‌شود و سفارش پرداخت‌نشدهٔ قبلی لغو می‌ماند */
+  discountDocs[0].usedCount = 2; // ۱ تا سفارش همین کاربر + ۱ تا کاربر دیگر
   const second = await call(base, "POST", "/api/orders", orderBody);
   assert.strictEqual(second.status, 400);
   assert.strictEqual(orders.length, 1);
-  assert.strictEqual(discountDocs[0].usedCount, 1);
+  assert.strictEqual(orders[0].status, "cancelled");
+  assert.strictEqual(discountDocs[0].usedCount, 1, "ظرفیت سفارش لغوشده آزاد شود");
+  const baseline = async () => {
+    orders.length = 0;
+    discountDocs[0].usedCount = 0;
+    discountDocs[0].usageLimit = 5;
+    assert.strictEqual((await call(base, "POST", "/api/orders", orderBody)).status, 201);
+    assert.strictEqual(orders.length, 1);
+    assert.strictEqual(discountDocs[0].usedCount, 1);
+  };
+  await baseline();
 
-  /* ۷) خطای موجودی بعد از رزرو کد، ظرفیت را برمی‌گرداند */
-  discountDocs[0].usageLimit = 5;
+  /* ۷) خطای موجودی: سفارش جدیدی ساخته نمی‌شود و ظرفیت کد مصرف نمی‌شود */
   const noStock = await call(base, "POST", "/api/orders", { ...orderBody, items: [{ productId: "phone-x", quantity: 3 }] });
   assert.strictEqual(noStock.status, 409);
-  assert.strictEqual(discountDocs[0].usedCount, 1);
+  assert.strictEqual(orders.length, 1);
+  assert.strictEqual(discountDocs[0].usedCount, 0);
+  await baseline();
 
-  /* ۸) آدرس دیگران / روش پرداخت نامعتبر */
+  /* ۸) آدرس دیگران / روش پرداخت نامعتبر: سفارش فعلی دست‌نخورده می‌ماند */
   assert.strictEqual((await call(base, "POST", "/api/orders", { ...orderBody, addressId: "64c0000000000000000000ff" })).status, 400);
   assert.strictEqual((await call(base, "POST", "/api/orders", { ...orderBody, paymentMethod: "nope" })).status, 400);
   assert.strictEqual(orders.length, 1);
+  assert.strictEqual(orders[0].status, "awaiting_payment");
 
+  /* ۸-ب) ثبت سفارش دوباره: سفارش پرداخت‌نشدهٔ قبلی لغو و پنهان می‌شود و کد تخفیف دوباره قابل استفاده است */
+  const retry = await call(base, "POST", "/api/orders", orderBody);
+  assert.strictEqual(retry.status, 201, JSON.stringify(retry.json));
+  assert.strictEqual(orders.length, 2);
+  assert.strictEqual(orders[0].status, "cancelled");
+  assert.strictEqual(orders[0].superseded, true);
+  assert.strictEqual(orders[1].status, "awaiting_payment");
+  assert.strictEqual(discountDocs[0].usedCount, 1, "ظرفیت کد سفارش قبلی آزاد و برای سفارش جدید مصرف شود");
+  const mine = await call(base, "GET", "/api/orders/my");
+  assert.strictEqual(mine.json.orders.length, 1, "سفارش جایگزین‌شده نباید در لیست کاربر باشد");
+  assert.strictEqual(String(mine.json.orders[0]._id), String(orders[1]._id));
+  // سفارش لغوشده دیگر پرداخت جدید نمی‌گیرد
+  assert.strictEqual((await call(base, "POST", "/api/payments/zarinpal/request", { orderId: String(orders[0]._id) })).status, 400);
+  assert.strictEqual(zarinpalCalls.length, 0);
+  orders.splice(0, 1); // ادامهٔ تست روی سفارش فعال
+
+  order = orders[0];
   /* ۹) درخواست پرداخت زرین‌پال: مبلغ به ریال برابر total سفارش × ۱۰ */
   const pay = await call(base, "POST", "/api/payments/zarinpal/request", { orderId: String(order._id) });
   assert.strictEqual(pay.status, 200, JSON.stringify(pay.json));
