@@ -4,6 +4,7 @@ const AdminJSMongoose = require("@adminjs/mongoose");
 
 const Product = require("../models/Product");
 const User = require("../models/User");
+const DiscountCode = require("../models/DiscountCode");
 
 AdminJS.registerAdapter({
   Resource: AdminJSMongoose.Resource,
@@ -13,7 +14,7 @@ AdminJS.registerAdapter({
 const setupAdmin = (app) => {
   const admin = new AdminJS({
     rootPath: "/admin",
-    resources: [Product, User],
+    resources: [Product, User, DiscountCode],
   });
 
   const router = AdminJSExpress.buildRouter(admin);

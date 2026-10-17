@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>پیکسل لایف | ثبت سفارش</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme") || "light";
+          document.documentElement.setAttribute("data-theme", saved);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/css/tabler-icons.min.css" />
+    <style>
+      :root {
+        --blue: #3b82f6;
+        --blue-dark: #2563eb;
+        --blue-light: #eff6ff;
+        --white: #ffffff;
+        --bg: #f1f5f9;
+        --border: #e2e8f0;
+        --text-1: #0f172a;
+        --text-2: #334155;
+        --text-3: #64748b;
+        --text-4: #94a3b8;
+        --red: #ef4444;
+        --green: #16a34a;
+        --amber-bg: #fff7e6;
+        --danger-bg: #fef2f2;
+        --success-bg: #f0fdf4;
+        --radius-sm: 10px;
+        --radius: 16px;
+        --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+      }
+      [data-theme="dark"] {
+        --blue-dark: #60a5fa;
+        --blue-light: rgba(59, 130, 246, 0.16);
+        --white: #1e293b;
+        --bg: #0f172a;
+        --border: #334155;
+        --text-1: #f1f5f9;
+        --text-2: #cbd5e1;
+        --text-3: #94a3b8;
+        --text-4: #64748b;
+        --green: #4ade80;
+        --amber-bg: rgba(245, 158, 11, 0.14);
+        --danger-bg: rgba(248, 113, 113, 0.12);
+        --success-bg: rgba(34, 197, 94, 0.12);
+      }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: Vazirmatn, Tahoma, sans-serif;
+        background: var(--bg);
+        color: var(--text-1);
+        font-size: 14px;
+        line-height: 1.8;
+        min-height: 100vh;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; }
+      .mobile-bottom-nav { display: none !important; }
+
+      .co-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; }
+      .co-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 14px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm);
+      }
+      .co-head-title { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; min-width: 0; }
+      .co-back { display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; font-size: 22px; color: var(--text-1); }
+      .co-back:hover { background: var(--bg); }
+      .co-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; }
+      .co-logo-mark { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--blue); color: #fff; font-size: 18px; }
+      .co-logo b { color: var(--blue-dark); font-weight: 800; }
+      .co-steps { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); }
+      .co-step { display: inline-flex; align-items: center; gap: 6px; }
+      .co-step i { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); font-style: normal; font-size: 11px; font-weight: 700; }
+      .co-step.active { color: var(--blue-dark); font-weight: 700; }
+      .co-step.active i, .co-step.done i { background: var(--blue); border-color: var(--blue); color: #fff; }
+      .co-step-sep { width: 20px; height: 1px; background: var(--border); }
+
+      .co-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
+      .co-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+      .co-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
+      .co-card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; font-weight: 800; margin-bottom: 14px; }
+      .co-card-title small { font-size: 12px; font-weight: 500; color: var(--text-3); }
+      .co-link-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: 0; color: var(--blue-dark); font-size: 13px; font-weight: 700; padding: 4px 0; }
+
+      .co-choice { display: flex; align-items: flex-start; gap: 12px; width: 100%; text-align: right; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 10px; transition: border-color .15s, background .15s; }
+      .co-choice:last-child { margin-bottom: 0; }
+      .co-choice:hover { border-color: var(--blue); }
+      .co-choice.selected { border-color: var(--blue); background: var(--blue-light); }
+      .co-radio { flex: none; width: 20px; height: 20px; margin-top: 3px; border-radius: 50%; border: 2px solid var(--text-4); display: inline-flex; align-items: center; justify-content: center; }
+      .co-choice.selected .co-radio { border-color: var(--blue); }
+      .co-choice.selected .co-radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); }
+      .co-choice-body { flex: 1; min-width: 0; }
+      .co-choice-title { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .co-choice-text { color: var(--text-2); margin-top: 2px; }
+      .co-choice-meta { color: var(--text-3); font-size: 12.5px; margin-top: 4px; display: flex; gap: 14px; flex-wrap: wrap; }
+      .co-badge { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--blue-light); color: var(--blue-dark); }
+      .co-choice-price { font-weight: 800; white-space: nowrap; }
+      .co-choice-price.free { color: var(--green); }
+
+      .co-addr-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding-top: 16px; border-top: 1px dashed var(--border); }
+      .co-addr-form[hidden] { display: none; }
+      .co-field { display: flex; flex-direction: column; gap: 4px; }
+      .co-field.full { grid-column: 1 / -1; }
+      .co-field label { font-size: 12.5px; color: var(--text-3); font-weight: 600; }
+      .co-field input, .co-field textarea { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; outline: none; }
+      .co-field input:focus, .co-field textarea:focus { border-color: var(--blue); }
+      .co-field textarea { resize: vertical; min-height: 78px; }
+      .co-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+      .co-form-actions { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; }
+
+      .co-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: var(--radius-sm); padding: 11px 22px; font-weight: 800; background: var(--blue); color: #fff; transition: background .15s, opacity .15s; }
+      .co-btn:hover { background: var(--blue-dark); }
+      .co-btn:disabled { opacity: .6; cursor: wait; }
+      .co-btn.ghost { background: transparent; color: var(--blue-dark); border: 1.5px solid var(--blue); }
+      .co-btn.ghost:hover { background: var(--blue-light); }
+      .co-btn.block { width: 100%; padding: 14px; font-size: 15px; }
+
+      .co-shipment-head { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
+      .co-shipment-head i { font-size: 26px; color: var(--blue-dark); }
+      .co-pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 99px; background: var(--bg); color: var(--text-2); }
+      .co-shipment-sub { color: var(--text-3); margin: 2px 0 14px; padding-right: 36px; }
+      .co-products { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+      .co-product { flex: none; width: 104px; text-align: center; }
+      .co-product-img { position: relative; width: 104px; height: 104px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+      .co-product-img img { max-width: 88%; max-height: 88%; object-fit: contain; }
+      .co-product-qty { position: absolute; top: 6px; right: 6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: var(--text-1); color: var(--white); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+      .co-product-name { margin-top: 6px; font-size: 12px; line-height: 1.6; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .co-product-variant { font-size: 11.5px; color: var(--text-3); }
+      .co-eta { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--amber-bg); color: var(--text-2); font-weight: 600; }
+      .co-eta i { font-size: 20px; color: #d97706; }
+      .co-shipment-total { margin-top: 12px; color: var(--text-2); }
+      .co-shipment-total b { color: var(--text-1); }
+
+      .co-coupon { display: flex; gap: 10px; }
+      .co-coupon input { flex: 1; min-width: 0; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px; outline: none; direction: ltr; text-align: left; text-transform: uppercase; }
+      .co-coupon input::placeholder { direction: rtl; text-transform: none; }
+      .co-coupon input:focus { border-color: var(--blue); }
+      .co-coupon-applied { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--success-bg); color: var(--green); font-weight: 700; }
+      .co-coupon-applied button { background: none; border: 0; color: var(--text-3); font-size: 13px; text-decoration: underline; }
+      .co-msg { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; }
+      .co-msg.error { background: var(--danger-bg); color: var(--red); }
+      .co-msg[hidden] { display: none; }
+
+      .co-summary { position: sticky; top: 16px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
+      .co-sum-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); color: var(--text-2); }
+      .co-sum-row b { color: var(--text-1); font-weight: 700; }
+      .co-sum-row.muted { color: var(--text-3); }
+      .co-sum-row.profit, .co-sum-row.profit b { color: var(--green); }
+      .co-sum-row.total { border-bottom: 0; padding-top: 16px; font-weight: 800; color: var(--text-1); font-size: 15px; }
+      .co-sum-row.total b { font-size: 16px; }
+      .co-strike { display: block; text-align: left; font-size: 12px; font-weight: 500; color: var(--text-4); text-decoration: line-through; text-decoration-thickness: 1px; }
+      .co-summary .co-btn { margin-top: 12px; }
+      .co-toman { font-size: 11px; font-weight: 500; color: var(--text-3); margin-right: 3px; }
+
+      .co-mobile-bar { display: none; }
+      .co-state { text-align: center; padding: 56px 20px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); }
+      .co-state i { font-size: 54px; color: var(--text-4); }
+      .co-state h2 { margin: 10px 0 6px; font-size: 18px; }
+      .co-state p { color: var(--text-3); margin-bottom: 18px; }
+      .co-skeleton { height: 160px; border-radius: var(--radius); background: linear-gradient(90deg, var(--white) 25%, var(--border) 50%, var(--white) 75%); background-size: 200% 100%; animation: co-shimmer 1.3s infinite; }
+      @keyframes co-shimmer { to { background-position: -200% 0; } }
+
+      .co-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-1); color: var(--white); padding: 11px 20px; border-radius: 99px; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: calc(100vw - 32px); }
+      .co-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+      @media (max-width: 900px) {
+        .co-layout { grid-template-columns: 1fr; }
+        .co-summary { position: static; }
+        .co-summary .co-btn { display: none; }
+        .co-wrap { padding-bottom: 110px; }
+        .co-mobile-bar { display: flex; position: fixed; inset: auto 0 0 0; z-index: 40; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 16px; background: var(--white); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(15, 23, 42, .1); }
+        .co-mobile-total small { display: block; color: var(--text-3); font-size: 12px; line-height: 1.4; }
+        .co-mobile-total b { font-size: 16px; }
+        .co-mobile-bar .co-btn { flex: 1; max-width: 220px; }
+        .co-steps { display: none; }
+      }
+      @media (max-width: 560px) {
+        .co-addr-form { grid-template-columns: 1fr; }
+        .co-head { padding: 10px 14px; }
+        .co-card { padding: 16px; }
+        .co-logo span { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="co-wrap">
+      <header class="co-head">
+        <div class="co-head-title">
+          <a class="co-back" id="coBack" href="/cart" aria-label="بازگشت"><i class="ti ti-arrow-right"></i></a>
+          <span id="coTitle">آدرس و زمان ارسال</span>
+        </div>
+        <a class="co-logo" href="/" aria-label="پیکسل لایف">
+          <span class="co-logo-mark"><i class="ti ti-shopping-bag"></i></span>
+          <span>پیکسل <b>لایف</b></span>
+        </a>
+        <div class="co-steps" aria-hidden="true">
+          <span class="co-step" id="coStep1"><i>۱</i> آدرس و ارسال</span>
+          <span class="co-step-sep"></span>
+          <span class="co-step" id="coStep2"><i>۲</i> پرداخت</span>
+        </div>
+      </header>
+
+      <div id="coRoot"><div class="co-skeleton"></div></div>
+    </div>
+
+    <div class="co-toast" id="coToast" role="status"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var CART_KEY = "digishop_cart";
+        var STATE_KEY = "pl_checkout";
+        var FALLBACK_IMG = "/images/product-placeholder.svg";
+        var step = /\/payment\/?$/.test(location.pathname) ? "payment" : "shipping";
+
+        var root = document.getElementById("coRoot");
+        var toastEl = document.getElementById("coToast");
+
+        var state = loadState();
+        var config = null;
+        var addresses = [];
+        var quote = null;
+        var busy = false;
+
+        /* ───────── ابزارها ───────── */
+        var FA = "۰۱۲۳۴۵۶۷۸۹";
+        function fa(n) { return String(n).replace(/\d/g, function (d) { return FA[d]; }); }
+        function money(n) { return fa(Math.round(Number(n) || 0).toLocaleString("en-US")); }
+        function toman(n) { return money(n) + '<span class="co-toman">تومان</span>'; }
+        function esc(v) {
+          return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+        function toLatinDigits(v) {
+          return String(v || "")
+            .replace(/[۰-۹]/g, function (d) { return "۰۱۲۳۴۵۶۷۸۹".indexOf(d); })
+            .replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); });
+        }
+        function toast(text) {
+          toastEl.textContent = text;
+          toastEl.classList.add("show");
+          clearTimeout(toast._t);
+          toast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 3200);
+        }
+        function loadState() {
+          try { return JSON.parse(sessionStorage.getItem(STATE_KEY)) || {}; } catch (_) { return {}; }
+        }
+        function saveState() {
+          try { sessionStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (_) {}
+        }
+        function readCart() {
+          try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (_) { return []; }
+        }
+        function cartRequestItems() {
+          return readCart()
+            .filter(function (item) { return item && item.available !== false; })
+            .map(function (item) {
+              var q = Number(item.quantity != null ? item.quantity : item.qty);
+              return {
+                productId: item.id,
+                quantity: Number.isFinite(q) ? Math.max(1, Math.floor(q)) : 1,
+                color: item.color,
+                storage: item.variant,
+                warranty: item.warranty,
+              };
+            });
+        }
+        async function api(url, method, body) {
+          var res = await fetch(url, {
+            method: method || "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: body ? JSON.stringify(body) : undefined,
+          });
+          var data = {};
+          try { data = await res.json(); } catch (_) {}
+          if (!res.ok || data.success === false) {
+            var err = new Error(data.message || "خطا در ارتباط با سرور");
+            err.status = res.status;
+            throw err;
+          }
+          return data;
+        }
+
+        /* ───────── روش‌های پرداخت (برای افزودن درگاه جدید، یک handler اضافه کنید) ───────── */
+        var paymentHandlers = {
+          zarinpal: async function (order) {
+            var payment = await api("/api/payments/zarinpal/request", "POST", { orderId: order.id });
+            if (!payment.paymentUrl) throw new Error("ایجاد پرداخت ناموفق بود");
+            return payment.paymentUrl;
+          },
+        };
+
+        /* ───────── حالت‌های کلی صفحه ───────── */
+        function showState(icon, title, text, actions) {
+          root.innerHTML =
+            '<div class="co-state"><i class="ti ' + icon + '"></i><h2>' + esc(title) + "</h2><p>" + esc(text) + "</p>" + actions + "</div>";
+        }
+        function showEmpty() {
+          showState("ti-shopping-cart-off", "سبد خرید شما خالی است", "برای ثبت سفارش ابتدا محصولی به سبد خرید اضافه کنید.", '<a class="co-btn" href="/">شروع خرید</a>');
+        }
+        function showLogin() {
+          showState("ti-user-circle", "برای ثبت سفارش وارد حساب کاربری شوید", "پس از ورود، دوباره به سبد خرید برگردید و سفارش خود را ثبت کنید.", '<a class="co-btn" href="/login">ورود به حساب کاربری</a>');
+        }
+        function showError(message) {
+          showState("ti-alert-circle", "ثبت سفارش ممکن نیست", message, '<a class="co-btn ghost" href="/cart">بازگشت به سبد خرید</a>');
+        }
+
+        /* ───────── اجزای مشترک ───────── */
+        function selectedAddress() {
+          return addresses.find(function (a) { return String(a._id) === String(state.addressId); }) || null;
+        }
+        function addressText(a) {
+          return [a.province, a.city, a.fullAddress].filter(Boolean).join("، ");
+        }
+        function shipmentCard() {
+          var items = quote.items;
+          var products = items.map(function (item) {
+            var variant = [item.color, item.storage].filter(Boolean).join(" · ");
+            return (
+              '<div class="co-product"><div class="co-product-img"><img src="' + esc(item.image || FALLBACK_IMG) + '" alt="' + esc(item.name) + '" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'">' +
+              '<span class="co-product-qty">' + fa(item.quantity) + "</span></div>" +
+              '<div class="co-product-name">' + esc(item.name) + "</div>" +
+              (variant ? '<div class="co-product-variant">' + esc(variant) + "</div>" : "") + "</div>"
+            );
+          }).join("");
+          return (
+            '<section class="co-card" id="coShipment">' +
+            '<div class="co-shipment-head"><i class="ti ti-truck-delivery"></i><span>' + esc(quote.shippingMethod.title) + '</span><span class="co-pill">' + fa(quote.pricing.itemsCount) + " کالا</span></div>" +
+            '<div class="co-shipment-sub">مرسولهٔ ۱ از ۱</div>' +
+            '<div class="co-products">' + products + "</div>" +
+            '<div class="co-eta"><i class="ti ti-clock-hour-4"></i><span>' + esc(quote.shippingMethod.eta) + "</span></div>" +
+            (step === "payment" ? '<div class="co-shipment-total">مبلغ مرسوله: <b>' + toman(quote.pricing.subtotal) + "</b></div>" : "") +
+            "</section>"
+          );
+        }
+        function summaryCard(buttonLabel) {
+          var p = quote.pricing;
+          var percent = p.originalSubtotal > 0 ? Math.round((p.savings / p.originalSubtotal) * 100) : 0;
+          var fullPrice = p.originalSubtotal + p.shipping;
+          return (
+            '<aside class="co-summary" id="coSummary">' +
+            '<div class="co-sum-row"><span>قیمت کالاها (' + fa(p.itemsCount) + ")</span><b>" + toman(p.originalSubtotal) + "</b></div>" +
+            '<div class="co-sum-row"><span>هزینه ارسال</span><b>' + (p.shipping === 0 ? '<span style="color:var(--green)">رایگان</span>' : toman(p.shipping)) + "</b></div>" +
+            (p.productDiscount > 0 ? '<div class="co-sum-row muted"><span><i class="ti ti-discount-2"></i> تخفیف کالاها</span><b>' + toman(p.productDiscount) + "</b></div>" : "") +
+            (p.codeDiscount > 0 ? '<div class="co-sum-row muted"><span><i class="ti ti-ticket"></i> کد تخفیف</span><b>' + toman(p.codeDiscount) + "</b></div>" : "") +
+            (p.savings > 0 ? '<div class="co-sum-row profit"><span>سود شما از خرید</span><b>' + toman(p.savings) + (percent ? " (" + fa(percent) + "٪)" : "") + "</b></div>" : "") +
+            '<div class="co-sum-row total"><span>مبلغ قابل پرداخت</span><b>' + (p.savings > 0 ? '<span class="co-strike">' + money(fullPrice) + "</span>" : "") + toman(p.total) + "</b></div>" +
+            '<button type="button" class="co-btn block" data-primary>' + esc(buttonLabel) + "</button>" +
+            "</aside>"
+          );
+        }
+        function mobileBar(buttonLabel) {
+          return (
+            '<div class="co-mobile-bar"><div class="co-mobile-total"><small>مبلغ قابل پرداخت</small><b>' + toman(quote.pricing.total) + "</b></div>" +
+            '<button type="button" class="co-btn" data-primary>' + esc(buttonLabel) + "</button></div>"
+          );
+        }
+
+        /* ───────── مرحله ۱: آدرس و ارسال ───────── */
+        function addressCard() {
+          var list = addresses.map(function (a) {
+            var selected = String(a._id) === String(state.addressId);
+            return (
+              '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-address="' + esc(a._id) + '">' +
+              '<span class="co-radio"></span><span class="co-choice-body">' +
+              '<span class="co-choice-title">' + esc(a.title || "آدرس") + (a.isDefault ? '<span class="co-badge">پیش‌فرض</span>' : "") + "</span>" +
+              '<span class="co-choice-text">' + esc(addressText(a)) + "</span>" +
+              '<span class="co-choice-meta">' +
+              (a.receiverName ? '<span><i class="ti ti-user"></i> ' + esc(a.receiverName) + "</span>" : "") +
+              (a.receiverMobile ? '<span><i class="ti ti-phone"></i> ' + fa(esc(a.receiverMobile)) + "</span>" : "") +
+              (a.postalCode ? '<span><i class="ti ti-mailbox"></i> ' + fa(esc(a.postalCode)) + "</span>" : "") +
+              "</span></span></button>"
+            );
+          }).join("");
+          var formOpen = addresses.length === 0;
+          return (
+            '<section class="co-card" id="coAddresses">' +
+            '<div class="co-card-title"><span><i class="ti ti-map-pin"></i> آدرس تحویل سفارش</span>' +
+            (addresses.length ? '<button type="button" class="co-link-btn" id="coAddAddress"><i class="ti ti-plus"></i> افزودن آدرس جدید</button>' : "") +
+            "</div>" +
+            (list || '<p style="color:var(--text-3)">هنوز آدرسی ثبت نکرده‌اید. اطلاعات آدرس تحویل را وارد کنید.</p>') +
+            '<form class="co-addr-form" id="coAddrForm" novalidate' + (formOpen ? "" : " hidden") + ">" +
+            '<div class="co-field"><label for="adTitle">عنوان آدرس (اختیاری)</label><input id="adTitle" maxlength="40" placeholder="مثلاً منزل" /></div>' +
+            '<div class="co-field"><label for="adReceiver">نام گیرنده</label><input id="adReceiver" maxlength="80" /></div>' +
+            '<div class="co-field"><label for="adProvince">استان</label><input id="adProvince" /></div>' +
+            '<div class="co-field"><label for="adCity">شهر</label><input id="adCity" /></div>' +
+            '<div class="co-field full"><label for="adFull">آدرس کامل</label><textarea id="adFull" placeholder="خیابان، کوچه، پلاک، واحد"></textarea></div>' +
+            '<div class="co-field"><label for="adPostal">کد پستی (۱۰ رقم)</label><input id="adPostal" inputmode="numeric" maxlength="10" dir="ltr" /></div>' +
+            '<div class="co-field"><label for="adMobile">موبایل گیرنده</label><input id="adMobile" inputmode="numeric" maxlength="11" dir="ltr" placeholder="09123456789" /></div>' +
+            '<label class="co-check full"><input type="checkbox" id="adDefault"' + (addresses.length === 0 ? " checked" : "") + " /> به‌عنوان آدرس پیش‌فرض ذخیره شود</label>" +
+            '<div class="co-msg error co-field full" id="adError" hidden></div>' +
+            '<div class="co-form-actions"><button type="submit" class="co-btn" id="adSubmit">ذخیره آدرس</button>' +
+            (addresses.length ? '<button type="button" class="co-btn ghost" id="adCancel">انصراف</button>' : "") +
+            "</div></form></section>"
+          );
+        }
+        function shippingMethodCard() {
+          var methods = config.shippingMethods;
+          var subtotal = quote.pricing.subtotal;
+          var rows = methods.map(function (m) {
+            var fee = subtotal >= config.freeShippingThreshold ? 0 : m.fee;
+            var selected = m.id === quote.shippingMethod.id;
+            return (
+              '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-shipping="' + esc(m.id) + '">' +
+              '<span class="co-radio"></span><span class="co-choice-body"><span class="co-choice-title"><i class="ti ti-truck-delivery"></i> ' + esc(m.title) + "</span>" +
+              '<span class="co-choice-meta"><span><i class="ti ti-clock-hour-4"></i> ' + esc(m.eta) + "</span></span></span>" +
+              '<span class="co-choice-price' + (fee === 0 ? " free" : "") + '">' + (fee === 0 ? "رایگان" : toman(fee)) + "</span></button>"
+            );
+          }).join("");
+          var hint = subtotal < config.freeShippingThreshold
+            ? '<div class="co-choice-meta" style="margin-top:10px"><span><i class="ti ti-info-circle"></i> ارسال سفارش‌های بالای ' + toman(config.freeShippingThreshold) + " رایگان است.</span></div>"
+            : "";
+          return '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-package"></i> روش ارسال</span></div>' + rows + hint + "</section>";
+        }
+        function renderShipping() {
+          document.getElementById("coTitle").textContent = "آدرس و زمان ارسال";
+          document.getElementById("coStep1").classList.add("active");
+          var label = "ثبت سفارش";
+          root.innerHTML =
+            '<div class="co-layout"><div class="co-main">' + addressCard() + shippingMethodCard() + shipmentCard() + "</div>" + summaryCard(label) + "</div>" + mobileBar(label);
+        }
+
+        /* ───────── مرحله ۲: پرداخت ───────── */
+        function paymentMethodCard() {
+          var rows = config.paymentMethods.map(function (m, i) {
+            var selected = state.paymentMethod ? state.paymentMethod === m.id : i === 0;
+            return (
+              '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-payment="' + esc(m.id) + '">' +
+              '<span class="co-radio"></span><span class="co-choice-body"><span class="co-choice-title"><i class="ti ti-credit-card"></i> ' + esc(m.title) + "</span>" +
+              '<span class="co-choice-text">' + esc(m.description) + "</span></span></button>"
+            );
+          }).join("");
+          return '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-wallet"></i> روش پرداخت</span></div>' + rows + "</section>";
+        }
+        function couponCard() {
+          var body = quote.discount
+            ? '<div class="co-coupon-applied"><span><i class="ti ti-circle-check"></i> کد <span dir="ltr">' + esc(quote.discount.code) + "</span> اعمال شد — " + toman(quote.discount.amount) + ' تخفیف</span><button type="button" id="coCouponRemove">حذف</button></div>'
+            : '<div class="co-coupon"><input id="coCouponInput" placeholder="کد تخفیف را وارد کنید" autocomplete="off" maxlength="40" /><button type="button" class="co-btn ghost" id="coCouponApply">اعمال</button></div>';
+          return (
+            '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-ticket"></i> کد تخفیف</span></div>' + body +
+            '<div class="co-msg error" id="coCouponMsg"' + (quote.discountError ? "" : " hidden") + ">" + esc(quote.discountError) + "</div></section>"
+          );
+        }
+        function orderSummaryCard() {
+          var a = selectedAddress();
+          return (
+            '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-receipt"></i> خلاصه سفارش</span><a class="co-link-btn" href="/checkout/shipping">ویرایش</a></div>' +
+            (a ? '<div class="co-choice-text" style="margin-bottom:6px"><i class="ti ti-map-pin"></i> ' + esc(addressText(a)) + "</div>" +
+              '<div class="co-choice-meta" style="margin-bottom:14px">' +
+              (a.receiverName ? "<span><i class=\"ti ti-user\"></i> " + esc(a.receiverName) + "</span>" : "") +
+              (a.receiverMobile ? "<span><i class=\"ti ti-phone\"></i> " + fa(esc(a.receiverMobile)) + "</span>" : "") + "</div>" : "") +
+            "</section>"
+          );
+        }
+        function renderPayment() {
+          document.getElementById("coTitle").textContent = "پرداخت";
+          document.getElementById("coBack").setAttribute("href", "/checkout/shipping");
+          document.getElementById("coStep1").classList.add("done");
+          document.getElementById("coStep2").classList.add("active");
+          var label = "پرداخت";
+          root.innerHTML =
+            '<div class="co-layout"><div class="co-main">' + paymentMethodCard() + couponCard() + orderSummaryCard() + shipmentCard() + "</div>" + summaryCard(label) + "</div>" + mobileBar(label);
+        }
+
+        /* ───────── اکشن‌ها ───────── */
+        async function refreshQuote() {
+          quote = await api("/api/checkout/quote", "POST", {
+            items: cartRequestItems(),
+            shippingMethod: state.shippingMethod,
+            discountCode: state.discountCode || "",
+          });
+          if (quote.discountError) { state.discountCode = ""; saveState(); }
+        }
+        function render() { step === "payment" ? renderPayment() : renderShipping(); }
+
+        async function applyCoupon(code) {
+          state.discountCode = code;
+          saveState();
+          try { await refreshQuote(); } catch (error) { toast(error.message); return; }
+          render();
+          if (quote.discount) toast("کد تخفیف اعمال شد");
+        }
+
+        async function submitAddress(event) {
+          event.preventDefault();
+          var errorEl = document.getElementById("adError");
+          var payload = {
+            title: document.getElementById("adTitle").value.trim() || "آدرس",
+            receiverName: document.getElementById("adReceiver").value.trim(),
+            province: document.getElementById("adProvince").value.trim(),
+            city: document.getElementById("adCity").value.trim(),
+            fullAddress: document.getElementById("adFull").value.trim(),
+            postalCode: toLatinDigits(document.getElementById("adPostal").value).trim(),
+            receiverMobile: toLatinDigits(document.getElementById("adMobile").value).trim(),
+            isDefault: document.getElementById("adDefault").checked,
+          };
+          var problem = "";
+          if (!payload.receiverName) problem = "نام گیرنده را وارد کنید";
+          else if (!payload.province || !payload.city) problem = "استان و شهر را وارد کنید";
+          else if (payload.fullAddress.length < 10) problem = "آدرس کامل باید حداقل ۱۰ کاراکتر باشد";
+          else if (payload.postalCode && !/^\d{10}$/.test(payload.postalCode)) problem = "کد پستی باید ۱۰ رقم باشد";
+          else if (!/^09\d{9}$/.test(payload.receiverMobile)) problem = "شماره موبایل گیرنده معتبر نیست";
+          if (problem) { errorEl.textContent = problem; errorEl.hidden = false; return; }
+          errorEl.hidden = true;
+          var button = document.getElementById("adSubmit");
+          button.disabled = true;
+          try {
+            var result = await api("/api/addresses", "POST", payload);
+            state.addressId = result.data._id;
+            saveState();
+            addresses = (await api("/api/addresses")).data || [];
+            render();
+            toast("آدرس ذخیره شد");
+          } catch (error) {
+            errorEl.textContent = error.message;
+            errorEl.hidden = false;
+            button.disabled = false;
+          }
+        }
+
+        async function placeOrder() {
+          var address = selectedAddress();
+          var items = cartRequestItems();
+          var order = await api("/api/orders", "POST", {
+            addressId: address._id,
+            items: items,
+            shippingMethod: state.shippingMethod,
+            paymentMethod: state.paymentMethod || config.paymentMethods[0].id,
+            discountCode: state.discountCode || "",
+          });
+          // سفارش در دیتابیس ثبت شده است؛ کالاهای آن از سبد خرید خارج می‌شوند.
+          var remaining = readCart().filter(function (item) { return item && item.available === false; });
+          try {
+            localStorage.setItem(CART_KEY, JSON.stringify(remaining));
+            window.dispatchEvent(new Event("cartUpdated"));
+          } catch (_) {}
+          try { sessionStorage.removeItem(STATE_KEY); } catch (_) {}
+          return order.order;
+        }
+
+        async function primaryAction(button) {
+          if (busy) return;
+          if (step === "shipping") {
+            if (!selectedAddress()) {
+              toast("لطفاً آدرس تحویل را انتخاب یا اضافه کنید");
+              var card = document.getElementById("coAddresses");
+              if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+              return;
+            }
+            saveState();
+            location.href = "/checkout/payment";
+            return;
+          }
+          busy = true;
+          document.querySelectorAll("[data-primary]").forEach(function (b) { b.disabled = true; });
+          var order = null;
+          try {
+            order = await placeOrder();
+            toast("در حال انتقال به درگاه پرداخت...");
+            var handler = paymentHandlers[state.paymentMethod || config.paymentMethods[0].id] || paymentHandlers.zarinpal;
+            location.href = await handler(order);
+          } catch (error) {
+            if (order) {
+              // سفارش ساخته شده ولی ایجاد پرداخت ناموفق بود؛ کاربر از صفحهٔ سفارش‌ها دوباره پرداخت می‌کند.
+              location.href = "/profile/orders?order=" + encodeURIComponent(order.id) + "&payment=failed";
+              return;
+            }
+            toast(error.message || "ثبت سفارش ناموفق بود");
+            if (error.status === 401) showLogin();
+            busy = false;
+            document.querySelectorAll("[data-primary]").forEach(function (b) { b.disabled = false; });
+          }
+        }
+
+        root.addEventListener("click", async function (event) {
+          var target = event.target;
+          var primary = target.closest("[data-primary]");
+          if (primary) return primaryAction(primary);
+          var addr = target.closest("[data-address]");
+          if (addr) { state.addressId = addr.dataset.address; saveState(); return render(); }
+          var ship = target.closest("[data-shipping]");
+          if (ship) {
+            state.shippingMethod = ship.dataset.shipping; saveState();
+            try { await refreshQuote(); render(); } catch (error) { toast(error.message); }
+            return;
+          }
+          var pay = target.closest("[data-payment]");
+          if (pay) { state.paymentMethod = pay.dataset.payment; saveState(); return render(); }
+          if (target.closest("#coAddAddress")) {
+            var form = document.getElementById("coAddrForm");
+            form.hidden = !form.hidden;
+            if (!form.hidden) document.getElementById("adReceiver").focus();
+            return;
+          }
+          if (target.closest("#adCancel")) { document.getElementById("coAddrForm").hidden = true; return; }
+          if (target.closest("#coCouponApply")) {
+            var code = document.getElementById("coCouponInput").value.trim();
+            if (!code) { toast("کد تخفیف را وارد کنید"); return; }
+            return applyCoupon(code);
+          }
+          if (target.closest("#coCouponRemove")) return applyCoupon("");
+        });
+        root.addEventListener("submit", function (event) {
+          if (event.target.id === "coAddrForm") submitAddress(event);
+        });
+        root.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && event.target.id === "coCouponInput") {
+            event.preventDefault();
+            document.getElementById("coCouponApply").click();
+          }
+        });
+
+        /* ───────── شروع ───────── */
+        async function init() {
+          if (!cartRequestItems().length) return showEmpty();
+          try {
+            var loaded = await Promise.all([api("/api/checkout/config"), api("/api/addresses")]);
+            config = loaded[0];
+            addresses = loaded[1].data || [];
+          } catch (error) {
+            if (error.status === 401 || error.status === 403) return showLogin();
+            return showError(error.message);
+          }
+          if (!config.shippingMethods.some(function (m) { return m.id === state.shippingMethod; })) {
+            state.shippingMethod = config.shippingMethods[0] && config.shippingMethods[0].id;
+          }
+          if (!addresses.some(function (a) { return String(a._id) === String(state.addressId); })) {
+            var preferred = addresses.find(function (a) { return a.isDefault; }) || addresses[0];
+            state.addressId = preferred ? preferred._id : "";
+          }
+          if (step === "payment" && !state.addressId) { location.replace("/checkout/shipping"); return; }
+          saveState();
+          try {
+            await refreshQuote();
+          } catch (error) {
+            if (error.status === 401 || error.status === 403) return showLogin();
+            return showError(error.message);
+          }
+          render();
+        }
+        init();
+      })();
+    </script>
+  </body>
+</html>

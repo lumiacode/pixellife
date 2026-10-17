@@ -15,6 +15,8 @@ const orderSchema = new mongoose.Schema(
       province: { type: String, required: true }, city: { type: String, required: true },
       fullAddress: { type: String, required: true }, postalCode: { type: String, default: "" },
     },
+    shippingMethod: { id: { type: String, default: "post" }, title: { type: String, default: "ارسال پستی" } },
+    discountCode: { type: String, default: "" },
     subtotal: { type: Number, required: true, min: 0 }, deliveryFee: { type: Number, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 }, total: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, enum: ["online", "bale"], default: "online" },

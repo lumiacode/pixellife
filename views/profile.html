@@ -1058,7 +1058,7 @@
 
       /* ── تب‌ها ── */
       const tabs = ["info", "orders", "wishlist", "addresses", "history"];
-      function showTab(tab) {
+      function showTab(tab, keepQuery) {
         if (!tabs.includes(tab)) tab = "info";
         tabs.forEach((t) => {
           document
@@ -1072,7 +1072,7 @@
           tab === "info"
             ? "/profile"
             : "/profile/" + (tab === "addresses" ? "addresses" : tab);
-        const orderQuery = tab === "orders" ? window.location.search : "";
+        const orderQuery = tab === "orders" && keepQuery ? window.location.search : "";
         window.history.replaceState(null, "", path + orderQuery);
         if (tab === "orders") loadOrders();
         if (tab === "wishlist") loadWishlist();
@@ -1234,6 +1234,8 @@
         const detail = document.getElementById("orderDetail");
         detail.hidden = true;
         detail.innerHTML = "";
+        // نمای جزئیات لیست را مخفی می‌کند؛ با بازگشت به تب سفارش‌ها باید دوباره نمایان شود.
+        list.style.display = "";
         list.innerHTML = '<div class="empty-state"><p>در حال دریافت سفارش‌ها...</p></div>';
         try {
           const res = await apiRequest("/api/orders/my", "GET");
@@ -1274,7 +1276,7 @@
 
       function initTabFromPath() {
         const path = window.location.pathname;
-        if (path.includes("/orders")) showTab("orders");
+        if (path.includes("/orders")) showTab("orders", true);
         else if (path.includes("/wishlist")) showTab("wishlist");
         else if (path.includes("/addresses")) showTab("addresses");
         else if (path.includes("/wallet")) showTab("history");

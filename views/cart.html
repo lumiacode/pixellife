@@ -3433,10 +3433,10 @@
                 id="checkoutBtn"
                 aria-label="تکمیل خرید"
               >
-                <i class="ti ti-lock"></i> تکمیل سفارش
+                <i class="ti ti-lock"></i> ثبت سفارش
               </button>
               <a href="#" class="btn-continue-shopping" id="continueToCheckout"
-                ><i class="ti ti-arrow-left"></i> ادامه به پرداخت</a
+                ><i class="ti ti-arrow-left"></i> ثبت سفارش</a
               >
             </div>
           </aside>
@@ -3467,7 +3467,7 @@
           <strong id="mobileBarTotal">۰</strong>
         </div>
         <button class="mobile-bar-checkout" id="mobileCheckoutBtn">
-          <i class="ti ti-lock"></i> پرداخت
+          <i class="ti ti-lock"></i> ثبت سفارش
         </button>
       </div>
     </div>
@@ -4158,35 +4158,8 @@
             showToast("کالاهای سبد خرید در حال حاضر ناموجود هستند");
             return;
           }
-          if (!checkoutAddress) await loadCheckoutAddress();
-          if (!checkoutAddress) {
-            window.location.href = "/profile/addresses?return=/cart";
-            return;
-          }
-          const response = await fetch("/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              addressId: checkoutAddress._id,
-              items: availableItems.map((item) => ({
-                productId: item.id,
-                quantity: getCartQuantity(item),
-                color: item.color,
-                storage: item.variant,
-                warranty: item.warranty,
-              })),
-            }),
-          });
-          const result = await response.json();
-          if (response.status === 401) {
-            openLoginModal();
-            throw new Error("برای ادامه خرید ابتدا وارد حساب کاربری شوید");
-          }
-          if (!response.ok || !result.success) throw new Error(result.message || "ثبت سفارش ناموفق بود");
-          cartData = cartData.filter((item) => !item.available);
-          saveCart();
-          showToast("سفارش ثبت شد؛ در حال انتقال به صفحهٔ سفارش...");
-          window.location.href = "/profile/orders?order=" + encodeURIComponent(result.order.id);
+          window.location.href = "/checkout/shipping";
+          return;
         } catch (error) {
           showToast(error.message || "ثبت سفارش ناموفق بود");
         } finally {

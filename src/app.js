@@ -185,6 +185,7 @@ const authRoutes = require("./routes/authRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const orderRoutes = require("./routes/orders");
+const checkoutRoutes = require("./routes/checkout");
 const adminRoutes = require("./routes/admin");
 const adminApiRoutes = require("./routes/adminApi");
 const adminAiProductsRoutes = require("./routes/adminAiProducts");
@@ -216,6 +217,7 @@ app.use("/api/reviews", reviewRoutes);
 // Addresses (آدرس‌های کاربر)
 app.use("/api/addresses", addressRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/checkout", checkoutRoutes);
 app.use("/api/payments", balePaymentRoutes);
 app.use("/api/payments/zarinpal", zarinpalPaymentRoutes);
 
