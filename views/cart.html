@@ -4183,17 +4183,10 @@
             throw new Error("برای ادامه خرید ابتدا وارد حساب کاربری شوید");
           }
           if (!response.ok || !result.success) throw new Error(result.message || "ثبت سفارش ناموفق بود");
-          showToast("در حال انتقال به درگاه پرداخت...");
-          const paymentResponse = await fetch("/api/payments/zarinpal/request", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: result.order.id }),
-          });
-          const payment = await paymentResponse.json();
-          if (!paymentResponse.ok || !payment.success || !payment.paymentUrl) throw new Error(payment.message || "ایجاد پرداخت ناموفق بود");
           cartData = cartData.filter((item) => !item.available);
           saveCart();
-          window.location.href = payment.paymentUrl;
+          showToast("سفارش ثبت شد؛ در حال انتقال به صفحهٔ سفارش...");
+          window.location.href = "/profile/orders?order=" + encodeURIComponent(result.order.id);
         } catch (error) {
           showToast(error.message || "ثبت سفارش ناموفق بود");
         } finally {
