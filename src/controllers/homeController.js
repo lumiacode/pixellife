@@ -110,6 +110,105 @@ const ENAMAD_STYLE = `
   }
 </style>`;
 
+// نماد اعتماد زرین‌پال (کد رسمی زرین‌پال؛ اسکریپت همان‌جا یک تصویر می‌نویسد، پس باید همین‌جا و هم‌زمان با پارس صفحه اجرا شود).
+const ZARINPAL_BADGE_HTML = `<div class="ftrust-zarinpal" title="نماد اعتماد زرین‌پال">
+<div id="zarinpal">
+<script src="https://www.zarinpal.com/webservice/TrustCode" type="text/javascript"></script>
+</div>
+</div>`;
+
+// چیدمان یکسان نمادهای اعتماد (اینماد، اتحادیه، زرین‌پال) در همهٔ صفحه‌ها؛ بعد از CSS هر صفحه می‌آید تا جایگزین استایل‌های پراکنده شود.
+const TRUST_BADGES_STYLE = `
+<style id="trust-badges-style">
+  .footer-trust,
+  .standalone-enamad-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+  }
+  .standalone-enamad-wrap { justify-content: center; }
+  .footer-trust .ftrust-enamad,
+  .footer-trust .ftrust-ecunion,
+  .footer-trust .ftrust-zarinpal,
+  .standalone-enamad-wrap .ftrust-enamad,
+  .standalone-enamad-wrap .ftrust-ecunion,
+  .standalone-enamad-wrap .ftrust-zarinpal {
+    order: -1;
+    display: flex;
+    flex: 0 1 112px;
+    align-items: center;
+    justify-content: center;
+    width: 112px;
+    min-width: 0;
+    max-width: 112px;
+    height: 64px;
+    padding: 6px;
+    margin: 0;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--radius-sm, 8px);
+    background: #fff;
+    box-sizing: border-box;
+    overflow: hidden;
+    contain: none;
+  }
+  .footer-trust .ftrust-zarinpal #zarinpal,
+  .standalone-enamad-wrap .ftrust-zarinpal #zarinpal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+  .footer-trust .ftrust-zarinpal a,
+  .standalone-enamad-wrap .ftrust-zarinpal a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .footer-trust .ftrust-enamad img,
+  .footer-trust .ftrust-ecunion img,
+  .footer-trust .ftrust-zarinpal img,
+  .standalone-enamad-wrap .ftrust-enamad img,
+  .standalone-enamad-wrap .ftrust-ecunion img,
+  .standalone-enamad-wrap .ftrust-zarinpal img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 50px;
+    object-fit: contain;
+  }
+  @media (max-width: 640px) {
+    .footer-bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+    }
+    .footer-trust,
+    .standalone-enamad-wrap { gap: 8px; }
+    .standalone-enamad-wrap { padding: 0; }
+    .footer-trust { justify-content: center; width: 100%; }
+    .footer-trust .ftrust-enamad,
+    .footer-trust .ftrust-ecunion,
+    .footer-trust .ftrust-zarinpal,
+    .standalone-enamad-wrap .ftrust-enamad,
+    .standalone-enamad-wrap .ftrust-ecunion,
+    .standalone-enamad-wrap .ftrust-zarinpal {
+      flex: 0 0 auto;
+      width: 92px;
+      max-width: 92px;
+      height: 60px;
+      padding: 4px;
+    }
+  }
+</style>`;
+
 const ENAMAD_HTML = `
 <a
   referrerpolicy="origin"
@@ -133,7 +232,8 @@ const ENAMAD_HTML = `
   title="مجوز اتحادیه کشوری کسب‌وکارهای مجازی"
 >
   <img src="/images/trust/ecunion-logo.png" alt="مجوز اتحادیه کشوری کسب‌وکارهای مجازی" width="82" height="52" loading="lazy" decoding="async" />
-</span>`;
+</span>
+${ZARINPAL_BADGE_HTML}`;
 
 const MOBILE_HERO_FIX = `
 <style id="mobile-hero-fit-fix">
@@ -339,7 +439,7 @@ function injectHistorySafeAnchors(html) {
     : html;
 }
 
-function injectEnamad(html) {
+function injectEnamadBadges(html) {
   if (!html || html.includes("trustseal.enamad.ir")) return html;
 
   if (html.includes("</head>")) {
@@ -364,6 +464,20 @@ function injectEnamad(html) {
   }
 
   return `${html}\n${wrappedBadge}`;
+}
+
+// نمادهای اعتماد: چیدمان یکسان + افزودن نماد زرین‌پال به صفحه‌هایی که اینماد را از قبل در خود فایل دارند (مثل index.html).
+function injectEnamad(html) {
+  if (!html) return html;
+  html = injectEnamadBadges(html);
+  if (!html.includes("trust-badges-style") && html.includes("</head>")) {
+    html = html.replace("</head>", `${TRUST_BADGES_STYLE}\n</head>`);
+  }
+  if (!html.includes("webservice/TrustCode")) {
+    const ecunionPattern = /(<span[^>]*class=["']ftrust-ecunion["'][^>]*>[\s\S]*?<\/span>)/i;
+    if (ecunionPattern.test(html)) html = html.replace(ecunionPattern, `$1\n${ZARINPAL_BADGE_HTML}`);
+  }
+  return html;
 }
 
 function injectSharedCategoryNav(html) {
@@ -633,7 +747,7 @@ const homeController = {
         html = html.replace("</body>", `${SHARED_CATEGORY_SCRIPT}\n</body>`);
       }
 
-      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(html)))))));
+      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectEnamad(html))))))));
       if (IS_PRODUCTION) viewCache.set("rendered:index", html);
       res.type("html").send(html);
     } catch (error) {
