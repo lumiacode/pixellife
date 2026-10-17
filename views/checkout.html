@@ -191,6 +191,7 @@
 
     <div class="co-toast" id="coToast" role="status"></div>
 
+    <script src="/auth-modal.js"></script>
     <script>
       (function () {
         "use strict";
@@ -288,7 +289,13 @@
           showState("ti-shopping-cart-off", "سبد خرید شما خالی است", "برای ثبت سفارش ابتدا محصولی به سبد خرید اضافه کنید.", '<a class="co-btn" href="/">شروع خرید</a>');
         }
         function showLogin() {
-          showState("ti-user-circle", "برای ثبت سفارش وارد حساب کاربری شوید", "پس از ورود، دوباره به سبد خرید برگردید و سفارش خود را ثبت کنید.", '<a class="co-btn" href="/login">ورود به حساب کاربری</a>');
+          showState("ti-user-circle", "برای ثبت سفارش وارد حساب کاربری شوید", "با شمارهٔ موبایل خود وارد شوید؛ بعد از ورود، ثبت سفارش از همین‌جا ادامه پیدا می‌کند.", '<button type="button" class="co-btn" id="coLoginBtn"><i class="ti ti-login"></i> ورود یا ثبت‌نام</button>');
+          // همان مودال ورود اصلی سایت (کد تأیید کاوه‌نگار)؛ بعد از ورود صفحه خودکار دوباره بارگذاری می‌شود.
+          openAuthModal();
+        }
+        function openAuthModal() {
+          if (typeof window.openLoginModal === "function") window.openLoginModal();
+          else location.href = "/?openLogin=1";
         }
         function showError(message) {
           showState("ti-alert-circle", "ثبت سفارش ممکن نیست", message, '<a class="co-btn ghost" href="/cart">بازگشت به سبد خرید</a>');
@@ -570,6 +577,7 @@
             if (!form.hidden) document.getElementById("adReceiver").focus();
             return;
           }
+          if (target.closest("#coLoginBtn")) return openAuthModal();
           if (target.closest("#adCancel")) { document.getElementById("coAddrForm").hidden = true; return; }
           if (target.closest("#coCouponApply")) {
             var code = document.getElementById("coCouponInput").value.trim();

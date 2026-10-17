@@ -687,7 +687,8 @@ const homeController = {
       icon: "ti-device-mobile",
     }),
   categories: (req, res) => sendViewWithEnamad(res, "categories.html"),
-  login: (req, res) => sendViewWithEnamad(res, "login.html"),
+  // صفحهٔ قدیمی login.html فقط نمایشی بود (کد تأیید نمی‌فرستاد)؛ ورود واقعی با مودال مشترک سایت انجام می‌شود.
+  login: (req, res) => res.redirect(302, "/?openLogin=1"),
   cart: (req, res) => {
     // منطق پرداخت نباید هرگز با نسخهٔ قبلی مرورگر یا CDN اجرا شود.
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
