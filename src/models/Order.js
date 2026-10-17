@@ -19,6 +19,8 @@ const orderSchema = new mongoose.Schema(
     discountCode: { type: String, default: "" },
     // سفارش پرداخت‌نشده‌ای که با ثبت سفارش جدید جایگزین شده؛ در لیست سفارش‌های کاربر نمایش داده نمی‌شود.
     superseded: { type: Boolean, default: false },
+    // موجودی کالاها بعد از تأیید پرداخت فقط یک بار کم می‌شود.
+    stockApplied: { type: Boolean, default: false },
     subtotal: { type: Number, required: true, min: 0 }, deliveryFee: { type: Number, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 }, total: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, enum: ["online", "bale"], default: "online" },

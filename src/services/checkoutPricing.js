@@ -2,6 +2,7 @@ const Product = require("../models/Product");
 const DiscountCode = require("../models/DiscountCode");
 const ApiError = require("../utils/ApiError");
 const checkoutConfig = require("../config/checkout");
+const { availableStock } = require("./inventory");
 
 const OBJECT_ID_RE = /^[a-f\d]{24}$/i;
 
@@ -21,21 +22,26 @@ function shippingFee(method, subtotal) {
 }
 
 // قیمت‌ها همیشه از دیتابیس خوانده می‌شوند؛ قیمتی که مرورگر می‌فرستد معتبر نیست.
-async function loadLineItems(requestedItems) {
+async function loadLineItems(requestedItems, { collectUnavailable = false } = {}) {
   const products = await Promise.all(requestedItems.map((item) => {
     const id = String(item.productId || "").trim();
     if (OBJECT_ID_RE.test(id)) return Product.findById(id).lean();
     return Product.findOne({ $or: [{ slug: id }, { legacyId: id }] }).lean();
   }));
-  const lines = requestedItems.map((item, index) => {
+  const unavailable = [];
+  const lines = [];
+  requestedItems.forEach((item, index) => {
     const product = products[index];
     const quantity = Math.max(1, Math.floor(Number(item.quantity) || 0));
-    if (!product || product.availability === "out" || Number(product.stock) < quantity) {
-      throw new ApiError(409, `محصول «${product?.name || "انتخاب‌شده"}» موجود نیست`);
+    const selection = { storage: item.storage, color: item.color };
+    if (!product || availableStock(product, selection) < quantity) {
+      if (!collectUnavailable) throw new ApiError(409, `محصول «${product?.name || "انتخاب‌شده"}» موجود نیست`);
+      unavailable.push({ productId: String(item.productId || ""), name: product?.name || "", deleted: !product });
+      return;
     }
     const originalPrice = Math.round(Number(product.price));
     const price = Math.round(originalPrice * (1 - Math.max(0, Number(product.discount) || 0) / 100));
-    return {
+    lines.push({
       product: product._id,
       name: product.name,
       brand: product.brand,
@@ -47,9 +53,9 @@ async function loadLineItems(requestedItems) {
       color: String(item.color || ""),
       storage: String(item.storage || ""),
       warranty: String(item.warranty || ""),
-    };
+    });
   });
-  return lines;
+  return collectUnavailable ? { lines, unavailable } : lines;
 }
 
 // بررسی کد تخفیف؛ خروجی { amount, error } است و هیچ‌وقت exception نمی‌دهد.
@@ -92,7 +98,11 @@ async function findDiscountCode(rawCode) {
 
 // آیتم‌ها + قیمت‌گذاری + کد تخفیف در یک مرحله
 async function buildQuote({ items, shippingMethodId, discountCode }) {
-  const lines = await loadLineItems(items);
+  const { lines, unavailable } = await loadLineItems(items, { collectUnavailable: true });
+  if (unavailable.length) {
+    const names = unavailable.map((item) => item.name).filter(Boolean).map((name) => `«${name}»`).join("، ");
+    throw new ApiError(409, names ? `کالای ${names} دیگر موجود نیست` : "برخی کالاهای سبد خرید دیگر موجود نیستند", { unavailable });
+  }
   const shippingMethod = findShippingMethod(shippingMethodId);
   if (!shippingMethod) throw new ApiError(400, "روش ارسال معتبر نیست");
   const subtotal = lines.reduce((sum, item) => sum + item.price * item.quantity, 0);

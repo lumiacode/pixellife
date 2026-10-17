@@ -4,6 +4,7 @@ const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
 const Order = require("../models/Order");
 const env = require("../config/env");
+const { applyOrderStock } = require("../services/inventory");
 
 const apiBase = env.zarinpalSandbox
   ? "https://sandbox.zarinpal.com/pg/v4/payment"
@@ -76,6 +77,7 @@ router.get("/callback", async (req, res, next) => {
     order.zarinpal.paidAt = new Date();
     order.statusHistory.push({ status: "processing", note: `پرداخت زرین‌پال تأیید شد؛ کد رهگیری ${data.ref_id || ""}` });
     await order.save();
+    await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
     res.redirect(`/profile/orders?payment=success&order=${encodeURIComponent(order.orderNumber)}`);
   } catch (error) { next(error); }
 });

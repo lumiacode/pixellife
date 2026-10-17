@@ -27,7 +27,13 @@ router.post("/quote", protect, async (req, res, next) => {
       discount: quote.discount ? { code: quote.discount.doc.code, title: quote.discount.doc.title, amount: quote.discount.amount } : null,
       discountError: quote.discountError,
     });
-  } catch (error) { next(error); }
+  } catch (error) {
+    // کالاهای ناموجود/حذف‌شده را به مرورگر می‌گوییم تا از سبد خرید پاک شوند.
+    if (error.statusCode === 409 && error.details?.unavailable) {
+      return res.status(409).json({ success: false, message: error.message, unavailable: error.details.unavailable });
+    }
+    next(error);
+  }
 });
 
 module.exports = router;

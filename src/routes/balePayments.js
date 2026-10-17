@@ -7,6 +7,7 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Address = require("../models/Address");
 const { findShippingMethod, shippingFee } = require("../services/checkoutPricing");
+const { applyOrderStock } = require("../services/inventory");
 
 const BOT_USERNAME = (process.env.BALE_BOT_USERNAME || "pixellifepaybot").replace(/^@/, "");
 const BALE_API_BASE = "https://tapi.bale.ai/bot";
@@ -215,6 +216,7 @@ router.post("/bale/webhook/:secret", async (req, res) => {
         order.balePayment.paidAt = new Date();
         order.statusHistory.push({ status: "processing", note: `پرداخت بله تأیید شد. شناسه تراکنش: ${chargeId}` });
         await order.save();
+        await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
       }
     }
   } catch (error) {

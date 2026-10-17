@@ -24,6 +24,7 @@ const products = [
   { _id: "64a000000000000000000001", slug: "charger-20w", legacyId: "p-charger", name: "شارژر ۲۰ وات", brand: "Hiska", category: "accessories", price: 2099000, discount: 33, stock: 5, availability: "in", mainImage: "/img/c.png" },
   { _id: "64a000000000000000000002", slug: "phone-x", name: "گوشی X", brand: "X", category: "mobile", price: 10000000, discount: 0, stock: 1, availability: "in", images: ["/img/p.png"] },
   { _id: "64a000000000000000000003", slug: "gone", name: "ناموجود", price: 1000, stock: 0, availability: "out" },
+  { _id: "64a000000000000000000004", slug: "case", name: "قاب گوشی", brand: "C", category: "accessories", price: 100000, discount: 0, stock: 3, availability: "in", variants: [{ storage: "", color: { name: "مشکی" }, stock: 2 }, { storage: "", color: { name: "سفید" }, stock: 1 }] },
 ];
 const address = { _id: "64c000000000000000000001", user: USER._id, receiverName: "علی رضایی", receiverMobile: "09123456789", province: "تهران", city: "تهران", fullAddress: "خیابان شاهد پلاک ۳۴۴", postalCode: "1234567890" };
 const discountDocs = [{ _id: "d1", code: "OFF10", type: "percent", value: 10, maxDiscount: 100000, minOrderAmount: 0, usageLimit: 1, usedCount: 0, isActive: true, expiresAt: null }];
@@ -33,9 +34,32 @@ const lean = (value) => ({ lean: async () => value });
 /* ───────── جایگزین‌ها ───────── */
 stub(src("middleware", "authMiddleware.js"), { protect: (req, res, next) => { req.user = USER; next(); } });
 stub(src("services", "behaviorAnalytics.js"), { recordBehaviorEvent: async () => {} });
+const clone = (value) => (value ? JSON.parse(JSON.stringify(value)) : value);
 stub(src("models", "Product.js"), {
-  findById: (id) => lean(products.find((p) => String(p._id) === String(id)) || null),
-  findOne: (q) => lean(products.find((p) => (q.$or || []).some((c) => Object.entries(c).every(([k, v]) => p[k] === v))) || null),
+  findById: (id) => lean(clone(products.find((p) => String(p._id) === String(id)) || null)),
+  findOne: (q) => lean(clone(products.find((p) => (q.$or || []).some((c) => Object.entries(c).every(([k, v]) => p[k] === v))) || null)),
+  // فقط شکل‌های updateOne که services/inventory.js استفاده می‌کند شبیه‌سازی شده‌اند.
+  updateOne: async (filter, update, options = {}) => {
+    const doc = products.find((p) => String(p._id) === String(filter._id));
+    if (!doc) return { modifiedCount: 0 };
+    if (filter.stock && filter.stock.$gte !== undefined && !(doc.stock >= filter.stock.$gte)) return { modifiedCount: 0 };
+    let index = -1;
+    if (filter.variants && filter.variants.$elemMatch) {
+      const em = filter.variants.$elemMatch;
+      index = (doc.variants || []).findIndex((v) => (v.storage || "") === em.storage && (v.color && v.color.name) === em["color.name"] && v.stock >= em.stock.$gte);
+      if (index < 0) return { modifiedCount: 0 };
+    }
+    for (const [key, value] of Object.entries(update.$inc || {})) {
+      if (key === "variants.$.stock") doc.variants[index].stock += value; else doc[key] += value;
+    }
+    for (const [key, value] of Object.entries(update.$set || {})) {
+      if (key === "variants.$[v].stock") {
+        const f = options.arrayFilters[0];
+        doc.variants.forEach((v) => { if ((v.storage || "") === f["v.storage"] && (v.color && v.color.name) === f["v.color.name"]) v.stock = value; });
+      } else doc[key] = value;
+    }
+    return { modifiedCount: 1 };
+  },
 });
 stub(src("models", "Address.js"), { findOne: (q) => lean(String(q._id) === String(address._id) && String(q.user) === String(USER._id) ? address : null) });
 stub(src("models", "DiscountCode.js"), {
@@ -66,14 +90,21 @@ stub(src("models", "Order.js"), {
     result.sort = () => ({ lean: async () => matches.map((o) => o.toObject()) });
     return result;
   },
+  updateOne: async (cond, update) => {
+    const doc = orders.find((o) => String(o._id) === String(cond._id) && !(cond.stockApplied && cond.stockApplied.$ne === true && o.stockApplied === true));
+    if (!doc) return { modifiedCount: 0 };
+    Object.assign(doc, update.$set);
+    return { modifiedCount: 1 };
+  },
   findOne: async (q) => orders.find((o) => (q._id ? String(o._id) === String(q._id) : true) && (q.user ? String(o.user) === String(q.user) : true) && (q["zarinpal.authority"] ? o.zarinpal.authority === q["zarinpal.authority"] : true)) || null,
 });
 
 const zarinpalCalls = [];
+let authorityCounter = 0;
 const axiosStub = {
   post: async (url, body) => {
     zarinpalCalls.push({ url, body });
-    if (url.endsWith("/request.json")) return { data: { data: { code: 100, authority: "A00000000000000000000000000000001" } } };
+    if (url.endsWith("/request.json")) return { data: { data: { code: 100, authority: "A" + String(++authorityCounter).padStart(32, "0") } } };
     if (url.endsWith("/verify.json")) return { data: { data: { code: 100, ref_id: 987654, card_pan: "6037****1234" } } };
     throw new Error("unexpected url " + url);
   },
@@ -219,6 +250,50 @@ async function call(base, method, url, body) {
 
   /* ۱۱) پرداخت دوباره سفارش پرداخت‌شده ممکن نیست */
   assert.strictEqual((await call(base, "POST", "/api/payments/zarinpal/request", { orderId: String(order._id) })).status, 400);
+
+  /* ۱۲) بعد از تأیید پرداخت، موجودی همان کالا کم می‌شود (فقط یک بار) */
+  assert.strictEqual(products[0].stock, 3, "۵ - ۲ سفارش پرداخت‌شده");
+  assert.strictEqual(products[0].availability, "in");
+  const { applyOrderStock } = require(src("services", "inventory.js"));
+  assert.strictEqual(await applyOrderStock(order), false, "کسر دوباره موجودی نباید اتفاق بیفتد");
+  assert.strictEqual(products[0].stock, 3);
+
+  /* ۱۳) آخرین موجودی توسط یک کاربر خریداری شد: کالا ناموجود می‌شود و quote برای بقیه ۴۰۹ با فهرست حذف می‌دهد */
+  const payOrder = async (items) => {
+    const created = await call(base, "POST", "/api/orders", { addressId: address._id, items, shippingMethod: "post", paymentMethod: "zarinpal" });
+    assert.strictEqual(created.status, 201, JSON.stringify(created.json));
+    const orderId = created.json.order.id;
+    const pay = await call(base, "POST", "/api/payments/zarinpal/request", { orderId: String(orderId) });
+    const authority = pay.json.authority;
+    const back = await call(base, "GET", "/api/payments/zarinpal/callback?Authority=" + authority + "&Status=OK");
+    assert.ok(back.location.startsWith("/profile/orders?payment=success"), back.location);
+  };
+  await payOrder([{ productId: "phone-x", quantity: 1 }]);
+  assert.strictEqual(products[1].stock, 0);
+  assert.strictEqual(products[1].availability, "out");
+  const soldOut = await call(base, "POST", "/api/checkout/quote", { items: [{ productId: "charger-20w", quantity: 1 }, { productId: "phone-x", quantity: 1 }] });
+  assert.strictEqual(soldOut.status, 409);
+  assert.deepStrictEqual(soldOut.json.unavailable.map((u) => u.productId), ["phone-x"]);
+  assert.ok(soldOut.json.message.includes("گوشی X"));
+  assert.strictEqual((await call(base, "POST", "/api/orders", { addressId: address._id, items: [{ productId: "phone-x", quantity: 1 }], shippingMethod: "post", paymentMethod: "zarinpal" })).status, 409);
+
+  /* ۱۴) محصول حذف‌شده از ادمین */
+  const ghost = await call(base, "POST", "/api/checkout/quote", { items: [{ productId: "deleted-product", quantity: 1 }] });
+  assert.strictEqual(ghost.status, 409);
+  assert.strictEqual(ghost.json.unavailable[0].deleted, true);
+
+  /* ۱۵) محصول دارای تنوع: فقط همان رنگِ تمام‌شده ناموجود می‌شود */
+  await payOrder([{ productId: "case", quantity: 2, color: "مشکی", storage: "—", warranty: "—" }]);
+  assert.strictEqual(products[3].variants[0].stock, 0);
+  assert.strictEqual(products[3].stock, 1);
+  assert.strictEqual(products[3].availability, "in");
+  const blackGone = await call(base, "POST", "/api/checkout/quote", { items: [{ productId: "case", quantity: 1, color: "مشکی" }] });
+  assert.strictEqual(blackGone.status, 409);
+  assert.strictEqual((await call(base, "POST", "/api/checkout/quote", { items: [{ productId: "case", quantity: 1, color: "سفید" }] })).status, 200);
+  assert.strictEqual((await call(base, "POST", "/api/checkout/quote", { items: [{ productId: "case", quantity: 2, color: "سفید" }] })).status, 409, "بیشتر از موجودی همان رنگ");
+  await payOrder([{ productId: "case", quantity: 1, color: "سفید" }]);
+  assert.strictEqual(products[3].stock, 0);
+  assert.strictEqual(products[3].availability, "out");
 
   server.close();
   console.log("Checkout flow test passed.");

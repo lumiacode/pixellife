@@ -266,6 +266,7 @@
           if (!res.ok || data.success === false) {
             var err = new Error(data.message || "خطا در ارتباط با سرور");
             err.status = res.status;
+            err.data = data;
             throw err;
           }
           return data;
@@ -459,6 +460,18 @@
         }
 
         /* ───────── اکشن‌ها ───────── */
+        // کالای حذف‌شده یا تمام‌شده از سبد خرید پاک می‌شود و کاربر باخبر می‌شود.
+        function removeUnavailable(list) {
+          var ids = {};
+          list.forEach(function (item) { ids[String(item.productId)] = true; });
+          var remaining = readCart().filter(function (item) { return !(item && ids[String(item.id)]); });
+          try {
+            localStorage.setItem(CART_KEY, JSON.stringify(remaining));
+            window.dispatchEvent(new Event("cartUpdated"));
+          } catch (_) {}
+          var names = list.map(function (item) { return item.name; }).filter(Boolean);
+          toast(names.length === 1 ? "«" + names[0] + "» ناموجود شد و از سبد خرید حذف شد" : fa(list.length) + " کالای ناموجود از سبد خرید حذف شد");
+        }
         async function refreshQuote() {
           quote = await api("/api/checkout/quote", "POST", {
             items: cartRequestItems(),
@@ -552,6 +565,7 @@
           } catch (error) {
             toast(error.message || "ثبت سفارش ناموفق بود");
             if (error.status === 401) showLogin();
+            if (error.status === 409) { setTimeout(function () { location.reload(); }, 1800); return; }
             busy = false;
             document.querySelectorAll("[data-primary]").forEach(function (b) { b.disabled = false; });
           }
@@ -617,9 +631,20 @@
           if (step === "payment" && !state.addressId) { location.replace("/checkout/shipping"); return; }
           saveState();
           try {
-            await refreshQuote();
+            try {
+              await refreshQuote();
+            } catch (error) {
+              if (error.status !== 409 || !error.data || !error.data.unavailable) throw error;
+              removeUnavailable(error.data.unavailable);
+              if (!cartRequestItems().length) return showEmpty();
+              await refreshQuote();
+            }
           } catch (error) {
             if (error.status === 401 || error.status === 403) return showLogin();
+            if (error.status === 409 && error.data && error.data.unavailable) {
+              removeUnavailable(error.data.unavailable);
+              return cartRequestItems().length ? showError(error.message) : showEmpty();
+            }
             return showError(error.message);
           }
           render();

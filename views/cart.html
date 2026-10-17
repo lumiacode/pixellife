@@ -3670,7 +3670,11 @@
           };
 
           let allVerified = true;
-          await Promise.all(cartData.map(async (item) => {
+          // رویداد cartUpdated ممکن است هنگام انتظار برای سرور cartData را با آبجکت‌های تازه جایگزین کند؛
+          // نتیجهٔ همگام‌سازی بعد از پایان روی نسخهٔ جاری سبد اعمال می‌شود.
+          const cartItemKey = (item) => [item.id, normalizeVariantValue(item.color), normalizeVariantValue(item.variant || item.storage)].join("|");
+          const syncedItems = cartData.slice();
+          await Promise.all(syncedItems.map(async (item) => {
             try {
               const result = await getLiveProduct(item.id);
               if (result.status === "missing") {
@@ -3719,6 +3723,29 @@
               item.inventoryStatus = "unverified";
             }
           }));
+
+          const syncedByKey = new Map(syncedItems.map((item) => [cartItemKey(item), item]));
+          cartData.forEach((current) => {
+            const synced = syncedByKey.get(cartItemKey(current));
+            if (synced && synced !== current) {
+              ["stock", "available", "inventoryStatus", "image", "name", "brand", "quantity", "qty"].forEach((field) => {
+                if (synced[field] !== undefined) current[field] = synced[field];
+              });
+            }
+          });
+
+          // کالای حذف‌شده از ادمین یا تمام‌شده (مثلاً خریداری‌شده توسط کاربر دیگر) از سبد خرید پاک می‌شود.
+          // کالایی که فقط به‌خاطر خطای شبکه تأیید نشده، دست‌نخورده می‌ماند.
+          const removedItems = cartData.filter((item) => item.inventoryStatus === "unavailable");
+          if (removedItems.length) {
+            cartData = cartData.filter((item) => item.inventoryStatus !== "unavailable");
+            const names = removedItems.map((item) => item.name).filter(Boolean).slice(0, 2).join("، ");
+            showToast(
+              removedItems.length === 1 && names
+                ? "«" + names + "» ناموجود شد و از سبد خرید حذف شد"
+                : toPersian(removedItems.length) + " کالای ناموجود از سبد خرید حذف شد",
+            );
+          }
 
           lastInventorySyncAt = Date.now();
           saveCart();
