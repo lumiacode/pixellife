@@ -12,6 +12,7 @@
     "express:start": "node src/app.js",
     "test:product-page-contract": "node tests/product-page-contract.test.js",
     "test:checkout-pricing": "node tests/checkout-pricing.test.js",
+    "test:checkout-flow": "node tests/checkout-flow.test.js",
     "prestart": "npm run test:product-page-contract"
   },
   "dependencies": {

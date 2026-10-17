@@ -6,6 +6,7 @@ const { protect } = require("../middleware/authMiddleware");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Address = require("../models/Address");
+const { findShippingMethod, shippingFee } = require("../services/checkoutPricing");
 
 const BOT_USERNAME = (process.env.BALE_BOT_USERNAME || "pixellifepaybot").replace(/^@/, "");
 const BALE_API_BASE = "https://tapi.bale.ai/bot";
@@ -68,7 +69,7 @@ async function buildOrder(user, body) {
   });
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const deliveryFee = subtotal >= 5000000 ? 0 : 150000;
+  const deliveryFee = shippingFee(findShippingMethod(), subtotal);
   const total = subtotal + deliveryFee;
   const order = await Order.create({
     user: user._id, items,
