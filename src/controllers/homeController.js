@@ -120,6 +120,11 @@ const ZARINPAL_BADGE_HTML = `<div class="ftrust-zarinpal" title="نماد اعت
 // چیدمان یکسان نمادهای اعتماد (اینماد، اتحادیه، زرین‌پال) در همهٔ صفحه‌ها؛ بعد از CSS هر صفحه می‌آید تا جایگزین استایل‌های پراکنده شود.
 const TRUST_BADGES_STYLE = `
 <style id="trust-badges-style">
+  /* جلوگیری از اسکرول افقی؛ این قانون قبلاً فقط همراه استایل اینماد می‌آمد و صفحه‌هایی که اینماد را در خودشان دارند (فوتر مشترک) نمی‌گرفتند. */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
   .footer-trust,
   .standalone-enamad-wrap {
     display: flex;
@@ -474,6 +479,43 @@ function injectHomeV2(html) {
   return html.includes("</head>") ? html.replace("</head>", `${HOME_V2_STYLE}\n</head>`) : html;
 }
 
+// فوتر مشترک (views/partials/footer.html): همهٔ صفحه‌هایی که فوتر ندارند یا نسخهٔ قدیمی دارند، همین را می‌گیرند.
+const SHARED_FOOTER_HTML = (() => {
+  try {
+    return fs.readFileSync(path.join(__dirname, "../../views/partials/footer.html"), "utf8").trim();
+  } catch (error) {
+    console.error("Shared footer load error:", error.message);
+    return "";
+  }
+})();
+const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html"]);
+const FOOTER_PATTERN = /<footer\b[^>]*class="[^"]*\bfooter\b[^"]*"[^>]*>[\s\S]*?<\/footer>/i;
+
+function injectSharedFooter(html, fileName) {
+  if (!html || !SHARED_FOOTER_HTML || !SHARED_FOOTER_PAGES.has(fileName) || !FOOTER_PATTERN.test(html)) return html;
+  return html.replace(FOOTER_PATTERN, () => SHARED_FOOTER_HTML);
+}
+
+// سبد کوچک هدر برای صفحه‌هایی که خودشان ندارند (public/js/shared-minicart.js + CSS)
+const SHARED_MINICART_STYLE = (() => {
+  try {
+    const css = fs.readFileSync(path.join(__dirname, "../../public/css/shared-minicart.css"), "utf8").replace(/\s+/g, " ").trim();
+    return `<style id="pl-shared-minicart">${css}</style>`;
+  } catch (error) {
+    console.error("Shared minicart style load error:", error.message);
+    return "";
+  }
+})();
+
+const SHARED_MINICART_PAGES = new Set(["samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html"]);
+
+function injectSharedMiniCart(html, fileName) {
+  if (!html || !SHARED_MINICART_STYLE || !SHARED_MINICART_PAGES.has(fileName) || !html.includes('class="cart-wrap"') || html.includes("shared-minicart.js")) return html;
+  // قالب‌هایی که پوستهٔ پنجره را دارند (آیپد) استایلش را هم دارند؛ بقیه استایل را از اینجا می‌گیرند.
+  if (!html.includes('id="cartDropdown"') && html.includes("</head>")) html = html.replace("</head>", `${SHARED_MINICART_STYLE}\n</head>`);
+  return html.includes("</body>") ? html.replace("</body>", '<script src="/js/shared-minicart.js" defer></script>\n</body>') : html;
+}
+
 function injectDesignTokens(html) {
   if (!html || !DESIGN_TOKENS_STYLE || html.includes('id="pl-design-tokens"') || html.includes("pl-tokens:off")) return html;
   return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n</head>`) : html;
@@ -571,7 +613,7 @@ function sendViewWithEnamad(res, fileName) {
   try {
     sendCachedHtml(res, `rendered:${fileName}`, () => {
       let html = readView(filePath);
-      html = injectDesignTokens(injectEnamad(html));
+      html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, fileName), fileName)));
       html = injectSharedCategoryNav(html);
       html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -696,7 +738,7 @@ async function sendSpecialCatalogView(res, options) {
         `<i class="ti ${options.icon}" style="font-size:32px;color:var(--text-2)"></i><div>`,
       );
 
-    html = injectDesignTokens(injectEnamad(html));
+    html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, "iphone.html"), "iphone.html")));
     html = injectSharedCategoryNav(html);
     html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -752,7 +794,7 @@ function sendAccessoryBrandView(res, brand) {
         "/js/database-catalog.js?v=20260820-card-design-10",
         "/js/database-catalog.js?v=20260821-accessories-4",
       );
-    html = injectDesignTokens(injectEnamad(html));
+    html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, "iphone.html"), "iphone.html")));
     html = injectSharedCategoryNav(html);
     html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -789,7 +831,7 @@ const homeController = {
 
       html = injectHomeV2(html);
 
-      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectDesignTokens(injectEnamad(html)))))))));
+      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectDesignTokens(injectEnamad(injectSharedFooter(html, "index.html"))))))))));
       if (IS_PRODUCTION) viewCache.set("rendered:index", html);
       res.type("html").send(html);
     } catch (error) {
