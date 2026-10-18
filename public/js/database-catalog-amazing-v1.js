@@ -30,6 +30,7 @@
   if (config.title) document.title = config.title + " | پیکسل لایف";
   const grid = document.querySelector(config.grid);
   if (!grid) return;
+  grid.classList.add("pl-v2");
   const isAccessoryCatalog = path.startsWith("/accessories/");
   if (isAccessoryCatalog) document.body.classList.add("accessory-catalog-page");
 
@@ -95,6 +96,42 @@
     document.head.appendChild(style);
   }
 
+
+  // طراحی سادهٔ کارت محصول (نسخهٔ ۲): کارت‌های گرد با فاصله، عکس مربعی روی زمینهٔ روشن، قیمت واضح.
+  // عمداً آخرین استایل است و با کلاس‌های pl-card-v2 / pl-v2 مقدم می‌شود؛ حذف این بلوک ظاهر قبلی را برمی‌گرداند.
+  if (!document.getElementById("database-catalog-card-v2-style")) {
+    const style = document.createElement("style");
+    style.id = "database-catalog-card-v2-style";
+    style.textContent = `
+      html body .iphone-grid.pl-v2,html body .samsung-grid.pl-v2,html body .xiaomi-grid.pl-v2,html body .prod-grid.pl-v2,html body .xiaomitab-grid.pl-v2,html body .console-grid.pl-v2,html body .grid.pl-v2{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important;gap:14px!important;padding:2px!important;border:0!important;background:transparent!important}
+      html body .pl-catalog-card.pl-card-v2{padding:10px!important;background:var(--pl-surface,#fff)!important;border:1px solid var(--pl-line,#e2e8f0)!important;border-radius:var(--pl-radius-lg,16px)!important;box-shadow:none!important;transition:transform var(--pl-dur,.2s) var(--pl-ease,ease),box-shadow var(--pl-dur,.2s) var(--pl-ease,ease),border-color var(--pl-dur,.2s) var(--pl-ease,ease)!important}
+      html body .pl-catalog-card.pl-card-v2:hover{transform:translateY(-3px)!important;border-color:transparent!important;box-shadow:var(--pl-shadow,0 4px 20px rgba(15,23,42,.08))!important}
+      html body .pl-card-v2 .pl-catalog-media,html body .pl-card-v2 .iphone-card-image,html body .pl-card-v2 .samsung-card-image,html body .pl-card-v2 .xiaomi-card-image,html body .pl-card-v2 .prod-card-image,html body .pl-card-v2 .xiaomitab-card-image,html body .pl-card-v2 .console-card-image{height:auto!important;min-height:0!important;flex:0 0 auto!important;aspect-ratio:1/1!important;margin:0 0 10px!important;padding:12px!important;background:var(--pl-surface-muted,#f1f5f9)!important;border-radius:var(--pl-radius,12px)!important}
+      html body .pl-card-v2 .pl-catalog-media img,html body .pl-card-v2 .iphone-card-image img,html body .pl-card-v2 .samsung-card-image img,html body .pl-card-v2 .xiaomi-card-image img,html body .pl-card-v2 .prod-card-image img,html body .pl-card-v2 .xiaomitab-card-image img,html body .pl-card-v2 .console-card-image img{mix-blend-mode:multiply!important}
+      html body .pl-card-v2 .pl-catalog-body{padding:0 2px!important}
+      html body .pl-card-v2 .pl-catalog-brand{height:18px!important;font-size:12px!important;font-weight:400!important;color:var(--pl-text-3,#64748b)!important;margin:0 0 2px!important}
+      html body .pl-card-v2 .iphone-card-name,html body .pl-card-v2 .samsung-card-name,html body .pl-card-v2 .xiaomi-card-name,html body .pl-card-v2 .prod-card-name,html body .pl-card-v2 .xiaomitab-card-name,html body .pl-card-v2 .console-card-name,html body .pl-card-v2 .card-name{font-size:14px!important;font-weight:600!important;line-height:22px!important;height:44px!important;min-height:44px!important;color:var(--pl-text,#0f172a)!important}
+      html body .pl-card-v2 .pl-catalog-footer{min-height:0!important;margin-top:auto!important;padding-top:8px!important;gap:6px!important}
+      html body .pl-card-v2 .pl-catalog-price{font-size:15px!important;font-weight:800!important;line-height:22px!important;color:var(--pl-text,#0f172a)!important}
+      html body .pl-card-v2 .pl-catalog-price-badge{background:var(--pl-red,#ef4444)!important;min-width:0!important;padding:2px 8px!important;font-size:11px!important}
+      html body .pl-card-v2 .pl-catalog-old-price{font-size:12px!important;color:var(--pl-text-4,#94a3b8)!important}
+      html body .pl-card-v2 .pl-catalog-status{font-size:12px!important;font-weight:600!important}
+      html body .pl-card-v2 .pl-catalog-status.low{color:var(--pl-amber,#f59e0b)!important}
+      html body .pl-card-v2 .pl-catalog-status.in{color:var(--pl-green,#16a34a)!important}
+      html body .pl-card-v2[data-stock="0"] .pl-catalog-media img,html body .pl-card-v2[data-stock="0"] .iphone-card-image img,html body .pl-card-v2[data-stock="0"] .samsung-card-image img,html body .pl-card-v2[data-stock="0"] .xiaomi-card-image img,html body .pl-card-v2[data-stock="0"] .prod-card-image img,html body .pl-card-v2[data-stock="0"] .xiaomitab-card-image img,html body .pl-card-v2[data-stock="0"] .console-card-image img{filter:grayscale(1)!important;opacity:.55!important}
+      html body .pl-catalog-skeleton{min-height:360px!important;border:1px solid var(--pl-line,#e2e8f0)!important;border-radius:var(--pl-radius-lg,16px)!important}
+      @media(max-width:640px){
+        html body .iphone-grid.pl-v2,html body .samsung-grid.pl-v2,html body .xiaomi-grid.pl-v2,html body .prod-grid.pl-v2,html body .xiaomitab-grid.pl-v2,html body .console-grid.pl-v2,html body .grid.pl-v2{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:0!important}
+        html body .pl-catalog-card.pl-card-v2{padding:8px!important;border-radius:14px!important}
+        html body .pl-card-v2 .pl-catalog-media,html body .pl-card-v2 .iphone-card-image,html body .pl-card-v2 .samsung-card-image,html body .pl-card-v2 .xiaomi-card-image,html body .pl-card-v2 .prod-card-image,html body .pl-card-v2 .xiaomitab-card-image,html body .pl-card-v2 .console-card-image{height:auto!important;min-height:0!important;flex-basis:auto!important;padding:8px!important;margin-bottom:8px!important}
+        html body .pl-card-v2 .iphone-card-name,html body .pl-card-v2 .samsung-card-name,html body .pl-card-v2 .xiaomi-card-name,html body .pl-card-v2 .prod-card-name,html body .pl-card-v2 .xiaomitab-card-name,html body .pl-card-v2 .console-card-name,html body .pl-card-v2 .card-name{font-size:13px!important;line-height:20px!important;height:40px!important;min-height:40px!important}
+        html body .pl-card-v2 .pl-catalog-price{font-size:14px!important}
+        html body .pl-catalog-skeleton{min-height:290px!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   const escapeHtml = (value) => {
     const element = document.createElement("div");
     element.textContent = value == null ? "" : String(value);
@@ -155,11 +192,12 @@
     const href = "/product?id=" + encodeURIComponent(product.slug);
     const outOfStock = isOutOfStock(product);
     const stock = Math.max(0, Number(product.stock) || 0);
+    // برای سادگی، وضعیت فقط وقتی نشان داده می‌شود که کالا ناموجود یا رو به اتمام (۵ عدد یا کمتر) باشد.
     const status = outOfStock
       ? '<span class="pl-catalog-status out"><i class="ti ti-circle-x"></i> ناموجود</span>'
-      : '<span class="pl-catalog-status in"><i class="ti ti-circle-check"></i> موجود' +
-          (stock <= 5 ? ' · فقط ' + stock.toLocaleString("fa-IR") + ' عدد' : '') +
-        '</span>';
+      : stock <= 5
+        ? '<span class="pl-catalog-status low"><i class="ti ti-alert-circle"></i> فقط ' + stock.toLocaleString("fa-IR") + ' عدد باقی مانده</span>'
+        : '';
     const priceHtml = outOfStock
       ? ""
       : priceMarkup(product);
@@ -178,7 +216,7 @@
       ? '<div class="pl-amazing-timer"><i class="ti ti-clock"></i><span data-amazing-end="' + escapeHtml(product.amazingOfferEndsAt) + '"></span></div>'
       : "";
     // نام برند فقط یک‌بار، بالای مدل محصول نمایش داده می‌شود.
-    return `<a href="${href}" class="${config.card} pl-catalog-card" data-stock="${stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${name}</div>${amazingTimer ? '<div class="pl-amazing-timer-slot">' + amazingTimer + '</div>' : ''}<div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div></div></a>`;
+    return `<a href="${href}" class="${config.card} pl-catalog-card pl-card-v2" data-stock="${stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${name}</div>${amazingTimer ? '<div class="pl-amazing-timer-slot">' + amazingTimer + '</div>' : ''}<div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div></div></a>`;
   }
 
   function uniqueValues(products, valueFor) {
