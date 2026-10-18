@@ -132,6 +132,54 @@
     document.head.appendChild(style);
   }
 
+
+  // طراحی ساده‌تر فیلتر و مرتب‌سازی (نسخهٔ ۲). با حذف این بلوک، ظاهر قبلی برمی‌گردد.
+  if (!document.getElementById("database-catalog-filters-v2-style")) {
+    const style = document.createElement("style");
+    style.id = "database-catalog-filters-v2-style";
+    style.textContent = `
+      html body .pl-catalog-layout{gap:24px!important}
+      html body .pl-filter-panel{border:1px solid var(--pl-line,#e2e8f0)!important;border-radius:var(--pl-radius-lg,16px)!important;box-shadow:none!important;overflow:hidden}
+      html body .pl-filter-head{padding:16px 18px!important;border-bottom:1px solid var(--pl-line,#e2e8f0)!important;font-size:16px!important;font-weight:800!important}
+      html body .pl-filter-reset{font-size:13px!important;font-weight:600!important}
+      html body .pl-filter-stock{padding:14px 18px!important;font-size:14px!important;font-weight:600!important}
+      html body .pl-filter-section{border-bottom:1px solid var(--pl-line,#e2e8f0)!important}
+      html body .pl-filter-section summary{padding:14px 18px!important;font-size:14px!important;font-weight:600!important;color:var(--pl-text,#0f172a)!important}
+      html body .pl-filter-options{display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding:0 18px 16px!important}
+      html body .pl-filter-option{display:inline-flex!important;align-items:center!important;gap:6px!important;margin:0!important;padding:0!important;position:relative!important;cursor:pointer}
+      html body .pl-filter-option input{position:absolute!important;opacity:0!important;width:100%!important;height:100%!important;margin:0!important;cursor:pointer}
+      html body .pl-filter-option>span:not(.pl-filter-color){display:inline-block!important;padding:6px 14px!important;border:1px solid var(--pl-line,#e2e8f0)!important;border-radius:999px!important;font-size:13px!important;color:var(--pl-text-2,#334155)!important;background:var(--pl-surface,#fff)!important;transition:all var(--pl-dur,.2s) var(--pl-ease,ease)}
+      html body .pl-filter-option input:checked+span{background:var(--pl-blue-soft,#eff6ff)!important;border-color:var(--pl-blue,#3b82f6)!important;color:var(--pl-blue-strong,#2563eb)!important;font-weight:600}
+      html body .pl-filter-option input:focus-visible+span{outline:2px solid var(--pl-blue,#3b82f6);outline-offset:2px}
+      html body .pl-filter-option .pl-filter-color{width:14px!important;height:14px!important;border-radius:50%!important;border:1px solid rgba(15,23,42,.18)!important;flex:0 0 14px}
+      html body .pl-price-fields{padding:0 18px 16px!important;gap:8px!important}
+      html body .pl-price-field{border-radius:10px!important;font-size:13px!important}
+      html body .pl-catalog-toolbar{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 10px!important}
+      html body .pl-catalog-count{font-size:13px!important;color:var(--pl-text-3,#64748b)!important;margin-inline-end:auto}
+      html body .pl-catalog-sort{display:none!important}
+      html body .pl-sort-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+      html body .pl-sort-chips::-webkit-scrollbar{display:none}
+      html body .pl-sort-chip,html body .pl-active-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid var(--pl-line,#e2e8f0);border-radius:999px;background:var(--pl-surface,#fff);color:var(--pl-text-2,#334155);font:600 13px Vazirmatn,Tahoma,sans-serif;cursor:pointer;transition:all var(--pl-dur,.2s) var(--pl-ease,ease)}
+      html body .pl-sort-chip:hover{border-color:var(--pl-blue,#3b82f6)}
+      html body .pl-sort-chip.is-active{background:var(--pl-text,#0f172a);border-color:var(--pl-text,#0f172a);color:var(--pl-surface,#fff)}
+      html body .pl-active-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+      html body .pl-active-filters[hidden]{display:none!important}
+      html body .pl-active-chip{background:var(--pl-blue-soft,#eff6ff);border-color:transparent;color:var(--pl-blue-strong,#2563eb);padding:5px 12px}
+      html body .pl-active-chip i{font-size:14px}
+      html body .pl-active-clear{border:0;background:none;color:var(--pl-text-3,#64748b);font:600 13px Vazirmatn,Tahoma,sans-serif;text-decoration:underline;cursor:pointer;padding:5px 6px}
+      html body .pl-filter-apply{display:none}
+      html body #toast{pointer-events:none!important}
+      @media(max-width:800px){
+        html body .pl-filter-panel{display:flex;flex-direction:column;border-radius:0!important}
+        html body .pl-filter-apply{display:block;position:sticky;bottom:0;margin-top:auto;padding:12px 16px;background:var(--pl-surface,#fff);border-top:1px solid var(--pl-line,#e2e8f0)}
+        html body .pl-filter-apply-btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--pl-blue,#3b82f6);color:#fff;font:800 15px Vazirmatn,Tahoma,sans-serif;cursor:pointer}
+        html body .pl-mobile-filter-btn{border-radius:999px!important;padding:8px 16px!important}
+        html body .pl-sort-chips{margin-inline:-4px}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   const escapeHtml = (value) => {
     const element = document.createElement("div");
     element.textContent = value == null ? "" : String(value);
@@ -256,11 +304,27 @@
 
     panel.innerHTML = `<div class="pl-filter-head"><span>فیلترها</span><div class="pl-filter-head-actions"><button type="button" class="pl-filter-reset">حذف فیلترها</button><button type="button" class="pl-filter-close" aria-label="بستن فیلترها" title="بستن"><i class="ti ti-x"></i></button></div></div>
       <label class="pl-filter-stock"><span>فقط کالاهای موجود</span><input type="checkbox" data-filter-stock></label>
-      ${detail("بازه قیمت", `<div class="pl-price-fields"><input class="pl-price-field" inputmode="numeric" data-filter-min placeholder="حداقل (تومان)"><input class="pl-price-field" inputmode="numeric" data-filter-max placeholder="حداکثر (تومان)"></div>`, true)}
+      ${detail("بازه قیمت", `<div class="pl-price-fields"><input class="pl-price-field" inputmode="numeric" data-filter-min placeholder="از (تومان)"><input class="pl-price-field" inputmode="numeric" data-filter-max placeholder="تا (تومان)"></div>`, true)}
       <div data-filter-dynamic></div>`;
     panel.querySelector(".pl-filter-close").addEventListener("click", () => setPanelOpen(false));
     results.insertAdjacentHTML("afterbegin", `<div class="pl-catalog-toolbar"><button type="button" class="pl-mobile-filter-btn"><i class="ti ti-adjustments-horizontal"></i> فیلترها</button><span class="pl-catalog-count"></span><select class="pl-catalog-sort" aria-label="مرتب‌سازی"><option value="newest">جدیدترین</option><option value="price-asc">ارزان‌ترین</option><option value="price-desc">گران‌ترین</option><option value="rating">بیشترین امتیاز</option></select></div>`);
     results.querySelector(".pl-mobile-filter-btn").addEventListener("click", () => setPanelOpen(true));
+
+    // مرتب‌سازی با چیپ (select همچنان منبع مقدار است و مخفی می‌شود) + ردیف فیلترهای فعال + دکمهٔ «نمایش N کالا» در کشوی موبایل
+    const sortSelect = results.querySelector(".pl-catalog-sort");
+    const sortChips = document.createElement("div");
+    sortChips.className = "pl-sort-chips";
+    sortChips.setAttribute("role", "group");
+    sortChips.setAttribute("aria-label", "مرتب‌سازی");
+    sortChips.innerHTML = Array.from(sortSelect.options).map((o) => `<button type="button" class="pl-sort-chip" data-sort="${escapeHtml(o.value)}">${escapeHtml(o.textContent)}</button>`).join("");
+    const activeFilters = document.createElement("div");
+    activeFilters.className = "pl-active-filters";
+    results.querySelector(".pl-catalog-toolbar").after(sortChips, activeFilters);
+    const applyBar = document.createElement("div");
+    applyBar.className = "pl-filter-apply";
+    applyBar.innerHTML = '<button type="button" class="pl-filter-apply-btn">نمایش کالاها</button>';
+    panel.append(applyBar);
+    applyBar.querySelector("button").addEventListener("click", () => setPanelOpen(false));
 
     let filterSwipe = null;
     const clearFilterSwipe = () => {
@@ -329,7 +393,43 @@
       grid.innerHTML = products.length ? products.map(card).join("") : '<div class="pl-catalog-loading">کالایی با این فیلترها پیدا نشد.</div>';
       const count = results.querySelector(".pl-catalog-count");
       if (count) count.textContent = products.length.toLocaleString("fa-IR") + " کالا";
+      sortChips.querySelectorAll(".pl-sort-chip").forEach((chip) => chip.classList.toggle("is-active", chip.dataset.sort === selected.sort));
+      const applyBtn = applyBar.querySelector("button");
+      if (applyBtn) applyBtn.textContent = "نمایش " + products.length.toLocaleString("fa-IR") + " کالا";
+      renderActiveFilters();
     }
+    function renderActiveFilters() {
+      const chips = [];
+      selected.brands.forEach((v) => chips.push({ kind: "brands", value: v, label: v }));
+      selected.colors.forEach((v) => chips.push({ kind: "colors", value: v, label: v }));
+      selected.storages.forEach((v) => chips.push({ kind: "storages", value: v, label: v }));
+      if (selected.inStock) chips.push({ kind: "inStock", label: "فقط موجود" });
+      if (selected.min) chips.push({ kind: "min", label: "از " + normalizeNumber(selected.min).toLocaleString("fa-IR") });
+      if (selected.max) chips.push({ kind: "max", label: "تا " + normalizeNumber(selected.max).toLocaleString("fa-IR") });
+      activeFilters.hidden = !chips.length;
+      activeFilters.innerHTML = chips.map((c) => `<button type="button" class="pl-active-chip" data-kind="${c.kind}" data-value="${escapeHtml(c.value || "")}">${escapeHtml(c.label)} <i class="ti ti-x"></i></button>`).join("") +
+        (chips.length > 1 ? '<button type="button" class="pl-active-clear">حذف همه</button>' : "");
+    }
+    sortChips.addEventListener("click", (event) => {
+      const chip = event.target.closest(".pl-sort-chip");
+      if (!chip) return;
+      sortSelect.value = chip.dataset.sort;
+      selected.sort = chip.dataset.sort;
+      render();
+    });
+    activeFilters.addEventListener("click", (event) => {
+      if (event.target.closest(".pl-active-clear")) return panel.querySelector(".pl-filter-reset").click();
+      const chip = event.target.closest(".pl-active-chip");
+      if (!chip) return;
+      const { kind, value } = chip.dataset;
+      if (kind === "inStock") { selected.inStock = false; panel.querySelector("[data-filter-stock]").checked = false; }
+      else if (kind === "min" || kind === "max") { selected[kind] = ""; panel.querySelector(kind === "min" ? "[data-filter-min]" : "[data-filter-max]").value = ""; }
+      else {
+        selected[kind].delete(value);
+        panel.querySelectorAll('[data-filter-kind="' + kind + '"]').forEach((input) => { if (input.value === value) input.checked = false; });
+      }
+      render();
+    });
     panel.addEventListener("change", (event) => {
       const input = event.target;
       if (input.matches("[data-filter-stock]")) selected.inStock = input.checked;
