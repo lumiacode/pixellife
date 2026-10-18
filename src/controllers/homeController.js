@@ -532,6 +532,28 @@ function injectSharedMiniCart(html, fileName) {
   return html.includes("</body>") ? html.replace("</body>", '<script src="/js/shared-minicart.js" defer></script>\n</body>') : html;
 }
 
+// استایل مخصوص هر صفحه (public/css/<name>-v2.css) به‌صورت <style id="pl-page-<name>"> بعد از CSSهای دیگر تزریق می‌شود.
+const PAGE_STYLE_FILES = { "cart.html": "cart-v2.css", "profile.html": "profile-v2.css" };
+const PAGE_STYLES = {};
+for (const [page, file] of Object.entries(PAGE_STYLE_FILES)) {
+  try {
+    const css = fs
+      .readFileSync(path.join(__dirname, "../../public/css", file), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    PAGE_STYLES[page] = `<style id="pl-page-${page.replace(".html", "")}">${css}</style>`;
+  } catch (error) {
+    console.error("Page style load error:", file, error.message);
+  }
+}
+
+function injectPageStyle(html, fileName) {
+  const tag = PAGE_STYLES[fileName];
+  if (!html || !tag || html.includes(tag.slice(0, tag.indexOf(">") + 1))) return html;
+  return html.includes("</head>") ? html.replace("</head>", `${tag}\n</head>`) : html;
+}
+
 function injectDesignTokens(html) {
   if (!html || !DESIGN_TOKENS_STYLE || html.includes('id="pl-design-tokens"') || html.includes("pl-tokens:off")) return html;
   return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n</head>`) : html;
@@ -629,7 +651,7 @@ function sendViewWithEnamad(res, fileName) {
   try {
     sendCachedHtml(res, `rendered:${fileName}`, () => {
       let html = readView(filePath);
-      html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, fileName), fileName)));
+      html = injectPageStyle(injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, fileName), fileName))), fileName);
       html = injectSharedCategoryNav(html);
       html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);

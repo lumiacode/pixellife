@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>پروفایل کاربری | PixelLife</title>
+    <title>پروفایل کاربری | پیکسل لایف</title>
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="googlebot" content="noindex, nofollow, noarchive" />
     <script>
@@ -691,7 +691,7 @@
     <header class="top-bar">
       <div class="top-bar-inner">
         <a href="/" class="brand"
-          ><i class="ti ti-brand-appstore"></i> PixelLife</a
+          ><i class="ti ti-shopping-bag"></i> پیکسل لایف</a
         >
         <div class="top-actions">
           <a href="/" class="back-link"
@@ -1189,6 +1189,7 @@
       });
 
       const orderStatusText = { awaiting_payment: "در انتظار پرداخت", processing: "در حال پردازش", shipped: "ارسال‌شده", delivered: "تحویل‌شده", cancelled: "لغوشده" };
+      const orderBadgeClass = { awaiting_payment: "badge-unpaid", processing: "badge-info", shipped: "badge-info", delivered: "badge-paid", cancelled: "badge-cancelled" };
       const paymentStatusText = { unpaid: "در انتظار پرداخت", paid: "پرداخت‌شده", failed: "پرداخت ناموفق" };
       const paymentBanners = {
         success: ["success", "ti-circle-check", "پرداخت با موفقیت انجام شد و سفارش شما در حال پردازش است."],
@@ -1244,7 +1245,7 @@
             const thumbs = (order.items || []).slice(0, 4).map((item) => `<img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}" onerror="this.style.visibility='hidden'">`).join("");
             const extra = (order.items || []).length - 4;
             const needsPayment = isUnpaid(order);
-            card.innerHTML = `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${escapeHtml(order.orderNumber)}</span></div><span class="addr-badge ${order.paymentStatus === "paid" ? "badge-paid" : needsPayment ? "badge-unpaid" : ""}">${orderStatusText[order.status] || escapeHtml(order.status)}</span></div><div class="order-thumbs">${thumbs}${extra > 0 ? `<span class="more">+${extra.toLocaleString("fa-IR")}</span>` : ""}</div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · ${date}</div><div class="order-card-foot"><span class="order-total">${Number(order.total || 0).toLocaleString("fa-IR")} تومان</span>${needsPayment ? `<span class="addr-card-text">در انتظار پرداخت</span>` : ""}</div>`;
+            card.innerHTML = `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${escapeHtml(order.orderNumber)}</span></div><span class="addr-badge ${orderBadgeClass[order.status] || ""}">${orderStatusText[order.status] || escapeHtml(order.status)}</span></div><div class="order-thumbs">${thumbs}${extra > 0 ? `<span class="more">+${extra.toLocaleString("fa-IR")}</span>` : ""}</div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · ${date}</div><div class="order-card-foot"><span class="order-total">${Number(order.total || 0).toLocaleString("fa-IR")} تومان</span>${needsPayment ? `<span class="addr-card-text">در انتظار پرداخت</span>` : ""}</div>`;
             list.appendChild(card);
           });
           const selectedId = new URLSearchParams(window.location.search).get("order");

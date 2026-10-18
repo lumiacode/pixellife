@@ -1,0 +1,42 @@
+/* سبد خرید — نسخهٔ ۲ (ساده‌تر، دکمهٔ اصلی پررنگ، موبایل: اول کالاها بعد خلاصه).
+   فقط روی صفحهٔ سبد خرید تزریق می‌شود؛ حذف تگ <style id="pl-page-cart"> ظاهر قبلی را برمی‌گرداند. */
+
+/* کارت کالا */
+html body .cart-item-card {
+  border: 1px solid var(--pl-line, #e2e8f0) !important;
+  border-radius: var(--pl-radius-lg, 16px) !important;
+  box-shadow: none !important;
+  transition: box-shadow var(--pl-dur, .2s) var(--pl-ease, ease), border-color var(--pl-dur, .2s) var(--pl-ease, ease) !important;
+}
+html body .cart-item-card:hover { border-color: transparent !important; box-shadow: var(--pl-shadow, 0 4px 20px rgba(15,23,42,.08)) !important; }
+html body .cart-item-img-wrap { background: var(--pl-surface-muted, #f1f5f9) !important; border-radius: var(--pl-radius, 12px) !important; }
+html body .cart-item-img-wrap img { mix-blend-mode: multiply; }
+html body .cart-item-name { font-weight: 600 !important; }
+html body .cart-item-variant-tag { background: var(--pl-surface-muted, #f1f5f9) !important; border: 0 !important; }
+
+/* خلاصه سفارش */
+html body .cart-summary {
+  border-radius: var(--pl-radius-lg, 16px) !important;
+  box-shadow: none !important;
+}
+html body .summary-title { font-size: 16px !important; font-weight: 800 !important; }
+
+/* دکمهٔ «ثبت سفارش» روی دسکتاپ: پررنگ و اصلی (قبلاً کم‌رنگ و بدون پس‌زمینه بود) */
+html body .btn-continue-shopping {
+  height: 50px !important;
+  background: var(--pl-blue, #3b82f6) !important;
+  border: 0 !important;
+  border-radius: var(--pl-radius-sm, 8px) !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+  transition: background var(--pl-dur, .2s) var(--pl-ease, ease) !important;
+}
+html body .btn-continue-shopping:hover { background: var(--pl-blue-strong, #2563eb) !important; }
+html body .btn-continue-shopping i { color: #fff !important; }
+
+/* موبایل: اول کالاها، بعد خلاصه (مبلغ و دکمه در نوار پایین هم هست) */
+@media (max-width: 960px) {
+  html body .cart-summary-col { order: 0 !important; }
+}

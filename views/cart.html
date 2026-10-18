@@ -3881,9 +3881,10 @@
               <div class="cart-item-brand">${item.brand || ""}</div>
               <div class="cart-item-name">${item.name}</div>
               <div class="cart-item-variants">
-                <span class="cart-item-variant-tag">رنگ: <strong>${item.color || "—"}</strong></span>
-                <span class="cart-item-variant-tag">${item.variant || "—"}</span>
-                <span class="cart-item-variant-tag">${item.warranty || "—"}</span>
+                ${[["رنگ: <strong>" + item.color + "</strong>", item.color], [item.variant, item.variant], [item.warranty, item.warranty]]
+                  .filter(([, value]) => value && value !== "—" && value !== "-")
+                  .map(([label]) => `<span class="cart-item-variant-tag">${label}</span>`)
+                  .join("")}
               </div>
               <div class="cart-item-stock ${stockClass}"><i class="ti ${stockIcon}"></i> ${stockText}</div>
               <div class="cart-item-ops">
