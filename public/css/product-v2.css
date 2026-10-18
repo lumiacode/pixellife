@@ -1,0 +1,43 @@
+/* صفحهٔ محصول — نسخهٔ ۲ (فقط ظاهر: عنوان و گالری و کارت خرید و بلوک‌ها آرام‌تر و یکدست).
+   هیچ المان، متن یا رفتاری عوض نمی‌شود؛ فقط CSS تزریق می‌شود تا قابلیت‌های الزامی AGENTS.md دست‌نخورده بمانند.
+   حذف تگ <style id="pl-page-product"> ظاهر قبلی را برمی‌گرداند. */
+
+/* عنوان کالا */
+html body .product-title { font-size: 22px !important; font-weight: 800 !important; line-height: 1.55 !important; margin-bottom: 12px !important; }
+
+/* گالری: کاشی روشن؛ عکس‌های زمینه‌سفید در آن حل می‌شوند */
+html body .gallery-main { background: var(--pl-surface-muted, #f1f5f9) !important; border-radius: var(--pl-radius-lg, 16px) !important; }
+html body .gallery-track, html body .gallery-slide { background: transparent !important; }
+html body .gallery-slide img { mix-blend-mode: multiply; }
+html body .gallery-thumb { border-radius: var(--pl-radius-sm, 10px) !important; }
+
+/* کارت خرید دسکتاپ */
+html body .desktop-purchase-card {
+  background: var(--pl-surface, #fff) !important;
+  border: 1px solid var(--pl-line, #e2e8f0) !important;
+  border-radius: var(--pl-radius-lg, 16px) !important;
+  box-shadow: none !important;
+}
+html body .desktop-purchase-price { font-weight: 800 !important; }
+html body .btn-add-cart { border-radius: var(--pl-radius, 12px) !important; transition: background var(--pl-dur, .2s) var(--pl-ease, ease), box-shadow var(--pl-dur, .2s) var(--pl-ease, ease) !important; }
+
+/* گزینه‌ها */
+html body .option-label { font-weight: 600 !important; }
+html body .quantity-selector { border-radius: 999px !important; }
+
+/* ویژگی‌های کلیدی */
+html body .quick-spec-item {
+  background: var(--pl-surface, #fff) !important;
+  border: 1px solid var(--pl-line, #e2e8f0) !important;
+  border-radius: var(--pl-radius, 12px) !important;
+}
+html body .btn-more-specs { border-radius: 999px !important; }
+
+/* بلوک‌ها و عنوان بخش‌ها */
+html body .section-heading { font-size: 20px !important; font-weight: 800 !important; }
+
+@media (max-width: 640px) {
+  html body .product-title { font-size: 18px !important; }
+  html body .gallery-main { border-radius: var(--pl-radius, 12px) !important; }
+  html body .section-heading { font-size: 18px !important; }
+}

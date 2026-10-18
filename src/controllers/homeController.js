@@ -533,7 +533,7 @@ function injectSharedMiniCart(html, fileName) {
 }
 
 // استایل مخصوص هر صفحه (public/css/<name>-v2.css) به‌صورت <style id="pl-page-<name>"> بعد از CSSهای دیگر تزریق می‌شود.
-const PAGE_STYLE_FILES = { "cart.html": "cart-v2.css", "profile.html": "profile-v2.css" };
+const PAGE_STYLE_FILES = { "cart.html": "cart-v2.css", "profile.html": "profile-v2.css", "product.html": "product-v2.css" };
 const PAGE_STYLES = {};
 for (const [page, file] of Object.entries(PAGE_STYLE_FILES)) {
   try {
