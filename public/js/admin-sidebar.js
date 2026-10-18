@@ -71,6 +71,7 @@
     '<div class="admin-nav-divider">مدیریت فروشگاه</div>' +
     '<a href="/admin/orders" class="admin-nav-link' + active("/admin/orders") + '"><i class="ti ti-shopping-bag"></i><span>سفارش‌ها</span></a>' +
     '<a href="/admin/customers" class="admin-nav-link' + active("/admin/customers") + '"><i class="ti ti-users"></i><span>مشتریان</span></a>' +
+    '<a href="/admin/discounts" class="admin-nav-link' + active("/admin/discounts") + '"><i class="ti ti-ticket"></i><span>کدهای تخفیف</span></a>' +
     '<a href="/admin/reviews" class="admin-nav-link' + active("/admin/reviews") + '"><i class="ti ti-message-star"></i><span>مدیریت نظرات</span></a>' +
     '<div class="admin-nav-divider">ابزارها</div>' +
     '<a href="/admin/ai-products" class="admin-nav-link' + active("/admin/ai-products") + '"><i class="ti ti-sparkles"></i><span>دستیار هوشمند محصولات</span></a>' +
