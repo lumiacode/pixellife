@@ -916,6 +916,9 @@ router.patch("/users/:id/status", async (req, res) => {
   }
 });
 
+// مدیریت کدهای تخفیف (requireAdmin بالاتر روی کل router اعمال شده است)
+router.use("/discounts", require("./adminDiscounts"));
+
 router.get("/orders", async (req, res) => {
   try {
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
