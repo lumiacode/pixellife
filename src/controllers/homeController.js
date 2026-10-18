@@ -454,6 +454,26 @@ const DESIGN_TOKENS_STYLE = (() => {
   }
 })();
 
+// ظاهر نسخهٔ ۲ صفحهٔ اصلی (public/css/home-v2.css)؛ فقط روی صفحهٔ اصلی و بعد از همهٔ CSSهای دیگر تزریق می‌شود.
+const HOME_V2_STYLE = (() => {
+  try {
+    const css = fs
+      .readFileSync(path.join(__dirname, "../../public/css/home-v2.css"), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    return `<style id="pl-home-v2">${css}</style>`;
+  } catch (error) {
+    console.error("Home v2 style load error:", error.message);
+    return "";
+  }
+})();
+
+function injectHomeV2(html) {
+  if (!html || !HOME_V2_STYLE || html.includes('id="pl-home-v2"')) return html;
+  return html.includes("</head>") ? html.replace("</head>", `${HOME_V2_STYLE}\n</head>`) : html;
+}
+
 function injectDesignTokens(html) {
   if (!html || !DESIGN_TOKENS_STYLE || html.includes('id="pl-design-tokens"') || html.includes("pl-tokens:off")) return html;
   return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n</head>`) : html;
@@ -766,6 +786,8 @@ const homeController = {
       if (!html.includes("/js/shared-category-nav.js")) {
         html = html.replace("</body>", `${SHARED_CATEGORY_SCRIPT}\n</body>`);
       }
+
+      html = injectHomeV2(html);
 
       html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectDesignTokens(injectEnamad(html)))))))));
       if (IS_PRODUCTION) viewCache.set("rendered:index", html);
