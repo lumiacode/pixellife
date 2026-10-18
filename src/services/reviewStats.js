@@ -27,7 +27,7 @@ async function refreshProductReviewStats(productId) {
         rating: stats[0] ? Number(stats[0].rating.toFixed(1)) : 0,
       },
     },
-    { new: true },
+    { returnDocument: "after" },
   );
 }
 

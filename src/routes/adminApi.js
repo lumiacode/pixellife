@@ -904,7 +904,7 @@ router.patch("/users/:id/status", async (req, res) => {
     const user = await User.findOneAndUpdate(
       { _id: req.params.id, role: { $ne: "admin" } },
       { $set: { isActive: req.body.isActive } },
-      { new: true },
+      { returnDocument: "after" },
     ).select("firstName lastName mobile email nationalCode birthDate isVerified isActive lastLogin createdAt");
 
     if (!user) {
@@ -981,7 +981,7 @@ router.patch("/reviews/:id/status", async (req, res) => {
     const review = await Review.findByIdAndUpdate(
       req.params.id,
       { $set: { status, moderatedAt: status === "pending" ? null : new Date() } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (!review) return res.status(404).json({ success: false, message: "نظر پیدا نشد" });
     await refreshProductReviewStats(review.productId);

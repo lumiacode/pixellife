@@ -28,6 +28,13 @@ app.use(cookieParser());
 app.set("etag", "strong");
 app.set("trust proxy", 1);
 
+// فشرده‌سازی پاسخ‌ها (HTML، JSON، CSS، JS)؛ قبلاً داخل بلوک کامنت‌شدهٔ «به‌روزرسانی» مانده بود.
+app.use(compression({ threshold: 1024 }));
+
+if (env.nodeEnv !== "production") {
+  console.warn("⚠️ NODE_ENV روی production نیست؛ کش صفحه‌ها و فایل‌های استاتیک غیرفعال است. در سرور واقعی NODE_ENV=production بگذارید.");
+}
+
 // =======================
 // Middleware
 // =======================
@@ -162,9 +169,13 @@ app.use(
           "public, max-age=2592000, stale-while-revalidate=86400",
         );
       } else if (/\.(?:css|js)$/i.test(filePath)) {
-        // تغییرات ظاهری و منطق سایت باید در همهٔ مرورگرها بلافاصله
-        // اعتبارسنجی شوند؛ ETag فقط در صورت تغییر، نسخهٔ تازه را دانلود می‌کند.
-        res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
+        // آدرسی که pl_rev دارد با تغییر محتوا عوض می‌شود (homeController)، پس کش بلندمدت امن است.
+        // بدون pl_rev همچنان هر بار اعتبارسنجی می‌شود؛ ETag فقط در صورت تغییر، نسخهٔ تازه را دانلود می‌کند.
+        if (res.req && res.req.query && res.req.query.pl_rev) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        } else {
+          res.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate");
+        }
       }
     },
   }),
@@ -239,8 +250,14 @@ app.use("/api/test-email", testEmailRoutes);
 // Sitemap
 // =======================
 
+let sitemapCache = { xml: "", expiresAt: 0 };
+const SITEMAP_TTL_MS = 60 * 60 * 1000;
+
 app.get("/sitemap.xml", async (req, res) => {
   try {
+    res.header("Content-Type", "application/xml");
+    if (sitemapCache.xml && sitemapCache.expiresAt > Date.now()) return res.send(sitemapCache.xml);
+
     const sitemap = new SitemapStream({
       hostname: "https://pixellife.ir",
     });
@@ -252,10 +269,8 @@ app.get("/sitemap.xml", async (req, res) => {
       priority: 1,
     });
 
-    // محصولات MongoDB
-    const products = await Product.find({});
-
-    console.log("Sitemap Products:", products.length);
+    // فقط slug محصولات خوانده می‌شود، نه همهٔ فیلدهای هر محصول
+    const products = await Product.find({}).select("slug").lean();
 
     products.forEach((product) => {
       if (product.slug) {
@@ -269,11 +284,10 @@ app.get("/sitemap.xml", async (req, res) => {
 
     sitemap.end();
 
-    const xml = await streamToPromise(sitemap);
+    const xml = (await streamToPromise(sitemap)).toString();
+    sitemapCache = { xml, expiresAt: Date.now() + SITEMAP_TTL_MS };
 
-    res.header("Content-Type", "application/xml");
-
-    res.send(xml.toString());
+    res.send(xml);
   } catch (error) {
     console.error("Sitemap Error:", error);
 
