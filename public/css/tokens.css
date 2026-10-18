@@ -1,0 +1,65 @@
+/* توکن‌های طراحی پیکسل لایف (فقط نام‌های جدید با پیشوند --pl-).
+   عمداً نام‌های موجود صفحه‌ها (--blue، --bg، --radius و …) را دوباره تعریف نمی‌کند تا ظاهر هیچ صفحه‌ای عوض نشود.
+   این فایل از سمت سرور به‌صورت <style> داخل صفحه‌ها تزریق می‌شود. */
+:root {
+  /* رنگ */
+  --pl-blue: #3b82f6;
+  --pl-blue-strong: #2563eb;
+  --pl-blue-soft: #eff6ff;
+  --pl-red: #ef4444;
+  --pl-green: #16a34a;
+  --pl-amber: #f59e0b;
+  --pl-page: #f8fafc;
+  --pl-surface: #ffffff;
+  --pl-surface-muted: #f1f5f9;
+  --pl-line: #e2e8f0;
+  --pl-text: #0f172a;
+  --pl-text-2: #334155;
+  --pl-text-3: #64748b;
+  --pl-text-4: #94a3b8;
+
+  /* گوشه‌ها و فاصله‌ها */
+  --pl-radius-sm: 8px;
+  --pl-radius: 12px;
+  --pl-radius-lg: 16px;
+  --pl-space-1: 4px;
+  --pl-space-2: 8px;
+  --pl-space-3: 12px;
+  --pl-space-4: 16px;
+  --pl-space-5: 24px;
+  --pl-space-6: 32px;
+  --pl-section-gap: 40px;
+
+  /* تایپوگرافی */
+  --pl-font-xs: 12px;
+  --pl-font-sm: 13px;
+  --pl-font-base: 14px;
+  --pl-font-md: 16px;
+  --pl-font-lg: 20px;
+  --pl-font-xl: 28px;
+  --pl-weight-regular: 400;
+  --pl-weight-semibold: 600;
+  --pl-weight-bold: 800;
+
+  /* سایه و حرکت */
+  --pl-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --pl-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+  --pl-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --pl-dur: 0.2s;
+}
+
+[data-theme="dark"] {
+  --pl-blue-strong: #60a5fa;
+  --pl-blue-soft: rgba(59, 130, 246, 0.16);
+  --pl-green: #4ade80;
+  --pl-page: #0f172a;
+  --pl-surface: #1e293b;
+  --pl-surface-muted: #0f172a;
+  --pl-line: #334155;
+  --pl-text: #f1f5f9;
+  --pl-text-2: #cbd5e1;
+  --pl-text-3: #94a3b8;
+  --pl-text-4: #64748b;
+  --pl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --pl-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}

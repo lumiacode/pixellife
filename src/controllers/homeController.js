@@ -439,6 +439,26 @@ function injectHistorySafeAnchors(html) {
     : html;
 }
 
+// توکن‌های طراحی مشترک (public/css/tokens.css) به‌صورت <style> داخل صفحه‌ها می‌آیند؛ فقط نام‌های جدید --pl-* دارند و ظاهر را تغییر نمی‌دهند.
+const DESIGN_TOKENS_STYLE = (() => {
+  try {
+    const css = fs
+      .readFileSync(path.join(__dirname, "../../public/css/tokens.css"), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    return `<style id="pl-design-tokens">${css}</style>`;
+  } catch (error) {
+    console.error("Design tokens load error:", error.message);
+    return "";
+  }
+})();
+
+function injectDesignTokens(html) {
+  if (!html || !DESIGN_TOKENS_STYLE || html.includes('id="pl-design-tokens"') || html.includes("pl-tokens:off")) return html;
+  return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n</head>`) : html;
+}
+
 function injectEnamadBadges(html) {
   if (!html || html.includes("trustseal.enamad.ir")) return html;
 
@@ -531,7 +551,7 @@ function sendViewWithEnamad(res, fileName) {
   try {
     sendCachedHtml(res, `rendered:${fileName}`, () => {
       let html = readView(filePath);
-      html = injectEnamad(html);
+      html = injectDesignTokens(injectEnamad(html));
       html = injectSharedCategoryNav(html);
       html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -656,7 +676,7 @@ async function sendSpecialCatalogView(res, options) {
         `<i class="ti ${options.icon}" style="font-size:32px;color:var(--text-2)"></i><div>`,
       );
 
-    html = injectEnamad(html);
+    html = injectDesignTokens(injectEnamad(html));
     html = injectSharedCategoryNav(html);
     html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -712,7 +732,7 @@ function sendAccessoryBrandView(res, brand) {
         "/js/database-catalog.js?v=20260820-card-design-10",
         "/js/database-catalog.js?v=20260821-accessories-4",
       );
-    html = injectEnamad(html);
+    html = injectDesignTokens(injectEnamad(html));
     html = injectSharedCategoryNav(html);
     html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
@@ -747,7 +767,7 @@ const homeController = {
         html = html.replace("</body>", `${SHARED_CATEGORY_SCRIPT}\n</body>`);
       }
 
-      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectEnamad(html))))))));
+      html = injectAssetRevision(injectPageLoader(injectBehaviorTracker(injectShoppingAssistant(injectHideSeeAll(injectHistorySafeAnchors(injectMobileBottomNav(injectDesignTokens(injectEnamad(html)))))))));
       if (IS_PRODUCTION) viewCache.set("rendered:index", html);
       res.type("html").send(html);
     } catch (error) {
