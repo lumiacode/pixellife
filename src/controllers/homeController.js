@@ -344,9 +344,9 @@ const PROFILE_DROPDOWN_LAYER_FIX = `
 </style>`;
 
 const SHARED_CATEGORY_HEAD = `
-<link rel="stylesheet" href="/css/shared-category-nav.css?v=1" />`;
+<link rel="stylesheet" href="/css/shared-category-nav.css?v=2" />`;
 const SHARED_CATEGORY_SCRIPT = `
-<script src="/js/shared-category-nav.js?v=2"></script>`;
+<script src="/js/shared-category-nav.js?v=4"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
 <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=12" />`;

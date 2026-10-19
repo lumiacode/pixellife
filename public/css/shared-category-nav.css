@@ -239,7 +239,7 @@
   min-height: 30px !important;
   margin: 0 0 8px !important;
   padding-right: 9px !important;
-  border-right: 3px solid #ef4444 !important;
+  border-right: 3px solid var(--blue, #2563eb) !important;
   color: var(--text-1) !important;
   font-size: 13px !important;
   font-weight: 800 !important;
