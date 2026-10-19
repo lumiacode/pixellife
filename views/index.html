@@ -2833,38 +2833,6 @@
         </div>
       </section>
 
-      <!-- ═══ SERVICES SECTION (خدمات سایت) ═══ -->
-      <section class="services-section">
-        <div class="service-item">
-          <i class="ti ti-truck-delivery"></i>
-          <div>
-            <h4>ارسال سریع</h4>
-            <p>تحویل ۱ تا ۳ روزه در سراسر کشور</p>
-          </div>
-        </div>
-        <div class="service-item">
-          <i class="ti ti-refresh"></i>
-          <div>
-            <h4>ضمانت بازگشت</h4>
-            <p>۷ روز فرصت برای بازگشت کالا</p>
-          </div>
-        </div>
-        <div class="service-item">
-          <i class="ti ti-shield-check"></i>
-          <div>
-            <h4>ضمانت اصالت</h4>
-            <p>تضمین اصل بودن کالاها</p>
-          </div>
-        </div>
-        <div class="service-item">
-          <i class="ti ti-headset"></i>
-          <div>
-            <h4>پشتیبانی</h4>
-            <p>پاسخگویی در ساعات کاری</p>
-          </div>
-        </div>
-      </section>
-
       <!-- ═══ PRODUCT GRID (محصولات منتخب) ═══ -->
       <section class="product-section">
         <div class="section-header">
@@ -3950,6 +3918,25 @@
         return homeProductsPromise;
       }
 
+      /* هر محصول فقط یک‌بار در صفحهٔ اصلی نمایش داده می‌شود: ردیف‌ها به ترتیب اولویت
+         (شگفت‌انگیز، منتخب، پرفروش‌ترین، بودجه، تازه‌ها، لوازم جانبی) از فهرست «دیده‌نشده‌ها» برمی‌دارند. */
+      const homeShown = new Set();
+      const homeKey = (p) => String(p._id || p.slug || p.name);
+      function takeUnique(list, max) {
+        const out = [];
+        for (const p of list) {
+          if (out.length >= max) break;
+          if (homeShown.has(homeKey(p))) continue;
+          out.push(p);
+        }
+        out.forEach((p) => homeShown.add(homeKey(p)));
+        return out;
+      }
+      let homeRowsChain = Promise.resolve();
+      const enqueueHomeRow = (loader) => { homeRowsChain = homeRowsChain.then(loader, loader); };
+      const hideSectionOf = (el) => { const section = el && el.closest("section"); if (section) section.hidden = true; };
+      const MIN_RAIL_ITEMS = 3; // ردیفی که بعد از حذف تکراری‌ها کمتر از این بماند، نمایش داده نمی‌شود
+
       /* ══ شگفت‌انگیزهای PixelLife (حداکثر ۷ محصول فعال) ══ */
       async function loadAmazingOffers() {
         const section = document.getElementById("amazingOffers");
@@ -3958,7 +3945,8 @@
         try {
           const products = await getHomeProducts();
           const now = Date.now();
-          const offers = products.filter((p) => p.amazingOffer && !isProductOut(p) && p.amazingOfferEndsAt && new Date(p.amazingOfferEndsAt).getTime() > now).slice(0, 7);
+          const amazingAll = products.filter((p) => p.amazingOffer && !isProductOut(p) && p.amazingOfferEndsAt && new Date(p.amazingOfferEndsAt).getTime() > now);
+          const offers = takeUnique(amazingAll, 7);
           if (!offers.length) return;
           list.innerHTML = offers.map((p) => {
             const image = escapeHtml(p.mainImage || (p.images && p.images[0]) || "/images/product-placeholder.svg");
@@ -3976,7 +3964,6 @@
           }, { once: true });
         } catch (err) { section.hidden = true; }
       }
-      loadAmazingOffers();
 
       /* ══ محصولات منتخب (از دیتابیس واقعی) ══ */
       async function loadFeaturedProducts() {
@@ -3985,8 +3972,9 @@
           const allProducts = await getHomeProducts();
           let products = allProducts.filter((p) => p.featured);
           if (products.length === 0) products = allProducts;
-          products = products.slice(0, 4);
+          products = takeUnique(products, 4);
 
+          if (products.length === 0 && allProducts.length) { hideSectionOf(grid); return; }
           if (products.length === 0) {
             grid.innerHTML =
               '<p style="color: var(--text-3); font-size: 13px;">هنوز محصولی ثبت نشده است.</p>';
@@ -4016,7 +4004,6 @@
             '<p style="color: var(--red); font-size: 13px;">خطا در بارگذاری محصولات</p>';
         }
       }
-      loadFeaturedProducts();
 
       /* ══ ردیف‌های صفحهٔ اصلی: بودجه، پرفروش‌ترین‌ها، تازه‌ها ══
          بودجه و تازه‌ها از همان فهرستی ساخته می‌شوند که صفحه پیش‌تر گرفته (بدون درخواست اضافه). */
@@ -4035,10 +4022,10 @@
             ${productPriceMarkup(p)}
           </a>`;
       }
-      function fillRail(sectionId, gridId, products) {
+      function fillRail(sectionId, gridId, products, min = 1) {
         const section = document.getElementById(sectionId);
         const grid = document.getElementById(gridId);
-        if (!section || !grid || !products.length) return false;
+        if (!section || !grid || products.length < min) return false;
         grid.innerHTML = products.map(homeCardMarkup).join("");
         section.hidden = false;
         return true;
@@ -4060,9 +4047,11 @@
             { label: "زیر ۱۵ میلیون", test: (v) => v < 15 * MILLION },
             { label: "۱۵ تا ۳۰ میلیون", test: (v) => v >= 15 * MILLION && v < 30 * MILLION },
             { label: "بالای ۳۰ میلیون", test: (v) => v >= 30 * MILLION },
-          ].map((range) => ({ ...range, items: phones.filter((p) => range.test(finalPrice(p))).slice(0, 8) }))
+          ].map((range) => ({ ...range, items: phones.filter((p) => range.test(finalPrice(p)) && !homeShown.has(homeKey(p))).slice(0, 8) }))
             .filter((range) => range.items.length);
-          if (!ranges.length) return;
+          if (ranges.reduce((sum, range) => sum + range.items.length, 0) < MIN_RAIL_ITEMS) return;
+          // فقط محصولات دکمهٔ اول جزو «دیده‌شده‌ها» حساب می‌شوند؛ بقیه با انتخاب کاربر نمایش داده می‌شوند.
+          ranges[0].items.forEach((p) => homeShown.add(homeKey(p)));
           const chips = document.getElementById("budgetChips");
           const show = (index) => {
             chips.querySelectorAll("button").forEach((button, i) => {
@@ -4080,16 +4069,15 @@
           show(0);
         } catch (err) { /* بخش اختیاری است؛ خطا صفحه را خراب نمی‌کند */ }
       }
-      loadBudgetRail();
 
       async function loadNewRail() {
         try {
           const items = (await getHomeProducts()).filter((p) => !p.comingSoon && isInStock(p))
-            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8);
-          fillRail("newSection", "newGrid", items);
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          const fresh = items.filter((p) => !homeShown.has(homeKey(p))).slice(0, 8);
+          if (fillRail("newSection", "newGrid", fresh, MIN_RAIL_ITEMS)) fresh.forEach((p) => homeShown.add(homeKey(p)));
         } catch (err) { /* اختیاری */ }
       }
-      loadNewRail();
 
       async function loadBestsellersRail() {
         try {
@@ -4097,10 +4085,10 @@
           const json = await res.json();
           if (!json.success) return;
           if (json.basis === "popular") document.getElementById("bestsellersTitle").textContent = "محبوب‌ترین‌ها";
-          fillRail("bestsellersSection", "bestsellersGrid", json.products || []);
+          const fresh = (json.products || []).filter((p) => !homeShown.has(homeKey(p))).slice(0, 8);
+          if (fillRail("bestsellersSection", "bestsellersGrid", fresh, MIN_RAIL_ITEMS)) fresh.forEach((p) => homeShown.add(homeKey(p)));
         } catch (err) { /* اختیاری */ }
       }
-      loadBestsellersRail();
 
       /* ══ لوازم جانبی موبایل (از دیتابیس واقعی) ══ */
       async function loadMobileAccessories() {
@@ -4113,7 +4101,9 @@
           if (!json.success)
             throw new Error(json.message || "خطا در دریافت محصولات");
 
-          const products = (json.products || []).slice(0, 4);
+          const accessoriesAll = json.products || [];
+          const products = takeUnique(accessoriesAll, 4);
+          if (products.length === 0 && accessoriesAll.length) { hideSectionOf(grid); return; }
           if (products.length === 0) {
             grid.innerHTML =
               '<p style="color: var(--text-3); font-size: 13px;">هنوز لوازم جانبی موبایل ثبت نشده است.</p>';
@@ -4143,7 +4133,9 @@
             '<p style="color: var(--red); font-size: 13px;">خطا در بارگذاری لوازم جانبی</p>';
         }
       }
-      loadMobileAccessories();
+
+      // ترتیب اولویتِ برداشتن محصول (نه ترتیب نمایش در صفحه): هر محصول در اولین ردیفی که به آن می‌رسد می‌ماند.
+      [loadAmazingOffers, loadFeaturedProducts, loadBestsellersRail, loadBudgetRail, loadNewRail, loadMobileAccessories].forEach(enqueueHomeRow);
 
       /* ══ MINI CART (سبد خرید کوچک هدر) ══
          این بخش سبد را از localStorage می‌خواند (کلید digishop_cart، آرایه‌ای از
