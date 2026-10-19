@@ -2878,6 +2878,31 @@
         </div>
       </section>
 
+      <!-- ═══ خرید بر اساس بودجه ═══ -->
+      <section class="product-section home-rail-section" id="budgetSection" aria-labelledby="budgetTitle" hidden>
+        <div class="section-header">
+          <h2 id="budgetTitle">خرید گوشی بر اساس بودجه</h2>
+        </div>
+        <div class="home-chips" id="budgetChips" role="tablist"></div>
+        <div class="product-grid home-rail" id="budgetGrid"></div>
+      </section>
+
+      <!-- ═══ پرفروش‌ترین‌ها ═══ -->
+      <section class="product-section home-rail-section" id="bestsellersSection" aria-labelledby="bestsellersTitle" hidden>
+        <div class="section-header">
+          <h2 id="bestsellersTitle">پرفروش‌ترین‌ها</h2>
+        </div>
+        <div class="product-grid home-rail" id="bestsellersGrid"></div>
+      </section>
+
+      <!-- ═══ تازه‌ها ═══ -->
+      <section class="product-section home-rail-section" id="newSection" aria-labelledby="newTitle" hidden>
+        <div class="section-header">
+          <h2 id="newTitle">تازه‌ها</h2>
+        </div>
+        <div class="product-grid home-rail" id="newGrid"></div>
+      </section>
+
       <!-- جایگاه خالی بنر لوازم جانبی موبایل؛ فعلاً بدون تصویر و لینک -->
       <section class="accessories-banner-slot" aria-label="جایگاه بنر لوازم جانبی موبایل"></section>
 
@@ -3979,6 +4004,88 @@
         }
       }
       loadFeaturedProducts();
+
+      /* ══ ردیف‌های صفحهٔ اصلی: بودجه، پرفروش‌ترین‌ها، تازه‌ها ══
+         بودجه و تازه‌ها از همان فهرستی ساخته می‌شوند که صفحه پیش‌تر گرفته (بدون درخواست اضافه). */
+      function homeCardMarkup(p) {
+        const rawImg = p.mainImage || (p.images && p.images[0]) || "";
+        const rawFallback = (p.images || []).find((image) => image && image !== rawImg) || "";
+        const img = escapeHtml(rawImg || "/images/product-placeholder.svg");
+        const fallbackImg = escapeHtml(rawFallback);
+        const name = escapeHtml(p.name);
+        const slug = escapeHtml(p.slug);
+        return `
+          <a href="/product/${slug}" class="product-card">
+            ${p.comingSoon ? '<span class="product-card-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
+            <img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}">
+            <h3>${name}</h3>
+            ${productPriceMarkup(p)}
+          </a>`;
+      }
+      function fillRail(sectionId, gridId, products) {
+        const section = document.getElementById(sectionId);
+        const grid = document.getElementById(gridId);
+        if (!section || !grid || !products.length) return false;
+        grid.innerHTML = products.map(homeCardMarkup).join("");
+        section.hidden = false;
+        return true;
+      }
+      const isPhoneProduct = (p) => {
+        const category = String(p.category || "");
+        return /موبایل|mobile|گوشی/i.test(category) && !/لوازم|accessor/i.test(category);
+      };
+      const finalPrice = (p) => productPriceInfo(p).final;
+
+      async function loadBudgetRail() {
+        try {
+          const phones = (await getHomeProducts()).filter((p) => isPhoneProduct(p) && !p.comingSoon && finalPrice(p) > 0)
+            .sort((a, b) => finalPrice(a) - finalPrice(b));
+          const MILLION = 1000000;
+          const ranges = [
+            { label: "زیر ۱۵ میلیون", test: (v) => v < 15 * MILLION },
+            { label: "۱۵ تا ۳۰ میلیون", test: (v) => v >= 15 * MILLION && v < 30 * MILLION },
+            { label: "بالای ۳۰ میلیون", test: (v) => v >= 30 * MILLION },
+          ].map((range) => ({ ...range, items: phones.filter((p) => range.test(finalPrice(p))).slice(0, 8) }))
+            .filter((range) => range.items.length);
+          if (!ranges.length) return;
+          const chips = document.getElementById("budgetChips");
+          const show = (index) => {
+            chips.querySelectorAll("button").forEach((button, i) => {
+              button.classList.toggle("active", i === index);
+              button.setAttribute("aria-selected", i === index ? "true" : "false");
+            });
+            fillRail("budgetSection", "budgetGrid", ranges[index].items);
+            document.getElementById("budgetGrid").scrollLeft = 0;
+          };
+          chips.innerHTML = ranges.map((range, i) => '<button type="button" role="tab" data-i="' + i + '">' + range.label + "</button>").join("");
+          chips.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-i]");
+            if (button) show(Number(button.dataset.i));
+          });
+          show(0);
+        } catch (err) { /* بخش اختیاری است؛ خطا صفحه را خراب نمی‌کند */ }
+      }
+      loadBudgetRail();
+
+      async function loadNewRail() {
+        try {
+          const items = (await getHomeProducts()).filter((p) => !p.comingSoon)
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8);
+          fillRail("newSection", "newGrid", items);
+        } catch (err) { /* اختیاری */ }
+      }
+      loadNewRail();
+
+      async function loadBestsellersRail() {
+        try {
+          const res = await fetch("/api/products/bestsellers");
+          const json = await res.json();
+          if (!json.success) return;
+          if (json.basis === "popular") document.getElementById("bestsellersTitle").textContent = "محبوب‌ترین‌ها";
+          fillRail("bestsellersSection", "bestsellersGrid", json.products || []);
+        } catch (err) { /* اختیاری */ }
+      }
+      loadBestsellersRail();
 
       /* ══ لوازم جانبی موبایل (از دیتابیس واقعی) ══ */
       async function loadMobileAccessories() {
