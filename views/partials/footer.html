@@ -1,4 +1,4 @@
-<footer class="footer">
+<footer class="footer pl-footer">
       <div class="footer-inner">
         <div class="footer-brand">
           <a href="/" class="logo"
@@ -8,51 +8,57 @@
           <p>
             پیکسل لایف، فروشگاه اینترنتی محصولات دیجیتال با بیش از ۱۰ سال تجربه.
           </p>
+        </div>
+        <!--FOOTER_SUPPORT-->
+        <div class="pl-footer-social">
           <div class="footer-social">
             <div class="social-btn"><i class="ti ti-brand-instagram"></i></div>
             <div class="social-btn"><i class="ti ti-brand-telegram"></i></div>
             <div class="social-btn"><i class="ti ti-brand-twitter"></i></div>
             <div class="social-btn"><i class="ti ti-brand-youtube"></i></div>
           </div>
+          <p>ما را در شبکه‌های اجتماعی دنبال کنید!</p>
         </div>
-        <div class="footer-col">
-          <h4>دسترسی سریع</h4>
-          <ul>
-            <li>صفحه اصلی</li>
-            <li>پیشنهاد ویژه</li>
-            <li>تازه‌ها</li>
-            <li>پرفروش‌ترین‌ها</li>
-            <li>برندها</li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>دسته‌بندی‌ها</h4>
-          <ul>
-            <li>موبایل</li>
-            <li>تبلت</li>
-            <li>هدفون و هندزفری</li>
-            <li>ساعت هوشمند</li>
-            <li>لوازم جانبی</li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>خدمات مشتریان</h4>
-          <ul>
-            <li>پیگیری سفارش</li>
-            <li>شرایط بازگشت</li>
-            <li>گارانتی محصولات</li>
-            <li>سوالات متداول</li>
-            <li><a href="/contact">تماس با ما</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>درباره ما</h4>
-          <ul>
-            <li>معرفی پیکسل لایف</li>
-            <li>فرصت‌های شغلی</li>
-            <li><a href="/terms">قوانین و مقررات</a></li>
-            <li>حریم خصوصی</li>
-          </ul>
+        <div class="pl-footer-cols">
+          <details class="footer-col pl-acc">
+            <summary><h4>خدمات مشتریان</h4></summary>
+            <ul>
+              <li><a href="/profile/orders">پیگیری سفارش</a></li>
+              <li>شرایط بازگشت</li>
+              <li>گارانتی محصولات</li>
+              <li>سوالات متداول</li>
+              <li><a href="/contact">تماس با ما</a></li>
+            </ul>
+          </details>
+          <details class="footer-col pl-acc">
+            <summary><h4>درباره ما</h4></summary>
+            <ul>
+              <li>معرفی پیکسل لایف</li>
+              <li>فرصت‌های شغلی</li>
+              <li><a href="/terms">قوانین و مقررات</a></li>
+              <li>حریم خصوصی</li>
+            </ul>
+          </details>
+          <details class="footer-col pl-acc">
+            <summary><h4>دسترسی سریع</h4></summary>
+            <ul>
+              <li><a href="/">صفحه اصلی</a></li>
+              <li><a href="/amazing">پیشنهاد ویژه</a></li>
+              <li><a href="/new">تازه‌ها</a></li>
+              <li><a href="/bestsellers">پرفروش‌ترین‌ها</a></li>
+              <li><a href="/brands">برندها</a></li>
+            </ul>
+          </details>
+          <details class="footer-col pl-acc">
+            <summary><h4>دسته‌بندی‌ها</h4></summary>
+            <ul>
+              <li><a href="/mobiles">موبایل</a></li>
+              <li><a href="/tablets">تبلت</a></li>
+              <li><a href="/headphones">هدفون و هندزفری</a></li>
+              <li><a href="/smartwatches">ساعت هوشمند</a></li>
+              <li><a href="/accessories">لوازم جانبی</a></li>
+            </ul>
+          </details>
         </div>
       </div>
       <div class="footer-bottom">
@@ -94,3 +100,22 @@
         </div>
       </div>
     </footer>
+<script>
+      (function () {
+        // دسکتاپ: ستون‌ها همیشه باز و ثابت‌اند؛ موبایل: کشویی.
+        var mq = window.matchMedia("(min-width: 900px)");
+        function sync() {
+          document.querySelectorAll(".pl-footer .pl-acc").forEach(function (item) {
+            if (mq.matches) item.setAttribute("open", "");
+            else item.removeAttribute("open");
+          });
+        }
+        sync();
+        if (mq.addEventListener) mq.addEventListener("change", sync);
+        document.querySelectorAll(".pl-footer .pl-acc > summary").forEach(function (summary) {
+          summary.addEventListener("click", function (event) {
+            if (mq.matches) event.preventDefault();
+          });
+        });
+      })();
+    </script>

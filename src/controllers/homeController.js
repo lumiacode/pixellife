@@ -521,9 +521,35 @@ const SHARED_FOOTER_HTML = (() => {
 const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html"]);
 const FOOTER_PATTERN = /<footer\b[^>]*class="[^"]*\bfooter\b[^"]*"[^>]*>[\s\S]*?<\/footer>/i;
 
+// ظاهر تیرهٔ فوتر (public/css/footer-v2.css) و بخش اختیاری پشتیبانی (views/partials/footer-support.html).
+const FOOTER_V2_STYLE = (() => {
+  try {
+    const css = fs.readFileSync(path.join(__dirname, "../../public/css/footer-v2.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ").trim();
+    return `<style id="pl-footer-v2">${css}</style>`;
+  } catch (error) {
+    console.error("Footer v2 style load error:", error.message);
+    return "";
+  }
+})();
+const FOOTER_SUPPORT_HTML = (() => {
+  try {
+    return fs.readFileSync(path.join(__dirname, "../../views/partials/footer-support.html"), "utf8").replace(/<!--[\s\S]*?-->/g, "").trim();
+  } catch (error) {
+    return "";
+  }
+})();
+
 function injectSharedFooter(html, fileName) {
   if (!html || !SHARED_FOOTER_HTML || !SHARED_FOOTER_PAGES.has(fileName) || !FOOTER_PATTERN.test(html)) return html;
-  return html.replace(FOOTER_PATTERN, () => SHARED_FOOTER_HTML);
+  const footer = SHARED_FOOTER_HTML.replace(
+    "<!--FOOTER_SUPPORT-->",
+    FOOTER_SUPPORT_HTML ? `<div class="pl-footer-support">${FOOTER_SUPPORT_HTML}</div>` : "",
+  );
+  html = html.replace(FOOTER_PATTERN, () => footer);
+  if (FOOTER_V2_STYLE && !html.includes('id="pl-footer-v2"') && html.includes("</head>")) {
+    html = html.replace("</head>", `${FOOTER_V2_STYLE}\n</head>`);
+  }
+  return html;
 }
 
 // سبد کوچک هدر برای صفحه‌هایی که خودشان ندارند (public/js/shared-minicart.js + CSS)
