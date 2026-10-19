@@ -1,0 +1,58 @@
+/* فوتر تیره با بخش‌های کشویی در موبایل (نسخهٔ ۲). فقط روی صفحه‌هایی که فوتر مشترک دارند تزریق می‌شود؛
+   حذف تگ <style id="pl-footer-v2"> ظاهر قبلی را برمی‌گرداند. */
+html body footer.pl-footer {
+  background: #1f2328 !important; color: #e5e7eb !important; border: 0 !important;
+  padding: 28px 16px 22px !important; margin-top: 24px !important;
+}
+html body .pl-footer .footer-inner { display: block !important; max-width: 1200px; margin: 0 auto; }
+
+/* برند */
+html body .pl-footer .footer-brand { text-align: center; padding-bottom: 18px; }
+html body .pl-footer .footer-brand .logo { display: inline-flex; align-items: center; gap: 10px; }
+html body .pl-footer .footer-brand .logo-text { color: #fff !important; }
+html body .pl-footer .footer-brand p { color: #9ca3af !important; font-size: 13px; line-height: 2; margin: 10px auto 0 !important; max-width: 520px; }
+
+/* پشتیبانی (اختیاری؛ از views/partials/footer-support.html) */
+html body .pl-footer .pl-footer-support { text-align: center; padding: 18px 0; border-top: 1px solid rgba(255,255,255,.12); }
+html body .pl-footer .pl-footer-support p { color: #e5e7eb; font-size: 14px; line-height: 2; margin: 0 0 10px; }
+html body .pl-footer .pl-footer-support a { color: #fff; font-weight: 700; direction: ltr; unicode-bidi: embed; margin: 0 10px; }
+
+/* شبکه‌های اجتماعی */
+html body .pl-footer .pl-footer-social { text-align: center; padding: 18px 0; border-top: 1px solid rgba(255,255,255,.12); }
+html body .pl-footer .footer-social { justify-content: center; gap: 14px; }
+html body .pl-footer .social-btn { background: transparent !important; color: #fff !important; width: 44px; height: 44px; font-size: 28px; }
+html body .pl-footer .social-btn:hover { color: var(--blue, #3b82f6) !important; }
+html body .pl-footer .pl-footer-social p { color: #cbd5e1; font-size: 14px; margin: 8px 0 0; }
+
+/* ستون‌ها / بخش‌های کشویی */
+html body .pl-footer .pl-acc { border-top: 1px solid rgba(255,255,255,.12); }
+html body .pl-footer .pl-acc > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; cursor: pointer;
+  padding: 18px 4px; -webkit-tap-highlight-color: transparent;
+}
+html body .pl-footer .pl-acc > summary::-webkit-details-marker { display: none; }
+html body .pl-footer .pl-acc > summary h4 { margin: 0 !important; color: #fff !important; font-size: 15px; font-weight: 700; }
+html body .pl-footer .pl-acc > summary::after {
+  content: ""; width: 9px; height: 9px; flex: 0 0 auto; margin-left: 6px;
+  border-right: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; transform: rotate(45deg); transition: transform .2s ease;
+}
+html body .pl-footer .pl-acc[open] > summary::after { transform: rotate(-135deg); }
+html body .pl-footer .pl-acc ul { list-style: none; margin: 0; padding: 0 4px 14px; }
+html body .pl-footer .pl-acc ul li { padding: 7px 0; font-size: 13.5px; color: #9ca3af; cursor: default; }
+html body .pl-footer .pl-acc ul li a { color: #cbd5e1; text-decoration: none; }
+html body .pl-footer .pl-acc ul li a:hover { color: #fff; }
+
+/* نمادها و متن حقوق */
+html body .pl-footer .footer-bottom { display: block; max-width: 1200px; margin: 0 auto; padding: 22px 0 0; border-top: 1px solid rgba(255,255,255,.12); }
+html body .pl-footer .footer-trust { justify-content: center; }
+html body .pl-footer .footer-trust .footer-trust-text { color: #9ca3af; text-align: center; opacity: 1; }
+
+@media (min-width: 900px) {
+  html body footer.pl-footer { padding: 44px 32px 28px !important; }
+  html body .pl-footer .footer-brand { padding-bottom: 28px; }
+  html body .pl-footer .pl-footer-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
+  html body .pl-footer .pl-acc { border-top: 0; }
+  html body .pl-footer .pl-acc > summary { padding: 0 0 12px; cursor: default; pointer-events: none; }
+  html body .pl-footer .pl-acc > summary::after { display: none; }
+  html body .pl-footer .pl-acc ul { padding: 0; }
+}
