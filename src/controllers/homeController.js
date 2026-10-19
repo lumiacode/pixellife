@@ -228,6 +228,20 @@ const TRUST_BADGES_STYLE = `
       padding: 4px;
     }
   }
+  /* متن زیر نمادهای اعتماد (تأمین و ضمانت کالا)؛ روی یک ردیف جدا و بعد از همهٔ نمادها */
+  .footer-trust .footer-trust-text {
+    order: 99;
+    flex: 0 0 100%;
+    margin: 12px 0 0;
+    font-size: 12.5px;
+    line-height: 2;
+    color: inherit;
+    opacity: .8;
+    text-align: right;
+  }
+  @media (max-width: 640px) {
+    .footer-trust .footer-trust-text { text-align: center; }
+  }
 </style>`;
 
 const ENAMAD_HTML = `
@@ -586,6 +600,20 @@ function injectEnamadBadges(html) {
   return `${html}\n${wrappedBadge}`;
 }
 
+// متن «نحوهٔ تأمین و ضمانت محصولات» زیر نمادهای اعتماد فوتر؛ از views/partials/footer-trust-text.html خوانده می‌شود.
+// تا وقتی این فایل خالی باشد (فقط کامنت)، هیچ متنی نمایش داده نمی‌شود.
+const FOOTER_TRUST_TEXT = (() => {
+  try {
+    return fs
+      .readFileSync(path.join(__dirname, "../../views/partials/footer-trust-text.html"), "utf8")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .trim();
+  } catch (error) {
+    return "";
+  }
+})();
+const TRUST_ICON_PLACEHOLDERS = /<div\s+class=["']ftrust["']\s*>\s*<i\s+class=["']ti ti-(?:certificate|shield-check|star)["']\s*><\/i>\s*<\/div>\s*/gi;
+
 // نمادهای اعتماد: چیدمان یکسان + افزودن نماد زرین‌پال به صفحه‌هایی که اینماد را از قبل در خود فایل دارند (مثل index.html).
 function injectEnamad(html) {
   if (!html) return html;
@@ -596,6 +624,12 @@ function injectEnamad(html) {
   if (!html.includes("webservice/TrustCode")) {
     const ecunionPattern = /(<span[^>]*class=["']ftrust-ecunion["'][^>]*>[\s\S]*?<\/span>)/i;
     if (ecunionPattern.test(html)) html = html.replace(ecunionPattern, `$1\n${ZARINPAL_BADGE_HTML}`);
+  }
+  // سه آیکن تزئینی کنار نمادهای اصلی حذف می‌شوند.
+  html = html.replace(TRUST_ICON_PLACEHOLDERS, "");
+  if (FOOTER_TRUST_TEXT && !html.includes('class="footer-trust-text"')) {
+    const trustOpen = /(<div[^>]*class=["'][^"']*\bfooter-trust\b[^"']*["'][^>]*>)/i;
+    html = html.replace(trustOpen, `$1\n<p class="footer-trust-text">${FOOTER_TRUST_TEXT}</p>`);
   }
   return html;
 }
