@@ -53,7 +53,7 @@ router.get("/blog", homeController.index);
 router.get("/support", homeController.contact);
 router.get("/terms", homeController.terms);
 router.get("/profile", homeController.profile);
-router.get("/profile/orders", homeController.profile);
+router.get(["/profile/orders", "/profile/orders/:orderNumber"], homeController.profile);
 router.get("/profile/wishlist", homeController.profile);
 router.get("/profile/addresses", homeController.profile);
 router.get("/profile/wallet", homeController.profile);

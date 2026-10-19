@@ -5,6 +5,7 @@ const router = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const { applyTrackingSteps, syncStepsWithStatus, trackingView } = require("../services/orderTracking");
 const Review = require("../models/review");
 const { refreshProductReviewStats, refreshAllProductReviewStats } = require("../services/reviewStats");
 const mongoose = require("mongoose");
@@ -953,7 +954,7 @@ router.get("/orders", async (req, res) => {
       Order.countDocuments(filter),
       Order.find(filter).populate("user", "firstName lastName mobile").sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
     ]);
-    res.json({ success: true, orders, pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } });
+    res.json({ success: true, orders: orders.map((order) => ({ ...order, tracking: trackingView(order) })), pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
@@ -964,8 +965,11 @@ router.patch("/orders/:id/status", async (req, res) => {
     if (!allowed.includes(status)) return res.status(400).json({ success: false, message: "وضعیت سفارش معتبر نیست" });
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
-    order.status = status; order.statusHistory.push({ status, note: "وضعیت توسط ادمین تغییر کرد" }); await order.save();
-    res.json({ success: true, order });
+    order.status = status; order.statusHistory.push({ status, note: "وضعیت توسط ادمین تغییر کرد" });
+    // مرحله‌های روند ارسال با وضعیت کلی هماهنگ می‌شوند.
+    syncStepsWithStatus(order, status);
+    await order.save();
+    res.json({ success: true, order: { ...(order.toObject ? order.toObject() : order), tracking: trackingView(order) } });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
@@ -996,6 +1000,17 @@ router.get("/reviews", async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+});
+
+// روند ارسال سفارش: ادمین مرحله‌ها را تیک می‌زند و نوار پیشرفت مشتری جلو می‌رود.
+router.patch("/orders/:id/tracking", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    applyTrackingSteps(order, req.body.steps);
+    await order.save();
+    res.json({ success: true, order: { ...(order.toObject ? order.toObject() : order), tracking: trackingView(order) } });
+  } catch (error) { res.status(error.statusCode || 500).json({ success: false, message: error.message }); }
 });
 
 router.patch("/reviews/:id/status", async (req, res) => {
