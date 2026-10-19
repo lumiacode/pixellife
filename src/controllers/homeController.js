@@ -635,7 +635,7 @@ function injectDatabaseCatalog(html) {
 
   // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
   // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
-  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=4"></script>';
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=5"></script>';
   if (html.includes("/js/database-catalog-amazing-v1.js")) {
     return html.replace(
       /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
@@ -698,7 +698,7 @@ function renderServerCatalogCard(product) {
     : '<div class="pl-catalog-prices"><span class="pl-catalog-price">' +
       finalPrice.toLocaleString("fa-IR") + " تومان</span></div>";
   return '<a href="/product?id=' + slug + '" class="iphone-card pl-catalog-card" data-stock="' +
-    stock + '" style="color:inherit;text-decoration:none;position:relative">' +
+    (outOfStock ? 0 : stock) + '" style="color:inherit;text-decoration:none;position:relative">' +
     '<div class="iphone-card-image"><img src="' + escapeCatalogText(image) + '" alt="' + name +
     '" loading="lazy" decoding="async"></div><div class="iphone-card-body pl-catalog-body">' +
     '<div class="pl-catalog-brand">' + brand + '</div><div class="iphone-card-name">' + name +
