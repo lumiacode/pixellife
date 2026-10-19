@@ -5,7 +5,7 @@ const ApiError = require("../utils/ApiError");
 
 // سقف دفعات واردکردن اشتباه یک کد و سقف درخواست کد برای هر شماره در ساعت.
 const MAX_VERIFY_ATTEMPTS = 5;
-const MAX_SENDS_PER_HOUR = 5;
+const MAX_SENDS_PER_HOUR = 3;
 const SEND_WINDOW_MS = 60 * 60 * 1000;
 const sendLog = new Map(); // identifier -> زمان ارسال‌های اخیر (حافظهٔ همین پروسه)
 

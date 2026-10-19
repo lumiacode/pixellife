@@ -69,13 +69,14 @@ const age = () => otps.forEach((doc) => { doc.createdAt = new Date(Date.now() - 
   // مصرف‌شدن: همان کد دوباره کار نمی‌کند
   r = await call(controller.verifyLoginOtp, { identifier: mobile, code: fresh }); assert.ok(r.error);
   // حساب غیرفعال با کد درست وارد نمی‌شود
-  users[0].isActive = false; age();
-  await call(controller.sendOtp, { identifier: mobile, type: "login" });
-  r = await call(controller.verifyLoginOtp, { identifier: mobile, code: otps.find((d) => !d.isUsed && d.type === "login").code });
+  const blocked = "09120000009";
+  await User.create({ mobile: blocked }); users[users.length - 1].isActive = false;
+  await call(controller.sendOtp, { identifier: blocked, type: "login" });
+  r = await call(controller.verifyLoginOtp, { identifier: blocked, code: otps.find((d) => !d.isUsed && d.identifier === blocked).code });
   assert.strictEqual(r.error.statusCode, 403);
-  // سقف ارسال: ششمین کد در یک ساعت رد می‌شود
+  // سقف ارسال: چهارمین کد در یک ساعت رد می‌شود
   const other = "09120000002"; let last;
-  for (let i = 0; i < 6; i++) { age(); last = await call(controller.sendOtp, { identifier: other, type: "register" }); }
+  for (let i = 0; i < 4; i++) { age(); last = await call(controller.sendOtp, { identifier: other, type: "register" }); }
   assert.strictEqual(last.error.statusCode, 429);
   // نوع forgot از مسیر ورود پذیرفته نمی‌شود
   r = await call(controller.sendOtp, { identifier: "09120000003", type: "forgot" }); assert.strictEqual(r.error.statusCode, 400);
