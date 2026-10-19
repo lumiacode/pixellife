@@ -1658,6 +1658,11 @@
           }
           if (hasStorage && !applyTotalStockToVariants(true)) return;
           if (hasStorage && !syncVariantInventoryInputs(true)) return;
+          // «ناموجود» همیشه مجاز است (حتی با قیمت یا تعداد خالی)؛ «موجود» تعداد بیشتر از صفر می‌خواهد.
+          if (availability === "in" && !(Number(englishNumber(document.getElementById("fStock").value)) > 0)) {
+            showToast("برای کالای موجود، تعداد موجودی باید بیشتر از صفر باشد");
+            return;
+          }
           const id = document.getElementById("productId").value;
           const fd = new FormData();
           fd.append("name", document.getElementById("fName").value);

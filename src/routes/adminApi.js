@@ -638,6 +638,19 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
         .json({ success: false, message: "برای کالای موجود، برند و قیمتِ بیشتر از صفر الزامی هستند" });
     }
 
+    if (requestedAvailability === "in") {
+      // «موجود» فقط با تعداد واقعی معتبر است؛ قبل از ذخیرهٔ عکس‌ها رد می‌شود تا فایل بی‌صاحب نماند.
+      const variantRows = parseEnabled(hasStorage) ? parseVariants(variants) : [];
+      const effectiveStock = variantRows && variantRows.length
+        ? variantRows.reduce((sum, row) => sum + row.stock, 0)
+        : parseStock(stock);
+      if (effectiveStock <= 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "برای کالای موجود، تعداد موجودی باید بیشتر از صفر باشد" });
+      }
+    }
+
     const uploadedImages = await Promise.all(
       uploadedFiles(req, "images").map(saveProductImage),
     );
@@ -746,7 +759,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     if (name) product.name = name;
     if (brand) product.brand = brand;
     if (category) product.category = category;
-    if (price) product.price = Number(price);
+    if (price !== undefined && price !== "") product.price = Number(price) || 0;
     if (discount !== undefined) product.discount = Number(discount) || 0;
     if (description !== undefined) product.description = description;
     if (introTitle !== undefined) product.introTitle = String(introTitle || "").trim() || "معرفی کالا";
@@ -802,6 +815,16 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     if (product.showSpecs === false) {
       product.specs = "";
       product.technicalSpecs = [];
+    }
+    // انتخاب صریح «موجود» فقط با قیمت و تعداد بیشتر از صفر پذیرفته می‌شود (قبل از هر تغییر در عکس‌ها).
+    // «ناموجود» همیشه مجاز است، حتی اگر قیمت یا تعداد خالی یا صفر باشد.
+    if (availability === "in") {
+      if (!(Number(product.price) > 0)) {
+        return res.status(400).json({ success: false, message: "برای کالای موجود، قیمتِ بیشتر از صفر الزامی است" });
+      }
+      if (!(Number(product.stock) > 0)) {
+        return res.status(400).json({ success: false, message: "برای کالای موجود، تعداد موجودی باید بیشتر از صفر باشد" });
+      }
     }
     product.featured =
       featured === "true" || featured === "on" || featured === true;
