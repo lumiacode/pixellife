@@ -244,7 +244,9 @@ router.get("/", async (req, res) => {
 });
 
 // پرفروش‌ترین‌ها: از سفارش‌های پرداخت‌شدهٔ ۱۲۰ روز اخیر؛ اگر داده کافی نبود، محبوب‌ترین‌ها بر اساس نظرات.
-const BESTSELLERS_TTL_MS = 10 * 60_000;
+// فقط کالای موجود و غیر «به‌زودی»؛ stock محصول همیشه با مجموع تنوع‌ها هماهنگ نگه داشته می‌شود (inventory.js).
+const IN_STOCK_FILTER = { comingSoon: { $ne: true }, availability: { $ne: "out" }, stock: { $gt: 0 } };
+const BESTSELLERS_TTL_MS = 2 * 60_000;
 let bestsellersCache = { expiresAt: 0, payload: null };
 router.get("/bestsellers", async (req, res) => {
   try {
@@ -259,13 +261,13 @@ router.get("/bestsellers", async (req, res) => {
     ]);
     const sold = new Map(rows.map((row) => [String(row._id), row.sold]));
     const found = rows.length
-      ? await Product.find({ _id: { $in: rows.map((row) => row._id) }, comingSoon: { $ne: true } }).select(PRODUCT_CARD_FIELDS).lean()
+      ? await Product.find({ _id: { $in: rows.map((row) => row._id) }, ...IN_STOCK_FILTER }).select(PRODUCT_CARD_FIELDS).lean()
       : [];
     let basis = "sales";
     let list = found.sort((a, b) => (sold.get(String(b._id)) || 0) - (sold.get(String(a._id)) || 0)).slice(0, 8);
     if (list.length < 4) {
       basis = "popular";
-      list = await Product.find({ comingSoon: { $ne: true } }).select(PRODUCT_CARD_FIELDS)
+      list = await Product.find(IN_STOCK_FILTER).select(PRODUCT_CARD_FIELDS)
         .sort({ reviewCount: -1, rating: -1, createdAt: -1 }).limit(8).lean();
     }
     const payload = { success: true, basis, products: await withApprovedReviewStats(list.map(serializeProduct)) };
