@@ -52,11 +52,11 @@ router.get("/callback", async (req, res, next) => {
     const status = String(req.query.Status || "").toUpperCase();
     const order = await Order.findOne({ "zarinpal.authority": authority });
     if (!order) return res.status(404).send("سفارش پرداخت پیدا نشد");
-    if (order.paymentStatus === "paid") return res.redirect(`/profile/orders?payment=success&order=${encodeURIComponent(order.orderNumber)}`);
+    if (order.paymentStatus === "paid") return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=success`);
     if (status !== "OK") {
       order.paymentStatus = "failed";
       await order.save();
-      return res.redirect(`/profile/orders?payment=cancelled&order=${encodeURIComponent(order.orderNumber)}`);
+      return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=cancelled`);
     }
     const result = await axios.post(`${apiBase}/verify.json`, {
       merchant_id: env.zarinpalMerchantId,
@@ -68,7 +68,7 @@ router.get("/callback", async (req, res, next) => {
       order.paymentStatus = "failed";
       order.statusHistory.push({ status: order.status, note: `تأیید پرداخت زرین‌پال ناموفق بود: ${data?.message || "پاسخ نامعتبر"}` });
       await order.save();
-      return res.redirect(`/profile/orders?payment=failed&order=${encodeURIComponent(order.orderNumber)}`);
+      return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=failed`);
     }
     order.paymentStatus = "paid";
     order.status = "processing";
@@ -78,7 +78,7 @@ router.get("/callback", async (req, res, next) => {
     order.statusHistory.push({ status: "processing", note: `پرداخت زرین‌پال تأیید شد؛ کد رهگیری ${data.ref_id || ""}` });
     await order.save();
     await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
-    res.redirect(`/profile/orders?payment=success&order=${encodeURIComponent(order.orderNumber)}`);
+    res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=success`);
   } catch (error) { next(error); }
 });
 

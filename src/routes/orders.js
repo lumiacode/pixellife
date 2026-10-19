@@ -6,6 +6,7 @@ const DiscountCode = require("../models/DiscountCode");
 const { buildQuote, findPaymentMethod } = require("../services/checkoutPricing");
 const Address = require("../models/Address");
 const { recordBehaviorEvent } = require("../services/behaviorAnalytics");
+const { trackingView } = require("../services/orderTracking");
 
 // هر کاربر در هر زمان فقط یک سفارش در انتظار پرداخت دارد: با ثبت سفارش جدید،
 // سفارش‌های پرداخت‌نشدهٔ قبلی لغو می‌شوند و ظرفیت کد تخفیفشان آزاد می‌شود.
@@ -63,6 +64,20 @@ router.post("/", protect, async (req, res, next) => {
 });
 
 router.get("/my", protect, async (req, res, next) => {
-  try { const orders = await Order.find({ user: req.user._id, superseded: { $ne: true } }).sort({ createdAt: -1 }).lean(); res.json({ success: true, orders }); } catch (error) { next(error); }
+  try {
+    const orders = await Order.find({ user: req.user._id, superseded: { $ne: true } }).sort({ createdAt: -1 }).lean();
+    res.json({ success: true, orders: orders.map((order) => ({ ...order, tracking: trackingView(order) })) });
+  } catch (error) { next(error); }
+});
+
+// جزئیات یک سفارش با شمارهٔ سفارش یا شناسه؛ فقط برای صاحب سفارش.
+router.get("/:ref", protect, async (req, res, next) => {
+  try {
+    const ref = String(req.params.ref || "").trim();
+    const filter = /^[a-f0-9]{24}$/i.test(ref) ? { $or: [{ _id: ref }, { orderNumber: ref }] } : { orderNumber: ref };
+    const order = await Order.findOne({ ...filter, user: req.user._id, superseded: { $ne: true } }).lean();
+    if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    res.json({ success: true, order: { ...order, tracking: trackingView(order) } });
+  } catch (error) { next(error); }
 });
 module.exports = router;
