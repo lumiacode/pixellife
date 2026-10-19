@@ -7,6 +7,7 @@ router.use((req, res, next) => {
 });
 
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 const { withApprovedReviewStats } = require("../services/reviewStats");
 const { streamProductImage } = require("../utils/productImages");
 
@@ -30,12 +31,19 @@ async function expireAmazingOffers() {
   );
 }
 
+// این نگهداری‌ها نیاز به دو درخواست دیتابیس دارند؛ بیش از یک‌بار در دقیقه لازم نیست.
+// فیلتر شگفت‌انگیز در خود کوئری‌ها هم زمان پایان را چک می‌کند، پس تأخیر کوتاه مشکلی نمی‌سازد.
+const MAINTENANCE_INTERVAL_MS = 60_000;
+let lastMaintenanceAt = 0;
 router.use(async (req, res, next) => {
-  try {
-    await expireAmazingOffers();
-    await moveCableAndChargerProductsToAccessories();
-  } catch (error) {
-    console.error("Amazing offer expiry error:", error);
+  if (Date.now() - lastMaintenanceAt >= MAINTENANCE_INTERVAL_MS) {
+    lastMaintenanceAt = Date.now();
+    try {
+      await expireAmazingOffers();
+      await moveCableAndChargerProductsToAccessories();
+    } catch (error) {
+      console.error("Amazing offer expiry error:", error);
+    }
   }
   next();
 });
@@ -231,6 +239,40 @@ router.get("/", async (req, res) => {
     res.json(payload);
   } catch (error) {
     console.error("Products catalog error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// پرفروش‌ترین‌ها: از سفارش‌های پرداخت‌شدهٔ ۱۲۰ روز اخیر؛ اگر داده کافی نبود، محبوب‌ترین‌ها بر اساس نظرات.
+const BESTSELLERS_TTL_MS = 10 * 60_000;
+let bestsellersCache = { expiresAt: 0, payload: null };
+router.get("/bestsellers", async (req, res) => {
+  try {
+    if (bestsellersCache.payload && bestsellersCache.expiresAt > Date.now()) return res.json(bestsellersCache.payload);
+    const since = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
+    const rows = await Order.aggregate([
+      { $match: { paymentStatus: "paid", status: { $ne: "cancelled" }, createdAt: { $gte: since } } },
+      { $unwind: "$items" },
+      { $group: { _id: "$items.product", sold: { $sum: "$items.quantity" } } },
+      { $sort: { sold: -1 } },
+      { $limit: 24 },
+    ]);
+    const sold = new Map(rows.map((row) => [String(row._id), row.sold]));
+    const found = rows.length
+      ? await Product.find({ _id: { $in: rows.map((row) => row._id) }, comingSoon: { $ne: true } }).select(PRODUCT_CARD_FIELDS).lean()
+      : [];
+    let basis = "sales";
+    let list = found.sort((a, b) => (sold.get(String(b._id)) || 0) - (sold.get(String(a._id)) || 0)).slice(0, 8);
+    if (list.length < 4) {
+      basis = "popular";
+      list = await Product.find({ comingSoon: { $ne: true } }).select(PRODUCT_CARD_FIELDS)
+        .sort({ reviewCount: -1, rating: -1, createdAt: -1 }).limit(8).lean();
+    }
+    const payload = { success: true, basis, products: await withApprovedReviewStats(list.map(serializeProduct)) };
+    bestsellersCache = { expiresAt: Date.now() + BESTSELLERS_TTL_MS, payload };
+    res.json(payload);
+  } catch (error) {
+    console.error("Bestsellers error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
