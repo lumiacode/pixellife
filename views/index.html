@@ -4035,10 +4035,19 @@
         return /موبایل|mobile|گوشی/i.test(category) && !/لوازم|accessor/i.test(category);
       };
       const finalPrice = (p) => productPriceInfo(p).final;
+      // ردیف‌های بودجه و تازه‌ها فقط کالای موجود را نشان می‌دهند (هم‌قاعده با inventory.js سمت سرور).
+      const isInStock = (p) => {
+        if (String(p.availability || "").toLowerCase() === "out") return false;
+        const variants = Array.isArray(p.variants) ? p.variants : [];
+        const stock = variants.length
+          ? variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock) || 0), 0)
+          : Number(p.stock) || 0;
+        return stock > 0;
+      };
 
       async function loadBudgetRail() {
         try {
-          const phones = (await getHomeProducts()).filter((p) => isPhoneProduct(p) && !p.comingSoon && finalPrice(p) > 0)
+          const phones = (await getHomeProducts()).filter((p) => isPhoneProduct(p) && !p.comingSoon && isInStock(p) && finalPrice(p) > 0)
             .sort((a, b) => finalPrice(a) - finalPrice(b));
           const MILLION = 1000000;
           const ranges = [
@@ -4069,7 +4078,7 @@
 
       async function loadNewRail() {
         try {
-          const items = (await getHomeProducts()).filter((p) => !p.comingSoon)
+          const items = (await getHomeProducts()).filter((p) => !p.comingSoon && isInStock(p))
             .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 8);
           fillRail("newSection", "newGrid", items);
         } catch (err) { /* اختیاری */ }
