@@ -48,11 +48,32 @@ html body .pl-footer .footer-trust { justify-content: center; }
 html body .pl-footer .footer-trust .footer-trust-text { color: #9ca3af; text-align: center; opacity: 1; }
 
 @media (min-width: 900px) {
-  html body footer.pl-footer { padding: 44px 32px 28px !important; }
-  html body .pl-footer .footer-brand { padding-bottom: 28px; }
-  html body .pl-footer .pl-footer-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
+  html body footer.pl-footer { padding: 26px 32px 12px !important; margin-top: 20px !important; }
+  html body .pl-footer .footer-inner { display: grid !important; grid-template-columns: 1fr 290px; grid-template-areas: "cols side"; gap: 36px; align-items: start; max-width: 1100px; }
+  html body .pl-footer .pl-footer-cols { grid-area: cols; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0; border: 0; }
+  html body .pl-footer .pl-footer-side { grid-area: side; text-align: center; }
+  html body .pl-footer .footer-brand { padding: 0 0 8px; }
+  html body .pl-footer .footer-brand .logo-text { font-size: 18px; }
+  html body .pl-footer .footer-brand p { font-size: 12px; line-height: 1.9; margin-top: 6px !important; }
+  html body .pl-footer .pl-footer-support,
+  html body .pl-footer .pl-footer-social { border-top: 0; padding: 10px 0 0; }
+  html body .pl-footer .pl-footer-support p,
+  html body .pl-footer .pl-footer-social p { font-size: 13px; margin-top: 6px; }
+  html body .pl-footer .social-btn { width: 36px; height: 36px; font-size: 24px; }
+  html body .pl-footer .footer-social { gap: 10px; }
   html body .pl-footer .pl-acc { border-top: 0; }
-  html body .pl-footer .pl-acc > summary { padding: 0 0 12px; cursor: default; pointer-events: none; }
+  html body .pl-footer .pl-acc > summary { padding: 0 0 10px; cursor: default; pointer-events: none; }
+  html body .pl-footer .pl-acc > summary h4 { font-size: 15px; }
   html body .pl-footer .pl-acc > summary::after { display: none; }
   html body .pl-footer .pl-acc ul { padding: 0; }
+  html body .pl-footer .pl-acc ul li { padding: 4px 0; font-size: 13px; }
+  html body .pl-footer .footer-bottom { margin-top: 18px; padding-top: 16px; }
+  html body .pl-footer .footer-trust { gap: 10px; }
+  html body .pl-footer .footer-trust .ftrust-enamad,
+  html body .pl-footer .footer-trust .ftrust-ecunion,
+  html body .pl-footer .footer-trust .ftrust-zarinpal { flex: 0 0 80px; width: 80px; max-width: 80px; height: 58px; padding: 5px; }
+  html body .pl-footer .footer-trust .ftrust-enamad img,
+  html body .pl-footer .footer-trust .ftrust-ecunion img,
+  html body .pl-footer .footer-trust .ftrust-zarinpal img { max-height: 46px; }
+  html body .pl-footer .footer-trust .footer-trust-text { margin-top: 8px; font-size: 12px; line-height: 1.8; }
 }
