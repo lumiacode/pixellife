@@ -10,6 +10,7 @@ html body .pl-footer .footer-inner { display: block !important; max-width: 1200p
 html body .pl-footer .footer-brand { text-align: center; padding-bottom: 18px; }
 html body .pl-footer .footer-brand .logo { display: inline-flex; align-items: center; gap: 10px; }
 html body .pl-footer .footer-brand .logo-text { color: #fff !important; }
+html body .pl-footer .footer-brand .logo-mark { width: 44px; height: 44px; }
 html body .pl-footer .footer-brand p { color: #9ca3af !important; font-size: 13px; line-height: 2; margin: 10px auto 0 !important; max-width: 520px; }
 
 /* پشتیبانی (اختیاری؛ از views/partials/footer-support.html) */
