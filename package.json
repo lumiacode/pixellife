@@ -14,6 +14,7 @@
     "test:checkout-pricing": "node tests/checkout-pricing.test.js",
     "test:checkout-flow": "node tests/checkout-flow.test.js",
     "test:discount-admin": "node tests/discount-admin.test.js",
+    "test:auth-otp": "node tests/auth-otp.test.js",
     "test:admin-product-availability": "node tests/admin-product-availability.test.js",
     "prestart": "npm run test:product-page-contract"
   },

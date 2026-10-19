@@ -150,6 +150,8 @@
     }
     .shared-auth-back:hover { color: #2563eb; }
 
+    .shared-auth-terms { margin: 14px 0 0; font-size: 12px; line-height: 1.9; color: #64748b; text-align: center; }
+    .shared-auth-terms a { color: #2563eb; text-decoration: underline; }
     .shared-auth-resend {
       margin-top: 8px;
       width: 100%;
@@ -376,6 +378,7 @@
         />
         <div id="sharedAuthError" class="shared-auth-error"></div>
         <button type="submit" id="sharedAuthSubmit">دریافت کد تأیید</button>
+        <p class="shared-auth-terms">با ورود یا ثبت‌نام، <a href="/terms" target="_blank" rel="noopener">قوانین و مقررات</a> سایت را می‌پذیرید.</p>
       </form>
     `;
 
@@ -475,7 +478,7 @@
 
         <div class="shared-auth-row" style="margin-top:18px;">
           <div class="shared-auth-field">
-            <label for="sharedAuthNationalCode">کد ملی</label>
+            <label for="sharedAuthNationalCode">کد ملی (اختیاری)</label>
             <input
               id="sharedAuthNationalCode"
               type="text"
@@ -483,16 +486,14 @@
               autocomplete="off"
               placeholder="کد ملی ۱۰ رقمی"
               maxlength="10"
-              required
             />
           </div>
           <div class="shared-auth-field">
-            <label for="sharedAuthBirthDate">تاریخ تولد</label>
+            <label for="sharedAuthBirthDate">تاریخ تولد (اختیاری)</label>
             <input
               id="sharedAuthBirthDate"
               type="date"
               autocomplete="bday"
-              required
             />
           </div>
         </div>
@@ -550,12 +551,8 @@
       showError("لطفاً نام و نام خانوادگی را به‌درستی وارد کنید.");
       return;
     }
-    if (!/^\d{10}$/.test(nationalCode)) {
-      showError("کد ملی باید ۱۰ رقم باشد.");
-      return;
-    }
-    if (!birthDate) {
-      showError("تاریخ تولد را وارد کنید.");
+    if (nationalCode && !/^\d{10}$/.test(nationalCode)) {
+      showError("کد ملی باید ۱۰ رقم باشد یا خالی بماند.");
       return;
     }
 
@@ -565,8 +562,8 @@
       await apiRequest("/api/auth/complete-profile", {
         firstName,
         lastName,
-        nationalCode,
-        birthDate,
+        ...(nationalCode ? { nationalCode } : {}),
+        ...(birthDate ? { birthDate } : {}),
       });
 
       clearInterval(timerInterval);

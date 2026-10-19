@@ -84,18 +84,9 @@ exports.sendOtp = async (req, res, next) => {
     const channel = getChannel(identifier);
     if (channel === "email")
       return next(new ApiError(400, "ورود با ایمیل هنوز فعال نیست"));
+    if (type === "forgot") return next(new ApiError(400, "نوع کد تأیید نامعتبر است"));
 
-    // بررسی وجود کاربر
-    const user = await findUserByIdentifier(identifier);
-
-    if (!user) {
-      // ثبت‌نام خودکار — کاربر جدید بدون رمز عبور
-      const isMobile = /^09\d{9}$/.test(identifier);
-      const userData = isMobile
-        ? { mobile: identifier }
-        : { email: identifier };
-      await User.create(userData);
-    }
+    // حساب کاربر جدید فقط بعد از تأیید کد ساخته می‌شود (در verifyLoginOtp)؛ ارسال کد رکوردی نمی‌سازد.
 
     // ارسال کد تأیید
     await otpService.createAndSend(identifier, type, channel);
@@ -117,25 +108,31 @@ exports.verifyLoginOtp = async (req, res, next) => {
     const { code } = req.body;
     const identifier = normalizeIdentifier(req.body.identifier);
 
-    // بررسی وجود کاربر
-    const user = await findUserByIdentifier(identifier);
-    if (!user) {
-      return next(new ApiError(404, "کاربر یافت نشد"));
-    }
-
-    // تأیید کد OTP (register یا login)
+    // تأیید کد OTP (register یا login). خطای «تلاش زیاد» مستقیم به کاربر برمی‌گردد.
     let verified = false;
+    let lastError = null;
     for (const type of ["register", "login"]) {
       try {
         await otpService.verify(identifier, code, type);
         verified = true;
         break;
       } catch (e) {
-        // ادامه با type بعدی
+        if (e.statusCode === 429) return next(e);
+        lastError = e;
       }
     }
     if (!verified) {
-      return next(new ApiError(400, "کد تأیید نادرست یا منقضی شده است"));
+      return next(lastError || new ApiError(400, "کد تأیید نادرست یا منقضی شده است"));
+    }
+
+    // کاربر جدید فقط پس از اثبات مالکیت شماره ساخته می‌شود.
+    let user = await findUserByIdentifier(identifier);
+    if (!user) {
+      const isMobile = /^09\d{9}$/.test(identifier);
+      user = await User.create(isMobile ? { mobile: identifier } : { email: identifier });
+    }
+    if (!user.isActive) {
+      return next(new ApiError(403, "حساب کاربری شما غیرفعال شده است"));
     }
 
     // فعال‌سازی حساب
@@ -261,17 +258,8 @@ exports.verifyForgotOtp = async (req, res, next) => {
     const { code } = req.body;
     const identifier = normalizeIdentifier(req.body.identifier);
 
-    // فقط بررسی صحت کد بدون isUsed کردن
-    const otpRecord = await OTP.findOne({
-      identifier,
-      code,
-      type: "forgot",
-      expiresAt: { $gt: new Date() },
-    });
-
-    if (!otpRecord || otpRecord.isUsed) {
-      return next(new ApiError(400, "کد تأیید نادرست یا منقضی شده است"));
-    }
+    // فقط بررسی صحت کد، بدون مصرف آن؛ تلاش‌های اشتباه شمرده می‌شوند.
+    await otpService.verify(identifier, code, "forgot", { consume: false });
 
     res.json({
       success: true,
@@ -332,13 +320,7 @@ exports.resendOtp = async (req, res, next) => {
     if (channel === "email")
       return next(new ApiError(400, "ورود با ایمیل هنوز فعال نیست"));
 
-    // برای نوع register/login: کاربر باید وجود داشته باشد
-    if (type === "register" || type === "login") {
-      const user = await findUserByIdentifier(identifier);
-      if (!user) {
-        return next(new ApiError(404, "کاربر یافت نشد"));
-      }
-    }
+    // برای register/login کاربر ممکن است هنوز ساخته نشده باشد (ساخت بعد از تأیید کد).
 
     // برای نوع forgot: کاربر باید وجود داشته باشد
     if (type === "forgot") {

@@ -103,23 +103,22 @@ exports.resetPasswordValidator = [
   passwordValidation(),
 ];
 
+// کد ملی و تاریخ تولد اختیاری‌اند؛ اگر پر شوند باید معتبر باشند.
 const nationalCodeValidation = () =>
   body("nationalCode")
+    .optional({ checkFalsy: true })
     .trim()
     .customSanitizer((value) =>
       String(value)
         .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
         .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit)),
     )
-    .notEmpty()
-    .withMessage("کد ملی الزامی است")
     .matches(/^\d{10}$/)
     .withMessage("کد ملی باید ۱۰ رقم باشد");
 
 const birthDateValidation = () =>
   body("birthDate")
-    .notEmpty()
-    .withMessage("تاریخ تولد الزامی است")
+    .optional({ checkFalsy: true })
     .isISO8601()
     .withMessage("تاریخ تولد معتبر نیست");
 
