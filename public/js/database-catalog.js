@@ -128,7 +128,7 @@
       ? '<span class="pl-catalog-discount">' + discountPercent + '%</span>'
       : "";
     // نام برند فقط یک‌بار، بالای مدل محصول نمایش داده می‌شود.
-    return `<a href="${href}" class="${config.card} pl-catalog-card" data-stock="${stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${discountBadge}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${name}</div><div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div><div class="pl-amazing-timer-slot">${amazingTimer}</div></div></a>`;
+    return `<a href="${href}" class="${config.card} pl-catalog-card" data-stock="${outOfStock ? 0 : stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${discountBadge}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${name}</div><div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div><div class="pl-amazing-timer-slot">${amazingTimer}</div></div></a>`;
   }
 
   const requestedParams = new URLSearchParams(window.location.search);
