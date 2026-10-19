@@ -63,3 +63,6 @@
   --pl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --pl-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
+
+/* لوگوی برند روی پس‌زمینهٔ تیره سفید می‌شود */
+[data-theme="dark"] .brand-logo-mark img[src*="logo-mark-192"] { filter: brightness(0) invert(1); }

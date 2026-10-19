@@ -19,7 +19,8 @@
 
     .admin-sidebar-brand{display:flex!important;align-items:center!important;height:60px;margin:0 2px 18px!important;padding:0!important;border:0!important}
     .admin-sidebar-brand a{display:flex!important;align-items:center!important;gap:13px!important;color:#fff!important;text-decoration:none!important;white-space:nowrap}
-    .admin-brand-mark{display:grid!important;place-items:center!important;flex:0 0 46px;width:46px!important;height:46px!important;border-radius:15px!important;background:linear-gradient(135deg,#8b3dd4,#c05cff)!important;color:#fff!important;font:800 22px Vazirmatn,Tahoma,sans-serif;box-shadow:0 6px 18px #b34eff55}
+    .admin-brand-mark{display:grid!important;place-items:center!important;flex:0 0 46px;width:46px!important;height:46px!important;background:transparent!important;box-shadow:none!important}
+    .admin-brand-mark img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 12px #b34eff66)}
     .admin-brand-name{font:800 21px Vazirmatn,Tahoma,sans-serif;overflow:hidden;max-width:190px;transition:opacity .25s,max-width .6s var(--adm-ease),transform .5s var(--adm-ease)}
     .admin-brand-name span{color:#cf8aff}
     .admin-brand-name small{display:block;font:400 10px Vazirmatn,Tahoma,sans-serif;color:#8e8d99;margin-top:1px}
@@ -138,7 +139,7 @@
 
   const sidebar =
     '<button type="button" class="adm-collapse" aria-label="جمع کردن منو" aria-expanded="true" title="جمع کردن منو"><i class="ti ti-chevron-right"></i></button>' +
-    '<div class="admin-sidebar-brand"><a href="/admin/products"><span class="admin-brand-mark">P</span><span class="admin-brand-name">Pixel<span>Life</span><small>پنل مدیریت</small></span></a></div>' +
+    '<div class="admin-sidebar-brand"><a href="/admin/products"><span class="admin-brand-mark"><img src="/images/brand/logo-mark-white-192.png" alt="" width="44" height="44" decoding="async"></span><span class="admin-brand-name">Pixel<span>Life</span><small>پنل مدیریت</small></span></a></div>' +
     '<label class="adm-search"><i class="ti ti-search"></i><input type="search" placeholder="جست‌وجو در منو" aria-label="جست‌وجو در منو" autocomplete="off"><kbd>Ctrl K</kbd></label>' +
     '<nav class="admin-sidebar-nav" aria-label="منوی مدیریت">' +
     item("/admin/products", "ti-layout-dashboard", "داشبورد محصولات") +
