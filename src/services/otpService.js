@@ -3,6 +3,30 @@ const env = require("../config/env");
 const smsService = require("./smsService");
 const ApiError = require("../utils/ApiError");
 
+// سقف دفعات واردکردن اشتباه یک کد و سقف درخواست کد برای هر شماره در ساعت.
+const MAX_VERIFY_ATTEMPTS = 5;
+const MAX_SENDS_PER_HOUR = 3;
+const SEND_WINDOW_MS = 60 * 60 * 1000;
+const sendLog = new Map(); // identifier -> زمان ارسال‌های اخیر (حافظهٔ همین پروسه)
+
+function registerSend(identifier) {
+  const now = Date.now();
+  const recent = (sendLog.get(identifier) || []).filter((time) => now - time < SEND_WINDOW_MS);
+  if (recent.length >= MAX_SENDS_PER_HOUR) {
+    sendLog.set(identifier, recent);
+    throw new ApiError(429, "تعداد درخواست کد برای این شماره زیاد بود؛ حدود یک ساعت دیگر دوباره تلاش کنید");
+  }
+  recent.push(now);
+  sendLog.set(identifier, recent);
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [identifier, times] of sendLog) {
+    if (!times.some((time) => now - time < SEND_WINDOW_MS)) sendLog.delete(identifier);
+  }
+}, 10 * 60 * 1000).unref();
+
 /**
  * سرویس مدیریت کدهای تأیید OTP
  */
@@ -28,6 +52,7 @@ const otpService = {
 
     const recentOtp = await OTP.findOne({ identifier, type, createdAt: { $gte: new Date(Date.now() - 60 * 1000) } });
     if (recentOtp) throw new ApiError(429, "لطفاً کمی صبر کنید");
+    registerSend(identifier);
 
     // حذف کدهای قبلی برای این شناسه و نوع
     await OTP.deleteMany({ identifier, type, isUsed: false });
@@ -58,26 +83,40 @@ const otpService = {
   },
 
   /**
-   * تأیید کد OTP
+   * تأیید کد OTP.
+   * هر بار واردکردن یک «تلاش» حساب می‌شود (اتمیک)؛ بعد از MAX_VERIFY_ATTEMPTS تلاش اشتباه، کد باطل می‌شود.
+   * consume=false فقط درستی کد را می‌سنجد و آن را مصرف نمی‌کند (مرحلهٔ بررسی کد فراموشی رمز).
    */
-  async verify(identifier, code, type) {
-    const otpRecord = await OTP.findOne({
-      identifier,
-      code,
-      type,
-      isUsed: false,
-      expiresAt: { $gt: new Date() },
-    });
+  async verify(identifier, code, type, { consume = true } = {}) {
+    const record = await OTP.findOneAndUpdate(
+      { identifier, type, isUsed: false, expiresAt: { $gt: new Date() }, attempts: { $lt: MAX_VERIFY_ATTEMPTS } },
+      { $inc: { attempts: 1 } },
+      { sort: { createdAt: -1 }, new: true },
+    );
 
-    if (!otpRecord) {
+    if (!record) {
+      const exhausted = await OTP.exists({ identifier, type, isUsed: false, expiresAt: { $gt: new Date() } });
+      if (exhausted) {
+        await OTP.updateMany({ identifier, type, isUsed: false }, { $set: { isUsed: true } });
+        throw new ApiError(429, "تعداد تلاش‌های اشتباه زیاد بود؛ کد جدید دریافت کنید");
+      }
       throw new ApiError(400, "کد تأیید نادرست یا منقضی شده است");
     }
 
-    // علامت‌گذاری کد به‌عنوان استفاده شده
-    otpRecord.isUsed = true;
-    await otpRecord.save();
+    if (record.code !== String(code)) {
+      if (record.attempts >= MAX_VERIFY_ATTEMPTS) {
+        await OTP.updateOne({ _id: record._id }, { $set: { isUsed: true } });
+        throw new ApiError(429, "تعداد تلاش‌های اشتباه زیاد بود؛ کد جدید دریافت کنید");
+      }
+      throw new ApiError(400, "کد تأیید نادرست یا منقضی شده است");
+    }
 
-    return otpRecord;
+    if (consume) {
+      // مصرف اتمیک: دو درخواست هم‌زمان با کد درست نمی‌توانند هر دو موفق شوند.
+      const used = await OTP.findOneAndUpdate({ _id: record._id, isUsed: false }, { $set: { isUsed: true } }, { new: true });
+      if (!used) throw new ApiError(400, "کد تأیید نادرست یا منقضی شده است");
+    }
+    return record;
   },
 
   /**

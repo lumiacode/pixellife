@@ -28,6 +28,11 @@ const otpSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // تعداد دفعات واردکردن کد؛ بعد از سقف مجاز، کد باطل می‌شود (جلوگیری از حدس‌زدن).
+    attempts: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
