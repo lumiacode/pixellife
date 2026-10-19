@@ -52,6 +52,10 @@ html body .product-price-current { font-size: 15px !important; font-weight: 800 
 html body .home-brand-card img { filter: grayscale(1); opacity: .7; transition: filter var(--pl-dur, .2s) var(--pl-ease, ease), opacity var(--pl-dur, .2s) var(--pl-ease, ease); }
 html body .home-brand-card:hover img { filter: none; opacity: 1; }
 
+/* کارت ناموجود در صفحهٔ اصلی: بدون قیمت، با تصویر خاکستری */
+html body .product-price-out { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--pl-red, #b91c1c); }
+html body .product-card:has(.product-price-out) img { filter: grayscale(1); opacity: .55; }
+
 /* ردیف‌های افقی صفحهٔ اصلی (بودجه، پرفروش‌ترین‌ها، تازه‌ها) */
 html body .home-rail-section[hidden] { display: none !important; }
 html body .home-rail {

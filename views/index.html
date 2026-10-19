@@ -3915,7 +3915,20 @@
         return { original, discount, final };
       }
 
+      // کالای ناموجود (وضعیت «ناموجود» در ادمین یا موجودی صفر) هیچ قیمتی نشان نمی‌دهد.
+      function isProductOut(product) {
+        if (String(product.availability || "").toLowerCase() === "out") return true;
+        const variants = Array.isArray(product.variants) ? product.variants : [];
+        const stock = variants.length
+          ? variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock) || 0), 0)
+          : Number(product.stock) || 0;
+        return stock <= 0;
+      }
+
       function productPriceMarkup(product, className = "product-price") {
+        if (isProductOut(product)) {
+          return `<div class="${className}"><span class="product-price-out"><i class="ti ti-circle-x"></i> ناموجود</span></div>`;
+        }
         const info = productPriceInfo(product);
         const meta = info.discount > 0
           ? `<span class="product-price-meta"><span class="product-price-discount">${info.discount.toLocaleString("fa-IR")}٪</span><span class="product-price-old">${info.original.toLocaleString("fa-IR")}</span></span>`
@@ -3945,7 +3958,7 @@
         try {
           const products = await getHomeProducts();
           const now = Date.now();
-          const offers = products.filter((p) => p.amazingOffer && p.amazingOfferEndsAt && new Date(p.amazingOfferEndsAt).getTime() > now).slice(0, 7);
+          const offers = products.filter((p) => p.amazingOffer && !isProductOut(p) && p.amazingOfferEndsAt && new Date(p.amazingOfferEndsAt).getTime() > now).slice(0, 7);
           if (!offers.length) return;
           list.innerHTML = offers.map((p) => {
             const image = escapeHtml(p.mainImage || (p.images && p.images[0]) || "/images/product-placeholder.svg");
@@ -4036,14 +4049,7 @@
       };
       const finalPrice = (p) => productPriceInfo(p).final;
       // ردیف‌های بودجه و تازه‌ها فقط کالای موجود را نشان می‌دهند (هم‌قاعده با inventory.js سمت سرور).
-      const isInStock = (p) => {
-        if (String(p.availability || "").toLowerCase() === "out") return false;
-        const variants = Array.isArray(p.variants) ? p.variants : [];
-        const stock = variants.length
-          ? variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock) || 0), 0)
-          : Number(p.stock) || 0;
-        return stock > 0;
-      };
+      const isInStock = (p) => !isProductOut(p);
 
       async function loadBudgetRail() {
         try {
