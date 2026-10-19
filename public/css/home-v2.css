@@ -52,6 +52,26 @@ html body .product-price-current { font-size: 15px !important; font-weight: 800 
 html body .home-brand-card img { filter: grayscale(1); opacity: .7; transition: filter var(--pl-dur, .2s) var(--pl-ease, ease), opacity var(--pl-dur, .2s) var(--pl-ease, ease); }
 html body .home-brand-card:hover img { filter: none; opacity: 1; }
 
+/* ردیف‌های افقی صفحهٔ اصلی (بودجه، پرفروش‌ترین‌ها، تازه‌ها) */
+html body .home-rail-section[hidden] { display: none !important; }
+html body .home-rail {
+  display: flex !important; grid-template-columns: none !important; gap: 12px !important;
+  overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+html body .home-rail .product-card { flex: 0 0 calc((100% - 36px) / 4); min-width: 200px; scroll-snap-align: start; }
+html body .home-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 14px; }
+html body .home-chips button {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 16px; border-radius: 999px;
+  border: 1px solid var(--pl-line, #e2e8f0); background: var(--pl-surface, #fff); color: var(--pl-text-2, #334155);
+  transition: background var(--pl-dur, .2s) var(--pl-ease, ease), color var(--pl-dur, .2s) var(--pl-ease, ease), border-color var(--pl-dur, .2s) var(--pl-ease, ease);
+}
+html body .home-chips button.active { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); color: #fff; }
+@media (max-width: 640px) {
+  html body .home-rail { gap: 8px !important; }
+  html body .home-rail .product-card { flex-basis: 44vw; min-width: 150px; }
+}
+
 @media (max-width: 640px) {
   html body .product-grid { gap: 8px !important; }
   html body .product-card { padding: 8px !important; border-radius: 14px !important; }
