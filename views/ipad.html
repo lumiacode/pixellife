@@ -346,7 +346,7 @@
       .profile-trigger-name {
         font-size: 13px;
         font-weight: 600;
-        max-width: 72px;
+        max-width: 110px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -1790,13 +1790,13 @@
               role="button"
               tabindex="0"
             >
-              <div class="profile-avatar" id="profileAvatar">ک</div>
+              <div class="profile-avatar" id="profileAvatar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
               <span class="profile-trigger-name" id="profileName">کاربر</span>
               <i class="ti ti-chevron-down profile-chevron"></i>
             </div>
             <div class="profile-dropdown" id="profileDropdown">
               <div class="pdrop-header">
-                <div class="pdrop-avatar" id="pdropAvatar">ک</div>
+                <div class="pdrop-avatar" id="pdropAvatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
                 <div>
                   <div class="pdrop-info-name" id="pdropName">کاربر</div>
                   <div class="pdrop-info-mobile" id="pdropMobile"></div>
@@ -2174,10 +2174,7 @@
         return v.toLowerCase();
       }
       function getDisplayName(user) {
-        const fullName = [user.firstName, user.lastName]
-          .filter(Boolean)
-          .join(" ")
-          .trim();
+        const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
         if (fullName) return fullName;
         if (user.mobile) return user.mobile;
         if (user.email) return user.email;
@@ -2186,13 +2183,10 @@
       function applyLogin(user) {
         document.body.classList.add("logged-in");
         const disp = getDisplayName(user);
-        const ch = disp.replace(/\D/g, "").slice(0, 1) || "ک";
-        document.getElementById("profileAvatar").textContent = ch;
         document.getElementById("profileName").textContent = disp;
-        document.getElementById("pdropAvatar").textContent = ch;
         document.getElementById("pdropName").textContent = disp;
-        document.getElementById("pdropMobile").textContent =
-          user.mobile || user.email || "";
+        const mobileText = user.mobile ? String(user.mobile).replace(/(\d{4})(\d{3})(\d{4})/, "$1 $2 $3") : "";
+        document.getElementById("pdropMobile").textContent = disp === user.mobile ? (user.email || "") : (mobileText || user.email || "");
       }
       function applyLogout() {
         document.body.classList.remove("logged-in");

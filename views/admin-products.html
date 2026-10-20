@@ -270,7 +270,8 @@
       #productModal #productForm .modal-body { flex:1 1 auto; overflow-y:auto; min-height:0; }
       #productModal .modal-footer { box-shadow:0 -6px 16px rgba(15,23,42,.06); }
       .rv-top { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
-      .rv-title-field { flex:1 1 220px; max-width:360px; }
+      .rv-title-field { flex:1 1 100%; max-width:none; }
+      .rv-title-field .form-control { min-height:44px; font-size:15px; }
       .rv-block { background:#fff; border:1px solid #dbe4f0; border-radius:10px; padding:12px; margin-top:12px; }
       .rv-block__head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
       .rv-block__head h6 { margin:0; font-weight:800; color:#1e3a8a; display:flex; align-items:center; gap:8px; }
@@ -651,7 +652,7 @@
                       </div>
                       <div class="rv-title-field">
                         <label class="form-label mb-1" for="fReviewTitle">عنوان بخش</label>
-                        <input type="text" class="form-control form-control-sm" id="fReviewTitle" maxlength="120" placeholder="بررسی تخصصی" />
+                        <input type="text" class="form-control" id="fReviewTitle" maxlength="120" placeholder="بررسی تخصصی" />
                       </div>
                     </div>
 
