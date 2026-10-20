@@ -63,9 +63,12 @@ const ENAMAD_LOGO =
 
 const ENAMAD_STYLE = `
 <style id="shared-enamad-style">
+  /* clip (نه hidden): hidden روی html و body هم‌زمان، body را به ظرف اسکرول تبدیل می‌کند و position: sticky (کادر خرید، هدر) از کار می‌افتد. */
   html, body {
     max-width: 100%;
-    overflow-x: hidden;
+  }
+  body {
+    overflow-x: clip;
   }
   .footer-trust {
     display: flex;
@@ -137,9 +140,12 @@ const ZARINPAL_BADGE_HTML = `<div class="ftrust-zarinpal" title="نماد اعت
 const TRUST_BADGES_STYLE = `
 <style id="trust-badges-style">
   /* جلوگیری از اسکرول افقی؛ این قانون قبلاً فقط همراه استایل اینماد می‌آمد و صفحه‌هایی که اینماد را در خودشان دارند (فوتر مشترک) نمی‌گرفتند. */
+  /* clip (نه hidden): hidden روی html و body هم‌زمان، body را به ظرف اسکرول تبدیل می‌کند و position: sticky (کادر خرید، هدر) از کار می‌افتد. */
   html, body {
     max-width: 100%;
-    overflow-x: hidden;
+  }
+  body {
+    overflow-x: clip;
   }
   .footer-trust,
   .standalone-enamad-wrap {

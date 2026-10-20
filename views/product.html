@@ -7954,7 +7954,7 @@
 
             const keepGalleryVisible = () => {
               const viewport = window.visualViewport?.height || window.innerHeight;
-              const height = Math.max(242, Math.min(310, viewport * 0.36));
+              const height = Math.max(340, Math.min(500, viewport * 0.56)); // عکس درشت‌تر، شبیه دیجی‌کالا
               productGallery.style.height = height + "px";
             };
 
@@ -8173,8 +8173,12 @@
   }
 }
 @media (max-width: 768px) {
+  /* عکس محصول درشت‌تر (شبیه دیجی‌کالا)؛ با اسکرول، کارت اطلاعات از روی آن بالا می‌آید. */
   body.mobile-product-flow-active .product-gallery {
-    height: clamp(280px, 42dvh, 360px);
+    height: clamp(340px, 56dvh, 500px);
+  }
+  body.mobile-product-flow-active .gallery-slide {
+    padding: 6px 8px 12px;
   }
   body.mobile-product-flow-active .gallery-main svg,
   body.mobile-product-flow-active .gallery-main img {
