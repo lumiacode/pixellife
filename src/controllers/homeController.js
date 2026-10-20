@@ -644,6 +644,46 @@ const FOOTER_TRUST_TEXT = (() => {
     return "";
   }
 })();
+// بلوک «دربارهٔ پیکسل لایف» زیر فوتر تیره؛ متن از views/partials/about-site.html (هر پاراگراف با یک خط خالی جدا می‌شود).
+const ABOUT_SITE_PARAGRAPHS = (() => {
+  try {
+    return fs
+      .readFileSync(path.join(__dirname, "../../views/partials/about-site.html"), "utf8")
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .split(/\r?\n\s*\r?\n/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  } catch (error) {
+    return [];
+  }
+})();
+const ABOUT_SITE_STYLE = `<style id="pl-about-site-style">
+.pl-about-site{background:#f6f7f9;border-top:1px solid #e5e7eb;padding:22px 16px;direction:rtl}
+.pl-about-site__inner{max-width:1200px;margin:0 auto}
+.pl-about-site h2{margin:0 0 8px;font-size:15px;font-weight:800;color:#1e293b}
+.pl-about-site__text{position:relative;font-size:13px;line-height:2;color:#475569;max-height:6.2em;overflow:hidden;transition:max-height .3s ease}
+.pl-about-site__text p{margin:0 0 8px}
+.pl-about-site:not(.is-open) .pl-about-site__text::after{content:"";position:absolute;inset:auto 0 0 0;height:2.2em;background:linear-gradient(to bottom,rgba(246,247,249,0),#f6f7f9)}
+.pl-about-site__toggle{margin-top:6px;padding:0;border:0;background:none;color:#2563eb;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.pl-about-site__toggle:hover{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:768px){.pl-about-site{padding:18px 16px 84px}}
+</style>`;
+const ABOUT_SITE_SCRIPT = `<script>(function(){var s=document.getElementById("plAboutSite");if(!s)return;var t=s.querySelector(".pl-about-site__text"),b=s.querySelector(".pl-about-site__toggle");if(!t||!b)return;b.addEventListener("click",function(){var o=s.classList.toggle("is-open");t.style.maxHeight=o?t.scrollHeight+"px":"";b.textContent=o?"بستن":"مشاهده بیشتر";b.setAttribute("aria-expanded",o?"true":"false");});})();</script>`;
+
+function injectAboutSite(html) {
+  if (!html || !ABOUT_SITE_PARAGRAPHS.length || html.includes('id="plAboutSite"')) return html;
+  // صفحه‌هایی که فوتر تیره ندارند، بلوک را انتهای صفحه (بعد از نمادهای اعتماد) می‌گیرند.
+  let end = html.lastIndexOf("</footer>");
+  const hasFooter = end !== -1;
+  if (!hasFooter) {
+    end = html.lastIndexOf("</body>");
+    if (end === -1) return html;
+  }
+  const block = `<section class="pl-about-site" id="plAboutSite" aria-label="درباره پیکسل لایف"><div class="pl-about-site__inner"><h2>درباره پیکسل لایف</h2><div class="pl-about-site__text">${ABOUT_SITE_PARAGRAPHS.map((part) => `<p>${part}</p>`).join("")}</div><button type="button" class="pl-about-site__toggle" aria-expanded="false">مشاهده بیشتر</button></div></section>${ABOUT_SITE_SCRIPT}`;
+  const at = hasFooter ? end + "</footer>".length : end;
+  html = html.slice(0, at) + "\n" + block + html.slice(at);
+  return html.includes("</head>") ? html.replace("</head>", `${ABOUT_SITE_STYLE}\n</head>`) : html;
+}
 const TRUST_ICON_PLACEHOLDERS = /<div\s+class=["']ftrust["']\s*>\s*<i\s+class=["']ti ti-(?:certificate|shield-check|star)["']\s*><\/i>\s*<\/div>\s*/gi;
 
 // نمادهای اعتماد: چیدمان یکسان + افزودن نماد زرین‌پال به صفحه‌هایی که اینماد را از قبل در خود فایل دارند (مثل index.html).
@@ -663,7 +703,7 @@ function injectEnamad(html) {
     const trustOpen = /(<div[^>]*class=["'][^"']*\bfooter-trust\b[^"']*["'][^>]*>)/i;
     html = html.replace(trustOpen, `$1\n<p class="footer-trust-text">${FOOTER_TRUST_TEXT}</p>`);
   }
-  return html;
+  return injectAboutSite(html);
 }
 
 function injectSharedCategoryNav(html) {
