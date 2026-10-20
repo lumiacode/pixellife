@@ -56,6 +56,19 @@ const server = app.listen(0, async () => {
     assert.deepStrictEqual(r.body.product.reviewCons, ["قیمت, بالا"]);
     assert.strictEqual(r.body.product.reviewSections.length, 1);
     assert.strictEqual(r.body.product.reviewSections[0].title, "طراحی");
+    // قیمت فارسی با جداکننده، سقف تخفیف و تهی‌کردن برند/دسته در ویرایش
+    r = await send("POST", base, { ...ok, price: "۱٬۲۵۰٬۰۰۰", discount: "۱۵۰", category: "تبلت" }); assert.strictEqual(r.status, 200, JSON.stringify(r.body));
+    assert.strictEqual(r.body.product.price, 1250000);
+    assert.strictEqual(r.body.product.discount, 100);
+    const id2 = r.body.product._id;
+    r = await send("PUT", `${base}/${id2}`, { price: "۹۰۰٬۰۰۰", discount: "۱۰", brand: "", category: "" }); assert.strictEqual(r.status, 200, JSON.stringify(r.body));
+    assert.strictEqual(r.body.product.price, 900000);
+    assert.strictEqual(r.body.product.discount, 10);
+    assert.strictEqual(r.body.product.brand, "");
+    assert.strictEqual(r.body.product.category, "");
+    // کد رنگ نامعتبر رد می‌شود و کد سه‌رقمی کامل می‌شود
+    r = await send("POST", base, { ...ok, colors: "قرمز|zzz" }); assert.strictEqual(r.status, 400);
+    r = await send("POST", base, { ...ok, colors: "قرمز|#f00" }); assert.strictEqual(r.status, 200); assert.strictEqual(r.body.product.colors[0].hex, "#ff0000");
     console.log("admin product availability tests passed");
   } catch (e) { console.error(e); process.exitCode = 1; } finally { server.close(); }
 });

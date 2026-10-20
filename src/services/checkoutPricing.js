@@ -40,7 +40,7 @@ async function loadLineItems(requestedItems, { collectUnavailable = false } = {}
       return;
     }
     const originalPrice = Math.round(Number(product.price));
-    const price = Math.round(originalPrice * (1 - Math.max(0, Number(product.discount) || 0) / 100));
+    const price = Math.round(originalPrice * (1 - Math.min(100, Math.max(0, Number(product.discount) || 0)) / 100));
     lines.push({
       product: product._id,
       name: product.name,

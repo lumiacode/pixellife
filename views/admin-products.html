@@ -257,6 +257,18 @@
       @media (max-width:575.98px) {
         .availability-control-card { align-items:stretch; flex-direction:column; }
       }
+      .product-flags { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; }
+      .product-flag { display:flex; align-items:center; gap:10px; margin:0; padding:10px 12px; border:1px solid #dbe4f0; border-radius:10px; background:#fff; cursor:pointer; font-weight:700; color:#334155; }
+      .product-flag small { display:block; font-weight:400; color:#64748b; font-size:11px; }
+      .product-flag:has(input:checked) { border-color:#2563eb; background:#eff6ff; }
+      .product-flag--hot:has(input:checked) { border-color:#ef4444; background:#fef2f2; }
+      .product-flag .form-check-input { margin:0; width:1.2em; height:1.2em; flex:0 0 auto; }
+      .rv-images { margin-top:8px; }
+      .rv-images > summary { cursor:pointer; color:#475569; font-size:13px; padding:4px 0; }
+      #productModal .modal-header, #productModal .modal-footer { background:#fff; }
+      #productModal #productForm { display:flex; flex-direction:column; min-height:0; max-height:calc(100vh - 3.5rem); }
+      #productModal #productForm .modal-body { flex:1 1 auto; overflow-y:auto; min-height:0; }
+      #productModal .modal-footer { box-shadow:0 -6px 16px rgba(15,23,42,.06); }
       .rv-top { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
       .rv-title-field { flex:1 1 220px; max-width:360px; }
       .rv-block { background:#fff; border:1px solid #dbe4f0; border-radius:10px; padding:12px; margin-top:12px; }
@@ -464,8 +476,8 @@
       </main>
     </div>
 
-    <div class="modal fade" id="productModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="productModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
           <form id="productForm">
             <div class="modal-header">
@@ -497,28 +509,29 @@
                     type="text"
                     class="form-control"
                     id="fBrand"
+                    list="brandSuggestions"
                     placeholder="مثلاً Apple، Samsung"
                   />
+                  <datalist id="brandSuggestions">
+                    <option value="اپل"></option><option value="سامسونگ"></option><option value="شیائومی"></option><option value="سونی"></option><option value="هوآوی"></option><option value="انکر"></option><option value="جی‌بی‌ال"></option>
+                  </datalist>
                   <div class="form-hint">برای کالای ناموجود اختیاری است.</div>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">دسته‌بندی</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="fCategory"
-                    list="categorySuggestions"
-                    placeholder="موبایل، تبلت، ..."
-                  />
-                  <datalist id="categorySuggestions">
-                    <option value="موبایل"></option>
-                    <option value="کابل، شارژر و آداپتور"></option>
-                    <option value="لوازم جانبی موبایل"></option>
-                    <option value="تبلت"></option>
-                    <option value="هدفون و هندزفری"></option>
-                    <option value="ساعت هوشمند"></option>
-                    <option value="کنسول بازی"></option>
-                  </datalist>
+                  <label class="form-label" for="fCategorySelect">دسته‌بندی</label>
+                  <select class="form-select" id="fCategorySelect">
+                    <option value="">— انتخاب کنید —</option>
+                    <option value="موبایل">موبایل</option>
+                    <option value="لوازم جانبی موبایل">لوازم جانبی موبایل</option>
+                    <option value="کابل، شارژر و آداپتور">کابل، شارژر و آداپتور</option>
+                    <option value="تبلت">تبلت</option>
+                    <option value="هدفون و هندزفری">هدفون و هندزفری</option>
+                    <option value="ساعت هوشمند">ساعت هوشمند</option>
+                    <option value="کنسول بازی">کنسول بازی</option>
+                    <option value="__custom">دسته‌ای دیگر…</option>
+                  </select>
+                  <input type="text" class="form-control mt-2" id="fCategory" placeholder="نام دسته را بنویسید" hidden />
+                  <div class="form-hint">دسته را از فهرست انتخاب کنید تا محصول در صفحهٔ دستهٔ خودش بیاید.</div>
                 </div>
                     </div>
                   </section>
@@ -543,143 +556,79 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">قیمت (تومان)</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="fPrice" data-availability-dependent
-                    min="0"
-                  />
-                  <div class="form-hint">برای کالای ناموجود اختیاری است.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">تخفیف (٪)</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="fDiscount" data-availability-dependent
-                    min="0"
-                    max="100"
-                    value="0"
-                  />
+                <div class="col-md-4">
+                  <label class="form-label" for="fPrice">قیمت (تومان)</label>
+                  <input type="text" inputmode="numeric" autocomplete="off" class="form-control" id="fPrice" data-availability-dependent placeholder="مثلاً ۶۰۰۰۰۰۰۰" />
+                  <div class="form-hint" id="fPriceHint">عدد فارسی یا انگلیسی و جداکننده پذیرفته می‌شود.</div>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label" id="stockFieldLabel">موجودی (تعداد)</label>
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    class="form-control"
-                    id="fStock"
-                    data-availability-dependent
-                    value="0"
-                    placeholder="مثلاً ۱۰"
-                  />
+                  <label class="form-label" for="fDiscount">تخفیف (٪)</label>
+                  <input type="text" inputmode="numeric" autocomplete="off" class="form-control" id="fDiscount" data-availability-dependent placeholder="۰ تا ۱۰۰" />
+                  <div class="form-hint" id="fDiscountHint">خالی یعنی بدون تخفیف.</div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" id="stockFieldLabel" for="fStock">موجودی (تعداد)</label>
+                  <input type="text" inputmode="numeric" autocomplete="off" class="form-control" id="fStock" data-availability-dependent placeholder="مثلاً ۱۰" />
                   <div class="form-hint" id="stockFieldHint">عدد فارسی یا انگلیسی پذیرفته می‌شود.</div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                  <div class="form-check form-switch">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="fFeatured" data-availability-dependent
-                    />
-                    <label class="form-check-label" for="fFeatured"
-                      >محصول منتخب (صفحه اصلی)</label
-                    >
+                <div class="col-12">
+                  <div class="product-flags">
+                    <label class="product-flag" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><span>محصول منتخب <small>صفحهٔ اصلی</small></span></label>
+                    <label class="product-flag" for="fComingSoon"><input class="form-check-input" type="checkbox" id="fComingSoon" data-availability-dependent /><span>به‌زودی <small>نشان روی کارت</small></span></label>
+                    <label class="product-flag product-flag--hot" for="fAmazingOffer"><input class="form-check-input" type="checkbox" id="fAmazingOffer" data-availability-dependent /><span>پیشنهاد شگفت‌انگیز <small>با زمان پایان</small></span></label>
                   </div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
-                  <div class="form-check form-switch">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="fComingSoon" data-availability-dependent
-                    />
-                    <label class="form-check-label" for="fComingSoon"
-                      >به‌زودی (نمایش روی کارت محصول)</label
-                    >
-                  </div>
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="fAmazingOffer" data-availability-dependent />
-                    <label class="form-check-label text-danger fw-bold" for="fAmazingOffer">پیشنهاد شگفت‌انگیز</label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">پایان پیشنهاد شگفت‌انگیز</label>
+                <div class="col-md-6">
+                  <label class="form-label" for="fAmazingOfferEndsAt">پایان پیشنهاد شگفت‌انگیز</label>
                   <input type="text" inputmode="numeric" class="form-control" id="fAmazingOfferEndsAt" data-availability-dependent placeholder="۱۴۰۵/۰۶/۰۶ ۱۸:۳۰" dir="ltr" />
-                  <div class="form-hint">تاریخ و ساعت شمسی به وقت تهران</div>
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="fHasStorage" data-availability-dependent checked />
-                    <label class="form-check-label" for="fHasStorage">نمایش انتخاب حافظه در صفحه محصول</label>
-                  </div>
+                  <div class="form-hint">تاریخ و ساعت شمسی به وقت تهران؛ فقط برای پیشنهاد شگفت‌انگیز.</div>
                 </div>
                     </div>
                   </section>
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="fIntroTitle">عنوان بخش معرفی کالا</label>
-                  <input type="text" class="form-control" id="fIntroTitle" maxlength="120" placeholder="معرفی کالا" />
-                  <div class="form-hint">این عنوان مستقل از نام محصول در پنل معرفی موبایل نمایش داده می‌شود.</div>
-                </div>
                 <div class="col-12">
-                  <label class="form-label">توضیحات معرفی کالا</label>
-                  <textarea
-                    class="form-control"
-                    id="fDescription"
-                    rows="3"
-                  ></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="fAttentionNote">توضیح / توجه برای مشتری</label>
-                  <textarea
-                    class="form-control"
-                    id="fAttentionNote"
-                    rows="2"
-                    placeholder="مثلاً: لطفاً پیش از خرید، سازگاری این محصول با دستگاه خود را بررسی کنید."
-                  ></textarea>
-                  <div class="form-hint">در صفحه محصول، پس از مشخصات اصلی و همراه آیکون «i» نمایش داده می‌شود.</div>
-                </div>
-                <div class="col-12">
-                  <div class="review-editor">
-                    <label class="form-label mb-1">ویدیوهای بررسی محصول (حداکثر ۵ ویدیو)</label>
-                    <div class="form-hint mt-0 mb-2">لینک عمومی MP4 هر ویدیوی بررسی را وارد کنید. این ویدیوها در بخش مستقل «ویدیوهای بررسی محصول» بین مزایای خرید و نظرات کاربران نمایش داده می‌شوند و از گالری محصول جدا هستند.</div>
-                    <div class="row g-2" id="reviewVideoUrls">
-                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۱ — لینک MP4" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۲ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۳ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۴ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۵ — اختیاری" /></div>
+                  <section class="product-form-section" aria-labelledby="introHeading">
+                    <h6 class="product-form-section__heading" id="introHeading"><i class="ti ti-file-description"></i> معرفی کالا <small>عنوان، توضیح و نکتهٔ مهم برای مشتری</small></h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="fIntroTitle">عنوان بخش معرفی</label>
+                        <input type="text" class="form-control" id="fIntroTitle" maxlength="120" placeholder="معرفی کالا" />
+                        <div class="form-hint">مستقل از نام محصول؛ بالای متن معرفی نمایش داده می‌شود.</div>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label" for="fDescription">توضیحات معرفی</label>
+                        <textarea class="form-control" id="fDescription" rows="3" placeholder="چند جمله دربارهٔ محصول"></textarea>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label" for="fAttentionNote">توجه برای مشتری <small class="text-muted fw-normal">(اختیاری)</small></label>
+                        <textarea class="form-control" id="fAttentionNote" rows="2" placeholder="مثلاً: لطفاً پیش از خرید، سازگاری این محصول با دستگاه خود را بررسی کنید."></textarea>
+                        <div class="form-hint">با آیکون «i» بعد از مشخصات اصلی در صفحهٔ محصول می‌آید.</div>
+                      </div>
                     </div>
-                  </div>
+                  </section>
                 </div>
                 <div class="col-12">
-                  <div class="review-editor">
-                    <label class="form-label mb-1">ویدیوهای محصول (حداکثر ۵ ویدیو)</label>
-                    <div class="form-hint mt-0 mb-2">لینک عمومی MP4 آروان‌کلاد را برای هر ویدیو وارد کنید. هر لینک در گالری محصول مانند یک تصویر جدا نمایش داده می‌شود.</div>
-                    <div class="row g-2" id="productVideoUrls">
-                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۱ — لینک MP4" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۲ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۳ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۴ — اختیاری" /></div>
-                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۵ — اختیاری" /></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <label class="form-label">مشخصات فنی</label>
+                  <section class="product-form-section" aria-labelledby="specsHeading">
+                    <h6 class="product-form-section__heading" id="specsHeading"><i class="ti ti-list-details"></i> مشخصات فنی <small>جدول ویژگی‌ها در صفحهٔ محصول</small></h6>
+
+                  
                   <div class="form-check form-switch mb-2">
                     <input class="form-check-input" type="checkbox" role="switch" id="fShowSpecs" checked />
                     <label class="form-check-label" for="fShowSpecs">نمایش مشخصات فنی در صفحه محصول</label>
+                  </div>
+                  <div class="rv-paste" id="specsPastePanel" hidden>
+                    <div class="form-hint mt-0 mb-1">مشخصات را از هر جا کپی کنید و اینجا بچسبانید. هر خطی که با <b>#</b> شروع شود، یک بخش جدید است؛ هر ردیف را به شکل <span dir="ltr">«ویژگی: مقدار»</span> (یا با Tab یا «|») بنویسید. نمونه: <span dir="ltr">&#35; نمایشگر</span> و زیرش <span dir="ltr">اندازه: ۶.۳ اینچ</span>.</div>
+                    <textarea class="form-control" id="specsPasteText" rows="8" placeholder="# نمایشگر&#10;اندازه: ۶.۳ اینچ&#10;نوع پنل: OLED&#10;&#10;# پردازنده&#10;تراشه: A19"></textarea>
+                    <div class="d-flex gap-2 mt-2">
+                      <button type="button" class="btn btn-primary btn-sm" id="applyPasteSpecsBtn"><i class="ti ti-wand"></i> ساخت ردیف‌ها</button>
+                      <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelPasteSpecsBtn">انصراف</button>
+                    </div>
                   </div>
                   <div id="technicalSpecsEditor" class="vstack gap-3"></div>
                   <div class="d-flex flex-wrap gap-2 mt-3">
                     <button type="button" class="btn btn-primary btn-sm" id="applyMobileSpecsTemplateBtn"><i class="ti ti-device-mobile"></i> قالب کامل مشخصات گوشی</button>
                     <button type="button" class="btn btn-outline-primary btn-sm" id="addTechnicalSpecGroupBtn"><i class="ti ti-plus"></i> افزودن بخش مشخصات</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="togglePasteSpecsBtn"><i class="ti ti-clipboard-text"></i> چسباندن مشخصات</button>
                   </div>
                   <div class="form-hint mt-2">قالب گوشی، همهٔ بخش‌های جدول مشخصات را با عنوان ویژگی‌ها می‌سازد؛ فقط مقدار هر ردیف را وارد کنید. در صورت وجود مشخصات قبلی، با تأیید شما جایگزین می‌شود.</div>
                   <details class="mt-3">
@@ -687,8 +636,13 @@
                     <textarea class="form-control mt-2" id="fSpecs" rows="4" placeholder="نمایش: ۶.۹ اینچ&#10;پردازنده: A19 Pro&#10;حافظه: ۲۵۶ گیگابایت"></textarea>
                     <div class="form-hint">محصولات قبلی با این قالب همچنان نمایش داده می‌شوند. برای محصول جدید از بخش‌های بالا استفاده کنید.</div>
                   </details>
+                
+                  </section>
                 </div>
                 <div class="col-12">
+                  <section class="product-form-section" aria-labelledby="reviewHeading">
+                    <h6 class="product-form-section__heading" id="reviewHeading"><i class="ti ti-article"></i> بررسی تخصصی <small>متن، جمع‌بندی، نقاط قوت و ضعف</small></h6>
+
                   <div class="review-editor" id="reviewEditor">
                     <div class="rv-top">
                       <div class="form-check form-switch m-0">
@@ -752,6 +706,31 @@
                       </div>
                     </section>
                   </div>
+                
+                  </section>
+                </div>
+                <div class="col-12">
+                  <section class="product-form-section" aria-labelledby="videosHeading">
+                    <h6 class="product-form-section__heading" id="videosHeading"><i class="ti ti-video"></i> ویدیوها <small>لینک مستقیم MP4 (حداکثر ۵ تا برای هر گروه)</small></h6>
+                    <label class="form-label mb-1">ویدیوهای بررسی</label>
+                    <div class="form-hint mt-0 mb-2">در بخش مستقل «ویدیوهای بررسی محصول» پایین صفحهٔ محصول نمایش داده می‌شوند.</div>
+                    <div class="row g-2 mb-3" id="reviewVideoUrls">
+                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۱ — لینک MP4" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۲ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۳ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۴ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control review-video-url" dir="ltr" placeholder="ویدیوی بررسی ۵ — اختیاری" /></div>
+                    </div>
+                    <label class="form-label mb-1">ویدیوهای گالری محصول</label>
+                    <div class="form-hint mt-0 mb-2">هر لینک در گالری محصول مثل یک تصویر جدا نمایش داده می‌شود.</div>
+                    <div class="row g-2" id="productVideoUrls">
+                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۱ — لینک MP4" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۲ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۳ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۴ — اختیاری" /></div>
+                      <div class="col-md-6"><input type="url" class="form-control product-video-url" dir="ltr" placeholder="ویدیو ۵ — اختیاری" /></div>
+                    </div>
+                  </section>
                 </div>
                 <div class="col-12">
                   <section class="product-options-admin-section" data-availability-dependent-panel aria-labelledby="productOptionsHeading">
@@ -761,6 +740,12 @@
                     </h6>
                     <p class="product-options-admin-section__intro">حافظه یا مدل و گارانتی را فقط در صورت نیاز این محصول ثبت کنید.</p>
                     <div class="row g-3">
+                      <div class="col-12">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="fHasStorage" data-availability-dependent checked />
+                          <label class="form-check-label" for="fHasStorage">نمایش انتخاب حافظه / مدل در صفحهٔ محصول</label>
+                        </div>
+                      </div>
                       <div class="col-md-6" id="storageFieldGroup">
                         <label class="form-label">حافظه‌های قابل انتخاب</label>
                         <div class="storage-preset-grid" id="storagePresetGrid">
@@ -924,8 +909,9 @@
               <button type="button" class="btn btn-outline-danger btn-sm" data-remove-review-section title="حذف بخش"><i class="ti ti-trash"></i></button>
             </div>
             <textarea class="form-control form-control-sm" rows="4" data-review-content placeholder="متن بررسی این بخش">${escapeText(section.content || "")}</textarea>
-            <label class="form-label mt-2 mb-1 small">عکس‌های این بخش</label>
-            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+            <details class="rv-images" ${images.length ? "open" : ""}>
+            <summary>عکس‌های این بخش (اختیاری)</summary>
+            <div class="d-flex align-items-center gap-2 mb-2 mt-2 flex-wrap">
               <span class="small text-muted">اندازهٔ پیش‌فرض عکس‌های جدید:</span>
               <select class="form-select form-select-sm w-auto" data-review-default-image-size>${imageSizeOptions("large")}</select>
               <span class="small text-muted">بعد از انتخاب عکس، اندازهٔ هر عکس جداگانه قابل تغییر است.</span>
@@ -933,6 +919,7 @@
             <input type="file" class="form-control form-control-sm" data-review-images accept="image/*" multiple>
             <div class="review-new-image-options" data-new-review-image-options></div>
             ${images.length ? `<div class="review-existing-images">${images.map((image, index) => `<div class="review-image-setting"><img src="${escapeText(image)}" alt="عکس بررسی"><select class="form-select form-select-sm" data-existing-review-image-size>${imageSizeOptions(imageSizes[index])}</select></div>`).join("")}</div>` : ""}
+            </details>
           </div>`;
         }
       }
@@ -1427,6 +1414,9 @@
         document.getElementById("fAmazingOfferEndsAt").value = "";
         document.getElementById("fShowSpecs").checked = true;
         document.getElementById("fHasWarranty").checked = true;
+        setCategoryValue("");
+        updatePriceHints();
+        document.getElementById("specsPastePanel").hidden = true;
         renderReviewSections(DEFAULT_REVIEW_SECTIONS);
         renderTechnicalSpecsEditor([]);
         renderColorPalette();
@@ -1447,10 +1437,10 @@
         document.getElementById("productId").value = p._id;
         document.getElementById("fName").value = p.name || "";
         document.getElementById("fBrand").value = p.brand || "";
-        document.getElementById("fCategory").value = p.category || "";
-        document.getElementById("fPrice").value = p.price || 0;
-        document.getElementById("fDiscount").value = p.discount || 0;
-        document.getElementById("fStock").value = p.stock || 0;
+        setCategoryValue(p.category || "");
+        document.getElementById("fPrice").value = p.price ? formatMoneyInput(p.price) : "";
+        document.getElementById("fDiscount").value = p.discount || "";
+        document.getElementById("fStock").value = p.stock || "";
         document.getElementById("fAvailability").value = p.availability || "in";
         document.getElementById("fFeatured").checked = !!p.featured;
         document.getElementById("fComingSoon").checked = p.comingSoon === true;
@@ -1735,6 +1725,86 @@
           productModal.show();
         });
 
+      // ---- ورودی‌های عددی، دسته‌بندی، پیش‌نویس و چسباندن مشخصات ----
+      let allowModalClose = false, formDirty = false;
+      function numericText(value) { return englishNumber(value).replace(/[^\d.]/g, ""); }
+      function formatMoneyInput(value) { const n = Number(numericText(value)); return n ? n.toLocaleString("fa-IR") : ""; }
+      function updatePriceHints() {
+        const price = Number(numericText(document.getElementById("fPrice").value)) || 0;
+        const rawDiscount = Number(numericText(document.getElementById("fDiscount").value)) || 0;
+        const discount = Math.min(100, rawDiscount);
+        const priceHint = document.getElementById("fPriceHint"), discountHint = document.getElementById("fDiscountHint");
+        priceHint.textContent = price ? `${price.toLocaleString("fa-IR")} تومان` : "عدد فارسی یا انگلیسی و جداکننده پذیرفته می‌شود.";
+        if (rawDiscount > 100) discountHint.textContent = "حداکثر تخفیف ۱۰۰٪ است و همین مقدار اعمال می‌شود.";
+        else if (discount && price) discountHint.textContent = `قیمت نهایی: ${Math.round(price * (1 - discount / 100)).toLocaleString("fa-IR")} تومان`;
+        else discountHint.textContent = "خالی یعنی بدون تخفیف.";
+      }
+      function setCategoryValue(value) {
+        const select = document.getElementById("fCategorySelect"), input = document.getElementById("fCategory");
+        const known = [...select.options].some((o) => o.value && o.value !== "__custom" && o.value === value);
+        input.value = value || "";
+        select.value = known ? value : (value ? "__custom" : "");
+        input.hidden = select.value !== "__custom";
+      }
+      document.getElementById("fCategorySelect").addEventListener("change", (e) => {
+        const input = document.getElementById("fCategory");
+        if (e.target.value === "__custom") { input.hidden = false; input.value = ""; input.focus(); }
+        else { input.hidden = true; input.value = e.target.value; }
+      });
+      ["fPrice", "fDiscount", "fStock"].forEach((id) => {
+        const el = document.getElementById(id);
+        el.addEventListener("input", () => { updatePriceHints(); });
+        el.addEventListener("blur", () => {
+          const n = Number(numericText(el.value));
+          if (id === "fDiscount") el.value = el.value.trim() === "" ? "" : String(Math.min(100, n || 0));
+          else el.value = n ? (id === "fPrice" ? n.toLocaleString("fa-IR") : String(n)) : "";
+          updatePriceHints();
+        });
+      });
+      document.getElementById("fVariants").addEventListener("paste", (e) => {
+        const text = e.clipboardData?.getData("text") || "";
+        if (!text.includes("\t")) return;
+        e.preventDefault();
+        const clean = text.split(/\r?\n/).map((line) => line.split("\t").map((cell) => cell.trim()).join(" | ")).filter(Boolean).join("\n");
+        document.execCommand("insertText", false, clean);
+      });
+      document.getElementById("productForm").addEventListener("input", () => { formDirty = true; });
+      document.getElementById("productForm").addEventListener("change", () => { formDirty = true; });
+      productModalEl.addEventListener("shown.bs.modal", () => { formDirty = false; allowModalClose = false; });
+      productModalEl.addEventListener("hide.bs.modal", (e) => {
+        if (allowModalClose || !formDirty) { allowModalClose = false; return; }
+        if (!confirm("تغییرات ذخیره‌نشده از بین می‌رود. بستن فرم؟")) e.preventDefault();
+      });
+      function parsePastedSpecs(text) {
+        const groups = [];
+        let current = null;
+        String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).forEach((line) => {
+          const heading = line.match(/^#+\s*(.+)$/);
+          if (heading) { current = { title: heading[1].trim(), subtitle: "", items: [] }; groups.push(current); return; }
+          const m = line.match(/^(.+?)\s*(?:\t|[:：])\s*(.+)$/);
+          if (!m) return;
+          if (!current) { current = { title: "مشخصات فنی", subtitle: "", items: [] }; groups.push(current); }
+          current.items.push({ label: m[1].trim(), value: m[2].trim() });
+        });
+        return groups.filter((g) => g.items.length);
+      }
+      document.getElementById("togglePasteSpecsBtn").addEventListener("click", () => {
+        const panel = document.getElementById("specsPastePanel");
+        panel.hidden = !panel.hidden;
+        if (!panel.hidden) document.getElementById("specsPasteText").focus();
+      });
+      document.getElementById("cancelPasteSpecsBtn").addEventListener("click", () => { document.getElementById("specsPastePanel").hidden = true; });
+      document.getElementById("applyPasteSpecsBtn").addEventListener("click", () => {
+        const groups = parsePastedSpecs(document.getElementById("specsPasteText").value);
+        if (!groups.length) return showToast("هیچ ردیفی پیدا نشد. فرمت: «# عنوان بخش» و سپس «ویژگی: مقدار»");
+        renderTechnicalSpecsEditor([...readTechnicalSpecsEditor(), ...groups]);
+        document.getElementById("specsPasteText").value = "";
+        document.getElementById("specsPastePanel").hidden = true;
+        formDirty = true;
+        showToast(`${groups.reduce((n, g) => n + g.items.length, 0)} ردیف افزوده شد`);
+      });
+
+
       document
         .getElementById("productForm")
         .addEventListener("submit", async (e) => {
@@ -1744,7 +1814,8 @@
           const showSpecs = document.getElementById("fShowSpecs").checked;
           const availability = document.getElementById("fAvailability").value;
           const brand = document.getElementById("fBrand").value.trim();
-          const price = document.getElementById("fPrice").value.trim();
+          const price = numericText(document.getElementById("fPrice").value);
+          const discount = Math.min(100, Math.max(0, Number(numericText(document.getElementById("fDiscount").value)) || 0));
           if (availability === "in" && (!brand || price === "" || Number(price) <= 0)) {
             showToast("برای کالای موجود، برند و قیمتِ بیشتر از صفر را وارد کنید");
             return;
@@ -1764,11 +1835,11 @@
           const id = document.getElementById("productId").value;
           const fd = new FormData();
           fd.append("name", document.getElementById("fName").value);
-          fd.append("brand", document.getElementById("fBrand").value);
-          fd.append("category", document.getElementById("fCategory").value);
-          fd.append("price", document.getElementById("fPrice").value);
-          fd.append("discount", document.getElementById("fDiscount").value);
-          fd.append("stock", document.getElementById("fStock").value);
+          fd.append("brand", brand);
+          fd.append("category", document.getElementById("fCategory").value.trim());
+          fd.append("price", price);
+          fd.append("discount", String(discount));
+          fd.append("stock", numericText(document.getElementById("fStock").value));
           fd.append(
             "availability",
             document.getElementById("fAvailability").value,
@@ -1834,6 +1905,7 @@
             const json = await res.json();
             if (!json.success) throw new Error(json.message);
             showToast((id ? "محصول ویرایش شد" : "محصول اضافه شد") + " — موجودی ثبت‌شده: " + Number(json.product?.stock || 0).toLocaleString("fa-IR") + " عدد");
+            allowModalClose = true;
             productModal.hide();
             loadProducts();
           } catch (err) {

@@ -83,6 +83,32 @@ function parseTechnicalSpecs(value) {
   });
 }
 
+function toEnglishDigitsLoose(value) {
+  return String(value ?? "").replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit)).replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
+}
+function parseMoney(value) {
+  const normalized = toEnglishDigitsLoose(value).replace(/[\s,٬،]/g, "");
+  const number = Number(normalized);
+  return Number.isFinite(number) ? Math.max(0, number) : NaN;
+}
+function parseDiscount(value) {
+  const number = parseMoney(value);
+  return Number.isFinite(number) ? Math.min(100, number) : 0;
+}
+function normalizeHex(raw, fallbackError) {
+  const value = String(raw || "").trim();
+  if (!value) return "#334155";
+  const match = value.match(/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+  if (!match) {
+    const error = new Error(fallbackError || `کد رنگ «${value}» معتبر نیست؛ مانند #1f2937 وارد کنید`);
+    error.statusCode = 400;
+    throw error;
+  }
+  let hex = match[1];
+  if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+  return "#" + hex.toLowerCase();
+}
+
 function parseColors(value) {
   if (value === undefined) return undefined;
   if (!value || !String(value).trim()) return [];
@@ -93,10 +119,7 @@ function parseColors(value) {
     .filter(Boolean)
     .map((line) => {
       const [rawName, rawHex] = line.split("|").map((item) => item.trim());
-      const hex = /^#[0-9a-fA-F]{6}$/.test(rawHex || "")
-        ? rawHex
-        : "#334155";
-      return { name: rawName || "رنگ", hex };
+      return { name: rawName || "رنگ", hex: normalizeHex(rawHex) };
     });
 }
 
@@ -151,7 +174,7 @@ function parseVariants(value) {
   if (!String(value || "").trim()) return [];
   const seen = new Set();
   return String(value).split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line, index) => {
-    const [rawStorage, rawColor, rawHex, rawStock, rawPrice] = line.split("|").map((item) => item.trim());
+    const [rawStorage, rawColor, rawHex, rawStock, rawPrice] = line.split(/\||\t/).map((item) => item.trim());
     if (!rawStorage || !rawColor || rawStock === undefined) {
       const error = new Error(`ردیف ${index + 1} تنوع ناقص است؛ حافظه، رنگ و تعداد را کامل کنید`);
       error.statusCode = 400;
@@ -159,7 +182,7 @@ function parseVariants(value) {
     }
     const stock = parseVariantNumber(rawStock, "موجودی", index + 1);
     const price = rawPrice === undefined || rawPrice === "" ? undefined : parseVariantNumber(rawPrice, "قیمت", index + 1);
-    const hex = /^#[0-9a-fA-F]{6}$/.test(rawHex || "") ? rawHex : "#334155";
+    const hex = normalizeHex(rawHex);
     const key = rawStorage + "|" + rawColor;
     if (seen.has(key)) {
       const error = new Error(`ترکیب حافظه و رنگ در ردیف ${index + 1} تکراری است`);
@@ -638,7 +661,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
     } = req.body;
 
     const requestedAvailability = availability === "out" ? "out" : "in";
-    const normalizedPrice = Number(price);
+    const normalizedPrice = parseMoney(price);
     if (!name) {
       return res
         .status(400)
@@ -680,7 +703,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       brand: String(brand || "").trim() || "نامشخص",
       category: category || "عمومی",
       price: Number.isFinite(normalizedPrice) && normalizedPrice >= 0 ? normalizedPrice : 0,
-      discount: Number(discount) || 0,
+      discount: parseDiscount(discount),
       description,
       introTitle: String(introTitle || "").trim() || "معرفی کالا",
       reviewTitle: String(reviewTitle || "").trim() || "بررسی تخصصی",
@@ -769,10 +792,10 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     }
 
     if (name) product.name = name;
-    if (brand) product.brand = brand;
-    if (category) product.category = category;
-    if (price !== undefined && price !== "") product.price = Number(price) || 0;
-    if (discount !== undefined) product.discount = Number(discount) || 0;
+    if (brand !== undefined) product.brand = String(brand).trim();
+    if (category !== undefined) product.category = String(category).trim();
+    if (price !== undefined && price !== "") product.price = parseMoney(price) || 0;
+    if (discount !== undefined) product.discount = parseDiscount(discount);
     if (description !== undefined) product.description = description;
     if (introTitle !== undefined) product.introTitle = String(introTitle || "").trim() || "معرفی کالا";
     if (reviewTitle !== undefined) product.reviewTitle = String(reviewTitle || "").trim() || "بررسی تخصصی";
