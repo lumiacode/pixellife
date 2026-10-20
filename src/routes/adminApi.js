@@ -26,6 +26,17 @@ function parseList(value) {
     .filter(Boolean);
 }
 
+// نقاط قوت و ضعف: هر خط یک مورد. ویرگول داخل جمله جدا نمی‌شود و علامت‌های اول خط (-، •، ✓ …) هنگام جایگذاری حذف می‌شوند.
+function parseLines(value) {
+  if (value === undefined) return undefined;
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[\s\-–—•*+·✓✔✅❌✗×]+/, "").replace(/^\d+\s*[.)\-]\s+/, "").trim())
+    .filter(Boolean)
+    .slice(0, 30)
+    .map((line) => line.slice(0, 300));
+}
+
 function parseTechnicalSpecs(value) {
   if (value === undefined) return undefined;
   if (!String(value || "").trim()) return [];
@@ -224,7 +235,7 @@ function parseReviewSections(value, uploadedImages = []) {
         images: images.map((image) => image.src),
         imageSizes: images.map((image) => image.size),
       };
-    }).filter((section) => section.title || section.content || section.images.length);
+    }).filter((section) => section.content || section.images.length); // بخشی که فقط عنوان دارد و متنی ندارد ذخیره نمی‌شود
   } catch (_) { return []; }
 }
 function normalizeVideoUrl(value) {
@@ -694,8 +705,8 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       hasStorage: storageEnabled,
       showReview: parseEnabled(showReview, false),
       reviewSections: parseReviewSections(reviewSections, uploadedReviewImages),
-      reviewPros: parseList(reviewPros) || [],
-      reviewCons: parseList(reviewCons) || [],
+      reviewPros: parseLines(reviewPros) || [],
+      reviewCons: parseLines(reviewCons) || [],
       reviewVerdict: String(reviewVerdict || "").trim(),
       reviewVerdictScore: Number.isFinite(Number(reviewVerdictScore)) ? Math.min(10, Math.max(0, Number(reviewVerdictScore))) : null,
       warranties: warrantyEnabled ? parseList(warranties) || [] : [],
@@ -841,8 +852,8 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     const newImages = await Promise.all(uploadedFiles(req, "images").map(saveProductImage));
     const uploadedReviewImages = await Promise.all(uploadedFiles(req, "reviewImages").map(saveProductImage));
     if (reviewSections !== undefined) product.reviewSections = parseReviewSections(reviewSections, uploadedReviewImages);
-    if (reviewPros !== undefined) product.reviewPros = parseList(reviewPros) || [];
-    if (reviewCons !== undefined) product.reviewCons = parseList(reviewCons) || [];
+    if (reviewPros !== undefined) product.reviewPros = parseLines(reviewPros) || [];
+    if (reviewCons !== undefined) product.reviewCons = parseLines(reviewCons) || [];
     if (reviewVerdict !== undefined) product.reviewVerdict = String(reviewVerdict || "").trim();
     if (reviewVerdictScore !== undefined) {
       const score = Number(reviewVerdictScore);

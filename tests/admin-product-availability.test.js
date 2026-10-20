@@ -49,6 +49,13 @@ const server = app.listen(0, async () => {
     assert.strictEqual(r.body.product.availability, "out");
     r = await send("PUT", `${base}/${id}`, { availability: "in", stock: 2, price: 1000 }); assert.strictEqual(r.status, 200);
     assert.strictEqual(r.body.product.availability, "in");
+    // نقاط قوت/ضعف: ویرگول داخل جمله جدا نمی‌شود و علامت اول خط حذف می‌شود؛ بخش بدون متن ذخیره نمی‌شود
+    r = await send("POST", base, { ...ok, reviewPros: "باتری قوی، بادوام\n- نمایشگر روشن\n• ۲. صدای عالی\n\n", reviewCons: "1) قیمت, بالا", reviewSections: JSON.stringify([{ enabled: true, title: "طراحی", content: "متن" }, { enabled: true, title: "فقط عنوان", content: "" }]) });
+    assert.strictEqual(r.status, 200, JSON.stringify(r.body));
+    assert.deepStrictEqual(r.body.product.reviewPros, ["باتری قوی، بادوام", "نمایشگر روشن", "۲. صدای عالی"]);
+    assert.deepStrictEqual(r.body.product.reviewCons, ["قیمت, بالا"]);
+    assert.strictEqual(r.body.product.reviewSections.length, 1);
+    assert.strictEqual(r.body.product.reviewSections[0].title, "طراحی");
     console.log("admin product availability tests passed");
   } catch (e) { console.error(e); process.exitCode = 1; } finally { server.close(); }
 });

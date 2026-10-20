@@ -257,6 +257,18 @@
       @media (max-width:575.98px) {
         .availability-control-card { align-items:stretch; flex-direction:column; }
       }
+      .rv-top { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+      .rv-title-field { flex:1 1 220px; max-width:360px; }
+      .rv-block { background:#fff; border:1px solid #dbe4f0; border-radius:10px; padding:12px; margin-top:12px; }
+      .rv-block__head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+      .rv-block__head h6 { margin:0; font-weight:800; color:#1e3a8a; display:flex; align-items:center; gap:8px; }
+      .rv-num { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; background:#2563eb; color:#fff; font-size:12px; }
+      .rv-tools { display:flex; gap:6px; flex-wrap:wrap; }
+      .rv-paste { background:#f8fafc; border:1px dashed #94a3b8; border-radius:8px; padding:10px; margin-bottom:10px; }
+      .rv-paste[hidden], .rv-empty[hidden] { display:none!important; }
+      .rv-empty { padding:14px; text-align:center; color:#64748b; font-size:13px; border:1px dashed #cbd5e1; border-radius:8px; }
+      .review-section-editor__head .rv-move { display:flex; gap:2px; }
+      .review-section-editor__head .rv-move button { padding:2px 7px; }
       .review-editor { border:1px solid #dbe4f0; border-radius:10px; padding:12px; background:#f8fafc; }
       .review-editor[hidden] { display:none!important; }
       .review-section-editor { border:1px solid #dbe4f0; border-radius:8px; padding:12px; background:#fff; margin-top:10px; }
@@ -678,40 +690,67 @@
                 </div>
                 <div class="col-12">
                   <div class="review-editor" id="reviewEditor">
-                    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div class="rv-top">
                       <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" id="fShowReview" />
-                        <label class="form-check-label" for="fShowReview">نمایش بررسی تخصصی این محصول در سایت</label>
+                        <label class="form-check-label" for="fShowReview">نمایش بررسی تخصصی در صفحهٔ محصول</label>
                       </div>
-                      <button type="button" class="btn btn-outline-primary btn-sm" id="addReviewSectionBtn"><i class="ti ti-plus"></i> افزودن بخش بررسی</button>
-                    </div>
-                    <div class="mt-3">
-                      <label class="form-label" for="fReviewTitle">عنوان بخش بررسی تخصصی</label>
-                      <input type="text" class="form-control" id="fReviewTitle" maxlength="120" placeholder="بررسی تخصصی" />
-                      <div class="form-hint">این عنوان مستقل است و نام محصول به آن اضافه نمی‌شود.</div>
-                    </div>
-                    <div class="form-hint mt-2">هر بخش عنوان، توضیح، عکس و سوییچ مستقل دارد. فقط بخش‌های روشن در سایت نمایش داده می‌شوند.</div>
-                    <div class="row g-3 mt-1">
-                      <div class="col-md-6">
-                        <label class="form-label" for="fReviewPros">نقاط قوت</label>
-                        <textarea class="form-control" id="fReviewPros" rows="5" placeholder="هر مورد در یک خط&#10;نمایشگر روشن و باکیفیت&#10;باتری بادوام"></textarea>
-                        <div class="form-hint">این موارد در کارت «نقاط قوت» صفحهٔ بررسی تخصصی نمایش داده می‌شوند.</div>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label" for="fReviewCons">نقاط ضعف</label>
-                        <textarea class="form-control" id="fReviewCons" rows="5" placeholder="هر مورد در یک خط&#10;نداشتن شارژر در جعبه&#10;قیمت بالاتر از برخی رقبا"></textarea>
-                        <div class="form-hint">این موارد در کارت «نقاط ضعف» صفحهٔ بررسی تخصصی نمایش داده می‌شوند.</div>
-                      </div>
-                      <div class="col-12">
-                        <label class="form-label" for="fReviewVerdict">جمع‌بندی نهایی</label>
-                        <textarea class="form-control" id="fReviewVerdict" rows="4" placeholder="متن جمع‌بندی اختصاصی این محصول را وارد کنید."></textarea>
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label" for="fReviewVerdictScore">امتیاز جمع‌بندی (اختیاری، از ۱۰)</label>
-                        <input class="form-control" type="number" id="fReviewVerdictScore" min="0" max="10" step="0.1" placeholder="مثلاً ۸.۵" />
+                      <div class="rv-title-field">
+                        <label class="form-label mb-1" for="fReviewTitle">عنوان بخش</label>
+                        <input type="text" class="form-control form-control-sm" id="fReviewTitle" maxlength="120" placeholder="بررسی تخصصی" />
                       </div>
                     </div>
-                    <div id="reviewSectionsEditor"></div>
+
+                    <section class="rv-block">
+                      <div class="rv-block__head">
+                        <h6><span class="rv-num">۱</span> متن بررسی تخصصی</h6>
+                        <div class="rv-tools">
+                          <button type="button" class="btn btn-outline-primary btn-sm" id="addReviewSectionBtn"><i class="ti ti-plus"></i> افزودن بخش</button>
+                          <button type="button" class="btn btn-outline-secondary btn-sm" id="togglePasteReviewBtn"><i class="ti ti-clipboard-text"></i> چسباندن متن کامل</button>
+                        </div>
+                      </div>
+                      <div class="form-hint mt-0 mb-2">هر بخش یک عنوان و متن دارد (مثلاً «طراحی»، «دوربین»). بخش‌ها به همین ترتیب در سایت دیده می‌شوند؛ با فلش‌ها جابه‌جا کنید.</div>
+                      <div class="rv-paste" id="reviewPastePanel" hidden>
+                        <div class="form-hint mt-0 mb-1">کل متن بررسی را اینجا بچسبانید. هر جا یک خط با <b>#</b> شروع شود، یک بخش جدید با همان عنوان ساخته می‌شود. نمونه: <span dir="ltr">&#35; طراحی</span> و زیرش متن طراحی.</div>
+                        <textarea class="form-control" id="reviewPasteText" rows="8" placeholder="# طراحی&#10;متن بخش طراحی...&#10;&#10;# دوربین&#10;متن بخش دوربین..."></textarea>
+                        <div class="d-flex gap-2 mt-2">
+                          <button type="button" class="btn btn-primary btn-sm" id="applyPasteReviewBtn"><i class="ti ti-wand"></i> ساخت بخش‌ها</button>
+                          <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelPasteReviewBtn">انصراف</button>
+                        </div>
+                      </div>
+                      <div id="reviewSectionsEditor"></div>
+                      <div class="rv-empty" id="reviewSectionsEmpty">هنوز بخشی اضافه نشده است. «افزودن بخش» یا «چسباندن متن کامل» را بزنید.</div>
+                    </section>
+
+                    <section class="rv-block">
+                      <div class="rv-block__head"><h6><span class="rv-num">۲</span> جمع‌بندی نهایی</h6></div>
+                      <div class="row g-2">
+                        <div class="col-12 col-md-9">
+                          <label class="form-label mb-1" for="fReviewVerdict">متن جمع‌بندی</label>
+                          <textarea class="form-control" id="fReviewVerdict" rows="4" placeholder="چند جمله دربارهٔ نتیجهٔ کلی بررسی و برای چه کسی مناسب است."></textarea>
+                        </div>
+                        <div class="col-12 col-md-3">
+                          <label class="form-label mb-1" for="fReviewVerdictScore">امتیاز (از ۱۰)</label>
+                          <input class="form-control" type="number" id="fReviewVerdictScore" min="0" max="10" step="0.1" placeholder="مثلاً ۸.۵" />
+                          <div class="form-hint">اختیاری</div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="rv-block">
+                      <div class="rv-block__head"><h6><span class="rv-num">۳</span> نقاط قوت و ضعف</h6></div>
+                      <div class="form-hint mt-0 mb-2">هر خط یک مورد. می‌توانید فهرست را مستقیم کپی و جایگذاری کنید؛ علامت‌هایی مثل «-» و «•» اول خط خودکار حذف می‌شوند.</div>
+                      <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label mb-1 text-success" for="fReviewPros"><i class="ti ti-circle-check"></i> نقاط قوت <small class="text-muted" id="reviewProsCount"></small></label>
+                          <textarea class="form-control" id="fReviewPros" rows="5" placeholder="نمایشگر روشن و باکیفیت&#10;باتری بادوام"></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label mb-1 text-danger" for="fReviewCons"><i class="ti ti-circle-x"></i> نقاط ضعف <small class="text-muted" id="reviewConsCount"></small></label>
+                          <textarea class="form-control" id="fReviewCons" rows="5" placeholder="نداشتن شارژر در جعبه&#10;قیمت بالاتر از رقبا"></textarea>
+                        </div>
+                      </div>
+                    </section>
                   </div>
                 </div>
                 <div class="col-12">
@@ -872,9 +911,8 @@
         return Number(n || 0).toLocaleString("fa-IR");
       }
 
-      function renderReviewSections(sections = []) {
-        const root = document.getElementById("reviewSectionsEditor");
-        root.innerHTML = sections.map((section) => {
+      function reviewSectionHtml(section) {
+        {
           const images = Array.isArray(section.images) ? section.images : [];
           const imageSizes = images.map((_, index) => ["small", "medium", "large", "full"].includes(section.imageSizes?.[index]) ? section.imageSizes[index] : "large");
           const imageSizeOptions = (selected) => ["small", "medium", "large", "full"].map((size) => `<option value="${size}" ${selected === size ? "selected" : ""}>${({small:"کوچک", medium:"متوسط", large:"بزرگ", full:"تمام‌عرض"})[size]}</option>`).join("");
@@ -882,7 +920,8 @@
             <div class="review-section-editor__head">
               <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" data-review-enabled ${section.enabled !== false ? "checked" : ""}><label class="form-check-label">فعال</label></div>
               <input class="form-control form-control-sm" data-review-title placeholder="عنوان بخش؛ مثلاً طراحی و کیفیت ساخت" value="${escapeText(section.title || "")}">
-              <button type="button" class="btn btn-outline-danger btn-sm" data-remove-review-section><i class="ti ti-trash"></i></button>
+              <div class="rv-move"><button type="button" class="btn btn-outline-secondary btn-sm" data-move-review-section="up" title="بالا"><i class="ti ti-arrow-up"></i></button><button type="button" class="btn btn-outline-secondary btn-sm" data-move-review-section="down" title="پایین"><i class="ti ti-arrow-down"></i></button></div>
+              <button type="button" class="btn btn-outline-danger btn-sm" data-remove-review-section title="حذف بخش"><i class="ti ti-trash"></i></button>
             </div>
             <textarea class="form-control form-control-sm" rows="4" data-review-content placeholder="متن بررسی این بخش">${escapeText(section.content || "")}</textarea>
             <label class="form-label mt-2 mb-1 small">عکس‌های این بخش</label>
@@ -895,7 +934,21 @@
             <div class="review-new-image-options" data-new-review-image-options></div>
             ${images.length ? `<div class="review-existing-images">${images.map((image, index) => `<div class="review-image-setting"><img src="${escapeText(image)}" alt="عکس بررسی"><select class="form-select form-select-sm" data-existing-review-image-size>${imageSizeOptions(imageSizes[index])}</select></div>`).join("")}</div>` : ""}
           </div>`;
-        }).join("");
+        }
+      }
+      function renderReviewSections(sections = []) {
+        document.getElementById("reviewSectionsEditor").innerHTML = sections.map(reviewSectionHtml).join("");
+        syncReviewEditorState();
+      }
+      // وضعیت خالی بودن بخش‌ها و شمارندهٔ نقاط قوت و ضعف
+      const lineCount = (value) => String(value || "").split(/\r?\n/).filter((line) => line.trim()).length;
+      function syncReviewEditorState() {
+        const hasSections = document.querySelectorAll("[data-review-section]").length > 0;
+        document.getElementById("reviewSectionsEmpty").hidden = hasSections;
+        const pros = lineCount(document.getElementById("fReviewPros").value);
+        const cons = lineCount(document.getElementById("fReviewCons").value);
+        document.getElementById("reviewProsCount").textContent = pros ? "(" + pros.toLocaleString("fa-IR") + " مورد)" : "";
+        document.getElementById("reviewConsCount").textContent = cons ? "(" + cons.toLocaleString("fa-IR") + " مورد)" : "";
       }
       function renderNewReviewImageOptions(section) {
         const root = section.querySelector("[data-new-review-image-options]");
@@ -1489,15 +1542,60 @@
       document.getElementById("fStock").addEventListener("change", () => {
         applyTotalStockToVariants();
       });
+      const reviewRoot = document.getElementById("reviewSectionsEditor");
+      // افزودن بخش جدید بدون ساخت دوبارهٔ بخش‌های قبلی (تا عکس‌های انتخاب‌شده و متن‌ها از بین نروند).
+      function appendReviewSections(sections) {
+        reviewRoot.insertAdjacentHTML("beforeend", sections.map(reviewSectionHtml).join(""));
+        syncReviewEditorState();
+        const last = reviewRoot.lastElementChild;
+        if (last) last.querySelector("[data-review-title]")?.focus();
+      }
       document.getElementById("addReviewSectionBtn").addEventListener("click", () => {
-        const sections = [...document.querySelectorAll("[data-review-section]")].map((element) => ({ enabled: element.querySelector("[data-review-enabled]").checked, title: element.querySelector("[data-review-title]").value, content: element.querySelector("[data-review-content]").value, images: JSON.parse(element.dataset.existingImages || "[]"), imageSizes: [...element.querySelectorAll("[data-existing-review-image-size]")].map((input) => input.value) }));
-        sections.push({ enabled: true, title: "", content: "", images: [], imageSizes: [] });
-        renderReviewSections(sections);
+        appendReviewSections([{ enabled: true, title: "", content: "", images: [], imageSizes: [] }]);
       });
-      document.getElementById("reviewSectionsEditor").addEventListener("click", (event) => {
-        const button = event.target.closest("[data-remove-review-section]");
-        if (button) button.closest("[data-review-section]").remove();
+      reviewRoot.addEventListener("click", (event) => {
+        const remove = event.target.closest("[data-remove-review-section]");
+        if (remove) {
+          remove.closest("[data-review-section]").remove();
+          syncReviewEditorState();
+          return;
+        }
+        const move = event.target.closest("[data-move-review-section]");
+        if (move) {
+          const section = move.closest("[data-review-section]");
+          if (move.dataset.moveReviewSection === "up" && section.previousElementSibling) section.parentNode.insertBefore(section, section.previousElementSibling);
+          if (move.dataset.moveReviewSection === "down" && section.nextElementSibling) section.parentNode.insertBefore(section.nextElementSibling, section);
+        }
       });
+      // چسباندن کل متن بررسی: خطی که با # شروع شود، عنوان بخش جدید است.
+      function parsePastedReview(text) {
+        const sections = [];
+        let current = null;
+        const flush = () => { if (current && (current.title || current.lines.some((l) => l.trim()))) sections.push({ enabled: true, title: current.title, content: current.lines.join("\n").trim(), images: [], imageSizes: [] }); };
+        String(text || "").replace(/\r/g, "").split("\n").forEach((line) => {
+          const heading = line.match(/^\s*#{1,6}\s*(.+?)\s*$/);
+          if (heading) { flush(); current = { title: heading[1], lines: [] }; }
+          else { if (!current) current = { title: "", lines: [] }; current.lines.push(line); }
+        });
+        flush();
+        return sections;
+      }
+      const pastePanel = document.getElementById("reviewPastePanel");
+      document.getElementById("togglePasteReviewBtn").addEventListener("click", () => {
+        pastePanel.hidden = !pastePanel.hidden;
+        if (!pastePanel.hidden) document.getElementById("reviewPasteText").focus();
+      });
+      document.getElementById("cancelPasteReviewBtn").addEventListener("click", () => { pastePanel.hidden = true; });
+      document.getElementById("applyPasteReviewBtn").addEventListener("click", () => {
+        const textArea = document.getElementById("reviewPasteText");
+        const sections = parsePastedReview(textArea.value);
+        if (!sections.length) { showToast("متنی برای ساخت بخش پیدا نشد"); return; }
+        appendReviewSections(sections);
+        textArea.value = "";
+        pastePanel.hidden = true;
+        showToast(sections.length.toLocaleString("fa-IR") + " بخش اضافه شد؛ عنوان و متن هر بخش را بررسی کنید");
+      });
+      ["fReviewPros", "fReviewCons"].forEach((id) => document.getElementById(id).addEventListener("input", syncReviewEditorState));
       document.getElementById("reviewSectionsEditor").addEventListener("change", (event) => {
         if (event.target.matches("[data-review-images]")) {
           const section = event.target.closest("[data-review-section]");

@@ -6457,7 +6457,7 @@
                 .filter((section) => section && section.enabled !== false && (section.title || section.content || section.images?.length))
                 .map((section) => ({
                   icon: "ti-article",
-                  title: String(section.title || "بررسی محصول"),
+                  title: escapeCartText(String(section.title || "بررسی محصول")),
                   body: String(section.content || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>"),
                   images: Array.isArray(section.images) ? section.images.map((src, index) => ({ src, size: ["small", "medium", "large", "full"].includes(section.imageSizes?.[index]) ? section.imageSizes[index] : "large" })) : [],
                 }))
@@ -6740,6 +6740,15 @@
                           .join("")}
             ${reviewArticle.length > 1 ? `<button type="button" class="review-article-toggle" id="reviewArticleToggle" aria-expanded="false"><i class="ti ti-chevron-down"></i> بررسی کامل محصول</button>` : ""}
 
+            ${reviewVerdict ? `
+            <div class="review-section" id="rev-sec-verdict">
+              <div class="review-section-title"><i class="ti ti-award"></i> جمع‌بندی نهایی</div>
+              <div class="verdict-box">
+                ${reviewVerdictScore !== null ? `<div class="verdict-score">${reviewVerdictScore.toLocaleString("fa-IR")}</div>` : ""}
+                <div class="verdict-text">${escapeCartText(reviewVerdict).replace(/\n/g, "<br>")}</div>
+              </div>
+            </div>` : ""}
+
             ${(reviewPros.length || reviewCons.length) ? `
             <div class="review-section" id="rev-sec-pros-cons">
               <div class="review-section-title"><i class="ti ti-thumb-up"></i> نقاط قوت و ضعف</div>
@@ -6752,15 +6761,6 @@
                   <div class="pros-cons-title"><i class="ti ti-circle-x"></i> نقاط ضعف</div>
                   <ul class="pros-cons-list">${reviewCons.map((item) => `<li><i class="ti ti-x"></i>${escapeCartText(item)}</li>`).join("")}</ul>
                 </div>` : ""}
-              </div>
-            </div>` : ""}
-
-            ${reviewVerdict ? `
-            <div class="review-section" id="rev-sec-verdict">
-              <div class="review-section-title"><i class="ti ti-award"></i> جمع‌بندی نهایی</div>
-              <div class="verdict-box">
-                ${reviewVerdictScore !== null ? `<div class="verdict-score">${reviewVerdictScore.toLocaleString("fa-IR")}</div>` : ""}
-                <div class="verdict-text">${escapeCartText(reviewVerdict).replace(/\n/g, "<br>")}</div>
               </div>
             </div>` : ""}
           </div>
