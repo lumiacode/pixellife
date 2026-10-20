@@ -1536,12 +1536,6 @@
         color: var(--text-1);
         margin-bottom: 10px;
       }
-      .product-title--wide {
-        font-size: 20px;
-        font-weight: 800;
-        line-height: 1.7;
-        margin: 0 0 14px;
-      }
       .product-rating-row {
         display: flex;
         align-items: center;
@@ -2128,6 +2122,7 @@
           display: block;
           position: sticky;
           top: 132px;
+          margin-top: 56px;
           align-self: start;
           background: #f7f7f8;
           border: 1px solid #e0e0e2;
@@ -6886,12 +6881,6 @@
             // مزایای خرید و محصولات مشابه از این نقطه به بعد، تمام‌عرض و مانند
             // قبل باقی می‌مانند؛ کارت خرید هم درست پیش از آن‌ها متوقف می‌شود.
             siblings.slice(0, stopIndex).forEach((child) => content.append(child));
-            // عنوان محصول بالای گالری و جزئیات و در تمام عرض ستون محتوا می‌آید تا کمتر شکسته شود.
-            const wideTitle = productLayout.querySelector(".product-title");
-            if (wideTitle) {
-              wideTitle.classList.add("product-title--wide");
-              content.insertBefore(wideTitle, productLayout);
-            }
           }
           arrangeDesktopPurchaseRail();
 
