@@ -3077,6 +3077,20 @@
         border: 0;
         color: #fff;
       }
+      .slider-unavailable-btn {
+        width: 100%;
+        height: 34px;
+        border-radius: 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text-3);
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+      }
       .slider-nav-btn {
         position: absolute;
         top: 50%;
@@ -3794,29 +3808,26 @@
         display: none;
       }
       @media (max-width: 768px) {
+        /* فروش ویژه: یک قاب نازک و ملایم؛ نوار عنوان داخل همان قاب است، نه لایهٔ جدا */
         body.mobile-product-flow-active .product-info-col.is-amazing-offer {
-          margin-top: 42px;
-          border: 3px solid #ef233c;
-          border-radius: 22px 22px 0 0;
+          margin-top: 10px;
+          border: 1.5px solid #f6bcc5;
+          border-radius: 18px;
           background: #fff;
           overflow: visible;
         }
         body.mobile-product-flow-active .mobile-amazing-ribbon {
-          position: absolute;
-          right: -3px;
-          top: -39px;
-          left: -3px;
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          height: 38px;
-          padding: 0 18px;
-          border: 3px solid #ef233c;
-          border-bottom: 0;
-          border-radius: 22px 22px 0 0;
-          background: #fff1f3;
-          color: #d90429;
-          font-size: 15px;
+          height: 36px;
+          margin: -16px -16px 12px;
+          padding: 0 16px;
+          border-bottom: 1px solid #fadde1;
+          border-radius: 16px 16px 0 0;
+          background: #fff4f6;
+          color: #d6334c;
+          font-size: 14px;
           font-weight: 800;
           line-height: 1;
           box-sizing: border-box;
@@ -7665,10 +7676,10 @@
             // و نه دکمهٔ افزودن به سبد را، حتی اگر قیمت قدیمی در رکورد باقی مانده باشد.
             const unavailable = p.outOfStock || p.availability === "out" || Number(p.stock) <= 0;
             const priceMarkup = unavailable
-              ? '<div class="slider-card-price is-unavailable">ناموجود</div>'
+              ? '<div class="slider-card-price is-unavailable" aria-hidden="true">&nbsp;</div>'
               : '<div class="slider-card-price">' + (p.price > 0 ? p.price.toLocaleString("fa-IR") : "—") + ' <span class="toman">تومان</span></div>';
             const actions = unavailable
-              ? '<button class="slider-wish-btn slider-wish-btn--full" data-id="' + id + '"><i class="ti ti-heart"></i> افزودن به علاقه‌مندی‌ها</button>'
+              ? '<span class="slider-unavailable-btn">ناموجود</span>'
               : '<button class="slider-add-btn" data-id="' + id + '"><i class="ti ti-shopping-cart-plus"></i> افزودن</button><button class="slider-wish-btn" data-id="' + id + '"><i class="ti ti-heart"></i></button>';
             return `
             <div class="slider-card">
