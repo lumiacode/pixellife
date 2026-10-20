@@ -1536,6 +1536,12 @@
         color: var(--text-1);
         margin-bottom: 10px;
       }
+      .product-title--wide {
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.7;
+        margin: 0 0 14px;
+      }
       .product-rating-row {
         display: flex;
         align-items: center;
@@ -2122,7 +2128,6 @@
           display: block;
           position: sticky;
           top: 132px;
-          margin-top: 56px;
           align-self: start;
           background: #f7f7f8;
           border: 1px solid #e0e0e2;
@@ -6873,6 +6878,12 @@
             const content = document.createElement("div");
             content.className = "desktop-product-content";
             pageBody.insertBefore(shell, productLayout);
+            // عنوان تا انتهای عرض صفحه ادامه پیدا می‌کند و کارت خرید زیر آن شروع می‌شود.
+            const wideTitle = productLayout.querySelector(".product-title");
+            if (wideTitle) {
+              wideTitle.classList.add("product-title--wide");
+              pageBody.insertBefore(wideTitle, shell);
+            }
             shell.append(content, purchaseCard);
             const siblings = Array.from(pageBody.children)
               .filter((child) => child !== shell && child.id !== "mobilePurchaseBar");
