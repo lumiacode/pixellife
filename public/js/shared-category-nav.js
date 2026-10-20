@@ -168,6 +168,8 @@ groups: [
     const catPanel = document.createElement('div');
     catPanel.className = 'megamenu-content-panel';
     catPanel.dataset.catPanel = cat.id;
+    const allHref = cat.allHref || ({ mobile: '/mobiles', tablet: '/tablets', headphone: '/headphones', watch: '/smartwatches', console: '/console' })[cat.id] || '';
+    const dropAll = (links) => (links || []).filter((link) => link.href !== allHref);
     const groupsMarkup = Array.isArray(cat.logoLinks) && cat.logoLinks.length
       ? `<div class="megamenu-console-logo-links">${cat.logoLinks.map((link) => `<a class="megamenu-console-logo-link" href="${link.href}" aria-label="${link.label}"><img src="${link.image}" alt="${link.label}"></a>`).join('')}</div>`
       : Array.isArray(cat.groups) && cat.groups.length
@@ -175,7 +177,7 @@ groups: [
           <section class="megamenu-group">
             <h3 class="megamenu-group-title">${group.title}</h3>
             <div class="megamenu-group-links">
-              ${group.links.map((link) => {
+              ${dropAll(group.links).map((link) => {
                 const parent = `<a href="${link.href}" class="megamenu-link">${link.label}<i class="ti ti-chevron-left"></i></a>`;
                 if (!Array.isArray(link.children) || !link.children.length) return parent;
                 return `<div class="megamenu-nested">${parent}<div class="megamenu-child-links">${link.children.map((child) => `<a href="${child.href}" class="megamenu-child-link">${child.label}</a>`).join('')}</div></div>`;
@@ -184,7 +186,7 @@ groups: [
           </section>`).join('')}</div>`
         : `<div class="megamenu-links">${cat.links.map((link) => `<a href="${link.href}" class="megamenu-link">${link.label}<i class="ti ti-chevron-left"></i></a>`).join('')}</div>`;
     catPanel.innerHTML = `
-      <div class="megamenu-content-title"><i class="ti ${cat.icon}"></i>${cat.name}</div>
+      ${allHref ? `<a class="megamenu-all-link" href="${allHref}">همه محصولات ${cat.name}<i class="ti ti-chevron-left"></i></a>` : `<div class="megamenu-content-title">${cat.name}</div>`}
       ${groupsMarkup}
 `;
     content.appendChild(catPanel);
