@@ -2150,6 +2150,7 @@
           height: 100%;
           object-fit: contain;
         }
+        .desktop-purchase-name[hidden] { display: none !important; }
         .desktop-purchase-name {
           min-width: 0;
           color: var(--text-1);
@@ -2639,6 +2640,7 @@
       }
 
       /* Customer reviews */
+      .reviews-summary-grid[hidden], .reviews-sort-select[hidden] { display: none !important; }
       .reviews-summary-grid {
         display: grid;
         grid-template-columns: 240px 1fr;
@@ -4570,14 +4572,6 @@
           a: "بله، تمامی کالاهای پیکسل لایف اورجینال بوده و همراه با گارانتی رسمی شرکت پخش‌کننده ارسال می‌شوند.",
         },
         {
-          q: "امکان بازگشت کالا وجود دارد؟",
-          a: "در صورت عدم رضایت، تا ۷ روز از تاریخ خرید امکان بازگشت کالا در صورت سالم بودن جعبه و متعلقات وجود دارد.",
-        },
-        {
-          q: "زمان ارسال چقدر است؟",
-          a: "سفارش‌های ثبت‌شده تا ساعت ۱۶، همان روز پردازش و طی ۱ تا ۳ روز کاری به دست مشتری می‌رسد.",
-        },
-        {
           q: "آیا امکان پرداخت در محل وجود دارد؟",
           a: "برای اکثر مناطق شهری امکان پرداخت در محل هنگام تحویل کالا فراهم است.",
         },
@@ -4599,18 +4593,11 @@
           desc: "بدون قید و شرط",
         },
         {
-          icon: "ti-shield-check",
-          title: "گارانتی رسمی",
-          desc: "پوشش کامل خدمات",
-        },
-        {
           icon: "ti-truck-delivery",
           title: "ارسال سریع",
           desc: "تحویل ۱ تا ۳ روزه",
         },
         { icon: "ti-lock", title: "پرداخت امن", desc: "درگاه بانکی معتبر" },
-        { icon: "ti-headset", title: "پشتیبانی ۲۴/۷", desc: "همیشه در دسترس" },
-        { icon: "ti-box", title: "بسته‌بندی ایمن", desc: "حفاظت کامل کالا" },
       ];
 
       function genericReviewArticle(p) {
@@ -6524,7 +6511,6 @@
                   ${product.amazingOffer && (!product.amazingOfferEndsAt || new Date(product.amazingOfferEndsAt) > new Date()) ? '<span class="badge-amazing"><i class="ti ti-bolt"></i> شگفت‌انگیز</span>' : ""}
                   ${product.comingSoon ? '<span class="badge-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
                   ${product.outOfStock ? '<span class="badge-out-of-stock"><i class="ti ti-circle-x"></i> ناموجود</span>' : ""}
-                  ${discountPct > 0 ? `<span class="badge-discount"><i class="ti ti-tag"></i> ${discountPct}% تخفیف</span>` : ""}
                 </div>
                 ${product.amazingOffer && product.amazingOfferEndsAt && new Date(product.amazingOfferEndsAt) > new Date() ? `<div class="amazing-countdown" id="amazingCountdown"><i class="ti ti-clock"></i> پایان: <b>--:--:--</b></div>` : ""}
                 <button class="gallery-nav-btn gallery-nav-prev" id="galPrevBtn"><i class="ti ti-chevron-right"></i></button>
@@ -6671,7 +6657,7 @@
                 : `<div class="desktop-purchase-product">
                     <div class="desktop-purchase-image">${productImageHtml(product, 0, "thumb")}</div>
                     <div>
-                      <div class="desktop-purchase-name">${product.name}</div>
+                      <div class="desktop-purchase-name" id="desktopPurchaseName">${product.name}</div>
                       <div class="desktop-purchase-variant" id="desktopPurchaseVariant"></div>
                     </div>
                   </div>
@@ -7218,7 +7204,13 @@
               const parts = [];
               if (selectedStorage) parts.push("حافظه " + selectedStorage);
               if (selectedColor?.name) parts.push("رنگ " + selectedColor.name);
-              variant.textContent = parts.join(" · ");
+              const hasRealChoices = (Array.isArray(product.colors) && product.colors.length > 1) || (product.hasStorage && Array.isArray(product.storages) && product.storages.length > 1);
+              // محصول بدون گزینهٔ واقعی (مثلاً «یک رنگ») خلاصهٔ انتخاب ندارد.
+              variant.textContent = hasRealChoices ? parts.join(" · ") : "";
+              // نام کامل محصول بالای صفحه هست؛ در کادر خرید فقط وقتی انتخابی برای نمایش نیست، نام می‌آید.
+              const nameEl = document.getElementById("desktopPurchaseName");
+              // اگر محصول گزینهٔ واقعی (چند رنگ یا چند حافظه) ندارد، نام در کادر می‌ماند.
+              if (nameEl) nameEl.hidden = hasRealChoices && parts.length > 0;
             }
             if (warranty) warranty.textContent = selectedWarranty || "گارانتی ندارد";
           }
@@ -7438,6 +7430,11 @@
             document.getElementById("productUserRatingStars").innerHTML = total ? starsHtml(rating) : "";
             document.getElementById("productUserRatingValue").textContent = total ? rating : "بدون نظر";
 
+            // بدون نظر: نمودار ۰٪ و انتخاب مرتب‌سازی جا را الکی نگیرند.
+            const summaryGrid = document.querySelector(".reviews-summary-grid");
+            if (summaryGrid) summaryGrid.hidden = total === 0;
+            const sortSelect = document.getElementById("reviewsSortSelect");
+            if (sortSelect) sortSelect.hidden = total < 2;
             document.getElementById("reviewsOverallScore").textContent = rating;
             document.getElementById("reviewsOverallStars").innerHTML = starsHtml(rating, "18px");
             document.getElementById("reviewsOverallCount").textContent = `از ${product.reviews} نظر ثبت‌شده`;
