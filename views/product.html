@@ -8053,6 +8053,27 @@
             window.visualViewport?.addEventListener("resize", queueGalleryResize);
           }
 
+          // توضیح بالای صفحه به سه خط محدود می‌شود و با «ادامه توضیحات» کامل باز می‌شود.
+          (function initDescriptionClamp() {
+            const desc = document.querySelector(".product-desc");
+            if (!desc || desc.dataset.clampReady) return;
+            desc.dataset.clampReady = "1";
+            desc.classList.add("is-clamped");
+            requestAnimationFrame(() => {
+              if (desc.scrollHeight <= desc.clientHeight + 2) { desc.classList.remove("is-clamped"); return; }
+              desc.classList.add("desc-has-toggle");
+              const toggle = document.createElement("button");
+              toggle.type = "button";
+              toggle.className = "product-desc-toggle";
+              toggle.textContent = "ادامه توضیحات";
+              toggle.addEventListener("click", () => {
+                const collapsed = desc.classList.toggle("is-clamped");
+                toggle.textContent = collapsed ? "ادامه توضیحات" : "بستن";
+              });
+              desc.after(toggle);
+            });
+          })();
+
           initMobileProductFlow();
 
           // بارگذاری نظرات ذخیره‌شده پس از آماده‌شدن صفحه

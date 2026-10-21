@@ -41,3 +41,59 @@ html body .section-heading { font-size: 20px !important; font-weight: 800 !impor
   html body .gallery-main { border-radius: var(--pl-radius, 12px) !important; }
   html body .section-heading { font-size: 18px !important; }
 }
+
+/* ───────── فشرده‌سازی صفحه: اجزای بزرگ کوچک‌تر و فاصله‌ها یکدست؛ هیچ بخشی حذف نمی‌شود ───────── */
+
+/* ۱) ویژگی‌های سریع */
+html body .quick-spec-item { min-height: 54px !important; padding: 8px 12px !important; border-radius: 10px !important; }
+html body .quick-spec-label { font-size: 11px !important; }
+html body .quick-spec-value { font-size: 12px !important; }
+html body .quick-specs-grid { gap: 6px !important; margin-bottom: 8px !important; }
+html body .btn-more-specs { height: 38px !important; font-size: 12.5px !important; }
+@media (max-width: 768px) {
+  html body .quick-spec-item:last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+}
+
+/* ۲) جدول مشخصات: ردیف کم‌ارتفاع، دو ستون در دسکتاپ */
+html body .specs-row { grid-template-columns: 140px 1fr !important; background: transparent !important; border-bottom: 1px solid var(--border) !important; }
+html body .specs-label, html body .specs-value { padding: 9px 14px !important; font-size: 12.5px !important; }
+html body .specs-group-title { margin-bottom: 12px !important; font-size: 15px !important; }
+html body .specs-group + .specs-group { margin-top: 18px !important; }
+@media (min-width: 769px) {
+  html body .specs-table-wrap { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+  html body .specs-table-wrap > .specs-row:nth-child(odd) { border-left: 1px solid var(--border) !important; }
+}
+
+/* ۳) فاصلهٔ بخش‌ها و اندازهٔ تیترها */
+html body .section-block { padding: 22px 24px !important; margin-top: 14px !important; }
+html body .section-heading { font-size: 17px !important; margin-bottom: 14px !important; gap: 8px !important; }
+html body .section-heading i { font-size: 19px !important; }
+@media (max-width: 768px) {
+  html body .section-block { padding: 16px !important; }
+  html body .section-heading { font-size: 16px !important; }
+}
+
+/* ۴) جمع‌بندی نهایی */
+html body .verdict-box { padding: 14px 18px !important; gap: 14px !important; }
+html body .verdict-score { width: 56px !important; height: 56px !important; font-size: 18px !important; }
+html body .verdict-text { font-size: 13px !important; line-height: 1.8 !important; }
+
+/* ۵) مزایای خرید: نوار فشرده به‌جای کارت‌های بزرگ */
+html body .advantages-grid { gap: 8px !important; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important; }
+html body .advantage-card { display: flex !important; align-items: center !important; gap: 10px !important; padding: 10px 12px !important; text-align: right !important; }
+html body .advantage-ico { width: 36px !important; height: 36px !important; flex: 0 0 36px !important; font-size: 18px !important; margin: 0 !important; }
+html body .advantage-title { margin-bottom: 1px !important; }
+html body .desktop-purchase-trust { gap: 4px !important; margin-top: 10px !important; font-size: 11px !important; }
+
+/* ۶) توضیح کوتاه‌شده با «ادامه» */
+html body .product-desc.desc-has-toggle { border-bottom: 0 !important; padding-bottom: 4px !important; margin-bottom: 4px !important; }
+html body .product-desc.is-clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+html body .product-desc-toggle { display: block; width: 100%; margin: 0 0 18px; padding: 0 0 16px; border: 0; border-bottom: 1px solid var(--border); background: none; color: var(--blue); font: inherit; font-size: 12.5px; font-weight: 700; text-align: right; cursor: pointer; }
+
+/* ۷) موبایل: عنوان کوچک‌تر تا گزینه‌های خرید بالاتر بیایند */
+@media (max-width: 768px) {
+  html body.mobile-product-flow-active .product-title { font-size: 15.5px !important; font-weight: 700 !important; line-height: 1.7 !important; margin-bottom: 6px !important; }
+  html body.mobile-product-flow-active .product-desc { margin-bottom: 10px !important; padding-bottom: 10px !important; }
+}
+html body .product-desc.is-clamped { display: -webkit-box !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 3 !important; line-clamp: 3 !important; overflow: hidden !important; }
+html body .product-desc.is-clamped { padding-bottom: 0 !important; }
