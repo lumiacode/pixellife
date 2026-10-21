@@ -778,3 +778,26 @@
   .mobile-category-sheet__brand-link { min-height: 36px; font-size: 12px; }
   .mobile-category-sheet__link-main > span { font-size: 14px; font-weight: 600; }
 }
+
+/* نشان تعداد سبد خرید: کوچک، گرد و تمیز؛ عدد دقیقاً وسط، گوشهٔ بالای آیکن */
+@media (max-width: 768px) {
+  .mobile-bottom-nav__badge {
+    top: 5px;
+    left: auto;
+    right: calc(50% + 9px); /* لبهٔ راست نشان ثابت؛ عددهای دورقمی به سمت چپ بزرگ می‌شوند، نه روی آیکن */
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border: 1.5px solid #fff;
+    background: #ef4444;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.35);
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}

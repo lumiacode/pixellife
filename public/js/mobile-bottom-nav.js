@@ -441,10 +441,10 @@
         "[]"
       );
       const count = Array.isArray(cart)
-        ? cart.reduce((sum, item) => sum + Number(item.qty || 1), 0)
+        ? cart.reduce((sum, item) => sum + Math.max(1, Number(item.quantity ?? item.qty ?? 1)), 0)
         : 0;
-      badge.textContent = count > 99 ? "99+" : String(count);
-      badge.style.display = count > 0 ? "block" : "none";
+      badge.textContent = count > 99 ? "۹۹+" : count.toLocaleString("fa-IR");
+      badge.style.display = count > 0 ? "flex" : "none";
     } catch (_) {
       badge.style.display = "none";
     }
