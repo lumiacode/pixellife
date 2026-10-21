@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نتایج جستجو | پیکسل لایف</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="stylesheet" href="/css/local-fonts.css?v=1" />
+    <link rel="stylesheet" href="/css/tabler-icons.min.css?v=perf-2" />
+    <style>
+      :root {
+        --blue: #3b82f6; --blue-dark: #2563eb; --blue-light: #eff6ff; --blue-mid: #dbeafe;
+        --white: #ffffff; --bg: #f8fafc; --border: #e2e8f0;
+        --text-1: #0f172a; --text-2: #334155; --text-3: #64748b; --text-4: #94a3b8;
+        --red: #ef4444; --green: #22c55e;
+        --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04); --shadow: 0 4px 20px rgba(0, 0, 0, 0.08); --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+        --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--bg); color: var(--text-1); font-family: Vazirmatn, Tahoma, sans-serif; }
+      a { color: inherit; text-decoration: none; }
+      button, input, select { font-family: inherit; }
+
+      .am-page { max-width: 1200px; margin: 0 auto; padding: 22px 16px 8px; }
+
+      /* بنر بالای صفحه: همان رنگ‌بندی بلوک شگفت‌انگیز صفحهٔ اصلی */
+      .am-hero { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 24px 26px; border-radius: var(--radius-lg); color: #fff; background: linear-gradient(125deg, #4338ca, #2563eb 52%, #0f172a); box-shadow: 0 14px 32px rgba(37, 99, 235, 0.22); margin-bottom: 20px; }
+      .am-hero-main { display: flex; align-items: center; gap: 14px; }
+      .am-hero-ico { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.16); color: #fbbf24; font-size: 30px; }
+      .am-hero h1 { margin: 0; font-size: 22px; font-weight: 800; }
+      .am-hero p { margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.82); }
+      .am-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+      .am-stat { min-width: 110px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.12); text-align: center; }
+      .am-stat b { display: block; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .am-stat span { font-size: 11.5px; color: rgba(255, 255, 255, 0.8); }
+
+      .am-layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 20px; align-items: start; }
+
+      /* فیلترها */
+      .am-filters { position: sticky; top: 120px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+      .am-filter-block { padding: 14px 0; border-bottom: 1px solid var(--border); }
+      .am-filter-block:first-child { padding-top: 0; }
+      .am-filter-block:last-of-type { border-bottom: 0; }
+      .am-filter-title { margin: 0 0 10px; font-size: 13.5px; font-weight: 800; color: var(--text-1); }
+      .am-search { position: relative; }
+      .am-search input { width: 100%; height: 40px; padding: 0 38px 0 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-size: 13px; outline: none; }
+      .am-search input:focus { border-color: var(--blue); background: var(--white); }
+      .am-search i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-4); font-size: 17px; }
+      .am-options { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow: auto; }
+      .am-option { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+      .am-option:hover { background: var(--bg); }
+      .am-option input { accent-color: var(--blue); width: 16px; height: 16px; margin: 0; }
+      .am-option small { margin-inline-start: auto; color: var(--text-4); font-size: 11.5px; }
+      .am-price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .am-price-row input { width: 100%; height: 38px; padding: 0 10px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-size: 12.5px; outline: none; text-align: center; }
+      .am-price-row input:focus { border-color: var(--blue); background: var(--white); }
+      .am-reset { width: 100%; height: 40px; margin-top: 6px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); color: var(--text-2); font-size: 13px; font-weight: 700; cursor: pointer; }
+      .am-reset:hover { border-color: var(--blue); color: var(--blue); }
+
+      /* نوار ابزار نتایج */
+      .am-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+      .am-result { font-size: 13.5px; color: var(--text-3); }
+      .am-toolbar-actions { display: flex; align-items: center; gap: 8px; }
+      .am-sort { height: 40px; padding: 0 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); font-size: 13px; color: var(--text-2); outline: none; }
+      .am-filter-toggle { display: none; height: 40px; padding: 0 14px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); font-size: 13px; font-weight: 700; color: var(--text-2); cursor: pointer; align-items: center; gap: 6px; }
+
+      /* کارت محصول */
+      .am-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+      .am-card { position: relative; display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; transition: var(--transition); }
+      .am-card:hover { border-color: var(--blue-mid); box-shadow: var(--shadow); transform: translateY(-2px); }
+      .am-badge { position: absolute; top: 12px; right: 12px; z-index: 1; padding: 3px 10px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 800; }
+      .am-media { aspect-ratio: 1 / 1; display: grid; place-items: center; border-radius: 12px; background: var(--bg); overflow: hidden; margin-bottom: 10px; }
+      .am-media img { width: 86%; height: 86%; object-fit: contain; mix-blend-mode: multiply; }
+      .am-card h3 { margin: 0 0 8px; font-size: 13px; font-weight: 700; line-height: 1.9; color: var(--text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.8em; }
+      .am-timer { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; padding: 4px 8px; border-radius: 8px; background: #fff1f2; color: #be123c; font-size: 11.5px; font-weight: 700; }
+      .am-timer i { font-size: 14px; }
+      .am-timer span { font-variant-numeric: tabular-nums; }
+      .am-price-box { margin-top: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-height: 44px; justify-content: flex-end; }
+      .am-old { font-size: 12px; color: var(--text-4); text-decoration: line-through; }
+      .am-new { font-size: 15px; font-weight: 800; color: var(--text-1); }
+      .am-new small { font-size: 11.5px; font-weight: 600; color: var(--text-3); }
+      .am-unavailable { font-size: 13px; font-weight: 700; color: var(--text-3); }
+      .am-card.is-out { opacity: .78; }
+
+      .am-state { grid-column: 1 / -1; display: grid; place-items: center; text-align: center; gap: 8px; padding: 56px 16px; border: 1.5px dashed var(--border); border-radius: var(--radius-lg); background: var(--white); color: var(--text-3); font-size: 14px; }
+      .am-state i { font-size: 38px; color: var(--text-4); }
+      .am-skeleton { height: 330px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: linear-gradient(90deg, #eef1f5 25%, #f8fafc 50%, #eef1f5 75%); background-size: 200% 100%; animation: am-sk 1.3s linear infinite; }
+      @keyframes am-sk { to { background-position: -200% 0; } }
+
+      @media (max-width: 900px) {
+        .am-layout { grid-template-columns: 1fr; }
+        .am-filters { position: static; display: none; }
+        .am-filters.open { display: block; }
+        .am-filter-toggle { display: inline-flex; }
+        .am-hero { padding: 18px; }
+        .am-hero h1 { font-size: 18px; }
+        .am-stat { min-width: 96px; padding: 8px 10px; }
+      }
+      @media (max-width: 560px) {
+        .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .am-card { padding: 10px; }
+        .am-card h3 { font-size: 12px; }
+      }
+    </style>
+    <link rel="stylesheet" href="/css/site-header.css?v=1" />
+    <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <div class="logo-mark brand-logo-mark" style="background:transparent!important;box-shadow:none!important"><img src="/images/brand/logo-mark-192.png" alt="" width="38" height="38" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block"></div>
+          <div class="logo-text">پیکسل <span>لایف</span></div>
+        </a>
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="جستجو در بیش از ۱ میلیون کالا..."
+            id="searchInput"
+          />
+          <button class="search-btn"><i class="ti ti-search"></i> جستجو</button>
+        </div>
+        <div class="header-actions">
+          <button class="h-btn" aria-label="اعلان‌ها">
+            <i class="ti ti-bell"></i>
+          </button>
+          <button
+            class="btn-auth-pill"
+            id="authPillBtn"
+            onclick="openLoginModal()"
+          >
+            <i class="ti ti-login"></i>
+            <span class="pill-text">ورود | ثبت‌نام</span>
+          </button>
+          <div class="profile-wrapper">
+            <div
+              class="profile-trigger"
+              id="profileTrigger"
+              role="button"
+              tabindex="0"
+            >
+              <div class="profile-avatar" id="profileAvatar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+              <span class="profile-trigger-name" id="profileName">کاربر</span>
+              <i class="ti ti-chevron-down profile-chevron"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="pdrop-header">
+                <div class="pdrop-avatar" id="pdropAvatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+                <div>
+                  <div class="pdrop-info-name" id="pdropName">کاربر</div>
+                  <div class="pdrop-info-mobile" id="pdropMobile"></div>
+                </div>
+              </div>
+              <div class="pdrop-menu">
+                <a href="/profile/orders" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-shopping-bag"></i>
+                  </div>
+                  <span>سفارش‌های من</span></a
+                >
+                <a href="/profile/wishlist" class="pdrop-item"
+                  ><div class="pdrop-item-ico"><i class="ti ti-heart"></i></div>
+                  <span>علاقه‌مندی‌ها</span></a
+                >
+                <a href="/profile/addresses" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-map-pin"></i>
+                  </div>
+                  <span>آدرس‌های من</span></a
+                >
+                <a href="/profile/wallet" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-wallet"></i>
+                  </div>
+                  <span>کیف پول</span></a
+                >
+                <a href="/contact" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-headset"></i>
+                  </div>
+                  <span>پشتیبانی</span></a
+                >
+                <div class="pdrop-divider"></div>
+                <button class="pdrop-item logout" id="headerLogoutBtn">
+                  <div class="pdrop-item-ico"><i class="ti ti-logout"></i></div>
+                  <span>خروج از حساب</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="cart-wrap">
+            <a href="/cart" class="h-btn" aria-label="سبد خرید">
+              <img src="/images/cart-icon.png?v=1" alt="" aria-hidden="true" style="width:22px;height:22px;object-fit:contain;display:block" />
+            </a>
+            <span class="cart-badge" id="cartCount" style="display: none"
+              >0</span
+            >
+
+            <!-- پنجره بازشونده سبد خرید -->
+            <div class="cart-dropdown" id="cartDropdown">
+              <div id="miniCartItems">
+                <!-- آیتم‌ها با جاوااسکریپت لود می‌شوند -->
+              </div>
+              <div
+                class="mini-cart-footer"
+                id="miniCartFooter"
+                style="display: none"
+              >
+                <div class="mini-cart-total">
+                  <span>مجموع:</span>
+                  <span id="miniCartTotalPrice">۰ تومان</span>
+                </div>
+                <a href="/cart" class="mini-cart-btn-checkout">
+                  <i class="ti ti-check"></i> مشاهده سبد و تسویه حساب
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══ NAVBAR ═══ -->
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <div class="nav-cats-wrap">
+          <button class="nav-cats" id="catsToggle">
+            <i class="ti ti-menu-2"></i> همه دسته‌بندی‌ها
+            <i class="ti ti-chevron-down"></i>
+          </button>
+          <div class="megamenu-panel" id="megamenuPanel">
+            <div class="megamenu-cats" id="megamenuCats"></div>
+            <div class="megamenu-content" id="megamenuContent"></div>
+          </div>
+        </div>
+        <a href="/" class="nav-link"><i class="ti ti-home"></i> خانه</a>
+        <a href="/new" class="nav-link"
+          ><i class="ti ti-sparkles"></i> تازه‌ها</a
+        >
+        <a href="/bestsellers" class="nav-link"
+          ><i class="ti ti-trending-up"></i> پرفروش‌ترین</a
+        >
+        <a href="/brands" class="nav-link"
+          ><i class="ti ti-building-store"></i> برندها</a
+        >
+        <a href="/blog" class="nav-link"><i class="ti ti-article"></i> مجله</a>
+      </div>
+    </nav>
+
+    <main class="am-page">
+      <div class="am-toolbar" style="margin-top:6px">
+        <h1 style="margin:0;font-size:18px;font-weight:800" id="srTitle">نتایج جستجو</h1>
+        <div class="am-toolbar-actions">
+          <label class="am-option" style="padding:0"><input type="checkbox" id="srInStock" /> فقط کالاهای موجود</label>
+          <select class="am-sort" id="srSort" aria-label="مرتب‌سازی">
+            <option value="relevance">مرتبط‌ترین</option>
+            <option value="price-asc">ارزان‌ترین</option>
+            <option value="price-desc">گران‌ترین</option>
+            <option value="discount">بیشترین تخفیف</option>
+          </select>
+        </div>
+      </div>
+      <div class="am-result" id="srResult" style="margin-bottom:12px"></div>
+      <div class="am-grid" id="srGrid" aria-live="polite">
+        <div class="am-skeleton"></div><div class="am-skeleton"></div><div class="am-skeleton"></div><div class="am-skeleton"></div>
+      </div>
+    </main>
+
+    <footer class="footer"></footer>
+
+    <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=10" />
+    <script src="/js/site-header.js"></script>
+    <script src="/js/shared-category-nav.js?v=5" defer></script>
+    <script src="/js/mobile-bottom-nav.js?v=12" defer></script>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const fa = (n) => Number(n || 0).toLocaleString("fa-IR");
+        const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        const q = (new URLSearchParams(location.search).get("q") || "").trim();
+        const imageFor = (p) => p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "/images/product-placeholder.svg";
+        const isOut = (p) => p.availability === "out" || Number(p.stock) <= 0 || p.comingSoon === true;
+        const discountOf = (p) => Math.min(99, Math.max(0, Number(p.discountPercent || p.discount || 0)));
+        const finalPrice = (p) => { const base = Math.max(0, Number(p.price) || 0); const d = discountOf(p); return d ? Math.round(base * (100 - d) / 100) : base; };
+        let products = [];
+        document.title = q ? "جستجوی «" + q + "» | پیکسل لایف" : "نتایج جستجو | پیکسل لایف";
+        $("srTitle").textContent = q ? "نتایج جستجو برای «" + q + "»" : "نتایج جستجو";
+        const header = $("searchInput"); if (header && q) header.value = q;
+
+        function cardHtml(p) {
+          const out = isOut(p), d = discountOf(p), base = Math.max(0, Number(p.price) || 0);
+          const price = out ? '<span class="am-unavailable">' + (p.comingSoon ? "به‌زودی" : "ناموجود") + "</span>" : (d ? '<span class="am-old">' + fa(base) + "</span>" : "") + '<span class="am-new">' + fa(finalPrice(p)) + " <small>تومان</small></span>";
+          return '<a class="am-card' + (out ? " is-out" : "") + '" href="/product?id=' + encodeURIComponent(p.slug || p._id || "") + '">' +
+            (d && !out ? '<span class="am-badge">' + fa(d) + "٪</span>" : "") +
+            '<div class="am-media"><img src="' + esc(imageFor(p)) + '" alt="' + esc(p.name) + '" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'"></div>' +
+            "<h3>" + esc(p.name) + '</h3><div class="am-price-box">' + price + "</div></a>";
+        }
+        function render() {
+          let list = products.filter((p) => !$("srInStock").checked || !isOut(p));
+          const sort = $("srSort").value;
+          const by = { relevance: () => 0, "price-asc": (a, b) => finalPrice(a) - finalPrice(b), "price-desc": (a, b) => finalPrice(b) - finalPrice(a), discount: (a, b) => discountOf(b) - discountOf(a) }[sort];
+          list = list.slice().sort((a, b) => (isOut(a) - isOut(b)) || by(a, b));
+          $("srResult").textContent = q ? fa(list.length) + " کالا یافت شد" : "";
+          $("srGrid").innerHTML = list.length ? list.map(cardHtml).join("") : '<div class="am-state"><div><i class="ti ti-search-off"></i><p>' + (q ? "کالایی با این عبارت پیدا نشد. عبارت دیگری را امتحان کنید." : "عبارتی برای جستجو وارد کنید.") + "</p></div></div>";
+        }
+        $("srInStock").addEventListener("change", render);
+        $("srSort").addEventListener("change", render);
+        if (q.length < 2) { render(); return; }
+        fetch("/api/products/search?q=" + encodeURIComponent(q), { cache: "no-store" })
+          .then((r) => { if (!r.ok) throw new Error("failed"); return r.json(); })
+          .then((data) => { products = Array.isArray(data.products) ? data.products : []; render(); })
+          .catch(() => { $("srGrid").innerHTML = '<div class="am-state"><div><i class="ti ti-alert-circle"></i><p>خطا در دریافت نتایج. دوباره تلاش کنید.</p></div></div>'; });
+      })();
+    </script>
+  </body>
+</html>

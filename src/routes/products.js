@@ -248,6 +248,82 @@ router.get("/", async (req, res) => {
 const IN_STOCK_FILTER = { comingSoon: { $ne: true }, availability: { $ne: "out" }, stock: { $gt: 0 } };
 const BESTSELLERS_TTL_MS = 2 * 60_000;
 let bestsellersCache = { expiresAt: 0, payload: null };
+// پیشنهاد جستجو هنگام تایپ: چند محصول مطابق نام + دسته‌بندی‌های مرتبط (برای باز شدن مستقیم صفحهٔ محصول/دسته).
+const SUGGEST_CATEGORY_LINKS = [
+  { test: /^(?:موبایل|گوشی)/, href: "/mobiles" },
+  { test: /تبلت/, href: "/tablets" },
+  { test: /هدفون|هندزفری/, href: "/headphones" },
+  { test: /ساعت/, href: "/smartwatches" },
+  { test: /کنسول/, href: "/console" },
+  { test: /کابل|شارژر|آداپتور/, href: "/accessories/chargers" },
+  { test: /لوازم جانبی/, href: "/accessories" },
+];
+const SUGGEST_ALIASES = {
+  iphone: "iphone|آیفون|ایفون", "آیفون": "iphone|آیفون|ایفون", "ایفون": "iphone|آیفون|ایفون",
+  samsung: "samsung|سامسونگ", "سامسونگ": "samsung|سامسونگ",
+  xiaomi: "xiaomi|شیائومی", "شیائومی": "xiaomi|شیائومی",
+  apple: "apple|اپل", "اپل": "apple|اپل",
+  sony: "sony|سونی", "سونی": "sony|سونی",
+};
+const suggestCache = new Map();
+// همهٔ کلمه‌های جستجو باید در نام یا برند محصول باشند (ترتیب مهم نیست).
+function suggestFilter(q) {
+  const tokens = normalizeText(q).split(" ").filter(Boolean).slice(0, 5);
+  return { $and: tokens.map((token) => ({ $or: [{ name: { $regex: tokenPattern(token), $options: "i" } }, { brand: { $regex: tokenPattern(token), $options: "i" } }] })) };
+}
+function tokenPattern(token) {
+  const alias = SUGGEST_ALIASES[token.toLowerCase()];
+  if (alias) return alias;
+  return token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ی/g, "[یيى]").replace(/ک/g, "[کك]");
+}
+router.get("/suggest", async (req, res) => {
+  try {
+    const q = normalizeText(req.query.q).slice(0, 60);
+    if (q.length < 2) return res.json({ success: true, products: [], categories: [] });
+    const key = q.toLowerCase();
+    const hit = suggestCache.get(key);
+    if (hit && hit.expiresAt > Date.now()) return res.json(hit.payload);
+    const filter = suggestFilter(q);
+    const rows = await Product.find(filter).select("name slug brand category price discount mainImage images availability stock comingSoon").sort({ amazingOffer: -1, featured: -1, createdAt: -1 }).limit(24).lean();
+    const products = rows.slice(0, 6).map((p) => ({
+      name: p.name, slug: p.slug || String(p._id), brand: p.brand || "", category: p.category || "",
+      image: p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "",
+      price: Math.round((Number(p.price) || 0) * (100 - Math.min(99, Math.max(0, Number(p.discount) || 0))) / 100),
+      unavailable: p.availability === "out" || Number(p.stock) <= 0 || p.comingSoon === true,
+    }));
+    const seen = new Set();
+    const categories = [];
+    for (const row of rows) {
+      const name = String(row.category || "").trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      const link = SUGGEST_CATEGORY_LINKS.find((item) => item.test.test(name));
+      if (link) categories.push({ name, href: link.href });
+      if (categories.length >= 3) break;
+    }
+    const payload = { success: true, products, categories };
+    if (suggestCache.size > 300) suggestCache.clear();
+    suggestCache.set(key, { expiresAt: Date.now() + 20_000, payload });
+    res.json(payload);
+  } catch (error) {
+    console.error("Search suggest error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// نتایج کامل جستجو برای صفحهٔ /search
+router.get("/search", async (req, res) => {
+  try {
+    const q = normalizeText(req.query.q).slice(0, 60);
+    if (q.length < 2) return res.json({ success: true, products: [] });
+    const products = await Product.find(suggestFilter(q)).select(PRODUCT_CARD_FIELDS).sort({ amazingOffer: -1, featured: -1, createdAt: -1 }).limit(60).lean();
+    res.json({ success: true, products: await withApprovedReviewStats(products.map(serializeProduct)) });
+  } catch (error) {
+    console.error("Search results error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 router.get("/bestsellers", async (req, res) => {
   try {
     if (bestsellersCache.payload && bestsellersCache.expiresAt > Date.now()) return res.json(bestsellersCache.payload);

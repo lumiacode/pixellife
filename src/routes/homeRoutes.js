@@ -43,6 +43,7 @@ router.get("/headphones", homeController.headphones);
 router.get("/smartwatches", homeController.smartwatches);
 router.get("/console", homeController.console);
 router.get("/amazing", homeController.amazing);
+router.get(["/search", "/search.html"], homeController.search);
 
 // Keep shared header/footer links valid until their dedicated pages are added.
 router.get("/offers", (req, res) => res.redirect(302, "/amazing"));
