@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
+const { paymentDeadline, isPendingPayment, cancelPending } = require("../services/orderExpiry");
 const { protect } = require("../middleware/authMiddleware");
 const Order = require("../models/Order");
 const env = require("../config/env");
@@ -24,6 +25,10 @@ router.post("/request", protect, async (req, res, next) => {
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
     if (order.paymentStatus === "paid") return res.status(400).json({ success: false, message: "این سفارش قبلاً پرداخت شده است" });
     if (order.status === "cancelled") return res.status(400).json({ success: false, message: "این سفارش لغو شده است؛ سفارش را دوباره از سبد خرید ثبت کنید" });
+    if (isPendingPayment(order) && Date.now() > paymentDeadline(order).getTime()) {
+      await cancelPending(order, "مهلت ۱۰ دقیقه‌ای پرداخت تمام شد");
+      return res.status(400).json({ success: false, message: "مهلت ۱۰ دقیقه‌ای پرداخت این سفارش تمام شده و لغو شد؛ سفارش را دوباره ثبت کنید" });
+    }
     const amount = rialAmount(order);
     const result = await axios.post(`${apiBase}/request.json`, {
       merchant_id: env.zarinpalMerchantId,
@@ -70,6 +75,8 @@ router.get("/callback", async (req, res, next) => {
       await order.save();
       return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=failed`);
     }
+    // اگر مبلغ از حساب کسر شده، حتی بعد از لغوِ مهلت هم پرداخت پذیرفته می‌شود.
+    if (order.status === "cancelled") order.statusHistory.push({ status: "processing", note: "پرداخت بعد از پایان مهلت انجام شد و سفارش دوباره فعال شد" });
     order.paymentStatus = "paid";
     order.status = "processing";
     order.zarinpal.refId = Number(data.ref_id || 0) || null;

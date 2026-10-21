@@ -7,6 +7,11 @@ const { buildQuote, findPaymentMethod } = require("../services/checkoutPricing")
 const Address = require("../models/Address");
 const { recordBehaviorEvent } = require("../services/behaviorAnalytics");
 const { trackingView } = require("../services/orderTracking");
+const { paymentDeadline, isPendingPayment, cancelPending, expireOverdue } = require("../services/orderExpiry");
+
+const withPayload = (order) => ({ ...order, tracking: trackingView(order), paymentDeadline: isPendingPayment(order) ? paymentDeadline(order) : null });
+// لغوی سفارش‌های سررسیدشده نباید جواب را خراب کند؛ جاروی دوره‌ای هم همین کار را می‌کند.
+const expireQuietly = (userId) => expireOverdue({ user: userId }).catch((error) => console.error("expireOverdue error:", error.message));
 
 // هر کاربر در هر زمان فقط یک سفارش در انتظار پرداخت دارد: با ثبت سفارش جدید،
 // سفارش‌های پرداخت‌نشدهٔ قبلی لغو می‌شوند و ظرفیت کد تخفیفشان آزاد می‌شود.
@@ -65,8 +70,9 @@ router.post("/", protect, async (req, res, next) => {
 
 router.get("/my", protect, async (req, res, next) => {
   try {
+    await expireQuietly(req.user._id);
     const orders = await Order.find({ user: req.user._id, superseded: { $ne: true } }).sort({ createdAt: -1 }).lean();
-    res.json({ success: true, orders: orders.map((order) => ({ ...order, tracking: trackingView(order) })) });
+    res.json({ success: true, orders: orders.map(withPayload) });
   } catch (error) { next(error); }
 });
 
@@ -75,9 +81,25 @@ router.get("/:ref", protect, async (req, res, next) => {
   try {
     const ref = String(req.params.ref || "").trim();
     const filter = /^[a-f0-9]{24}$/i.test(ref) ? { $or: [{ _id: ref }, { orderNumber: ref }] } : { orderNumber: ref };
+    await expireQuietly(req.user._id);
     const order = await Order.findOne({ ...filter, user: req.user._id, superseded: { $ne: true } }).lean();
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
-    res.json({ success: true, order: { ...order, tracking: trackingView(order) } });
+    res.json({ success: true, order: withPayload(order) });
+  } catch (error) { next(error); }
+});
+
+// لغو توسط خود کاربر: فقط تا وقتی پرداخت نشده؛ سفارش پرداخت‌شده با پشتیبانی/ادمین لغو می‌شود.
+router.post("/:ref/cancel", protect, async (req, res, next) => {
+  try {
+    const ref = String(req.params.ref || "").trim();
+    const filter = /^[a-f0-9]{24}$/i.test(ref) ? { $or: [{ _id: ref }, { orderNumber: ref }] } : { orderNumber: ref };
+    const order = await Order.findOne({ ...filter, user: req.user._id, superseded: { $ne: true } });
+    if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    if (order.status === "cancelled") return res.json({ success: true, message: "این سفارش قبلاً لغو شده است", order: withPayload(order.toObject ? order.toObject() : order) });
+    if (!isPendingPayment(order)) return res.status(400).json({ success: false, message: "فقط سفارش پرداخت‌نشده را می‌توان لغو کرد" });
+    const cancelled = await cancelPending(order, "لغو توسط کاربر");
+    if (!cancelled) return res.status(409).json({ success: false, message: "وضعیت سفارش تغییر کرده است؛ صفحه را دوباره بارگذاری کنید" });
+    res.json({ success: true, message: "سفارش لغو شد", order: withPayload(cancelled.toObject ? cancelled.toObject() : cancelled) });
   } catch (error) { next(error); }
 });
 module.exports = router;

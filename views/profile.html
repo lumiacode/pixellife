@@ -603,6 +603,30 @@
       .order-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
       .order-total { font-weight: 800; color: var(--text-1); }
       .badge-unpaid { background: #fff6e0; color: #8a5a00; }
+      .badge-info { background: var(--blue-light); color: var(--blue-dark); }
+      .badge-cancelled { background: #fdecee; color: #b4232f; }
+      .orders-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+      .orders-head .p-main-title { margin: 0; }
+      .orders-search-btn { width: 38px; height: 38px; border: 0; border-radius: 50%; background: transparent; color: var(--text-2); font-size: 20px; cursor: pointer; }
+      .orders-search-btn:hover { background: var(--bg); }
+      .orders-search { margin: 6px 0 4px; }
+      .orders-search input { width: 100%; height: 42px; border: 1.5px solid var(--border); border-radius: 10px; padding: 0 14px; font-family: inherit; font-size: 13.5px; background: var(--white); outline: none; }
+      .orders-search input:focus { border-color: var(--blue); }
+      .orders-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 14px 0 18px; overflow-x: auto; }
+      .orders-tabs button { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 12px 14px; border: 0; background: transparent; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text-3); cursor: pointer; white-space: nowrap; }
+      .orders-tabs button.active { color: var(--blue); }
+      .orders-tabs button.active::after { content: ""; position: absolute; inset: auto 0 -1px 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--blue); }
+      .orders-tabs .cnt { min-width: 22px; padding: 1px 6px; border-radius: 6px; background: #e5e7eb; color: #6b7280; font-size: 12px; font-weight: 700; text-align: center; }
+      .orders-tabs button.active .cnt { background: var(--blue-light); color: var(--blue-dark); }
+      .order-pay-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #fff8e6; border: 1px solid #fde8a8; }
+      .order-pay-box .pay-timer { font-size: 13px; color: #8a5a00; font-weight: 700; }
+      .order-pay-box .pay-timer b { font-variant-numeric: tabular-nums; direction: ltr; display: inline-block; }
+      .order-pay-actions { display: flex; gap: 8px; }
+      .order-pay-actions button { height: 36px; padding: 0 16px; border-radius: 9px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; border: 1.5px solid transparent; }
+      .order-pay-actions .btn-pay { background: var(--blue); color: #fff; }
+      .order-pay-actions .btn-cancel-order { background: #fff; color: #b4232f; border-color: #f3c3c8; }
+      .order-pay-actions button:disabled { opacity: .55; cursor: default; }
+      .order-cancel-note { margin-top: 10px; font-size: 12.5px; color: #b4232f; }
       .badge-paid { background: #e8f8ee; color: #137a3a; }
       .addr-card-top {
         display: flex;
@@ -867,13 +891,26 @@
 
           <!-- ── سفارش‌ها ── -->
           <section class="p-pane" id="pane-orders">
-            <h2 class="p-main-title">سفارش‌های من</h2>
             <div id="orderBanner" class="order-banner" hidden></div>
+            <div id="ordersToolbar">
+              <div class="orders-head">
+                <h2 class="p-main-title">تاریخچهٔ سفارش‌ها</h2>
+                <button type="button" class="orders-search-btn" id="ordersSearchBtn" aria-label="جستجو در سفارش‌ها"><i class="ti ti-search"></i></button>
+              </div>
+              <div class="orders-search" id="ordersSearch" hidden>
+                <input type="search" id="ordersSearchInput" placeholder="جستجو با شمارهٔ سفارش یا نام کالا" autocomplete="off" />
+              </div>
+              <div class="orders-tabs" id="ordersTabs" role="tablist">
+                <button type="button" role="tab" data-orders-tab="active" class="active">جاری <span class="cnt" data-count="active">۰</span></button>
+                <button type="button" role="tab" data-orders-tab="delivered">تحویل‌شده <span class="cnt" data-count="delivered">۰</span></button>
+                <button type="button" role="tab" data-orders-tab="cancelled">لغو‌شده <span class="cnt" data-count="cancelled">۰</span></button>
+              </div>
+            </div>
             <div id="orderDetail" class="order-detail" hidden></div>
             <div id="ordersList"></div>
             <div class="empty-state" id="ordersEmpty" style="display: none">
               <i class="ti ti-shopping-bag"></i>
-              <p>هنوز سفارشی ثبت نکرده‌اید.</p>
+              <p id="ordersEmptyText">هنوز سفارشی ثبت نکرده‌اید.</p>
             </div>
           </section>
 
@@ -1228,13 +1265,13 @@
         loadWishlist();
       });
 
-      const orderStatusText = { awaiting_payment: "در انتظار پرداخت", processing: "در حال پردازش", shipped: "ارسال‌شده", delivered: "تحویل‌شده", cancelled: "لغوشده" };
+      const orderStatusText = { awaiting_payment: "در انتظار پرداخت", processing: "در حال پردازش", shipped: "ارسال‌شده", delivered: "تحویل‌شده", cancelled: "لغو شده" };
       const orderBadgeClass = { awaiting_payment: "badge-unpaid", processing: "badge-info", shipped: "badge-info", delivered: "badge-paid", cancelled: "badge-cancelled" };
       const paymentStatusText = { unpaid: "در انتظار پرداخت", paid: "پرداخت‌شده", failed: "پرداخت ناموفق" };
       const paymentBanners = {
         success: ["success", "ti-circle-check", "پرداخت با موفقیت انجام شد و سفارش شما در حال پردازش است."],
-        cancelled: ["info", "ti-alert-circle", "پرداخت لغو شد. کالاهای شما همچنان در سبد خرید هستند؛ برای تکمیل خرید دوباره «ثبت سفارش» را بزنید."],
-        failed: ["error", "ti-circle-x", "پرداخت ناموفق بود. اگر مبلغی کسر شده، تا ۷۲ ساعت به حساب شما برمی‌گردد. برای تلاش دوباره از سبد خرید «ثبت سفارش» را بزنید."],
+        cancelled: ["info", "ti-alert-circle", "پرداخت انجام نشد. سفارش تا ۱۰ دقیقه بعد از ثبت «در انتظار پرداخت» می‌ماند؛ در همین مدت می‌توانید دوباره پرداخت کنید."],
+        failed: ["error", "ti-circle-x", "پرداخت ناموفق بود. اگر مبلغی کسر شده، تا ۷۲ ساعت به حساب شما برمی‌گردد. تا ۱۰ دقیقه بعد از ثبت سفارش می‌توانید دوباره پرداخت کنید."],
       };
       function isUnpaid(order) {
         return order.paymentStatus !== "paid" && order.status === "awaiting_payment";
@@ -1279,6 +1316,7 @@
         const methodText = { online: "پرداخت آنلاین", bale: "پرداخت با بله" }[order.paymentMethod] || "پرداخت آنلاین";
         return `<div class="od">
           <div class="od-head"><a href="/profile/orders" aria-label="بازگشت به سفارش‌ها"><i class="ti ti-arrow-right"></i></a><h3>جزئیات سفارش</h3></div>
+          ${pendingPayBox(order)}${order.status === "cancelled" && cancelReason(order) ? `<div class="order-cancel-note">${escapeHtml(cancelReason(order))}</div>` : ""}
           <div class="od-section"><span><span class="od-label">کد پیگیری سفارش</span><b dir="ltr">${escapeHtml(order.orderNumber)}</b></span><span><span class="od-label">تاریخ ثبت سفارش</span><b>${fmtDate(order.createdAt, { dateStyle: "long" })}</b></span></div>
           <div class="od-section"><span><span class="od-label">تحویل گیرنده</span><b>${escapeHtml(address.receiverName || "")}</b></span><span><span class="od-label">شماره موبایل</span><b dir="ltr">${escapeHtml(address.receiverMobile || "")}</b></span>${fullAddress ? `<span class="od-address"><span class="od-label">آدرس</span><b>${escapeHtml(fullAddress)}</b>${address.postalCode ? ` <span class="od-label">· کد پستی</span><b dir="ltr">${escapeHtml(address.postalCode)}</b>` : ""}</span>` : ""}</div>
           <div class="od-section"><span><span class="od-label">مبلغ کل</span><b>${money(order.total)}</b></span><span><span class="od-label">هزینه ارسال</span><b>${Number(order.deliveryFee) ? money(order.deliveryFee) : "رایگان"}</b></span>${Number(order.discount) ? `<span><span class="od-label">تخفیف${order.discountCode ? " (" + escapeHtml(order.discountCode) + ")" : ""}</span><b>${money(order.discount)}</b></span>` : ""}<span><span class="od-label">${methodText}</span><b>${paymentStatusText[order.paymentStatus] || "در انتظار پرداخت"}</b></span></div>
@@ -1294,58 +1332,169 @@
           </div>
         </div>`;
       }
+      /* ── سفارش‌ها: تب‌ها (جاری / تحویل‌شده / لغو‌شده)، جستجو، مهلت ۱۰ دقیقه‌ای پرداخت و لغو ── */
+      let allOrders = [];
+      let ordersTab = "active";
+      let ordersQuery = "";
+      let orderTimer = null;
+      let lastExpireReload = 0;
+      const ORDER_TAB_FILTERS = {
+        active: (order) => ["awaiting_payment", "processing", "shipped"].includes(order.status),
+        delivered: (order) => order.status === "delivered",
+        cancelled: (order) => order.status === "cancelled",
+      };
+      const ordersEmptyTexts = { active: "سفارش جاری ندارید.", delivered: "هنوز سفارشی تحویل داده نشده است.", cancelled: "سفارش لغو‌شده‌ای ندارید." };
+      const faDigits = (value) => String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
+      function cancelReason(order) {
+        const entry = [...(order.statusHistory || [])].reverse().find((item) => item.status === "cancelled");
+        return entry && entry.note ? entry.note : "";
+      }
+      function pendingPayBox(order) {
+        if (!isUnpaid(order) || !order.paymentDeadline) return "";
+        return `<div class="order-pay-box"><span class="pay-timer">مهلت پرداخت: <b data-deadline="${escapeHtml(order.paymentDeadline)}">--:--</b></span><span class="order-pay-actions"><button type="button" class="btn-pay" data-pay-order="${escapeHtml(order._id)}">پرداخت</button><button type="button" class="btn-cancel-order" data-cancel-order="${escapeHtml(order.orderNumber)}">لغو سفارش</button></span></div>`;
+      }
+      function tickOrderTimers() {
+        const timers = document.querySelectorAll("[data-deadline]");
+        if (!timers.length) { clearInterval(orderTimer); orderTimer = null; return; }
+        let expired = false;
+        timers.forEach((el) => {
+          const left = Math.max(0, Math.floor((new Date(el.dataset.deadline).getTime() - Date.now()) / 1000));
+          if (!left) expired = true;
+          el.textContent = faDigits(String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0"));
+        });
+        // پایان مهلت: سرور سفارش را لغو می‌کند؛ حداکثر هر ۵ ثانیه یک‌بار دوباره می‌خوانیم.
+        if (expired && Date.now() - lastExpireReload > 5000) { lastExpireReload = Date.now(); loadOrders(); }
+      }
+      function startOrderTimers() {
+        clearInterval(orderTimer);
+        orderTimer = null;
+        if (!document.querySelector("[data-deadline]")) return;
+        tickOrderTimers();
+        orderTimer = setInterval(tickOrderTimers, 1000);
+      }
+      function showOrderMessage(text, kind) {
+        const banner = document.getElementById("orderBanner");
+        const icon = kind === "success" ? "ti-circle-check" : kind === "error" ? "ti-circle-x" : "ti-alert-circle";
+        banner.className = "order-banner " + kind;
+        banner.innerHTML = '<i class="ti ' + icon + '"></i><span>' + escapeHtml(text) + "</span>";
+        banner.hidden = false;
+      }
+      function orderCardHtml(order) {
+        const date = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(order.createdAt));
+        const itemCount = (order.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+        const thumbs = (order.items || []).slice(0, 4).map((item) => `<img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}" onerror="this.style.visibility='hidden'">`).join("");
+        const extra = (order.items || []).length - 4;
+        const tracking = order.tracking || {};
+        const trackingLabel = tracking.paid && !tracking.cancelled ? `<span class="addr-card-text">${escapeHtml(tracking.currentLabel)}</span>` : "";
+        const progress = tracking.paid && !tracking.cancelled ? `<div class="od-card-progress" title="${escapeHtml(tracking.currentLabel)}"><span style="width:${tracking.percent}%"></span></div>` : "";
+        const reason = order.status === "cancelled" && cancelReason(order) ? `<div class="order-cancel-note">${escapeHtml(cancelReason(order))}</div>` : "";
+        return `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${escapeHtml(order.orderNumber)}</span></div><span class="addr-badge ${orderBadgeClass[order.status] || ""}">${orderStatusText[order.status] || escapeHtml(order.status)}</span></div><div class="order-thumbs">${thumbs}${extra > 0 ? `<span class="more">+${extra.toLocaleString("fa-IR")}</span>` : ""}</div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · ${date}</div>${progress}<div class="order-card-foot"><span class="order-total">${Number(order.total || 0).toLocaleString("fa-IR")} تومان</span>${trackingLabel}</div>${pendingPayBox(order)}${reason}`;
+      }
+      function renderOrdersView() {
+        const list = document.getElementById("ordersList");
+        const empty = document.getElementById("ordersEmpty");
+        Object.keys(ORDER_TAB_FILTERS).forEach((key) => {
+          const counter = document.querySelector('[data-count="' + key + '"]');
+          if (counter) counter.textContent = faDigits(allOrders.filter(ORDER_TAB_FILTERS[key]).length);
+        });
+        document.querySelectorAll("[data-orders-tab]").forEach((button) => button.classList.toggle("active", button.dataset.ordersTab === ordersTab));
+        const query = ordersQuery.trim().toLowerCase();
+        const visible = allOrders.filter(ORDER_TAB_FILTERS[ordersTab]).filter((order) => !query || String(order.orderNumber).toLowerCase().includes(query) || (order.items || []).some((item) => String(item.name || "").toLowerCase().includes(query)));
+        list.innerHTML = "";
+        visible.forEach((order) => {
+          const card = document.createElement("div");
+          card.className = "addr-card order-clickable";
+          card.dataset.orderNumber = order.orderNumber;
+          card.innerHTML = orderCardHtml(order);
+          list.appendChild(card);
+        });
+        document.getElementById("ordersEmptyText").textContent = query ? "سفارشی با این مشخصات پیدا نشد." : (allOrders.length ? ordersEmptyTexts[ordersTab] : "هنوز سفارشی ثبت نکرده‌اید.");
+        empty.style.display = visible.length ? "none" : "block";
+        startOrderTimers();
+      }
       async function loadOrders() {
         showPaymentBanner();
         const list = document.getElementById("ordersList");
         const empty = document.getElementById("ordersEmpty");
         const detail = document.getElementById("orderDetail");
+        const toolbar = document.getElementById("ordersToolbar");
         detail.hidden = true;
         detail.innerHTML = "";
         // نمای جزئیات لیست را مخفی می‌کند؛ با بازگشت به تب سفارش‌ها باید دوباره نمایان شود.
         list.style.display = "";
-        list.innerHTML = '<div class="empty-state"><p>در حال دریافت سفارش‌ها...</p></div>';
+        toolbar.hidden = false;
+        if (!allOrders.length) list.innerHTML = '<div class="empty-state"><p>در حال دریافت سفارش‌ها...</p></div>';
         try {
           const res = await apiRequest("/api/orders/my", "GET");
-          const orders = res.orders || [];
-          list.innerHTML = "";
-          empty.style.display = orders.length ? "none" : "block";
-          orders.forEach((order) => {
-            const card = document.createElement("div");
-            card.className = "addr-card order-clickable";
-            const date = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(order.createdAt));
-            const itemCount = (order.items || []).reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-            const thumbs = (order.items || []).slice(0, 4).map((item) => `<img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}" onerror="this.style.visibility='hidden'">`).join("");
-            const extra = (order.items || []).length - 4;
-            const needsPayment = isUnpaid(order);
-            card.innerHTML = `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${escapeHtml(order.orderNumber)}</span></div><span class="addr-badge ${orderBadgeClass[order.status] || ""}">${orderStatusText[order.status] || escapeHtml(order.status)}</span></div><div class="order-thumbs">${thumbs}${extra > 0 ? `<span class="more">+${extra.toLocaleString("fa-IR")}</span>` : ""}</div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · ${date}</div>${order.tracking && order.tracking.paid && !order.tracking.cancelled ? `<div class="od-card-progress" title="${escapeHtml(order.tracking.currentLabel)}"><span style="width:${order.tracking.percent}%"></span></div>` : ""}<div class="order-card-foot"><span class="order-total">${Number(order.total || 0).toLocaleString("fa-IR")} تومان</span>${needsPayment ? `<span class="addr-card-text">در انتظار پرداخت</span>` : order.tracking && order.tracking.paid && !order.tracking.cancelled ? `<span class="addr-card-text">${escapeHtml(order.tracking.currentLabel)}</span>` : ""}</div>`;
-            list.appendChild(card);
-          });
+          allOrders = res.orders || [];
           const pathMatch = window.location.pathname.match(/\/profile\/orders\/([^/?#]+)/);
           const selectedId = pathMatch ? decodeURIComponent(pathMatch[1]) : new URLSearchParams(window.location.search).get("order");
-          const selected = orders.find((order) => String(order._id) === String(selectedId) || order.orderNumber === selectedId);
-          if (selected) {
-            detail.innerHTML = renderOrderDetail(selected);
-            detail.hidden = false;
+          const selected = allOrders.find((order) => String(order._id) === String(selectedId) || order.orderNumber === selectedId);
+          if (selected || selectedId) {
+            toolbar.hidden = true;
             list.style.display = "none";
             empty.style.display = "none";
-            // نوار سبز با انیمیشن تا درصد پیشرفت پر می‌شود.
-            requestAnimationFrame(() => { const fill = detail.querySelector(".od-bar > span"); if (fill) fill.style.width = fill.dataset.percent + "%"; });
-          } else if (selectedId) {
-            detail.innerHTML = '<div class="od"><div class="od-head"><a href="/profile/orders" aria-label="بازگشت">→</a><h3>سفارش پیدا نشد</h3></div></div>';
             detail.hidden = false;
-            list.style.display = "none";
-            empty.style.display = "none";
+            if (selected) {
+              detail.innerHTML = renderOrderDetail(selected);
+              // نوار سبز با انیمیشن تا درصد پیشرفت پر می‌شود.
+              requestAnimationFrame(() => { const fill = detail.querySelector(".od-bar > span"); if (fill) fill.style.width = fill.dataset.percent + "%"; });
+              startOrderTimers();
+            } else {
+              detail.innerHTML = '<div class="od"><div class="od-head"><a href="/profile/orders" aria-label="بازگشت">→</a><h3>سفارش پیدا نشد</h3></div></div>';
+            }
+            return;
           }
-          list.querySelectorAll(".order-clickable").forEach((card, index) => {
-            card.addEventListener("click", (event) => {
-              window.location.href = "/profile/orders/" + encodeURIComponent(orders[index].orderNumber);
-            });
-          });
+          renderOrdersView();
         } catch (_) {
           list.innerHTML = '<div class="empty-state"><p>دریافت سفارش‌ها ناموفق بود. صفحه را دوباره بارگذاری کنید.</p></div>';
           empty.style.display = "none";
         }
       }
+      async function payOrder(orderId, button) {
+        button.disabled = true;
+        try {
+          const res = await apiRequest("/api/payments/zarinpal/request", "POST", { orderId });
+          if (!res.paymentUrl) throw new Error("ایجاد پرداخت ناموفق بود");
+          window.location.href = res.paymentUrl;
+        } catch (error) {
+          showOrderMessage(error.message || "ایجاد پرداخت ناموفق بود", "error");
+          button.disabled = false;
+          if (/لغو|مهلت/.test(error.message || "")) loadOrders();
+        }
+      }
+      async function cancelOrder(orderNumber, button) {
+        if (!window.confirm("این سفارش لغو شود؟")) return;
+        button.disabled = true;
+        try {
+          await apiRequest("/api/orders/" + encodeURIComponent(orderNumber) + "/cancel", "POST");
+          showOrderMessage("سفارش لغو شد.", "success");
+          await loadOrders();
+        } catch (error) {
+          showOrderMessage(error.message || "لغو سفارش ناموفق بود", "error");
+          button.disabled = false;
+        }
+      }
+      (function wireOrdersPane() {
+        const pane = document.getElementById("pane-orders");
+        pane.addEventListener("click", (event) => {
+          const payBtn = event.target.closest("[data-pay-order]");
+          if (payBtn) { event.stopPropagation(); payOrder(payBtn.dataset.payOrder, payBtn); return; }
+          const cancelBtn = event.target.closest("[data-cancel-order]");
+          if (cancelBtn) { event.stopPropagation(); cancelOrder(cancelBtn.dataset.cancelOrder, cancelBtn); return; }
+          const tabBtn = event.target.closest("[data-orders-tab]");
+          if (tabBtn) { ordersTab = tabBtn.dataset.ordersTab; renderOrdersView(); return; }
+          const card = event.target.closest(".order-clickable");
+          if (card && card.dataset.orderNumber) window.location.href = "/profile/orders/" + encodeURIComponent(card.dataset.orderNumber);
+        });
+        document.getElementById("ordersSearchBtn").addEventListener("click", () => {
+          const box = document.getElementById("ordersSearch");
+          box.hidden = !box.hidden;
+          if (!box.hidden) document.getElementById("ordersSearchInput").focus();
+          else { ordersQuery = ""; document.getElementById("ordersSearchInput").value = ""; renderOrdersView(); }
+        });
+        document.getElementById("ordersSearchInput").addEventListener("input", (event) => { ordersQuery = event.target.value; renderOrdersView(); });
+      })();
 
       function initTabFromPath() {
         const path = window.location.pathname;

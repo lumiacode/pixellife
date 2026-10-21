@@ -17,6 +17,7 @@
     "test:auth-otp": "node tests/auth-otp.test.js",
     "test:order-tracking": "node tests/order-tracking.test.js",
     "test:admin-product-availability": "node tests/admin-product-availability.test.js",
+    "test:order-expiry": "node tests/order-expiry.test.js",
     "prestart": "npm run test:product-page-contract"
   },
   "dependencies": {

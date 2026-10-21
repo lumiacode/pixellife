@@ -333,6 +333,12 @@ const PORT = env.port || 3000;
 // پس از بالا آمدن سرویس، آدرس Webhook بله ثبت/به‌روزرسانی می‌شود.
 configureBaleWebhook();
 
+// هر دقیقه سفارش‌های پرداخت‌نشدهٔ سررسیدشده (۱۰ دقیقه) لغو می‌شوند.
+const { expireOverdue } = require("./services/orderExpiry");
+setInterval(() => {
+  expireOverdue().catch((error) => console.error("expireOverdue sweep error:", error.message));
+}, 60 * 1000).unref();
+
 app.listen(PORT, () => {
   console.log(`✅ PixelLife Server running on port ${PORT}`);
   console.log(`📱 Products API: http://localhost:${PORT}/api/products`);
