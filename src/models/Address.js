@@ -31,7 +31,20 @@ const addressSchema = new mongoose.Schema(
     postalCode: {
       type: String,
       trim: true,
+      required: [true, "کد پستی الزامی است"],
       match: [/^\d{10}$/, "کد پستی باید ۱۰ رقم باشد"],
+    },
+    // موقعیت جغرافیایی (GPS) اختیاری است و فقط با اجازهٔ کاربر ثبت می‌شود.
+    location: {
+      type: new mongoose.Schema(
+        {
+          lat: { type: Number, min: -90, max: 90, required: true },
+          lng: { type: Number, min: -180, max: 180, required: true },
+          accuracy: { type: Number, min: 0 },
+        },
+        { _id: false },
+      ),
+      default: undefined,
     },
     receiverName: {
       type: String,

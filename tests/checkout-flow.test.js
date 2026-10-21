@@ -170,9 +170,16 @@ async function call(base, method, url, body) {
   const blockedOrder = await call(base, "POST", "/api/orders", orderBody);
   assert.strictEqual(blockedOrder.status, 403); assert.strictEqual(blockedOrder.json.code, "PROFILE_INCOMPLETE"); assert.strictEqual(orders.length, 0);
   USER.firstName = savedFirstName;
+  // آدرس بدون کد پستی (قدیمی) برای خرید پذیرفته نمی‌شود
+  const savedPostal = address.postalCode; address.postalCode = "";
+  const noPostal = await call(base, "POST", "/api/orders", orderBody);
+  assert.strictEqual(noPostal.status, 400); assert.strictEqual(noPostal.json.code, "PROFILE_INCOMPLETE"); assert.strictEqual(orders.length, 0);
+  address.postalCode = savedPostal;
+  address.location = { lat: 35.7, lng: 51.4, accuracy: 20 };
   const created = await call(base, "POST", "/api/orders", orderBody);
   assert.strictEqual(created.status, 201, JSON.stringify(created.json));
   let order = orders[0];
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(order.shippingAddress.location)), { lat: 35.7, lng: 51.4, accuracy: 20 }, "موقعیت GPS در سفارش ذخیره می‌شود");
   const subtotal = discountedCharger * 2;
   assert.strictEqual(order.subtotal, subtotal);
   assert.strictEqual(order.deliveryFee, 150000);

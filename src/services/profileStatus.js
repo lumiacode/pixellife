@@ -5,7 +5,8 @@ const hasFullName = (user) => Boolean(String(user?.firstName || "").trim() && St
 
 async function profileStatus(user) {
   const hasName = hasFullName(user);
-  const hasAddress = (await Address.countDocuments({ user: user._id })) > 0;
+  // آدرس کامل یعنی کد پستی ۱۰ رقمی هم دارد؛ آدرس‌های قدیمیِ بدون کد پستی کافی نیستند.
+  const hasAddress = (await Address.countDocuments({ user: user._id, postalCode: /^\d{10}$/ })) > 0;
   return { hasName, hasAddress, profileComplete: hasName && hasAddress };
 }
 

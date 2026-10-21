@@ -1,14 +1,30 @@
 const { body, validationResult } = require("express-validator");
 const ApiError = require("../utils/ApiError");
 
-const postalCodeValidation = () =>
-  body("postalCode")
-    .optional({ checkFalsy: true })
-    .trim()
-    .isNumeric()
-    .withMessage("کد پستی فقط باید شامل اعداد باشد")
-    .isLength({ min: 10, max: 10 })
+const toEnglishDigits = (value) =>
+  String(value ?? "")
+    .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
+    .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit))
+    .replace(/\s/g, "");
+
+// کد پستی ۱۰ رقمی؛ هنگام ایجاد اجباری است و هنگام ویرایش (اگر فرستاده شود) باید معتبر باشد.
+const postalCodeValidation = (required) => {
+  const chain = body("postalCode");
+  return (required ? chain : chain.optional({ checkFalsy: true }))
+    .customSanitizer(toEnglishDigits)
+    .notEmpty()
+    .withMessage("کد پستی الزامی است")
+    .matches(/^\d{10}$/)
     .withMessage("کد پستی باید ۱۰ رقم باشد");
+};
+
+// موقعیت GPS اختیاری؛ اگر بیاید باید مختصات معتبر باشد (null یعنی حذف موقعیت).
+const locationValidation = () => [
+  body("location").optional({ nullable: true }).isObject().withMessage("موقعیت نامعتبر است"),
+  body("location.lat").if(body("location").isObject()).isFloat({ min: -90, max: 90 }).withMessage("عرض جغرافیایی نامعتبر است"),
+  body("location.lng").if(body("location").isObject()).isFloat({ min: -180, max: 180 }).withMessage("طول جغرافیایی نامعتبر است"),
+  body("location.accuracy").optional({ nullable: true }).isFloat({ min: 0 }).withMessage("دقت موقعیت نامعتبر است"),
+];
 
 const receiverMobileValidation = () =>
   body("receiverMobile")
@@ -27,7 +43,8 @@ exports.createAddressValidator = [
     .withMessage("آدرس کامل الزامی است")
     .isLength({ min: 10 })
     .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
-  postalCodeValidation(),
+  postalCodeValidation(true),
+  ...locationValidation(),
   receiverMobileValidation(),
 ];
 
@@ -48,7 +65,8 @@ exports.updateAddressValidator = [
     .trim()
     .isLength({ min: 10 })
     .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
-  postalCodeValidation(),
+  postalCodeValidation(false),
+  ...locationValidation(),
   receiverMobileValidation(),
 ];
 

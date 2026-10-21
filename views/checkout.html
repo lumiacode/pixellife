@@ -193,6 +193,7 @@
     <div class="co-toast" id="coToast" role="status"></div>
 
     <script src="/auth-modal.js"></script>
+    <script src="/js/location-picker.js"></script>
     <script>
       (function () {
         "use strict";
@@ -366,7 +367,8 @@
               '<span class="co-choice-meta">' +
               (a.receiverName ? '<span><i class="ti ti-user"></i> ' + esc(a.receiverName) + "</span>" : "") +
               (a.receiverMobile ? '<span><i class="ti ti-phone"></i> ' + fa(esc(a.receiverMobile)) + "</span>" : "") +
-              (a.postalCode ? '<span><i class="ti ti-mailbox"></i> ' + fa(esc(a.postalCode)) + "</span>" : "") +
+              (a.postalCode ? '<span><i class="ti ti-mailbox"></i> ' + fa(esc(a.postalCode)) + "</span>" : '<span style="color:#b91c1c"><i class="ti ti-alert-triangle"></i> کد پستی ثبت نشده — <a href="/profile/addresses?return=/cart" style="text-decoration:underline">تکمیل آدرس</a></span>') +
+              (a.location ? '<span><i class="ti ti-map-pin-check"></i> موقعیت ثبت شده</span>' : "") +
               "</span></span></button>"
             );
           }).join("");
@@ -383,8 +385,9 @@
             '<div class="co-field"><label for="adProvince">استان</label><input id="adProvince" /></div>' +
             '<div class="co-field"><label for="adCity">شهر</label><input id="adCity" /></div>' +
             '<div class="co-field full"><label for="adFull">آدرس کامل</label><textarea id="adFull" placeholder="خیابان، کوچه، پلاک، واحد"></textarea></div>' +
-            '<div class="co-field"><label for="adPostal">کد پستی (۱۰ رقم)</label><input id="adPostal" inputmode="numeric" maxlength="10" dir="ltr" /></div>' +
+            '<div class="co-field"><label for="adPostal">کد پستی (۱۰ رقم) <span style="color:#dc2626">*</span></label><input id="adPostal" inputmode="numeric" maxlength="10" dir="ltr" /></div>' +
             '<div class="co-field"><label for="adMobile">موبایل گیرنده</label><input id="adMobile" inputmode="numeric" maxlength="11" dir="ltr" placeholder="09123456789" /></div>' +
+            '<div class="co-field full" id="adLocation"></div>' +
             '<label class="co-check full"><input type="checkbox" id="adDefault"' + (addresses.length === 0 ? " checked" : "") + " /> به‌عنوان آدرس پیش‌فرض ذخیره شود</label>" +
             '<div class="co-msg error co-field full" id="adError" hidden></div>' +
             '<div class="co-form-actions"><button type="submit" class="co-btn" id="adSubmit">ذخیره آدرس</button>' +
@@ -481,7 +484,13 @@
           });
           if (quote.discountError) { state.discountCode = ""; saveState(); }
         }
-        function render() { step === "payment" ? renderPayment() : renderShipping(); }
+        var adLocationPicker = null;
+        function render() {
+          step === "payment" ? renderPayment() : renderShipping();
+          // انتخاب اختیاری موقعیت GPS در فرم آدرس جدید
+          var locBox = document.getElementById("adLocation");
+          adLocationPicker = locBox && window.PLLocation ? PLLocation.mount(locBox) : null;
+        }
 
         async function applyCoupon(code) {
           state.discountCode = code;
@@ -504,11 +513,13 @@
             receiverMobile: toLatinDigits(document.getElementById("adMobile").value).trim(),
             isDefault: document.getElementById("adDefault").checked,
           };
+          var gps = adLocationPicker ? adLocationPicker.get() : null;
+          if (gps) payload.location = gps;
           var problem = "";
           if (!payload.receiverName) problem = "نام گیرنده را وارد کنید";
           else if (!payload.province || !payload.city) problem = "استان و شهر را وارد کنید";
           else if (payload.fullAddress.length < 10) problem = "آدرس کامل باید حداقل ۱۰ کاراکتر باشد";
-          else if (payload.postalCode && !/^\d{10}$/.test(payload.postalCode)) problem = "کد پستی باید ۱۰ رقم باشد";
+          else if (!/^\d{10}$/.test(payload.postalCode)) problem = "کد پستی را به‌صورت ۱۰ رقم وارد کنید";
           else if (!/^09\d{9}$/.test(payload.receiverMobile)) problem = "شماره موبایل گیرنده معتبر نیست";
           if (problem) { errorEl.textContent = problem; errorEl.hidden = false; return; }
           errorEl.hidden = true;
@@ -549,6 +560,12 @@
               toast("لطفاً آدرس تحویل را انتخاب یا اضافه کنید");
               var card = document.getElementById("coAddresses");
               if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+              return;
+            }
+            if (!/^\d{10}$/.test(String(selectedAddress().postalCode || ""))) {
+              toast("کد پستی آدرس انتخاب‌شده ثبت نشده؛ آدرس را تکمیل کنید");
+              var addrCard = document.getElementById("coAddresses");
+              if (addrCard) addrCard.scrollIntoView({ behavior: "smooth", block: "center" });
               return;
             }
             saveState();

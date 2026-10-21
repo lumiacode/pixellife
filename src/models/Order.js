@@ -14,6 +14,7 @@ const orderSchema = new mongoose.Schema(
       receiverName: { type: String, required: true }, receiverMobile: { type: String, required: true },
       province: { type: String, required: true }, city: { type: String, required: true },
       fullAddress: { type: String, required: true }, postalCode: { type: String, default: "" },
+      location: { type: new mongoose.Schema({ lat: Number, lng: Number, accuracy: Number }, { _id: false }), default: undefined },
     },
     shippingMethod: { id: { type: String, default: "post" }, title: { type: String, default: "ارسال پستی" } },
     discountCode: { type: String, default: "" },

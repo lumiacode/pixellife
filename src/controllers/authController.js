@@ -344,10 +344,10 @@ exports.completeProfile = async (req, res, next) => {
       return next(new ApiError(404, "کاربر یافت نشد"));
     }
 
-    // آدرس فقط وقتی لازم است که کاربر هنوز آدرسی ندارد؛ آدرس‌های قبلی با همین فرم دوباره ساخته نمی‌شوند.
-    const hasAddress = (await Address.countDocuments({ user: user._id })) > 0;
+    // آدرس فقط وقتی لازم است که کاربر هنوز آدرس کاملی (با کد پستی) ندارد؛ آدرس کامل قبلی دوباره ساخته نمی‌شود.
+    const hasAddress = (await Address.countDocuments({ user: user._id, postalCode: /^\d{10}$/ })) > 0;
     if (!hasAddress && !address) {
-      return next(new ApiError(400, "ثبت آدرس برای ساخت حساب و خرید الزامی است"));
+      return next(new ApiError(400, "ثبت آدرس کامل (با کد پستی) برای ساخت حساب و خرید الزامی است"));
     }
 
     user.firstName = firstName;
@@ -355,17 +355,30 @@ exports.completeProfile = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     if (!hasAddress) {
-      await Address.create({
-        user: user._id,
-        title: "آدرس من",
+      const lat = Number(address.location?.lat);
+      const lng = Number(address.location?.lng);
+      const accuracy = Number(address.location?.accuracy);
+      const location = Number.isFinite(lat) && Number.isFinite(lng)
+        ? { lat, lng, ...(Number.isFinite(accuracy) && accuracy >= 0 ? { accuracy: Math.round(accuracy) } : {}) }
+        : undefined;
+      const fields = {
         province: address.province,
         city: address.city,
         fullAddress: address.fullAddress,
-        postalCode: address.postalCode || undefined,
+        postalCode: address.postalCode,
+        location,
         receiverName: `${firstName} ${lastName}`.trim(),
         receiverMobile: user.mobile,
         isDefault: true,
-      });
+      };
+      // آدرس قدیمیِ ناقص (بدون کد پستی) به‌جای ساخت آدرس تکراری کامل می‌شود.
+      const legacy = await Address.findOne({ user: user._id }).sort({ isDefault: -1, createdAt: -1 });
+      if (legacy) {
+        Object.assign(legacy, fields);
+        await legacy.save();
+      } else {
+        await Address.create({ user: user._id, title: "آدرس من", ...fields });
+      }
     }
 
     const status = await profileStatus(user);

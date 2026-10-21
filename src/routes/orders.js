@@ -35,6 +35,8 @@ router.post("/", protect, async (req, res, next) => {
     if (!requestedItems.length) return res.status(400).json({ success: false, message: "سبد خرید خالی است" });
     const address = await Address.findOne({ _id: req.body.addressId, user: req.user._id }).lean();
     if (!address) return res.status(400).json({ success: false, code: "PROFILE_INCOMPLETE", message: "برای ثبت سفارش یک آدرس معتبر انتخاب کنید" });
+    // آدرس‌های قدیمیِ بدون کد پستی باید پیش از خرید تکمیل شوند.
+    if (!/^\d{10}$/.test(String(address.postalCode || ""))) return res.status(400).json({ success: false, code: "PROFILE_INCOMPLETE", message: "کد پستی آدرس انتخاب‌شده ثبت نشده است؛ آدرس را ویرایش و کد پستی را وارد کنید" });
     const paymentMethod = findPaymentMethod(req.body.paymentMethod || "zarinpal");
     if (!paymentMethod) return res.status(400).json({ success: false, message: "روش پرداخت معتبر نیست" });
     await supersedePendingOrders(req.user._id);
@@ -53,7 +55,7 @@ router.post("/", protect, async (req, res, next) => {
     const order = await Order.create({
       user: req.user._id,
       items,
-      shippingAddress: { receiverName: address.receiverName || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "گیرنده", receiverMobile: address.receiverMobile || req.user.mobile, province: address.province, city: address.city, fullAddress: address.fullAddress, postalCode: address.postalCode || "" },
+      shippingAddress: { receiverName: address.receiverName || `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() || "گیرنده", receiverMobile: address.receiverMobile || req.user.mobile, province: address.province, city: address.city, fullAddress: address.fullAddress, postalCode: address.postalCode || "", ...(address.location ? { location: address.location } : {}) },
       shippingMethod: { id: quote.shippingMethod.id, title: quote.shippingMethod.title },
       discountCode: quote.discount ? quote.discount.doc.code : "",
       paymentMethod: paymentMethod.orderPaymentMethod,

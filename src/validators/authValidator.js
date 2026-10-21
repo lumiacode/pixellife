@@ -125,11 +125,16 @@ exports.completeProfileValidator = [
     .isLength({ min: 10 })
     .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
   body("address.postalCode")
-    .optional({ checkFalsy: true })
+    .if(body("address").exists({ checkNull: true }))
     .customSanitizer(toEnglishDigits)
-    .trim()
+    .notEmpty()
+    .withMessage("کد پستی الزامی است")
     .matches(/^\d{10}$/)
     .withMessage("کد پستی باید ۱۰ رقم باشد"),
+  // موقعیت GPS اختیاری
+  body("address.location").optional({ nullable: true }).isObject().withMessage("موقعیت نامعتبر است"),
+  body("address.location.lat").if(body("address.location").isObject()).isFloat({ min: -90, max: 90 }).withMessage("عرض جغرافیایی نامعتبر است"),
+  body("address.location.lng").if(body("address.location").isObject()).isFloat({ min: -180, max: 180 }).withMessage("طول جغرافیایی نامعتبر است"),
 ];
 
 /**

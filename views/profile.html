@@ -906,9 +906,10 @@
                     <textarea id="infoFullAddress" rows="3" placeholder="خیابان، کوچه، پلاک، واحد" maxlength="400" autocomplete="street-address"></textarea>
                   </div>
                   <div class="field">
-                    <label for="infoPostal">کد پستی <small>(اختیاری)</small></label>
-                    <input id="infoPostal" type="text" inputmode="numeric" maxlength="10" placeholder="کد پستی ۱۰ رقمی" autocomplete="postal-code" />
+                    <label for="infoPostal">کد پستی <span class="req">*</span></label>
+                    <input id="infoPostal" type="text" inputmode="numeric" maxlength="10" placeholder="کد پستی ۱۰ رقمی" autocomplete="postal-code" required />
                   </div>
+                  <div id="infoLocation"></div>
                 </div>
                 <div class="address-saved" id="addressSaved" hidden>
                   <i class="ti ti-circle-check"></i>
@@ -1025,13 +1026,14 @@
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="addrPostal">کد پستی</label>
+              <label for="addrPostal">کد پستی <span class="req">*</span></label>
               <input
                 id="addrPostal"
                 type="text"
                 inputmode="numeric"
                 maxlength="10"
                 placeholder="کد پستی ۱۰ رقمی"
+                required
               />
             </div>
             <div class="field">
@@ -1053,6 +1055,7 @@
               placeholder="نام و نام خانوادگی گیرنده"
             />
           </div>
+          <div id="addrLocation"></div>
           <label class="modal-check">
             <input type="checkbox" id="addrDefault" />
             <span>به‌عنوان آدرس پیش‌فرض ثبت شود</span>
@@ -1070,6 +1073,7 @@
     </div>
 
     <script src="/auth-modal.js"></script>
+    <script src="/js/location-picker.js"></script>
     <script>
       /* ── تم ── */
       const themeToggle = document.getElementById("themeToggle");
@@ -1372,7 +1376,7 @@
           <div class="od-head"><a href="/profile/orders" aria-label="بازگشت به سفارش‌ها"><i class="ti ti-arrow-right"></i></a><h3>جزئیات سفارش</h3></div>
           ${pendingPayBox(order)}${order.status === "cancelled" && cancelReason(order) ? `<div class="order-cancel-note">${escapeHtml(cancelReason(order))}</div>` : ""}
           <div class="od-section"><span><span class="od-label">کد پیگیری سفارش</span><b dir="ltr">${escapeHtml(order.orderNumber)}</b></span><span><span class="od-label">تاریخ ثبت سفارش</span><b>${fmtDate(order.createdAt, { dateStyle: "long" })}</b></span></div>
-          <div class="od-section"><span><span class="od-label">تحویل گیرنده</span><b>${escapeHtml(address.receiverName || "")}</b></span><span><span class="od-label">شماره موبایل</span><b dir="ltr">${escapeHtml(address.receiverMobile || "")}</b></span>${fullAddress ? `<span class="od-address"><span class="od-label">آدرس</span><b>${escapeHtml(fullAddress)}</b>${address.postalCode ? ` <span class="od-label">· کد پستی</span><b dir="ltr">${escapeHtml(address.postalCode)}</b>` : ""}</span>` : ""}</div>
+          <div class="od-section"><span><span class="od-label">تحویل گیرنده</span><b>${escapeHtml(address.receiverName || "")}</b></span><span><span class="od-label">شماره موبایل</span><b dir="ltr">${escapeHtml(address.receiverMobile || "")}</b></span>${fullAddress ? `<span class="od-address"><span class="od-label">آدرس</span><b>${escapeHtml(fullAddress)}</b>${address.postalCode ? ` <span class="od-label">· کد پستی</span><b dir="ltr">${escapeHtml(address.postalCode)}</b>` : ""}${address.location ? ` <span class="od-label">·</span> <a href="${PLLocation.mapUrl(address.location)}" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700">موقعیت روی نقشه</a>` : ""}</span>` : ""}</div>
           <div class="od-section"><span><span class="od-label">مبلغ کل</span><b>${money(order.total)}</b></span><span><span class="od-label">هزینه ارسال</span><b>${Number(order.deliveryFee) ? money(order.deliveryFee) : "رایگان"}</b></span>${Number(order.discount) ? `<span><span class="od-label">تخفیف${order.discountCode ? " (" + escapeHtml(order.discountCode) + ")" : ""}</span><b>${money(order.discount)}</b></span>` : ""}<span><span class="od-label">${methodText}</span><b>${paymentStatusText[order.paymentStatus] || "در انتظار پرداخت"}</b></span></div>
           <div class="od-shipment">
             <div class="od-ship-head"><span>مرسوله ۱ از ۱</span>${order.shippingMethod && order.shippingMethod.title ? `<span class="od-pill">${escapeHtml(order.shippingMethod.title)}</span>` : ""}</div>
@@ -1589,6 +1593,8 @@
         el.className = "form-msg";
       }
 
+      const infoLocation = PLLocation.mount(document.getElementById("infoLocation"));
+      const addrLocation = PLLocation.mount(document.getElementById("addrLocation"));
       const toEnglishDigits = (value) => String(value || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
       function markInvalid(id, invalid) {
         const field = document.getElementById(id).closest(".field");
@@ -1620,7 +1626,7 @@
               ["infoProvince", Boolean(address.province), "استان را انتخاب کنید."],
               ["infoCity", Boolean(address.city), "شهر را وارد کنید."],
               ["infoFullAddress", address.fullAddress.length >= 10, "آدرس کامل را وارد کنید (حداقل ۱۰ کاراکتر)."],
-              ["infoPostal", !address.postalCode || /^\d{10}$/.test(address.postalCode), "کد پستی باید ۱۰ رقم باشد."],
+              ["infoPostal", /^\d{10}$/.test(address.postalCode), "کد پستی را به‌صورت ۱۰ رقم وارد کنید."],
             );
           }
           let firstError = "";
@@ -1637,7 +1643,7 @@
           try {
             const wasLocked = isProfileLocked();
             const payload = { firstName, lastName };
-            if (needsAddress) payload.address = { ...address, postalCode: address.postalCode || undefined };
+            if (needsAddress) payload.address = { ...address, location: infoLocation.get() || undefined };
             const res = await apiRequest("/api/auth/complete-profile", "POST", payload);
             currentUser = res.user;
             localStorage.setItem("user", JSON.stringify(res.user));
@@ -1691,6 +1697,7 @@
             address.receiverName || "";
           document.getElementById("addrDefault").checked = !!address.isDefault;
         }
+        addrLocation.set(address ? address.location : null);
         addrModal.classList.add("open");
       }
       function closeAddrModal() {
@@ -1735,7 +1742,8 @@
               </div>
             </div>
             <div class="addr-card-text">${addr.fullAddress}</div>
-            ${addr.postalCode ? `<div class="addr-card-text">کد پستی: ${addr.postalCode}</div>` : ""}
+            ${addr.postalCode ? `<div class="addr-card-text">کد پستی: ${addr.postalCode}</div>` : `<div class="order-cancel-note"><i class="ti ti-alert-triangle"></i> کد پستی ثبت نشده؛ برای خرید باید این آدرس را ویرایش و کد پستی را وارد کنید.</div>`}
+            ${addr.location ? `<div class="addr-card-text"><i class="ti ti-map-pin-check"></i> موقعیت روی نقشه ثبت شده · <a href="${PLLocation.mapUrl(addr.location)}" target="_blank" rel="noopener" style="color:var(--blue);font-weight:700">مشاهده</a></div>` : ""}
             ${addr.receiverName ? `<div class="addr-card-text">گیرنده: ${addr.receiverName} ${addr.receiverMobile ? "- " + addr.receiverMobile : ""}</div>` : ""}
             <div class="addr-card-actions">
               <button class="addr-mini-btn edit-btn"><i class="ti ti-edit"></i> ویرایش</button>
@@ -1770,6 +1778,14 @@
             .value.trim(),
           isDefault: document.getElementById("addrDefault").checked,
         };
+
+        payload.postalCode = toEnglishDigits(payload.postalCode).replace(/\s/g, "");
+        if (!/^\d{10}$/.test(payload.postalCode)) {
+          showMsg(addrMsg, "کد پستی را به‌صورت ۱۰ رقم وارد کنید.", "error");
+          return;
+        }
+        // موقعیت اختیاری است؛ null یعنی حذف موقعیت قبلی
+        payload.location = addrLocation.get();
 
         const btn = document.getElementById("addrSaveBtn");
         btn.disabled = true;

@@ -1,6 +1,16 @@
 const Address = require("../models/Address");
 const ApiError = require("../utils/ApiError");
 
+// موقعیت GPS اختیاری: فقط lat/lng/accuracy عددی نگه داشته می‌شود؛ مقدار تهی یعنی بدون موقعیت.
+function cleanLocation(location) {
+  if (!location || typeof location !== "object") return undefined;
+  const lat = Number(location.lat);
+  const lng = Number(location.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return undefined;
+  const accuracy = Number(location.accuracy);
+  return { lat, lng, ...(Number.isFinite(accuracy) && accuracy >= 0 ? { accuracy: Math.round(accuracy) } : {}) };
+}
+
 // ============================================================
 // دریافت لیست آدرس‌های کاربر
 // ============================================================
@@ -31,6 +41,7 @@ exports.createAddress = async (req, res, next) => {
       receiverName,
       receiverMobile,
       isDefault,
+      location,
     } = req.body;
 
     if (isDefault) {
@@ -50,6 +61,7 @@ exports.createAddress = async (req, res, next) => {
       receiverName,
       receiverMobile,
       isDefault: !!isDefault,
+      location: cleanLocation(location),
     });
 
     res.status(201).json({ success: true, data: address });
@@ -81,6 +93,7 @@ exports.updateAddress = async (req, res, next) => {
       receiverName,
       receiverMobile,
       isDefault,
+      location,
     } = req.body;
 
     if (isDefault) {
@@ -98,6 +111,8 @@ exports.updateAddress = async (req, res, next) => {
     if (receiverName !== undefined) address.receiverName = receiverName;
     if (receiverMobile !== undefined) address.receiverMobile = receiverMobile;
     if (isDefault !== undefined) address.isDefault = !!isDefault;
+    // موقعیت: شیء معتبر = ثبت/به‌روزرسانی، null = حذف، نفرستادن = بدون تغییر
+    if (location !== undefined) address.location = cleanLocation(location);
 
     await address.save();
 

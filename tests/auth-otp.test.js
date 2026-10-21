@@ -32,7 +32,11 @@ const User = {
   findOne(filter) { const found = users.find((u) => u.mobile === filter.mobile) || null; const q = Promise.resolve(found); q.select = () => q; return q; },
 };
 let addresses = [];
-stub("../src/models/Address", { countDocuments: async (filter) => addresses.filter((a) => a.user === filter.user).length, create: async (data) => { addresses.push(data); return data; } });
+stub("../src/models/Address", {
+  countDocuments: async (filter) => addresses.filter((a) => a.user === filter.user && (!filter.postalCode || filter.postalCode.test(a.postalCode || ""))).length,
+  create: async (data) => { addresses.push(data); return data; },
+  findOne: (filter) => { const q = Promise.resolve(addresses.find((a) => a.user === filter.user) || null); q.sort = () => q; return q; },
+});
 stub("../src/models/OTP", OTP);
 stub("../src/models/User", User);
 stub("../src/services/smsService", { sendOTP: async () => {} });
@@ -88,13 +92,20 @@ const age = () => otps.forEach((doc) => { doc.createdAt = new Date(Date.now() - 
   const callWithUser = async (handler, body) => { const res = { json(d) { this.data = d; return this; } }; let error = null; await handler({ body, user: person }, res, (e) => { error = e; }); return { error, data: res.data }; };
   r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "رضایی" });
   assert.strictEqual(r.error.statusCode, 400, "بدون آدرس رد می‌شود"); assert.strictEqual(addresses.length, 0);
-  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "رضایی", address: { province: "تهران", city: "تهران", fullAddress: "خیابان آزادی، پلاک ۱۰" } });
+  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "رضایی", address: { province: "تهران", city: "تهران", fullAddress: "خیابان آزادی، پلاک ۱۰", postalCode: "1234567890", location: { lat: 35.7, lng: 51.4, accuracy: 20.4 } } });
   assert.ifError(r.error); assert.strictEqual(addresses.length, 1);
+  assert.deepStrictEqual(addresses[0].location, { lat: 35.7, lng: 51.4, accuracy: 20 }); assert.strictEqual(addresses[0].postalCode, "1234567890");
   assert.strictEqual(addresses[0].receiverMobile, person.mobile); assert.strictEqual(addresses[0].isDefault, true);
   assert.strictEqual(r.data.user.profileComplete, true); assert.strictEqual(r.data.user.hasAddress, true);
   r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "احمدی", address: { province: "تهران", city: "کرج", fullAddress: "جای دیگری با آدرس طولانی" } });
   assert.ifError(r.error); assert.strictEqual(addresses.length, 1, "آدرس دوباره ساخته نمی‌شود"); assert.strictEqual(person.lastName, "احمدی");
   r = await callWithUser(controller.me, {}); assert.strictEqual(r.data.user.profileComplete, true);
+  // آدرس قدیمیِ بدون کد پستی: پروفایل کامل نیست و با فرم تکمیل، همان آدرس کامل می‌شود (نه آدرس تکراری)
+  const legacy = { user: person._id, province: "قدیم", city: "قدیم", fullAddress: "آدرس قدیمی بدون کد پستی", save: async () => {} };
+  addresses = [legacy];
+  r = await callWithUser(controller.me, {}); assert.strictEqual(r.data.user.profileComplete, false); assert.strictEqual(r.data.user.hasAddress, false);
+  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "احمدی", address: { province: "البرز", city: "کرج", fullAddress: "گوهردشت، خیابان ۱۰، پلاک ۳", postalCode: "3187651234" } });
+  assert.ifError(r.error); assert.strictEqual(addresses.length, 1); assert.strictEqual(legacy.postalCode, "3187651234"); assert.strictEqual(legacy.city, "کرج"); assert.strictEqual(r.data.user.profileComplete, true);
   console.log("auth otp tests passed");
   process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });
