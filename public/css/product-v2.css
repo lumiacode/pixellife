@@ -102,3 +102,24 @@ html body .product-desc.is-clamped { padding-bottom: 0 !important; }
   html body .advantage-desc { display: none !important; }
   html body .advantage-card { padding: 12px 4px 10px !important; }
 }
+
+/* علاقه‌مندی و اشتراک‌گذاری: ستون عمودی، قلب قرمزِ پر هنگام انتخاب (هرگز آبی نه) */
+@media (max-width: 768px) {
+  html body .gallery-actions { flex-direction: column !important; gap: 8px !important; }
+}
+html body .gallery-actions #wishBtn.active::before,
+html body .gallery-actions #wishBtn.active:hover::before,
+html body .gallery-actions #wishBtn.active:active::before {
+  background: #ef4444 !important;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572'/></svg>") center / 78% no-repeat !important;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572'/></svg>") center / 78% no-repeat !important;
+  animation: wishPop .35s ease;
+}
+html body .gallery-actions #wishBtn:not(.active):hover { background: transparent !important; color: #4b5563 !important; }
+@media (hover: none) {
+  html body .gallery-actions .icon-action-btn:hover { background: rgba(255,255,255,.9) !important; color: #4b5563 !important; }
+}
+@keyframes wishPop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@media (max-width: 768px) {
+  html body .toast { white-space: nowrap !important; max-width: 92vw !important; bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important; z-index: 10050 !important; }
+}
