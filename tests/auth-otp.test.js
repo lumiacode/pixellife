@@ -27,9 +27,12 @@ const OTP = {
 };
 let users = [];
 const User = {
+  async findById(id) { return users.find((u) => u._id === id) || null; },
   async create(data) { const user = { _id: "u" + (users.length + 1), isActive: true, firstName: "", lastName: "", ...data, async save() {}, hasPassword: () => false }; users.push(user); return user; },
   findOne(filter) { const found = users.find((u) => u.mobile === filter.mobile) || null; const q = Promise.resolve(found); q.select = () => q; return q; },
 };
+let addresses = [];
+stub("../src/models/Address", { countDocuments: async (filter) => addresses.filter((a) => a.user === filter.user).length, create: async (data) => { addresses.push(data); return data; } });
 stub("../src/models/OTP", OTP);
 stub("../src/models/User", User);
 stub("../src/services/smsService", { sendOTP: async () => {} });
@@ -80,6 +83,18 @@ const age = () => otps.forEach((doc) => { doc.createdAt = new Date(Date.now() - 
   assert.strictEqual(last.error.statusCode, 429);
   // نوع forgot از مسیر ورود پذیرفته نمی‌شود
   r = await call(controller.sendOtp, { identifier: "09120000003", type: "forgot" }); assert.strictEqual(r.error.statusCode, 400);
+  // تکمیل پروفایل: نام، نام خانوادگی و آدرس الزامی است؛ آدرس فقط یک‌بار ساخته می‌شود
+  const person = users[0];
+  const callWithUser = async (handler, body) => { const res = { json(d) { this.data = d; return this; } }; let error = null; await handler({ body, user: person }, res, (e) => { error = e; }); return { error, data: res.data }; };
+  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "رضایی" });
+  assert.strictEqual(r.error.statusCode, 400, "بدون آدرس رد می‌شود"); assert.strictEqual(addresses.length, 0);
+  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "رضایی", address: { province: "تهران", city: "تهران", fullAddress: "خیابان آزادی، پلاک ۱۰" } });
+  assert.ifError(r.error); assert.strictEqual(addresses.length, 1);
+  assert.strictEqual(addresses[0].receiverMobile, person.mobile); assert.strictEqual(addresses[0].isDefault, true);
+  assert.strictEqual(r.data.user.profileComplete, true); assert.strictEqual(r.data.user.hasAddress, true);
+  r = await callWithUser(controller.completeProfile, { firstName: "علی", lastName: "احمدی", address: { province: "تهران", city: "کرج", fullAddress: "جای دیگری با آدرس طولانی" } });
+  assert.ifError(r.error); assert.strictEqual(addresses.length, 1, "آدرس دوباره ساخته نمی‌شود"); assert.strictEqual(person.lastName, "احمدی");
+  r = await callWithUser(controller.me, {}); assert.strictEqual(r.data.user.profileComplete, true);
   console.log("auth otp tests passed");
   process.exit(0);
 })().catch((e) => { console.error(e); process.exit(1); });

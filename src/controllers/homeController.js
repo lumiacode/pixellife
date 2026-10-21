@@ -683,6 +683,12 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 @media (prefers-reduced-motion:reduce){.header,.navbar{transition:none}}
 </style>`;
 
+// تکمیل پروفایل اجباری (نام، نام خانوادگی، آدرس) پیش از خرید: public/js/profile-gate.js
+function injectProfileGate(html) {
+  if (!html || html.includes("profile-gate.js") || !html.includes("</body>")) return html;
+  return html.replace("</body>", '<script src="/js/profile-gate.js" defer></script>\n</body>');
+}
+
 function injectHeaderAutohide(html) {
   if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
   if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n</head>`);
@@ -722,7 +728,7 @@ function injectEnamad(html) {
     const trustOpen = /(<div[^>]*class=["'][^"']*\bfooter-trust\b[^"']*["'][^>]*>)/i;
     html = html.replace(trustOpen, `$1\n<p class="footer-trust-text">${FOOTER_TRUST_TEXT}</p>`);
   }
-  return injectHeaderAutohide(injectAboutSite(html));
+  return injectProfileGate(injectHeaderAutohide(injectAboutSite(html)));
 }
 
 function injectSharedCategoryNav(html) {

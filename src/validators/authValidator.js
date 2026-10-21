@@ -103,32 +103,33 @@ exports.resetPasswordValidator = [
   passwordValidation(),
 ];
 
-// کد ملی و تاریخ تولد اختیاری‌اند؛ اگر پر شوند باید معتبر باشند.
-const nationalCodeValidation = () =>
-  body("nationalCode")
-    .optional({ checkFalsy: true })
-    .trim()
-    .customSanitizer((value) =>
-      String(value)
-        .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
-        .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit)),
-    )
-    .matches(/^\d{10}$/)
-    .withMessage("کد ملی باید ۱۰ رقم باشد");
-
-const birthDateValidation = () =>
-  body("birthDate")
-    .optional({ checkFalsy: true })
-    .isISO8601()
-    .withMessage("تاریخ تولد معتبر نیست");
-
 exports.resendOtpValidator = [identifierValidation(), otpTypeValidation()];
+
+// آدرس اختیاری است (کاربری که قبلاً آدرس دارد نیازی به ارسالش ندارد)، اما اگر بیاید باید کامل و معتبر باشد.
+const toEnglishDigits = (value) =>
+  String(value)
+    .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
+    .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 
 exports.completeProfileValidator = [
   firstNameValidation(),
   lastNameValidation(),
-  nationalCodeValidation(),
-  birthDateValidation(),
+  body("address").optional({ nullable: true }).isObject().withMessage("آدرس معتبر نیست"),
+  body("address.province").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("استان الزامی است"),
+  body("address.city").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("شهر الزامی است"),
+  body("address.fullAddress")
+    .if(body("address").exists({ checkNull: true }))
+    .trim()
+    .notEmpty()
+    .withMessage("آدرس کامل الزامی است")
+    .isLength({ min: 10 })
+    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
+  body("address.postalCode")
+    .optional({ checkFalsy: true })
+    .customSanitizer(toEnglishDigits)
+    .trim()
+    .matches(/^\d{10}$/)
+    .withMessage("کد پستی باید ۱۰ رقم باشد"),
 ];
 
 /**

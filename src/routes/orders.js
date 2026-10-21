@@ -7,6 +7,7 @@ const { buildQuote, findPaymentMethod } = require("../services/checkoutPricing")
 const Address = require("../models/Address");
 const { recordBehaviorEvent } = require("../services/behaviorAnalytics");
 const { trackingView } = require("../services/orderTracking");
+const { hasFullName } = require("../services/profileStatus");
 const { paymentDeadline, isPendingPayment, cancelPending, expireOverdue } = require("../services/orderExpiry");
 
 const withPayload = (order) => ({ ...order, tracking: trackingView(order), paymentDeadline: isPendingPayment(order) ? paymentDeadline(order) : null });
@@ -29,10 +30,11 @@ async function supersedePendingOrders(userId) {
 router.post("/", protect, async (req, res, next) => {
   let reservedDiscount = null;
   try {
+    if (!hasFullName(req.user)) return res.status(403).json({ success: false, code: "PROFILE_INCOMPLETE", message: "برای خرید ابتدا نام، نام خانوادگی و آدرس خود را در پروفایل تکمیل کنید" });
     const requestedItems = Array.isArray(req.body.items) ? req.body.items : [];
     if (!requestedItems.length) return res.status(400).json({ success: false, message: "سبد خرید خالی است" });
     const address = await Address.findOne({ _id: req.body.addressId, user: req.user._id }).lean();
-    if (!address) return res.status(400).json({ success: false, message: "برای ثبت سفارش یک آدرس معتبر انتخاب کنید" });
+    if (!address) return res.status(400).json({ success: false, code: "PROFILE_INCOMPLETE", message: "برای ثبت سفارش یک آدرس معتبر انتخاب کنید" });
     const paymentMethod = findPaymentMethod(req.body.paymentMethod || "zarinpal");
     if (!paymentMethod) return res.status(400).json({ success: false, message: "روش پرداخت معتبر نیست" });
     await supersedePendingOrders(req.user._id);

@@ -316,6 +316,34 @@
         direction: ltr;
         text-align: right;
       }
+      .field .req, .form-section-title .req { color: #dc2626; }
+      .field label small { font-weight: 500; color: var(--text-4); }
+      .field select, .field textarea {
+        width: 100%;
+        padding: 13px 14px;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border);
+        background: var(--bg);
+        color: var(--text-1);
+        font-family: inherit;
+        font-size: 14.5px;
+        outline: none;
+        transition: var(--transition);
+      }
+      .field textarea { resize: vertical; min-height: 84px; line-height: 1.8; }
+      .field select:focus, .field textarea:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px var(--blue-light); }
+      .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: #dc2626; background: #fff7f7; }
+      .required-notice { display: flex; gap: 12px; align-items: flex-start; margin: -8px 0 18px; padding: 14px 16px; border-radius: 12px; background: #fff8e6; border: 1px solid #fde8a8; color: #7a5200; }
+      .required-notice i { font-size: 22px; margin-top: 2px; }
+      .required-notice strong { display: block; font-size: 14px; margin-bottom: 2px; }
+      .required-notice p { margin: 0; font-size: 13px; line-height: 1.9; }
+      .form-section { margin: 6px 0 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+      .form-section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; font-size: 15px; font-weight: 800; color: var(--text-1); }
+      .form-section-title i { color: var(--blue); font-size: 19px; }
+      .address-saved { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: #ecfdf3; color: #166534; font-size: 13px; line-height: 1.9; }
+      .address-saved a { color: var(--blue); font-weight: 700; text-decoration: underline; }
+      .required-notice[hidden], .address-saved[hidden], #addressFields[hidden] { display: none !important; }
+      .p-menu-item.locked { opacity: .5; cursor: not-allowed; }
       .field-hint {
         display: flex;
         align-items: center;
@@ -827,52 +855,25 @@
         <main class="p-main">
           <!-- ── ویرایش اطلاعات ── -->
           <section class="p-pane" id="pane-info">
-            <h2 class="p-main-title">ویرایش اطلاعات</h2>
+            <h2 class="p-main-title" id="infoTitle">ویرایش اطلاعات</h2>
+            <div class="required-notice" id="requiredNotice" hidden>
+              <i class="ti ti-alert-triangle"></i>
+              <div>
+                <strong>تکمیل این اطلاعات الزامی است</strong>
+                <p>برای ساخت حساب و ثبت خرید، نام، نام خانوادگی و آدرس تحویل باید کامل باشد. تا آن زمان امکان خرید فعال نمی‌شود.</p>
+              </div>
+            </div>
             <div class="form-msg" id="infoMsg"></div>
-            <form id="infoForm">
+            <form id="infoForm" novalidate>
               <div class="field-row">
                 <div class="field">
-                  <label for="lastNameInput">نام خانوادگی</label>
-                  <input
-                    id="lastNameInput"
-                    type="text"
-                    placeholder="نام خانوادگی"
-                    maxlength="50"
-                    required
-                  />
+                  <label for="lastNameInput">نام خانوادگی <span class="req">*</span></label>
+                  <input id="lastNameInput" type="text" placeholder="نام خانوادگی" maxlength="50" autocomplete="family-name" required />
                 </div>
                 <div class="field">
-                  <label for="firstNameInput">نام</label>
-                  <input
-                    id="firstNameInput"
-                    type="text"
-                    placeholder="نام"
-                    maxlength="50"
-                    required
-                  />
+                  <label for="firstNameInput">نام <span class="req">*</span></label>
+                  <input id="firstNameInput" type="text" placeholder="نام" maxlength="50" autocomplete="given-name" required />
                 </div>
-              </div>
-
-              <div class="field">
-                <label for="nationalCodeInput">کد ملی</label>
-                <input
-                  id="nationalCodeInput"
-                  type="text"
-                  inputmode="numeric"
-                  placeholder="کد ملی"
-                  maxlength="10"
-                  required
-                />
-              </div>
-
-              <div class="field">
-                <label for="birthDateInput">تاریخ تولد</label>
-                <input
-                  id="birthDateInput"
-                  type="date"
-                  placeholder="تاریخ تولد را انتخاب کنید"
-                  required
-                />
               </div>
 
               <div class="field">
@@ -881,6 +882,37 @@
                 <div class="field-hint">
                   <span>شماره تلفن همراه قابل ویرایش نمی‌باشد</span>
                   <i class="ti ti-info-circle"></i>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="form-section-title"><i class="ti ti-map-pin"></i> آدرس تحویل <span class="req">*</span></h3>
+                <div id="addressFields">
+                  <div class="field-row">
+                    <div class="field">
+                      <label for="infoCity">شهر <span class="req">*</span></label>
+                      <input id="infoCity" type="text" placeholder="مثلاً کرج" maxlength="60" autocomplete="address-level2" />
+                    </div>
+                    <div class="field">
+                      <label for="infoProvince">استان <span class="req">*</span></label>
+                      <select id="infoProvince" autocomplete="address-level1">
+                        <option value="">انتخاب کنید</option>
+                        <option value="آذربایجان شرقی">آذربایجان شرقی</option><option value="آذربایجان غربی">آذربایجان غربی</option><option value="اردبیل">اردبیل</option><option value="اصفهان">اصفهان</option><option value="البرز">البرز</option><option value="ایلام">ایلام</option><option value="بوشهر">بوشهر</option><option value="تهران">تهران</option><option value="چهارمحال و بختیاری">چهارمحال و بختیاری</option><option value="خراسان جنوبی">خراسان جنوبی</option><option value="خراسان رضوی">خراسان رضوی</option><option value="خراسان شمالی">خراسان شمالی</option><option value="خوزستان">خوزستان</option><option value="زنجان">زنجان</option><option value="سمنان">سمنان</option><option value="سیستان و بلوچستان">سیستان و بلوچستان</option><option value="فارس">فارس</option><option value="قزوین">قزوین</option><option value="قم">قم</option><option value="کردستان">کردستان</option><option value="کرمان">کرمان</option><option value="کرمانشاه">کرمانشاه</option><option value="کهگیلویه و بویراحمد">کهگیلویه و بویراحمد</option><option value="گلستان">گلستان</option><option value="گیلان">گیلان</option><option value="لرستان">لرستان</option><option value="مازندران">مازندران</option><option value="مرکزی">مرکزی</option><option value="هرمزگان">هرمزگان</option><option value="همدان">همدان</option><option value="یزد">یزد</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="infoFullAddress">آدرس کامل <span class="req">*</span></label>
+                    <textarea id="infoFullAddress" rows="3" placeholder="خیابان، کوچه، پلاک، واحد" maxlength="400" autocomplete="street-address"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="infoPostal">کد پستی <small>(اختیاری)</small></label>
+                    <input id="infoPostal" type="text" inputmode="numeric" maxlength="10" placeholder="کد پستی ۱۰ رقمی" autocomplete="postal-code" />
+                  </div>
+                </div>
+                <div class="address-saved" id="addressSaved" hidden>
+                  <i class="ti ti-circle-check"></i>
+                  <span>آدرس تحویل شما ثبت شده است. برای افزودن یا ویرایش آدرس‌ها به بخش <a href="/profile/addresses" id="goAddresses">آدرس‌ها</a> بروید.</span>
                 </div>
               </div>
 
@@ -1121,19 +1153,39 @@
           fullName || user.mobile || "کاربر";
         document.getElementById("firstNameInput").value = user.firstName || "";
         document.getElementById("lastNameInput").value = user.lastName || "";
-        document.getElementById("nationalCodeInput").value =
-          user.nationalCode || "";
         document.getElementById("mobileInput").value = user.mobile || "";
-        if (user.birthDate) {
-          document.getElementById("birthDateInput").value =
-            user.birthDate.slice(0, 10);
-        }
+        applyProfileRequirements(user);
       }
+
+      /* ── تکمیل اجباری: اعلان، قفل بخش‌های دیگر، نمایش یا پنهان‌کردن فیلدهای آدرس ── */
+      function isProfileLocked() {
+        return Boolean(currentUser) && currentUser.profileComplete === false;
+      }
+      function applyProfileRequirements(user) {
+        const locked = user.profileComplete === false;
+        document.getElementById("requiredNotice").hidden = !locked;
+        document.getElementById("infoTitle").textContent = locked ? "تکمیل اطلاعات حساب" : "ویرایش اطلاعات";
+        document.getElementById("addressFields").hidden = Boolean(user.hasAddress);
+        document.getElementById("addressSaved").hidden = !user.hasAddress;
+        document.querySelectorAll(".p-menu-item[data-tab]").forEach((el) => {
+          el.classList.toggle("locked", locked && el.dataset.tab !== "info");
+        });
+      }
+      const profileNext = (() => {
+        const next = new URLSearchParams(window.location.search).get("next") || "";
+        // فقط مسیرهای داخلی سایت پذیرفته می‌شوند.
+        return next.startsWith("/") && !next.startsWith("//") ? next : "";
+      })();
 
       /* ── تب‌ها ── */
       const tabs = ["info", "orders", "wishlist", "addresses", "history"];
       function showTab(tab, keepQuery) {
         if (!tabs.includes(tab)) tab = "info";
+        if (isProfileLocked() && tab !== "info") {
+          tab = "info";
+          keepQuery = false;
+          showMsg(document.getElementById("infoMsg"), "ابتدا نام، نام خانوادگی و آدرس خود را تکمیل کنید؛ بعد از آن بقیهٔ بخش‌ها فعال می‌شوند.", "error");
+        }
         tabs.forEach((t) => {
           document
             .getElementById("pane-" + t)
@@ -1537,6 +1589,11 @@
         el.className = "form-msg";
       }
 
+      const toEnglishDigits = (value) => String(value || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+      function markInvalid(id, invalid) {
+        const field = document.getElementById(id).closest(".field");
+        if (field) field.classList.toggle("invalid", invalid);
+      }
       document
         .getElementById("infoForm")
         .addEventListener("submit", async (e) => {
@@ -1544,23 +1601,32 @@
           const msg = document.getElementById("infoMsg");
           hideMsg(msg);
 
-          const firstName = document
-            .getElementById("firstNameInput")
-            .value.trim();
-          const lastName = document
-            .getElementById("lastNameInput")
-            .value.trim();
-          const nationalCode = document
-            .getElementById("nationalCodeInput")
-            .value.trim();
-          const birthDate = document.getElementById("birthDateInput").value;
+          const firstName = document.getElementById("firstNameInput").value.trim();
+          const lastName = document.getElementById("lastNameInput").value.trim();
+          const needsAddress = !(currentUser && currentUser.hasAddress);
+          const address = {
+            province: document.getElementById("infoProvince").value.trim(),
+            city: document.getElementById("infoCity").value.trim(),
+            fullAddress: document.getElementById("infoFullAddress").value.trim(),
+            postalCode: toEnglishDigits(document.getElementById("infoPostal").value).replace(/\s/g, ""),
+          };
 
-          if (firstName.length < 2 || lastName.length < 2) {
-            showMsg(
-              msg,
-              "لطفاً نام و نام خانوادگی را به‌درستی وارد کنید.",
-              "error",
+          const checks = [
+            ["firstNameInput", firstName.length >= 2, "نام را وارد کنید (حداقل ۲ حرف)."],
+            ["lastNameInput", lastName.length >= 2, "نام خانوادگی را وارد کنید (حداقل ۲ حرف)."],
+          ];
+          if (needsAddress) {
+            checks.push(
+              ["infoProvince", Boolean(address.province), "استان را انتخاب کنید."],
+              ["infoCity", Boolean(address.city), "شهر را وارد کنید."],
+              ["infoFullAddress", address.fullAddress.length >= 10, "آدرس کامل را وارد کنید (حداقل ۱۰ کاراکتر)."],
+              ["infoPostal", !address.postalCode || /^\d{10}$/.test(address.postalCode), "کد پستی باید ۱۰ رقم باشد."],
             );
+          }
+          let firstError = "";
+          checks.forEach(([id, ok, text]) => { markInvalid(id, !ok); if (!ok && !firstError) firstError = text; });
+          if (firstError) {
+            showMsg(msg, firstError, "error");
             return;
           }
 
@@ -1569,16 +1635,20 @@
           btn.textContent = "در حال ذخیره...";
 
           try {
-            const res = await apiRequest("/api/auth/complete-profile", "POST", {
-              firstName,
-              lastName,
-              nationalCode,
-              birthDate,
-            });
+            const wasLocked = isProfileLocked();
+            const payload = { firstName, lastName };
+            if (needsAddress) payload.address = { ...address, postalCode: address.postalCode || undefined };
+            const res = await apiRequest("/api/auth/complete-profile", "POST", payload);
             currentUser = res.user;
             localStorage.setItem("user", JSON.stringify(res.user));
             renderUser(res.user);
-            showMsg(msg, "اطلاعات با موفقیت ذخیره شد.", "success");
+            if (needsAddress) loadAddresses();
+            if (wasLocked && res.user.profileComplete) {
+              showMsg(msg, "اطلاعات شما تکمیل شد؛ اکنون می‌توانید خرید کنید.", "success");
+              setTimeout(() => { window.location.href = profileNext || "/"; }, 1200);
+            } else {
+              showMsg(msg, "اطلاعات با موفقیت ذخیره شد.", "success");
+            }
           } catch (err) {
             showMsg(msg, err.message || "ذخیره اطلاعات انجام نشد.", "error");
           } finally {
@@ -1586,6 +1656,10 @@
             btn.textContent = "ذخیره تغییرات";
           }
         });
+      document.getElementById("infoForm").addEventListener("input", (event) => {
+        const field = event.target.closest(".field");
+        if (field) field.classList.remove("invalid");
+      });
 
       /* ── آدرس‌ها ── */
       const addrModal = document.getElementById("addrModal");

@@ -165,6 +165,11 @@ async function call(base, method, url, body) {
 
   /* ۵) ثبت سفارش: مبلغ‌ها، schema واقعی Order، مصرف ظرفیت کد */
   const orderBody = { addressId: address._id, items: [{ productId: "charger-20w", quantity: 2, color: "مشکی", storage: "", warranty: "" }], shippingMethod: "post", paymentMethod: "zarinpal", discountCode: "OFF10" };
+  // پروفایل ناقص (بدون نام) نمی‌تواند سفارش ثبت کند
+  const savedFirstName = USER.firstName; USER.firstName = "";
+  const blockedOrder = await call(base, "POST", "/api/orders", orderBody);
+  assert.strictEqual(blockedOrder.status, 403); assert.strictEqual(blockedOrder.json.code, "PROFILE_INCOMPLETE"); assert.strictEqual(orders.length, 0);
+  USER.firstName = savedFirstName;
   const created = await call(base, "POST", "/api/orders", orderBody);
   assert.strictEqual(created.status, 201, JSON.stringify(created.json));
   let order = orders[0];

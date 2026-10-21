@@ -3,6 +3,8 @@ const OTP = require("../models/OTP");
 const tokenService = require("../services/tokenService");
 const otpService = require("../services/otpService");
 const ApiError = require("../utils/ApiError");
+const Address = require("../models/Address");
+const { profileStatus, publicUser } = require("../services/profileStatus");
 
 const normalizeIdentifier = (identifier) => {
   if (typeof identifier !== "string") return identifier;
@@ -149,22 +151,14 @@ exports.verifyLoginOtp = async (req, res, next) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    const needsProfile = !user.firstName || !user.lastName;
+    const status = await profileStatus(user);
 
     res.json({
       success: true,
       message: "ورود موفق",
       token,
-      needsProfile,
-      user: {
-        id: user._id,
-        mobile: user.mobile,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isVerified: user.isVerified,
-        role: user.role,
-      },
+      needsProfile: !status.profileComplete,
+      user: publicUser(user, status),
     });
   } catch (error) {
     next(error);
@@ -209,17 +203,14 @@ exports.login = async (req, res, next) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
+    const status = await profileStatus(user);
+
     res.json({
       success: true,
       message: "ورود موفق",
       token,
-      user: {
-        id: user._id,
-        mobile: user.mobile,
-        email: user.email,
-        isVerified: user.isVerified,
-        role: user.role,
-      },
+      needsProfile: !status.profileComplete,
+      user: publicUser(user, status),
     });
   } catch (error) {
     next(error);
@@ -346,33 +337,42 @@ exports.resendOtp = async (req, res, next) => {
 // ============================================================
 exports.completeProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, nationalCode, birthDate } = req.body;
+    const { firstName, lastName, address } = req.body;
 
     const user = await User.findById(req.user._id);
     if (!user) {
       return next(new ApiError(404, "کاربر یافت نشد"));
     }
 
+    // آدرس فقط وقتی لازم است که کاربر هنوز آدرسی ندارد؛ آدرس‌های قبلی با همین فرم دوباره ساخته نمی‌شوند.
+    const hasAddress = (await Address.countDocuments({ user: user._id })) > 0;
+    if (!hasAddress && !address) {
+      return next(new ApiError(400, "ثبت آدرس برای ساخت حساب و خرید الزامی است"));
+    }
+
     user.firstName = firstName;
     user.lastName = lastName;
-    if (nationalCode !== undefined) user.nationalCode = nationalCode;
-    if (birthDate !== undefined) user.birthDate = birthDate || null;
     await user.save({ validateBeforeSave: false });
 
+    if (!hasAddress) {
+      await Address.create({
+        user: user._id,
+        title: "آدرس من",
+        province: address.province,
+        city: address.city,
+        fullAddress: address.fullAddress,
+        postalCode: address.postalCode || undefined,
+        receiverName: `${firstName} ${lastName}`.trim(),
+        receiverMobile: user.mobile,
+        isDefault: true,
+      });
+    }
+
+    const status = await profileStatus(user);
     res.json({
       success: true,
       message: "اطلاعات کاربری با موفقیت ذخیره شد",
-      user: {
-        id: user._id,
-        mobile: user.mobile,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        nationalCode: user.nationalCode,
-        birthDate: user.birthDate,
-        isVerified: user.isVerified,
-        role: user.role,
-      },
+      user: publicUser(user, status),
     });
   } catch (error) {
     next(error);
@@ -385,20 +385,8 @@ exports.completeProfile = async (req, res, next) => {
 exports.me = async (req, res, next) => {
   try {
     const user = req.user;
-    res.json({
-      success: true,
-      user: {
-        id: user._id,
-        mobile: user.mobile,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        nationalCode: user.nationalCode,
-        birthDate: user.birthDate,
-        isVerified: user.isVerified,
-        role: user.role,
-      },
-    });
+    const status = await profileStatus(user);
+    res.json({ success: true, user: publicUser(user, status) });
   } catch (error) {
     next(error);
   }
