@@ -32,7 +32,7 @@
             <span>دسته‌بندی‌ها</span>
           </button>
           <a class="mobile-bottom-nav__item" data-nav="cart" href="/cart" aria-label="سبد خرید">
-            <img class="mobile-bottom-nav__cart-image mobile-bottom-nav__cart-icon" src="/images/cart-icon.png?v=1" alt="" aria-hidden="true" />
+            <svg class="mobile-bottom-nav__icon mobile-bottom-nav__cart-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M3 4h2l2.4 11h11l1.8-8H6.2"/></svg>
             <span class="mobile-bottom-nav__badge" data-mobile-cart-count>0</span>
             <span>سبد خرید</span>
           </a>
