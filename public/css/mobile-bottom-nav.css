@@ -712,3 +712,55 @@
 @media (prefers-reduced-motion: reduce) {
   .mobile-bottom-nav { transition: none !important; }
 }
+
+/* ───────── نوار پایین روشن (به‌جای مشکی)، آیکن‌های کشو هم‌اندازه و لمس‌پذیر ───────── */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.08);
+  }
+  .mobile-bottom-nav__item { color: #64748b; }
+  .mobile-bottom-nav__item::before { background: #2563eb; box-shadow: 0 0 8px rgba(37, 99, 235, .45); }
+  .mobile-bottom-nav__item::after { background: linear-gradient(to bottom, rgba(59,130,246,.16), rgba(59,130,246,0)); filter: blur(9px); }
+  .mobile-bottom-nav__item.is-active,
+  .mobile-bottom-nav__item.is-expanded { color: #2563eb; }
+  .mobile-bottom-nav__badge { border-color: #fff; }
+
+  /* آیکن‌های ستون دسته‌ها: اندازهٔ یکسان و ناحیهٔ لمس کامل */
+  .mobile-category-sheet__rail-item,
+  .mobile-category-sheet__link,
+  .mobile-category-sheet__console-logo-link,
+  .mobile-category-sheet__brand-links a {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .mobile-category-sheet__rail-item { min-height: 88px; }
+  .mobile-category-sheet__rail-item .mobile-category-sheet__icon-image,
+  .mobile-category-sheet__rail-item > svg { width: 34px; height: 34px; flex: 0 0 34px; }
+  .mobile-category-sheet__rail-item > * { pointer-events: none; }
+  .mobile-category-sheet__link { min-height: 52px; }
+  .mobile-category-sheet__brand-links a { min-height: 40px; display: inline-flex; align-items: center; }
+  .mobile-category-sheet__console-logo-link { min-height: 88px; }
+  .mobile-category-sheet__console-logo-link img { width: 52px; height: 52px; }
+
+  /* نتایج محصول داخل جستجوی کشو */
+  .mobile-category-sheet__product { display: flex; align-items: center; gap: 10px; padding: 8px 4px; }
+  .mobile-category-sheet__product img { width: 46px; height: 46px; flex: 0 0 46px; object-fit: contain; border-radius: 8px; background: #f1f5f9; }
+  .mobile-category-sheet__product-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .mobile-category-sheet__product-text b { font-size: 13px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #0f172a; }
+  .mobile-category-sheet__product-text small { font-size: 11.5px; color: #64748b; }
+  .mobile-category-sheet__product em { font-style: normal; font-size: 12px; font-weight: 800; color: #0f172a; white-space: nowrap; }
+  .mobile-category-sheet__product em.is-out { color: #94a3b8; font-weight: 600; }
+  .mobile-category-sheet__all { color: #2563eb; font-weight: 700; justify-content: space-between; }
+}
+
+/* وقتی کشوی دسته‌ها باز است، فقط «دسته‌بندی‌ها» فعال دیده شود (نه «خانه» همزمان) */
+@media (max-width: 768px) {
+  .mobile-bottom-nav:has(.is-expanded) .mobile-bottom-nav__item.is-active:not(.is-expanded) { color: #64748b; }
+  .mobile-bottom-nav:has(.is-expanded) .mobile-bottom-nav__item.is-active:not(.is-expanded)::before,
+  .mobile-bottom-nav:has(.is-expanded) .mobile-bottom-nav__item.is-active:not(.is-expanded)::after { opacity: 0; transform: translateX(50%) scaleX(0); }
+}

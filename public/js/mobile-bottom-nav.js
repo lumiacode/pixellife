@@ -227,7 +227,7 @@
       <div class="mobile-category-sheet__tabs"><span class="mobile-category-sheet__tab">دسته‌بندی‌ها</span></div>
       <label class="mobile-category-sheet__search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg>
-        <input type="search" autocomplete="off" placeholder="جست‌وجوی دسته یا محصول" aria-label="جست‌وجوی دسته‌ها" />
+        <input type="search" autocomplete="off" placeholder="جست‌وجوی دسته یا محصول" aria-label="جست‌وجوی دسته‌ها و محصولات" enterkeyhint="search" />
       </label>
       <div class="mobile-category-sheet__layout">
         <aside class="mobile-category-sheet__rail" aria-label="دسته‌های اصلی"></aside>
@@ -302,22 +302,66 @@
           : category.links.map((link) => linkMarkup(link, category)).join("")}`);
     };
 
+    // جست‌وجوی کشو: زیردسته‌ها و برندها (محلی) + محصولات (از /api/products/suggest). دستهٔ «کنسول» لینک متنی ندارد؛ قبلاً همین باعث خطا و نتیجهٔ خالی می‌شد.
+    const norm = (value) => String(value || "").toLocaleLowerCase("fa").replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/آ/g, "ا").replace(/\s+/g, " ").trim();
+    const categoryHref = { mobile: "/mobiles", tablet: "/tablets", headphone: "/headphones", watch: "/smartwatches", console: "/console" };
+    const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const faNum = (value) => Number(value || 0).toLocaleString("fa-IR");
+    const matchCategories = (normalized) => {
+      const hits = [];
+      categories.forEach((category) => {
+        const before = hits.length;
+        (category.links || []).forEach((link) => {
+          if (norm(category.name + " " + link.label).includes(normalized)) hits.push({ category, link });
+          (link.brands || []).forEach((brand) => {
+            if (norm(category.name + " " + link.label + " " + brand.label).includes(normalized)) hits.push({ category, link: { label: link.label + " — " + brand.label, href: brand.href } });
+          });
+        });
+        (category.logoLinks || []).forEach((logo) => {
+          if (norm(category.name + " " + logo.label).includes(normalized)) hits.push({ category, link: { label: logo.label, href: logo.href } });
+        });
+        if (hits.length === before && norm(category.name).includes(normalized) && categoryHref[category.id]) {
+          hits.push({ category, link: { label: "همه محصولات " + category.name, href: categoryHref[category.id] } });
+        }
+      });
+      return hits;
+    };
+    const productRow = (product) => `<a class="mobile-category-sheet__link mobile-category-sheet__product" href="/product?id=${encodeURIComponent(product.slug)}"><img src="${esc(product.image || "/images/product-placeholder.svg")}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/product-placeholder.svg'"><span class="mobile-category-sheet__product-text"><b>${esc(product.name)}</b><small>${[product.category, product.brand].filter(Boolean).map(esc).join(" · ")}</small></span><em class="${product.unavailable ? "is-out" : ""}">${product.unavailable ? "ناموجود" : faNum(product.price) + " تومان"}</em></a>`;
+    let searchSeq = 0;
+    let searchTimer = null;
+    const paintSearch = (query, localHits, productsState) => {
+      let productsMarkup = "";
+      if (productsState === "loading") productsMarkup = '<p class="mobile-category-sheet__content-desc">در حال جست‌وجوی محصولات...</p>';
+      else if (productsState && productsState.length) productsMarkup = '<p class="mobile-category-sheet__content-desc">محصولات</p>' + productsState.map(productRow).join("") + `<a class="mobile-category-sheet__link mobile-category-sheet__all" href="/search?q=${encodeURIComponent(query)}"><span class="mobile-category-sheet__link-main"><span>نمایش همهٔ نتایج برای «${esc(query)}»</span></span>${chevron}</a>`;
+      const empty = !localHits.length && Array.isArray(productsState) && !productsState.length;
+      renderContent(`
+        <div class="mobile-category-sheet__content-head"><span>نتایج جست‌وجو</span></div>
+        ${localHits.length ? '<p class="mobile-category-sheet__content-desc">دسته‌ها و برندها</p>' + localHits.map(({ link, category }) => linkMarkup(link, category)).join("") : ""}
+        ${productsMarkup}
+        ${empty ? '<p class="mobile-category-sheet__content-desc">نتیجه‌ای پیدا نشد. نام دیگری را امتحان کنید.</p>' : ""}`);
+    };
     const renderSearch = (query) => {
-      const normalized = query.trim().toLocaleLowerCase("fa");
+      const normalized = norm(query);
+      clearTimeout(searchTimer);
+      searchSeq += 1;
+      const seq = searchSeq;
       if (!normalized) {
         renderCategory(categories[0].id);
         return;
       }
-      const results = categories.flatMap((category) =>
-        category.links
-          .filter((link) => (category.name + " " + link.label).toLocaleLowerCase("fa").includes(normalized))
-          .map((link) => ({ category, link })),
-      );
       rail.querySelectorAll(".mobile-category-sheet__rail-item").forEach((item) => item.classList.remove("is-active"));
-      renderContent(`
-        <div class="mobile-category-sheet__content-head"><span>نتایج جست‌وجو</span></div>
-        <p class="mobile-category-sheet__content-desc">${results.length ? "زیر‌دسته‌های مرتبط با «" + query + "»" : "نتیجه‌ای پیدا نشد."}</p>
-        ${results.map(({ link, category }) => linkMarkup(link, category)).join("")}`);
+      const localHits = matchCategories(normalized);
+      if (normalized.length < 2) {
+        paintSearch(query.trim(), localHits, []);
+        return;
+      }
+      paintSearch(query.trim(), localHits, "loading");
+      searchTimer = setTimeout(() => {
+        fetch("/api/products/suggest?q=" + encodeURIComponent(query.trim()))
+          .then((response) => (response.ok ? response.json() : null))
+          .then((data) => { if (seq === searchSeq) paintSearch(query.trim(), localHits, data && data.products ? data.products : []); })
+          .catch(() => { if (seq === searchSeq) paintSearch(query.trim(), localHits, []); });
+      }, 250);
     };
 
     categories.forEach((category) => {
