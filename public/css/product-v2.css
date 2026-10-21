@@ -89,3 +89,16 @@ html body .product-desc.is-clamped { display: -webkit-box !important; -webkit-bo
 html body .product-desc.is-clamped { padding-bottom: 0 !important; }
 
 @media (min-width: 769px) { html body .desktop-purchase-card { top: 117px !important; } }
+
+/* مزایای خرید در موبایل: چهار کاشی مستطیلیِ کوچک در یک خط، به‌جای چهار ردیف بلند */
+@media (max-width: 768px) {
+  html body .advantages-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 6px !important; }
+  html body .advantage-card { flex-direction: column !important; justify-content: flex-start !important; gap: 6px !important; padding: 10px 4px 8px !important; text-align: center !important; border-radius: 12px !important; }
+  html body .advantage-ico { width: 32px !important; height: 32px !important; flex: 0 0 32px !important; font-size: 17px !important; }
+  html body .advantage-title { font-size: 10.5px !important; line-height: 1.6 !important; margin: 0 !important; }
+  html body .advantage-desc { font-size: 9.5px !important; line-height: 1.5 !important; }
+}
+@media (max-width: 420px) {
+  html body .advantage-desc { display: none !important; }
+  html body .advantage-card { padding: 12px 4px 10px !important; }
+}
