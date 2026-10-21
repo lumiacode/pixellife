@@ -23,5 +23,12 @@ module.exports = {
       orderPaymentMethod: "online",
       enabled: true,
     },
+    {
+      id: "wallet",
+      title: "پرداخت با کیف پول",
+      description: "پرداخت از موجودی کیف پول پیکسل لایف",
+      orderPaymentMethod: "wallet",
+      enabled: true,
+    },
   ],
 };

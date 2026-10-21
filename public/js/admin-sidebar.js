@@ -147,6 +147,7 @@
     '<div class="admin-nav-divider">مدیریت فروشگاه</div>' +
     item("/admin/orders", "ti-shopping-bag", "سفارش‌ها") +
     item("/admin/customers", "ti-users", "مشتریان") +
+    item("/admin/wallets", "ti-wallet", "کیف پول کاربران") +
     item("/admin/discounts", "ti-ticket", "کدهای تخفیف") +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +

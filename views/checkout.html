@@ -80,6 +80,7 @@
       .co-choice-title { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .co-choice-text { color: var(--text-2); margin-top: 2px; }
       .co-choice-meta { color: var(--text-3); font-size: 12.5px; margin-top: 4px; display: flex; gap: 14px; flex-wrap: wrap; }
+      .co-choice.disabled { opacity: .6; cursor: not-allowed; }
       .co-badge { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--blue-light); color: var(--blue-dark); }
       .co-choice-price { font-weight: 800; white-space: nowrap; }
       .co-choice-price.free { color: var(--green); }
@@ -275,7 +276,12 @@
         }
 
         /* ───────── روش‌های پرداخت (برای افزودن درگاه جدید، یک handler اضافه کنید) ───────── */
+        var walletBalance = 0;
         var paymentHandlers = {
+          wallet: async function (order) {
+            var paid = await api("/api/wallet/pay", "POST", { orderId: order.id });
+            return paid.redirect;
+          },
           zarinpal: async function (order) {
             var payment = await api("/api/payments/zarinpal/request", "POST", { orderId: order.id });
             if (!payment.paymentUrl) throw new Error("ایجاد پرداخت ناموفق بود");
@@ -423,12 +429,21 @@
 
         /* ───────── مرحله ۲: پرداخت ───────── */
         function paymentMethodCard() {
-          var rows = config.paymentMethods.map(function (m, i) {
+          var total = quote && quote.pricing ? quote.pricing.total : 0;
+          var methods = config.paymentMethods;
+          // اگر کیف پول انتخاب شده ولی موجودی کافی نیست، به پرداخت اینترنتی برمی‌گردیم.
+          if (state.paymentMethod === "wallet" && walletBalance < total) { state.paymentMethod = ""; saveState(); }
+          var rows = methods.map(function (m, i) {
+            var isWallet = m.id === "wallet";
+            var enough = !isWallet || walletBalance >= total;
             var selected = state.paymentMethod ? state.paymentMethod === m.id : i === 0;
+            var text = isWallet
+              ? "موجودی شما: " + money(walletBalance) + " تومان" + (enough ? "" : " — برای این سفارش کافی نیست")
+              : m.description;
             return (
-              '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-payment="' + esc(m.id) + '">' +
-              '<span class="co-radio"></span><span class="co-choice-body"><span class="co-choice-title"><i class="ti ti-credit-card"></i> ' + esc(m.title) + "</span>" +
-              '<span class="co-choice-text">' + esc(m.description) + "</span></span></button>"
+              '<button type="button" class="co-choice' + (selected ? " selected" : "") + (enough ? "" : " disabled") + '" data-payment="' + esc(m.id) + '"' + (enough ? "" : ' aria-disabled="true"') + ">" +
+              '<span class="co-radio"></span><span class="co-choice-body"><span class="co-choice-title"><i class="ti ' + (isWallet ? "ti-wallet" : "ti-credit-card") + '"></i> ' + esc(m.title) + "</span>" +
+              '<span class="co-choice-text">' + esc(text) + (isWallet && !enough ? ' <a href="/profile/wallet" style="color:var(--blue);font-weight:700;text-decoration:underline">شارژ کیف پول</a>' : "") + "</span></span></button>"
             );
           }).join("");
           return '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-wallet"></i> روش پرداخت</span></div>' + rows + "</section>";
@@ -602,7 +617,10 @@
             return;
           }
           var pay = target.closest("[data-payment]");
-          if (pay) { state.paymentMethod = pay.dataset.payment; saveState(); return render(); }
+          if (pay) {
+            if (pay.classList.contains("disabled")) { toast("موجودی کیف پول برای این سفارش کافی نیست؛ ابتدا کیف پول را شارژ کنید"); return; }
+            state.paymentMethod = pay.dataset.payment; saveState(); return render();
+          }
           if (target.closest("#coAddAddress")) {
             var form = document.getElementById("coAddrForm");
             form.hidden = !form.hidden;
@@ -665,6 +683,7 @@
             }
             return showError(error.message);
           }
+          try { walletBalance = (await api("/api/wallet")).balance || 0; } catch (_) { walletBalance = 0; }
           render();
         }
         init();

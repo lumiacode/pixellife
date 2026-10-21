@@ -5,6 +5,9 @@ const router = express.Router();
 const Product = require("../models/Product");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const Wallet = require("../models/Wallet");
+const WalletTransaction = require("../models/WalletTransaction");
+const walletService = require("../services/wallet");
 const { applyTrackingSteps, syncStepsWithStatus, trackingView } = require("../services/orderTracking");
 const Review = require("../models/review");
 const { refreshProductReviewStats, refreshAllProductReviewStats } = require("../services/reviewStats");
@@ -1005,7 +1008,46 @@ router.patch("/orders/:id/status", async (req, res) => {
     // مرحله‌های روند ارسال با وضعیت کلی هماهنگ می‌شوند.
     syncStepsWithStatus(order, status);
     await order.save();
+    // سفارش پرداخت‌شده با کیف پول: با لغو یا مرجوعی، مبلغ خودکار (یک‌بار) به کیف پول برمی‌گردد.
+    if (status === "cancelled" || status === "returned") await walletService.refundOrder(order).catch((error) => console.error("wallet refund error:", error.message));
     res.json({ success: true, order: { ...(order.toObject ? order.toObject() : order), tracking: trackingView(order) } });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+// موجودی کیف پول کاربران (فقط خواندن) + دفتر تراکنش هر کاربر
+router.get("/wallets", async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const filter = {};
+    const search = String(req.query.search || "").trim();
+    if (search) {
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const users = await User.find({ $or: [{ mobile: { $regex: escaped, $options: "i" } }, { firstName: { $regex: escaped, $options: "i" } }, { lastName: { $regex: escaped, $options: "i" } }] }).select("_id").limit(500).lean();
+      filter.user = { $in: users.map((user) => user._id) };
+    }
+    const [total, wallets, totals] = await Promise.all([
+      Wallet.countDocuments(filter),
+      Wallet.find(filter).populate("user", "firstName lastName mobile").sort({ balance: -1, updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Wallet.aggregate([{ $group: { _id: null, sum: { $sum: "$balance" }, funded: { $sum: { $cond: [{ $gt: ["$balance", 0] }, 1, 0] } } } }]),
+    ]);
+    res.json({
+      success: true,
+      wallets: wallets.map((wallet) => ({ _id: wallet._id, userId: wallet.user?._id || null, firstName: wallet.user?.firstName || "", lastName: wallet.user?.lastName || "", mobile: wallet.user?.mobile || "", balance: wallet.balance, updatedAt: wallet.updatedAt })),
+      summary: { totalBalance: totals[0]?.sum || 0, fundedWallets: totals[0]?.funded || 0 },
+      pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
+    });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+router.get("/wallets/:userId/transactions", async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.userId)) return res.status(400).json({ success: false, message: "شناسه کاربر نامعتبر است" });
+    const [transactions, wallet] = await Promise.all([
+      WalletTransaction.find({ user: req.params.userId }).sort({ createdAt: -1 }).limit(100).lean(),
+      Wallet.findOne({ user: req.params.userId }).lean(),
+    ]);
+    res.json({ success: true, balance: wallet ? wallet.balance : 0, transactions });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 

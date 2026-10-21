@@ -289,6 +289,23 @@
       .address-saved { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: #ecfdf3; color: #166534; font-size: 13px; line-height: 1.9; }
       .address-saved a { color: var(--blue); font-weight: 700; text-decoration: underline; }
       .soon-chip { margin-inline-start: 6px; padding: 1px 8px; border-radius: 99px; background: #fff4d6; color: #8a5a00; font-size: 11px; font-weight: 700; }
+      .wallet-balance { padding: 22px 24px; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #2563eb, #3b82f6 60%, #60a5fa); margin-bottom: 18px; }
+      .wallet-balance-label { display: flex; align-items: center; gap: 6px; font-size: 13.5px; opacity: .9; }
+      .wallet-balance-amount { margin-top: 8px; font-size: 30px; font-weight: 800; }
+      .wallet-balance-amount small { font-size: 14px; font-weight: 600; opacity: .9; }
+      .wallet-charge { padding: 20px; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 22px; }
+      .wallet-charge h3, .wallet-history h3 { margin: 0 0 14px; font-size: 15px; font-weight: 800; color: var(--text-1); }
+      .wallet-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+      .wallet-chips button { height: 40px; padding: 0 16px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--white); font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--text-2); cursor: pointer; }
+      .wallet-chips button:hover, .wallet-chips button.active { border-color: var(--blue); background: var(--blue-light); color: var(--blue-dark); }
+      .wallet-tx { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 4px; border-bottom: 1px solid var(--border); }
+      .wallet-tx:last-child { border-bottom: 0; }
+      .wallet-tx-title { font-size: 14px; font-weight: 700; color: var(--text-1); }
+      .wallet-tx-sub { margin-top: 2px; font-size: 12px; color: var(--text-3); }
+      .wallet-tx-amount { font-weight: 800; font-size: 14.5px; white-space: nowrap; direction: ltr; }
+      .wallet-tx-amount.plus { color: #15803d; }
+      .wallet-tx-amount.minus { color: #b91c1c; }
+      .wallet-tx-after { font-size: 11.5px; color: var(--text-4); text-align: left; }
       .wallet-soon { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 48px 20px; border: 1.5px dashed var(--border); border-radius: 16px; background: var(--bg); }
       .wallet-soon-ico { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--blue-light); color: var(--blue); font-size: 34px; }
       .wallet-soon h3 { margin: 6px 0 0; font-size: 16px; font-weight: 800; color: var(--text-1); }
@@ -897,7 +914,7 @@
             <div class="p-menu-item" data-tab="wallet">
               <span class="p-menu-item-label"
                 ><span class="p-menu-ico"><i class="ti ti-wallet"></i></span
-                >کیف پول <span class="soon-chip">به‌زودی</span></span
+                >کیف پول</span
               >
               <i class="ti ti-chevron-left"></i>
             </div>
@@ -1044,11 +1061,34 @@
           <!-- ── کیف پول ── -->
           <section class="p-pane" id="pane-wallet">
             <h2 class="p-main-title">کیف پول</h2>
-            <div class="wallet-soon">
-              <span class="wallet-soon-ico"><i class="ti ti-wallet"></i></span>
-              <h3>کیف پول هنوز آماده نشده است</h3>
-              <p>به‌زودی می‌توانید موجودی حساب خود را شارژ کنید و با آن خرید کنید. به‌محض فعال‌شدن، همین‌جا اطلاع‌رسانی می‌کنیم.</p>
-              <a href="/profile/orders" class="wallet-soon-link">مشاهدهٔ سفارش‌های من</a>
+            <div class="order-banner" id="walletBanner" hidden></div>
+            <div class="wallet-balance">
+              <span class="wallet-balance-label"><i class="ti ti-wallet"></i> موجودی کیف پول</span>
+              <div class="wallet-balance-amount"><b id="walletBalance">۰</b> <small>تومان</small></div>
+            </div>
+            <form class="wallet-charge" id="walletForm" novalidate>
+              <h3>افزایش موجودی</h3>
+              <div class="wallet-chips" id="walletChips">
+                <button type="button" data-amount="100000">۱۰۰٬۰۰۰</button>
+                <button type="button" data-amount="500000">۵۰۰٬۰۰۰</button>
+                <button type="button" data-amount="1000000">۱٬۰۰۰٬۰۰۰</button>
+                <button type="button" data-amount="5000000">۵٬۰۰۰٬۰۰۰</button>
+              </div>
+              <div class="field">
+                <label for="walletAmount">مبلغ دلخواه (تومان)</label>
+                <input id="walletAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="مثلاً ۲٬۰۰۰٬۰۰۰" />
+                <div class="field-hint"><span id="walletHint">حداقل ۱۰٬۰۰۰ و حداکثر ۵۰٬۰۰۰٬۰۰۰ تومان؛ پرداخت امن از درگاه زرین‌پال.</span><i class="ti ti-info-circle"></i></div>
+              </div>
+              <div class="form-msg" id="walletMsg"></div>
+              <button type="submit" class="save-btn" id="walletSubmit">شارژ کیف پول</button>
+            </form>
+            <div class="wallet-history">
+              <h3>تراکنش‌های اخیر</h3>
+              <div id="walletTxList"></div>
+              <div class="empty-state" id="walletTxEmpty" style="display: none">
+                <i class="ti ti-receipt"></i>
+                <p>هنوز تراکنشی ثبت نشده است.</p>
+              </div>
             </div>
           </section>
 
@@ -1276,6 +1316,7 @@
         window.history.replaceState(null, "", path + orderQuery);
         if (tab === "orders") loadOrders();
         if (tab === "wishlist") loadWishlist();
+        if (tab === "wallet") loadWallet();
       }
 
       function getWishlistIds() {
@@ -1577,6 +1618,77 @@
           empty.style.display = "none";
         }
       }
+      /* ── کیف پول: موجودی، شارژ با مبلغ دلخواه و تراکنش‌ها ── */
+      const walletTypeText = { topup: "شارژ کیف پول", purchase: "پرداخت سفارش", refund: "بازگشت وجه", adjust: "تعدیل موجودی" };
+      let walletLimits = { min: 10000, max: 50000000 };
+      const walletNumber = (value) => Number(toEnglishDigits(value).replace(/[^\d]/g, "")) || 0;
+      const faMoney = (value) => Number(value || 0).toLocaleString("fa-IR");
+      function showWalletBanner(kind, text) {
+        const banner = document.getElementById("walletBanner");
+        banner.className = "order-banner " + kind;
+        banner.innerHTML = '<i class="ti ' + (kind === "success" ? "ti-circle-check" : "ti-circle-x") + '"></i><span>' + escapeHtml(text) + "</span>";
+        banner.hidden = false;
+      }
+      async function loadWallet() {
+        const params = new URLSearchParams(window.location.search);
+        const topup = params.get("topup");
+        if (topup === "success") showWalletBanner("success", "کیف پول با موفقیت شارژ شد.");
+        else if (topup === "failed") showWalletBanner("error", "پرداخت انجام نشد و موجودی تغییری نکرد. اگر مبلغی کسر شده، تا ۷۲ ساعت به حساب شما برمی‌گردد.");
+        if (topup) window.history.replaceState(null, "", "/profile/wallet");
+        try {
+          const res = await apiRequest("/api/wallet", "GET");
+          walletLimits = { min: res.minTopup, max: res.maxTopup };
+          document.getElementById("walletBalance").textContent = faMoney(res.balance);
+          const list = document.getElementById("walletTxList");
+          const empty = document.getElementById("walletTxEmpty");
+          const fmt = new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" });
+          list.innerHTML = (res.transactions || []).map((tx) => {
+            const plus = tx.amount > 0;
+            return `<div class="wallet-tx"><div><div class="wallet-tx-title">${escapeHtml(walletTypeText[tx.type] || tx.type)}</div><div class="wallet-tx-sub">${escapeHtml(tx.note || "")}${tx.note ? " · " : ""}${fmt.format(new Date(tx.createdAt))}</div></div><div><div class="wallet-tx-amount ${plus ? "plus" : "minus"}">${plus ? "+" : "−"}${faMoney(Math.abs(tx.amount))} تومان</div><div class="wallet-tx-after">موجودی: ${faMoney(tx.balanceAfter)}</div></div></div>`;
+          }).join("");
+          empty.style.display = (res.transactions || []).length ? "none" : "block";
+        } catch (error) {
+          showWalletBanner("error", error.message || "دریافت اطلاعات کیف پول ناموفق بود.");
+        }
+      }
+      (function wireWallet() {
+        const input = document.getElementById("walletAmount");
+        const msg = document.getElementById("walletMsg");
+        const chips = document.getElementById("walletChips");
+        const sync = () => chips.querySelectorAll("button").forEach((b) => b.classList.toggle("active", Number(b.dataset.amount) === walletNumber(input.value)));
+        chips.addEventListener("click", (event) => {
+          const button = event.target.closest("button[data-amount]");
+          if (!button) return;
+          input.value = faMoney(button.dataset.amount);
+          hideMsg(msg);
+          sync();
+        });
+        input.addEventListener("input", () => {
+          const n = walletNumber(input.value);
+          input.value = n ? faMoney(n) : "";
+          hideMsg(msg);
+          sync();
+        });
+        document.getElementById("walletForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const amount = walletNumber(input.value);
+          if (amount < walletLimits.min || amount > walletLimits.max) {
+            showMsg(msg, `مبلغ شارژ باید بین ${faMoney(walletLimits.min)} و ${faMoney(walletLimits.max)} تومان باشد.`, "error");
+            return;
+          }
+          const button = document.getElementById("walletSubmit");
+          button.disabled = true;
+          button.textContent = "در حال انتقال به درگاه...";
+          try {
+            const res = await apiRequest("/api/wallet/topup", "POST", { amount });
+            window.location.href = res.paymentUrl;
+          } catch (error) {
+            showMsg(msg, error.message || "شروع پرداخت ناموفق بود.", "error");
+            button.disabled = false;
+            button.textContent = "شارژ کیف پول";
+          }
+        });
+      })();
       async function payOrder(orderId, button) {
         button.disabled = true;
         try {

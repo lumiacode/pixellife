@@ -231,6 +231,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/payments", balePaymentRoutes);
 app.use("/api/payments/zarinpal", zarinpalPaymentRoutes);
+app.use("/api/wallet", require("./routes/wallet"));
 
 // Admin Panel
 app.use("/admin/api", adminApiRoutes);
