@@ -3839,9 +3839,10 @@
       }
 
       @media (max-width: 768px) {
+        /* body نباید خودش اسکرول‌کانتینر شود؛ وگرنه گالریِ sticky نمی‌چسبد و جزئیات روی عکس بالا نمی‌آید. */
         body.mobile-product-flow-active {
-          overflow-x: hidden;
-          overflow-y: auto;
+          overflow-x: clip;
+          overflow-y: visible;
           overscroll-behavior-y: auto;
         }
         body.mobile-product-flow-active .page-body {
@@ -3867,7 +3868,7 @@
           position: sticky;
           top: 72px;
           z-index: 1;
-          height: clamp(242px, 36dvh, 310px);
+          height: clamp(242px, 36svh, 310px);
           min-height: 0;
           gap: 0;
           margin: 0;
@@ -7968,8 +7969,13 @@
             document.body.classList.remove("mobile-product-sheet-active");
             document.body.classList.add("mobile-product-flow-active");
 
+            // ارتفاع گالری فقط یک‌بار (و با چرخش گوشی) محاسبه می‌شود. با اسکرول، نوار آدرس مرورگر جمع/باز می‌شود و
+            // ارتفاع صفحه عوض می‌شود؛ اگر هر بار دوباره حساب کنیم، عکس اصلی ناگهان بزرگ و کوچک می‌شود.
+            let galleryWidth = 0;
             const keepGalleryVisible = () => {
-              const viewport = window.visualViewport?.height || window.innerHeight;
+              if (galleryWidth === window.innerWidth && productGallery.style.height) return;
+              galleryWidth = window.innerWidth;
+              const viewport = Math.min(window.innerHeight, window.visualViewport?.height || window.innerHeight);
               const height = Math.max(242, Math.min(310, viewport * 0.36));
               productGallery.style.height = height + "px";
             };
@@ -8211,7 +8217,7 @@
 }
 @media (max-width: 768px) {
   body.mobile-product-flow-active .product-gallery {
-    height: clamp(280px, 42dvh, 360px);
+    height: clamp(280px, 42svh, 360px);
   }
   body.mobile-product-flow-active .gallery-main svg,
   body.mobile-product-flow-active .gallery-main img {
