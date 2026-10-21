@@ -2416,6 +2416,21 @@
 </style>
   <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
       <style id="home-polish">
+      /* ردیف دسته‌ها: آیکن‌های خطی یکدست، کاشی خاکستری روشن، بدون حرکت و سایه */
+      .categories-section { padding: 14px 20px; box-shadow: none; }
+      .category-item { gap: 8px; }
+      .category-circle { width: 60px; height: 60px; border-radius: 16px; background: #f4f6f9; box-shadow: none; animation: none; border: 1px solid transparent; }
+      .category-icon-image { width: 32px; height: 32px; flex-basis: 32px; }
+      .category-title { font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+      .category-item:nth-child(n) .category-circle { background: #f4f6f9; box-shadow: none; }
+      .category-item:nth-child(n):hover .category-circle { background: var(--blue-light); border-color: var(--blue-mid, #bfdbfe); box-shadow: none; transform: none; }
+      .category-item:nth-child(n):hover .category-title { color: var(--blue); }
+      @media (max-width: 768px) {
+        .category-circle { width: 52px; height: 52px; border-radius: 14px; }
+        .category-icon-image { width: 28px; height: 28px; flex-basis: 28px; }
+        .category-title { font-size: 11.5px; }
+      }
+
       /* ریتم یکدست فاصله‌ها: ۳۲px بین بخش‌ها در دسکتاپ و ۲۴px در موبایل */
       .page-body { padding-top: 20px; padding-bottom: 8px; }
       .hero-section { margin-bottom: 24px; }
@@ -2845,23 +2860,23 @@
       <!-- ═══ CATEGORY ICONS ═══ -->
       <section class="categories-section">
         <a href="/mobiles" class="category-item">
-          <div class="category-circle"><img class="category-icon-image" src="/images/categories/mobiles.webp" width="64" height="64" alt="آیکون موبایل"></div>
+          <div class="category-circle"><img class="category-icon-image" src="/images/categories/menu-mobile.png" width="50" height="50" alt="آیکون موبایل"></div>
           <span class="category-title">موبایل</span>
         </a>
         <a href="/tablets" class="category-item">
-          <div class="category-circle"><img class="category-icon-image" src="/images/categories/tablets.webp" width="64" height="64" alt="آیکون تبلت"></div>
+          <div class="category-circle"><img class="category-icon-image" src="/images/categories/menu-tablet.png" width="50" height="50" alt="آیکون تبلت"></div>
           <span class="category-title">تبلت</span>
         </a>
         <a href="/headphones" class="category-item">
-          <div class="category-circle"><img class="category-icon-image" src="/images/categories/headphones.webp" width="64" height="64" alt="آیکون هدفون"></div>
+          <div class="category-circle"><img class="category-icon-image" src="/images/categories/menu-headphone.png" width="50" height="50" alt="آیکون هدفون"></div>
           <span class="category-title">هدفون</span>
         </a>
         <a href="/console" class="category-item">
-          <div class="category-circle"><img class="category-icon-image" src="/images/categories/console.webp" width="64" height="64" alt="آیکون کنسول بازی"></div>
+          <div class="category-circle"><img class="category-icon-image" src="/images/categories/menu-console.png" width="50" height="50" alt="آیکون کنسول بازی"></div>
           <span class="category-title">کنسول بازی</span>
         </a>
         <a href="/smartwatches" class="category-item">
-          <div class="category-circle"><img class="category-icon-image" src="/images/categories/smartwatches.webp" width="64" height="64" alt="آیکون ساعت هوشمند"></div>
+          <div class="category-circle"><img class="category-icon-image" src="/images/categories/menu-watch.png" width="50" height="50" alt="آیکون ساعت هوشمند"></div>
           <span class="category-title">ساعت هوشمند</span>
         </a>
       </section>
