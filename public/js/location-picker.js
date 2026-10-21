@@ -11,7 +11,13 @@
     ".plloc-status{font-size:12.5px;line-height:1.9;color:#166534}" +
     ".plloc-status.error{color:#b91c1c}" +
     ".plloc-status a{color:#1d4ed8;font-weight:700;text-decoration:underline}" +
-    ".plloc-status button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:#b91c1c;cursor:pointer;text-decoration:underline}";
+    ".plloc-status button{border:0;background:none;padding:0;font:inherit;font-weight:700;color:#b91c1c;cursor:pointer;text-decoration:underline}" +
+    ".plloc-help{color:#7a2e0e;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px}" +
+    ".plloc-help strong{display:block;margin-bottom:4px;font-size:13px}" +
+    ".plloc-help ol{margin:6px 18px 8px 0;padding:0}" +
+    ".plloc-help li{margin-bottom:2px}" +
+    ".plloc-help .plloc-retry{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 12px;border:1.5px solid #fdba74;border-radius:9px;background:#fff;color:#c2410c;font-weight:700;text-decoration:none}" +
+    ".plloc-note{font-size:12px;color:#92400e;background:#fffbeb;border-radius:8px;padding:6px 10px;margin-top:4px}";
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
@@ -23,7 +29,7 @@
   function mount(container) {
     container.innerHTML =
       '<div class="plloc"><div class="plloc-text"><strong>موقعیت روی نقشه (GPS) <small>— اختیاری</small></strong>' +
-      "<p>با ثبت موقعیت، پیک آدرس شما را دقیق‌تر پیدا می‌کند. فقط با اجازهٔ شما گرفته می‌شود و همراه همین آدرس ذخیره می‌شود؛ می‌توانید هر زمان حذفش کنید.</p></div>" +
+      "<p>با ثبت موقعیت، پیک آدرس شما را دقیق‌تر پیدا می‌کند. فقط با اجازهٔ شما گرفته می‌شود و همراه همین آدرس ذخیره می‌شود؛ می‌توانید هر زمان حذفش کنید. برای ثبت، <b>GPS (موقعیت) گوشی باید روشن باشد</b>.</p></div>" +
       '<button type="button" class="plloc-btn"><i class="ti ti-current-location"></i><span>ثبت موقعیت فعلی من</span></button>' +
       '<div class="plloc-status" hidden></div></div>';
     var btn = container.querySelector(".plloc-btn");
@@ -31,21 +37,36 @@
     var status = container.querySelector(".plloc-status");
     var loc = null;
 
-    function render(error) {
-      status.className = "plloc-status" + (error ? " error" : "");
-      if (error) { status.textContent = error; status.hidden = false; }
+    var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
+    // راهنمای روشن‌کردن GPS گوشی یا اجازهٔ مرورگر؛ مرورگر نمی‌تواند GPS را خودش روشن کند، پس مرحله‌به‌مرحله راهنمایی می‌کنیم.
+    function helpHtml(kind) {
+      var steps = isIos
+        ? "<li>برنامهٔ «تنظیمات» ← «حریم خصوصی و امنیت» ← «خدمات مکانی» را روشن کنید.</li><li>در همان صفحه برای مرورگر (Safari یا Chrome) گزینهٔ «هنگام استفاده از برنامه» را بزنید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>"
+        : "<li>نوار اعلان گوشی را پایین بکشید و آیکن «موقعیت مکانی / Location» را روشن کنید.</li><li>اگر مرورگر اجازه نخواست: روی قفل کنار آدرس سایت بزنید ← «مجوزها» ← «موقعیت» را روی «اجازه» بگذارید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>";
+      var title = kind === "timeout" ? "دریافت موقعیت طول کشید" : kind === "insecure" ? "موقعیت‌یابی فقط روی اتصال امن (https) کار می‌کند" : "موقعیت (GPS) گوشی شما خاموش است یا دسترسی داده نشده";
+      return '<div class="plloc-help"><strong>' + title + "</strong>" + (kind === "insecure" ? "" : "<ol>" + steps + "</ol>") +
+        '<a href="#" class="plloc-retry" data-plloc-retry><i class="ti ti-current-location"></i> تلاش دوباره</a></div>';
+    }
+    function render(error, helpKind) {
+      status.className = "plloc-status" + (error || helpKind ? " error" : "");
+      if (helpKind) { status.innerHTML = helpHtml(helpKind); status.hidden = false; }
+      else if (error) { status.textContent = error; status.hidden = false; }
       else if (loc) {
         status.innerHTML = "✓ موقعیت ثبت شد" + (loc.accuracy ? " (دقت حدود " + fa(loc.accuracy) + " متر)" : "") +
-          ' · <a href="' + mapUrl(loc) + '" target="_blank" rel="noopener">مشاهده روی نقشه</a> · <button type="button" data-plloc-clear>حذف</button>';
+          ' · <a href="' + mapUrl(loc) + '" target="_blank" rel="noopener">مشاهده روی نقشه</a> · <button type="button" data-plloc-clear>حذف</button>' +
+          (loc.accuracy > 500 ? '<div class="plloc-note">دقت موقعیت پایین است. برای دقت بیشتر GPS گوشی را روشن کنید و دوباره «به‌روزرسانی موقعیت» را بزنید.</div>' : "");
         status.hidden = false;
       } else { status.hidden = true; status.textContent = ""; }
       label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من";
     }
     status.addEventListener("click", function (event) {
       if (event.target.closest("[data-plloc-clear]")) { loc = null; render(); }
+      if (event.target.closest("[data-plloc-retry]")) { event.preventDefault(); locate(); }
     });
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", locate);
+    function locate() {
       if (!navigator.geolocation) return render("مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند.");
+      if (window.isSecureContext === false) return render("", "insecure");
       btn.disabled = true;
       label.textContent = "در حال دریافت موقعیت...";
       navigator.geolocation.getCurrentPosition(
@@ -60,16 +81,13 @@
         },
         function (error) {
           btn.disabled = false;
-          var text = error && error.code === 1
-            ? "اجازهٔ دسترسی به موقعیت داده نشد. می‌توانید بدون آن ادامه دهید یا اجازه را در تنظیمات مرورگر فعال کنید."
-            : error && error.code === 3
-              ? "دریافت موقعیت طول کشید. دوباره تلاش کنید یا بدون آن ادامه دهید."
-              : "موقعیت شما در دسترس نیست. می‌توانید بدون آن ادامه دهید.";
-          render(text);
+          label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من";
+          // کد ۱ (اجازه/GPS خاموش) و ۲ (موقعیت در دسترس نیست): راهنمای روشن‌کردن GPS؛ کد ۳: زمان‌بر
+          render("", error && error.code === 3 ? "timeout" : "off");
         },
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
       );
-    });
+    }
     render();
     return {
       get: function () { return loc ? { lat: loc.lat, lng: loc.lng, accuracy: loc.accuracy } : null; },
