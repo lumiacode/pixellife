@@ -366,12 +366,12 @@ const PROFILE_DROPDOWN_LAYER_FIX = `
 const SHARED_CATEGORY_HEAD = `
 <link rel="stylesheet" href="/css/shared-category-nav.css?v=3" />`;
 const SHARED_CATEGORY_SCRIPT = `
-<script src="/js/shared-category-nav.js?v=5"></script>`;
+<script src="/js/shared-category-nav.js?v=6"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=14" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=15" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=16"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=17"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
@@ -685,6 +685,13 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 
 // تکمیل پروفایل اجباری (نام، نام خانوادگی، آدرس) پیش از خرید: public/js/profile-gate.js
 // پیشنهاد جستجو هنگام تایپ در نوار جستجوی هدر: public/js/search-suggest.js
+// داده‌های مشترک دسته‌بندی‌ها (مگامنوی دسکتاپ + کشوی موبایل): public/js/category-data.js، باید پیش از اسکریپت‌های دسته‌بندی بیاید.
+function injectCategoryData(html) {
+  if (!html || html.includes("category-data.js") || !html.includes("</head>")) return html;
+  if (!html.includes("nav-cats-wrap") && !html.includes('class="header"') && !html.includes("mobile-bottom-nav")) return html;
+  return html.replace("</head>", '<script src="/js/category-data.js?v=1"></script>\n</head>');
+}
+
 function injectSearchSuggest(html) {
   if (!html || html.includes("search-suggest.js") || !html.includes('id="searchInput"') || !html.includes("</body>")) return html;
   return html.replace("</body>", '<script src="/js/search-suggest.js" defer></script>\n</body>');
@@ -734,7 +741,7 @@ function injectEnamad(html) {
     const trustOpen = /(<div[^>]*class=["'][^"']*\bfooter-trust\b[^"']*["'][^>]*>)/i;
     html = html.replace(trustOpen, `$1\n<p class="footer-trust-text">${FOOTER_TRUST_TEXT}</p>`);
   }
-  return injectSearchSuggest(injectProfileGate(injectHeaderAutohide(injectAboutSite(html))));
+  return injectCategoryData(injectSearchSuggest(injectProfileGate(injectHeaderAutohide(injectAboutSite(html)))));
 }
 
 function injectSharedCategoryNav(html) {
