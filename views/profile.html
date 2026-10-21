@@ -543,24 +543,6 @@
         background: var(--blue-light);
         border-color: var(--blue);
       }
-      .addr-checkout-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        margin-bottom: 12px;
-        padding: 12px 18px;
-        border-radius: var(--radius-sm);
-        background: var(--blue);
-        color: #fff;
-        font-weight: 700;
-        text-decoration: none;
-      }
-      .addr-checkout-btn:hover {
-        background: var(--blue-dark);
-        color: #fff;
-      }
 
       .addr-card {
         border: 1.5px solid var(--border);
@@ -963,9 +945,6 @@
           <!-- ── آدرس‌ها ── -->
           <section class="p-pane" id="pane-addresses">
             <h2 class="p-main-title">آدرس‌های من</h2>
-            <a class="addr-checkout-btn" id="addressCheckoutBtn" href="/cart" hidden>
-              <i class="ti ti-credit-card"></i> بازگشت به پرداخت
-            </a>
             <button class="addr-add-btn" id="addAddressBtn">
               <i class="ti ti-plus"></i> افزودن آدرس جدید
             </button>
@@ -1671,11 +1650,6 @@
       const addrModal = document.getElementById("addrModal");
       const addrForm = document.getElementById("addrForm");
       const addrMsg = document.getElementById("addrMsg");
-      const checkoutReturn = new URLSearchParams(window.location.search).get("return");
-      const addressCheckoutBtn = document.getElementById("addressCheckoutBtn");
-      if (checkoutReturn === "/cart") {
-        addressCheckoutBtn.hidden = false;
-      }
 
       function openAddrModal(address) {
         hideMsg(addrMsg);
@@ -1799,10 +1773,6 @@
           }
           closeAddrModal();
           loadAddresses();
-          if (checkoutReturn === "/cart") {
-            addressCheckoutBtn.hidden = false;
-            addressCheckoutBtn.textContent = "بازگشت به پرداخت";
-          }
         } catch (err) {
           showMsg(addrMsg, err.message || "ذخیره آدرس انجام نشد.", "error");
         } finally {
