@@ -253,7 +253,7 @@ router.get("/bestsellers", async (req, res) => {
     if (bestsellersCache.payload && bestsellersCache.expiresAt > Date.now()) return res.json(bestsellersCache.payload);
     const since = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
     const rows = await Order.aggregate([
-      { $match: { paymentStatus: "paid", status: { $ne: "cancelled" }, createdAt: { $gte: since } } },
+      { $match: { paymentStatus: "paid", status: { $nin: ["cancelled", "returned"] }, createdAt: { $gte: since } } },
       { $unwind: "$items" },
       { $group: { _id: "$items.product", sold: { $sum: "$items.quantity" } } },
       { $sort: { sold: -1 } },

@@ -605,6 +605,7 @@
       .badge-unpaid { background: #fff6e0; color: #8a5a00; }
       .badge-info { background: var(--blue-light); color: var(--blue-dark); }
       .badge-cancelled { background: #fdecee; color: #b4232f; }
+      .badge-returned { background: #f1eafd; color: #5b32a8; }
       .orders-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
       .orders-head .p-main-title { margin: 0; }
       .orders-search-btn { width: 38px; height: 38px; border: 0; border-radius: 50%; background: transparent; color: var(--text-2); font-size: 20px; cursor: pointer; }
@@ -903,6 +904,7 @@
               <div class="orders-tabs" id="ordersTabs" role="tablist">
                 <button type="button" role="tab" data-orders-tab="active" class="active">جاری <span class="cnt" data-count="active">۰</span></button>
                 <button type="button" role="tab" data-orders-tab="delivered">تحویل‌شده <span class="cnt" data-count="delivered">۰</span></button>
+                <button type="button" role="tab" data-orders-tab="returned">مرجوع‌شده <span class="cnt" data-count="returned">۰</span></button>
                 <button type="button" role="tab" data-orders-tab="cancelled">لغو‌شده <span class="cnt" data-count="cancelled">۰</span></button>
               </div>
             </div>
@@ -1265,8 +1267,8 @@
         loadWishlist();
       });
 
-      const orderStatusText = { awaiting_payment: "در انتظار پرداخت", processing: "در حال پردازش", shipped: "ارسال‌شده", delivered: "تحویل‌شده", cancelled: "لغو شده" };
-      const orderBadgeClass = { awaiting_payment: "badge-unpaid", processing: "badge-info", shipped: "badge-info", delivered: "badge-paid", cancelled: "badge-cancelled" };
+      const orderStatusText = { awaiting_payment: "در انتظار پرداخت", processing: "در حال پردازش", shipped: "ارسال‌شده", delivered: "تحویل‌شده", cancelled: "لغو شده", returned: "مرجوع شده" };
+      const orderBadgeClass = { awaiting_payment: "badge-unpaid", processing: "badge-info", shipped: "badge-info", delivered: "badge-paid", cancelled: "badge-cancelled", returned: "badge-returned" };
       const paymentStatusText = { unpaid: "در انتظار پرداخت", paid: "پرداخت‌شده", failed: "پرداخت ناموفق" };
       const paymentBanners = {
         success: ["success", "ti-circle-check", "پرداخت با موفقیت انجام شد و سفارش شما در حال پردازش است."],
@@ -1306,7 +1308,7 @@
         const t = order.tracking || { steps: [], percent: 0, currentLabel: "", cancelled: false, paid: order.paymentStatus === "paid" };
         const address = order.shippingAddress || {};
         const fullAddress = [address.province, address.city, address.fullAddress].filter(Boolean).join("، ");
-        const labelClass = t.cancelled ? "cancelled" : (t.paid ? "" : "pending");
+        const labelClass = (t.cancelled || t.returned) ? "cancelled" : (t.paid ? "" : "pending");
         const steps = (t.steps || []).map((step) => `<li class="${step.done ? "done" : ""}"><i class="ti ${step.done ? "ti-check" : ""}"></i><span>${escapeHtml(step.label)}${step.done && step.at ? `<small>${fmtDate(step.at, { dateStyle: "short", timeStyle: "short" })}</small>` : ""}</span></li>`).join("");
         const items = (order.items || []).map((item) => {
           const meta = [item.color, item.storage, item.warranty].filter(Boolean).map(escapeHtml).join(" · ");
@@ -1324,7 +1326,7 @@
             <div class="od-ship-head"><span>مرسوله ۱ از ۱</span>${order.shippingMethod && order.shippingMethod.title ? `<span class="od-pill">${escapeHtml(order.shippingMethod.title)}</span>` : ""}</div>
             <div class="od-progress">
               <div class="od-progress-label ${labelClass}">${escapeHtml(t.currentLabel || orderStatusText[order.status] || "")}</div>
-              <div class="od-bar ${t.cancelled ? "cancelled" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${t.cancelled ? 100 : t.percent}"><span data-percent="${t.cancelled ? 100 : t.percent}"></span></div>
+              <div class="od-bar ${(t.cancelled || t.returned) ? "cancelled" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${(t.cancelled || t.returned) ? 100 : t.percent}"><span data-percent="${(t.cancelled || t.returned) ? 100 : t.percent}"></span></div>
               <ol class="od-steps">${steps}</ol>
             </div>
             <div class="od-money"><span><span class="od-label">مبلغ مرسوله</span><b>${money(order.subtotal)}</b></span><span><span class="od-label">هزینه ارسال</span><b>${Number(order.deliveryFee) ? money(order.deliveryFee) : "رایگان"}</b></span></div>
@@ -1341,9 +1343,10 @@
       const ORDER_TAB_FILTERS = {
         active: (order) => ["awaiting_payment", "processing", "shipped"].includes(order.status),
         delivered: (order) => order.status === "delivered",
+        returned: (order) => order.status === "returned",
         cancelled: (order) => order.status === "cancelled",
       };
-      const ordersEmptyTexts = { active: "سفارش جاری ندارید.", delivered: "هنوز سفارشی تحویل داده نشده است.", cancelled: "سفارش لغو‌شده‌ای ندارید." };
+      const ordersEmptyTexts = { active: "سفارش جاری ندارید.", delivered: "هنوز سفارشی تحویل داده نشده است.", returned: "سفارش مرجوع‌شده‌ای ندارید.", cancelled: "سفارش لغو‌شده‌ای ندارید." };
       const faDigits = (value) => String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
       function cancelReason(order) {
         const entry = [...(order.statusHistory || [])].reverse().find((item) => item.status === "cancelled");
@@ -1385,8 +1388,8 @@
         const thumbs = (order.items || []).slice(0, 4).map((item) => `<img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}" onerror="this.style.visibility='hidden'">`).join("");
         const extra = (order.items || []).length - 4;
         const tracking = order.tracking || {};
-        const trackingLabel = tracking.paid && !tracking.cancelled ? `<span class="addr-card-text">${escapeHtml(tracking.currentLabel)}</span>` : "";
-        const progress = tracking.paid && !tracking.cancelled ? `<div class="od-card-progress" title="${escapeHtml(tracking.currentLabel)}"><span style="width:${tracking.percent}%"></span></div>` : "";
+        const trackingLabel = tracking.paid && !tracking.cancelled && !tracking.returned ? `<span class="addr-card-text">${escapeHtml(tracking.currentLabel)}</span>` : "";
+        const progress = tracking.paid && !tracking.cancelled && !tracking.returned ? `<div class="od-card-progress" title="${escapeHtml(tracking.currentLabel)}"><span style="width:${tracking.percent}%"></span></div>` : "";
         const reason = order.status === "cancelled" && cancelReason(order) ? `<div class="order-cancel-note">${escapeHtml(cancelReason(order))}</div>` : "";
         return `<div class="addr-card-top"><div class="addr-card-title"><i class="ti ti-package"></i> سفارش <span dir="ltr">${escapeHtml(order.orderNumber)}</span></div><span class="addr-badge ${orderBadgeClass[order.status] || ""}">${orderStatusText[order.status] || escapeHtml(order.status)}</span></div><div class="order-thumbs">${thumbs}${extra > 0 ? `<span class="more">+${extra.toLocaleString("fa-IR")}</span>` : ""}</div><div class="addr-card-text">${itemCount.toLocaleString("fa-IR")} کالا · ${date}</div>${progress}<div class="order-card-foot"><span class="order-total">${Number(order.total || 0).toLocaleString("fa-IR")} تومان</span>${trackingLabel}</div>${pendingPayBox(order)}${reason}`;
       }

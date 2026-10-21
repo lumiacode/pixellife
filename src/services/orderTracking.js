@@ -52,8 +52,8 @@ function applyTrackingSteps(order, requestedKeys, now = new Date()) {
     error.statusCode = 400;
     throw error;
   }
-  if (order.status === "cancelled") {
-    const error = new Error("سفارش لغوشده روند ارسال ندارد");
+  if (order.status === "cancelled" || order.status === "returned") {
+    const error = new Error("سفارش لغوشده یا مرجوع‌شده روند ارسال ندارد");
     error.statusCode = 400;
     throw error;
   }
@@ -85,18 +85,20 @@ function trackingView(order) {
   const done = new Map((order.trackingSteps || []).map((step) => [step.key, step.at]));
   const paid = isPaid(order);
   const cancelled = order.status === "cancelled";
+  const returned = order.status === "returned";
   const steps = TRACKING_STEPS.map((step) => {
     if (step.key === "placed") return { key: step.key, label: step.label, done: paid, at: paid ? (order.zarinpal && order.zarinpal.paidAt) || (order.balePayment && order.balePayment.paidAt) || order.updatedAt || order.createdAt : null };
-    return { key: step.key, label: step.label, done: paid && !cancelled && done.has(step.key), at: done.get(step.key) || null };
+    return { key: step.key, label: step.label, done: paid && !cancelled && !returned && done.has(step.key), at: done.get(step.key) || null };
   });
   const completed = steps.filter((step) => step.done).length;
   const percent = Math.round((completed / steps.length) * 100);
   let currentLabel;
   if (cancelled) currentLabel = "سفارش لغو شد";
+  else if (returned) currentLabel = "سفارش مرجوع شد";
   else if (!paid) currentLabel = "در انتظار پرداخت";
   else if (completed === steps.length) currentLabel = "تحویل مرسوله به مشتری";
   else currentLabel = STATUS_LABELS[Math.min(completed, STATUS_LABELS.length) - 1] || STATUS_LABELS[0];
-  return { steps, completed, total: steps.length, percent, currentLabel, cancelled, paid };
+  return { steps, completed, total: steps.length, percent, currentLabel, cancelled, returned, paid };
 }
 
 module.exports = { TRACKING_STEPS, ADMIN_STEP_KEYS, normalizeStepKeys, applyTrackingSteps, syncStepsWithStatus, trackingView, statusForSteps };

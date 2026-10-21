@@ -25,7 +25,7 @@ const orderSchema = new mongoose.Schema(
     discount: { type: Number, default: 0, min: 0 }, total: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, enum: ["online", "bale"], default: "online" },
     paymentStatus: { type: String, enum: ["unpaid", "paid", "failed"], default: "unpaid" },
-    status: { type: String, enum: ["awaiting_payment", "processing", "shipped", "delivered", "cancelled"], default: "awaiting_payment", index: true },
+    status: { type: String, enum: ["awaiting_payment", "processing", "shipped", "delivered", "cancelled", "returned"], default: "awaiting_payment", index: true },
     statusHistory: [{ _id: false, status: String, note: String, changedAt: { type: Date, default: Date.now } }],
     // مرحله‌های روند ارسال که ادمین تیک زده است (به ترتیب: confirmed، packed، shipped، delivered)
     trackingSteps: [{ _id: false, key: { type: String, required: true }, at: { type: Date, default: Date.now } }],

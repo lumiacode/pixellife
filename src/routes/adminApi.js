@@ -994,12 +994,14 @@ router.get("/orders", async (req, res) => {
 
 router.patch("/orders/:id/status", async (req, res) => {
   try {
-    const allowed = ["awaiting_payment", "processing", "shipped", "delivered", "cancelled"];
+    const allowed = ["awaiting_payment", "processing", "shipped", "delivered", "cancelled", "returned"];
     const status = String(req.body.status || "");
     if (!allowed.includes(status)) return res.status(400).json({ success: false, message: "وضعیت سفارش معتبر نیست" });
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
-    order.status = status; order.statusHistory.push({ status, note: "وضعیت توسط ادمین تغییر کرد" });
+    // مرجوعی فقط برای سفارشی معنا دارد که پرداخت شده است.
+    if (status === "returned" && order.paymentStatus !== "paid") return res.status(400).json({ success: false, message: "فقط سفارش پرداخت‌شده را می‌توان مرجوع کرد" });
+    order.status = status; order.statusHistory.push({ status, note: status === "returned" ? "سفارش مرجوع شد" : "وضعیت توسط ادمین تغییر کرد" });
     // مرحله‌های روند ارسال با وضعیت کلی هماهنگ می‌شوند.
     syncStepsWithStatus(order, status);
     await order.save();

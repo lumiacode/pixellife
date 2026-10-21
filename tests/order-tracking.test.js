@@ -30,6 +30,9 @@ assert.throws(() => tracking.applyTrackingSteps(mkOrder({ status: "cancelled" })
 const unpaid = tracking.trackingView(mkOrder({ paymentStatus: "unpaid", status: "awaiting_payment" }));
 assert.strictEqual(unpaid.completed, 0); assert.strictEqual(unpaid.currentLabel, "در انتظار پرداخت");
 assert.strictEqual(tracking.trackingView(mkOrder({ status: "cancelled" })).currentLabel, "سفارش لغو شد");
+assert.strictEqual(tracking.trackingView(mkOrder({ status: "returned" })).currentLabel, "سفارش مرجوع شد");
+assert.strictEqual(tracking.trackingView(mkOrder({ status: "returned" })).returned, true);
+assert.throws(() => tracking.applyTrackingSteps(mkOrder({ status: "returned" }), ["confirmed"]), /مرجوع/);
 
 // هماهنگی با لیست کشویی وضعیت
 o = mkOrder();
