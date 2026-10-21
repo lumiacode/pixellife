@@ -524,7 +524,7 @@ const SHARED_FOOTER_HTML = (() => {
     return "";
   }
 })();
-const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html"]);
+const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html", "amazing.html"]);
 const FOOTER_PATTERN = /<footer\b[^>]*class="[^"]*\bfooter\b[^"]*"[^>]*>[\s\S]*?<\/footer>/i;
 
 // ظاهر تیرهٔ فوتر (public/css/footer-v2.css) و بخش اختیاری پشتیبانی (views/partials/footer-support.html).
@@ -569,7 +569,7 @@ const SHARED_MINICART_STYLE = (() => {
   }
 })();
 
-const SHARED_MINICART_PAGES = new Set(["samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "profile.html"]);
+const SHARED_MINICART_PAGES = new Set(["samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "profile.html", "amazing.html"]);
 
 function injectSharedMiniCart(html, fileName) {
   if (!html || !SHARED_MINICART_STYLE || !SHARED_MINICART_PAGES.has(fileName) || !html.includes('class="cart-wrap"') || html.includes("shared-minicart.js")) return html;
