@@ -6,6 +6,14 @@
   window.__plProfileGate = true;
   var KEY = "pl_profile_gate_checked";
 
+  // کلیک روی نام کاربر در منوی پروفایل هدر، صفحهٔ پروفایل را باز می‌کند.
+  var headerStyle = document.createElement("style");
+  headerStyle.textContent = ".pdrop-header{cursor:pointer}.pdrop-header:hover{background:#eef4ff}";
+  document.head.appendChild(headerStyle);
+  document.addEventListener("click", function (event) {
+    if (event.target.closest(".pdrop-header")) location.href = "/profile";
+  });
+
   function storedUser() {
     try { return JSON.parse(localStorage.getItem("user") || "null"); } catch (e) { return null; }
   }
