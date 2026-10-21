@@ -417,15 +417,6 @@
 .nav-cats-icon-image { width: 24px; height: 24px; display: block; flex: 0 0 24px; object-fit: contain; }
 
 /* ───────── طراحی مگامنو: نوار تیره، ستون دسته‌ها با نوار شاخص، ستون‌های جداشده ───────── */
-.navbar {
-  background: #1f2328 !important;
-  border-bottom: 0 !important;
-}
-.nav-link { color: rgba(255,255,255,.82) !important; }
-.nav-link:hover, .nav-link.active { color: #fff !important; border-bottom-color: #60a5fa !important; }
-.nav-cats { color: #fff !important; }
-.nav-cats:hover, .nav-cats.active { color: #93c5fd !important; border-bottom-color: #60a5fa !important; }
-
 .megamenu-panel {
   width: 940px !important;
   border: 0 !important;
@@ -501,4 +492,46 @@
   .megamenu-panel { width: 100% !important; border-radius: 0 !important; }
   .megamenu-cats { width: 100% !important; min-width: 0 !important; flex-basis: auto !important; padding: 6px 0 !important; border-left: 0 !important; }
   .megamenu-group { padding: 0 !important; border-left: 0 !important; margin-bottom: 12px !important; }
+}
+
+/* ───────── هدر و نوار منوی سبک‌تر: سفید، کم‌ارتفاع، بدون دکمهٔ آبی ───────── */
+.navbar { background: var(--white) !important; border-bottom: 1px solid var(--border) !important; }
+.nav-link { font-weight: 500 !important; color: var(--text-2) !important; }
+.nav-link i { display: none !important; }
+.nav-cats .nav-cats-icon-image { width: 20px !important; height: 20px !important; flex-basis: 20px !important; }
+
+/* جستجو: فقط یک کادر؛ آیکن ذره‌بین داخل کادر و کلید Enter */
+.search-bar { height: 40px !important; }
+.search-bar .search-btn {
+  order: -1 !important;
+  padding: 0 4px 0 14px !important;
+  background: transparent !important;
+  color: var(--text-3) !important;
+  font-size: 0 !important;
+  gap: 0 !important;
+}
+.search-bar .search-btn i { font-size: 19px !important; }
+.search-bar .search-btn:hover, .search-bar:focus-within .search-btn { color: var(--blue) !important; background: transparent !important; }
+.search-bar input { padding: 0 6px 0 16px !important; font-size: 13.5px !important; }
+
+/* کادر پروفایل: بدون حاشیه و پس‌زمینهٔ آبی */
+.profile-trigger {
+  padding: 4px 8px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--text-2) !important;
+  gap: 8px !important;
+}
+.profile-trigger:hover, .profile-trigger.open { background: #f3f4f6 !important; color: var(--text-1) !important; border: 0 !important; }
+.profile-trigger .profile-avatar { width: 28px !important; height: 28px !important; }
+.profile-trigger .profile-avatar svg { width: 15px !important; height: 15px !important; }
+.profile-trigger-name { font-size: 13px !important; font-weight: 600 !important; max-width: 120px !important; }
+
+@media (min-width: 769px) {
+  .header-inner { height: 60px !important; }
+  .header .logo-mark { width: 34px !important; height: 34px !important; }
+  .header .logo-text { font-size: 20px !important; }
+  .navbar { top: 61px !important; }
+  .navbar-inner { height: 40px !important; min-height: 40px !important; }
+  .nav-link, .nav-cats { font-size: 13px !important; }
 }

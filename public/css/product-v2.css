@@ -87,3 +87,5 @@ html body .product-desc-toggle { display: block; width: 100%; margin: 0 0 18px; 
 }
 html body .product-desc.is-clamped { display: -webkit-box !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 3 !important; line-clamp: 3 !important; overflow: hidden !important; }
 html body .product-desc.is-clamped { padding-bottom: 0 !important; }
+
+@media (min-width: 769px) { html body .desktop-purchase-card { top: 117px !important; } }
