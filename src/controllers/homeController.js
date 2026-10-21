@@ -670,6 +670,25 @@ const ABOUT_SITE_STYLE = `<style id="pl-about-site-style">
 </style>`;
 const ABOUT_SITE_SCRIPT = `<script>(function(){var s=document.getElementById("plAboutSite");if(!s)return;var t=s.querySelector(".pl-about-site__text"),b=s.querySelector(".pl-about-site__toggle");if(!t||!b)return;b.addEventListener("click",function(){var o=s.classList.toggle("is-open");t.style.maxHeight=o?t.scrollHeight+"px":"";b.textContent=o?"بستن":"مشاهده بیشتر";b.setAttribute("aria-expanded",o?"true":"false");});})();</script>`;
 
+// نوار بالای سایت با اسکرول به پایین پنهان و با اسکرول به بالا نمایان می‌شود (public/js/header-autohide.js).
+const HEADER_AUTOHIDE_STYLE = `<style id="pl-header-autohide-style">
+.header,.navbar{transition:transform .28s ease}
+html.pl-hdr-hidden .header{transform:translateY(-100%);box-shadow:none}
+html.pl-hdr-hidden .navbar{transform:translateY(calc(-1 * var(--pl-hide-y,120px)));pointer-events:none}
+html.pl-hdr-hidden .header{pointer-events:none}
+html.pl-hdr-hidden .desktop-purchase-card{top:16px!important}
+html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-hidden body.mobile-product-flow-active .mobile-product-section-nav{top:0!important}
+.desktop-purchase-card,body.mobile-product-flow-active .product-gallery,body.mobile-product-flow-active .mobile-product-section-nav{transition:top .28s ease}
+@media (max-width:768px){html,body{overflow-x:clip!important}}
+@media (prefers-reduced-motion:reduce){.header,.navbar{transition:none}}
+</style>`;
+
+function injectHeaderAutohide(html) {
+  if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
+  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n</head>`);
+  return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n</body>') : html;
+}
+
 function injectAboutSite(html) {
   if (!html || !ABOUT_SITE_PARAGRAPHS.length || html.includes('id="plAboutSite"')) return html;
   // صفحه‌هایی که فوتر تیره ندارند، بلوک را انتهای صفحه (بعد از نمادهای اعتماد) می‌گیرند.
@@ -703,7 +722,7 @@ function injectEnamad(html) {
     const trustOpen = /(<div[^>]*class=["'][^"']*\bfooter-trust\b[^"']*["'][^>]*>)/i;
     html = html.replace(trustOpen, `$1\n<p class="footer-trust-text">${FOOTER_TRUST_TEXT}</p>`);
   }
-  return injectAboutSite(html);
+  return injectHeaderAutohide(injectAboutSite(html));
 }
 
 function injectSharedCategoryNav(html) {
