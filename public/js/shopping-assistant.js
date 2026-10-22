@@ -54,13 +54,39 @@
       document.head.appendChild(style);
     }
 
-    const toggle = add("button", { id: "plAssistantToggle", type: "button", title: "دستیار خرید هوشمند", ariaLabel: "باز کردن دستیار خرید هوشمند" });
+    const toggle = add("button", { id: "plAssistantToggle", type: "button", title: "خرید و پشتیبانی هوشمند", ariaLabel: "باز کردن دستیار خرید و پشتیبانی" });
     // آیکن حباب گفتگو با سه نقطه: دایرهٔ آبی با خطوط سفید (هم‌رنگ تم سایت).
     toggle.innerHTML = '<svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true" focusable="false"><path d="M19 15h26a7 7 0 0 1 7 7v18a7 7 0 0 1-7 7H37l-5 7-5-7h-8a7 7 0 0 1-7-7V22a7 7 0 0 1 7-7z" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"/><circle cx="23.5" cy="31" r="2.8" fill="#fff"/><circle cx="32" cy="31" r="2.8" fill="#fff"/><circle cx="40.5" cy="31" r="2.8" fill="#fff"/></svg>';
-    const panel = add("section", { id: "plAssistant", ariaLabel: "دستیار خرید PixelLife" });
-    panel.innerHTML = '<div class="pl-ai-head"><div class="pl-ai-title"><span>دستیار خرید PixelLife</span><small dir="rtl">قدرت گرفته از <bdi>OpenAI</bdi></small></div><button id="plAssistantClose" type="button" aria-label="بستن">×</button></div><div class="pl-ai-messages" id="plAssistantMessages"><div class="pl-ai-msg bot">سلام! برای انتخاب گوشی، تبلت یا کنسول مناسب راهنمایی‌تان می‌کنم. بودجه و کاربردتان را بنویسید.</div></div><form class="pl-ai-form" id="plAssistantForm"><input id="plAssistantInput" maxlength="800" autocomplete="off" placeholder="مثلاً گوشی مناسب بازی تا ۵۰ میلیون" /><button type="submit">ارسال</button></form>';
+    const panel = add("section", { id: "plAssistant", ariaLabel: "دستیار PixelLife" });
+    panel.innerHTML = '<div class="pl-ai-head"><div class="pl-ai-title"><span>دستیار خرید و پشتیبانی PixelLife</span><small dir="rtl">قدرت گرفته از <bdi>OpenAI</bdi></small></div><button id="plAssistantClose" type="button" aria-label="بستن">×</button></div><div class="pl-ai-messages" id="plAssistantMessages"><div class="pl-ai-msg bot">سلام! برای انتخاب گوشی، تبلت یا کنسول و همچنین سؤال دربارهٔ سفارش و پرداخت کمکتان می‌کنم.</div></div><form class="pl-ai-form" id="plAssistantForm"><input id="plAssistantInput" maxlength="800" autocomplete="off" placeholder="مثلاً گوشی مناسب بازی تا ۵۰ میلیون" /><button type="submit">ارسال</button></form>';
     document.body.append(toggle, panel);
     const input = document.getElementById("plAssistantInput"), messages = document.getElementById("plAssistantMessages");
+    const history = [];
+    const remember = (role, content) => { history.push({ role, content: String(content).slice(0, 800) }); if (history.length > 12) history.shift(); };
+    const offerHandoff = () => {
+      if (messages.querySelector(".pl-ai-handoff")) return;
+      const btn = add("button", { type: "button", className: "pl-ai-msg bot pl-ai-handoff" }, "ارسال به پشتیبان انسانی");
+      btn.style.cssText = "cursor:pointer;border:1px solid #93c5fd;background:#fff;color:#2563eb;font:700 12px Vazirmatn,Tahoma,sans-serif";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        const send = async (extra) => {
+          const r = await fetch("/api/ai/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ history, ...extra }) });
+          return { ok: r.ok, data: await r.json().catch(() => ({})) };
+        };
+        try {
+          let res = await send({});
+          if (!res.ok && res.data.needContact) {
+            const name = (prompt("نام و نام خانوادگی:") || "").trim();
+            const phone = (prompt("شمارهٔ تماس:") || "").trim();
+            if (!name || !phone) { btn.disabled = false; return; }
+            res = await send({ name, phone });
+          }
+          addMessage(res.data.message || (res.ok ? "درخواست ثبت شد." : "ثبت نشد؛ از صفحهٔ تماس با ما اقدام کنید."), "bot");
+          if (res.ok) btn.remove(); else btn.disabled = false;
+        } catch (_) { addMessage("ثبت نشد؛ از صفحهٔ تماس با ما اقدام کنید.", "bot"); btn.disabled = false; }
+      });
+      messages.appendChild(btn); messages.scrollTop = messages.scrollHeight;
+    };
     const addMessage = (text, kind) => { const el = add("div", { className: "pl-ai-msg " + kind }, text); messages.appendChild(el); messages.scrollTop = messages.scrollHeight; return el; };
     toggle.addEventListener("click", () => { const isOpen = panel.classList.toggle("open"); toggle.setAttribute("aria-expanded", String(isOpen)); if (isOpen) input.focus(); });
     document.getElementById("plAssistantClose").addEventListener("click", () => panel.classList.remove("open"));
@@ -72,14 +98,15 @@
     document.getElementById("plAssistantForm").addEventListener("submit", async (event) => {
       event.preventDefault(); const message = input.value.trim(); if (!message) return;
       addMessage(message, "user"); input.value = ""; input.disabled = true;
-      const pending = addMessage("در حال بررسی محصولات سایت…", "bot");
+      const pending = addMessage("در حال بررسی…", "bot");
       try {
-        const response = await fetch("/api/ai/shopping-assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
+        const response = await fetch("/api/ai/assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history }) });
         const data = await response.json(); pending.remove();
         if (!response.ok || !data.success) throw new Error(data.message || "خطا");
-        addMessage(data.answer, "bot");
+        addMessage(data.answer, "bot"); remember("user", message); remember("assistant", data.answer);
+        if (data.handoff) offerHandoff();
         if (data.products?.length) addMessage("محصولات مرتبط: " + data.products.slice(0, 3).map((p) => p.name).join("، "), "bot");
-      } catch (_) { pending.textContent = "متأسفانه در حال حاضر امکان پاسخ‌گویی وجود ندارد. لطفاً دوباره تلاش کنید."; }
+      } catch (error) { pending.textContent = error.message && error.message !== "خطا" ? error.message : "متأسفانه در حال حاضر امکان پاسخ‌گویی وجود ندارد. لطفاً دوباره تلاش کنید."; offerHandoff(); }
       input.disabled = false; input.focus();
     });
   };

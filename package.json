@@ -20,6 +20,7 @@
     "test:order-expiry": "node tests/order-expiry.test.js",
     "test:wallet": "node tests/wallet.test.js",
     "test:search-suggest": "node tests/search-suggest.test.js",
+    "test:ai-assistant": "node tests/ai-assistant.test.js",
     "prestart": "npm run test:product-page-contract"
   },
   "dependencies": {
