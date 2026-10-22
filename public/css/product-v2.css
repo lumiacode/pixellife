@@ -123,3 +123,34 @@ html body .gallery-actions #wishBtn:not(.active):hover { background: transparent
 @media (max-width: 768px) {
   html body .toast { white-space: nowrap !important; max-width: 92vw !important; bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important; z-index: 10050 !important; }
 }
+
+/* مشخصات فنی و بررسی تخصصی: ابتدا کوتاه و رو به محو‌شدن؛ با دکمهٔ «نمایش/بررسی کامل» باز می‌شوند (موبایل و دسکتاپ) */
+html body .collapsible-fade { position: relative; scroll-margin-top: 130px; }
+html body .collapsible-fade.is-collapsed { max-height: 360px; overflow: hidden; }
+html body .collapsible-fade.is-collapsed::after {
+  content: ""; position: absolute; right: 0; left: 0; bottom: 0; height: 170px; z-index: 1;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,.85) 55%, #fff 88%); pointer-events: none;
+}
+html body .collapsible-fade.is-collapsed .specs-toggle-btn,
+html body .collapsible-fade.is-collapsed .review-article-toggle {
+  position: absolute; bottom: 18px; left: 50%; right: auto; transform: translateX(-50%); z-index: 2; margin: 0 !important;
+}
+html body #fullSpecsSection .specs-toggle-btn,
+html body #productReviewSection .review-article-toggle {
+  width: auto !important; height: 42px !important; padding: 0 22px !important; border: 1.5px solid var(--blue) !important; border-radius: 999px !important;
+  background: #fff !important; color: var(--blue) !important; font-size: 13.5px !important; font-weight: 800 !important;
+  display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; cursor: pointer; text-decoration: none !important; white-space: nowrap;
+}
+html body #fullSpecsSection:not(.is-collapsed) .specs-toggle-btn,
+html body #productReviewSection:not(.is-collapsed) .review-article-toggle { display: flex !important; margin: 18px auto 0 !important; }
+@media (hover: hover) {
+  html body #fullSpecsSection .specs-toggle-btn:hover,
+  html body #productReviewSection .review-article-toggle:hover { background: var(--blue) !important; color: #fff !important; }
+}
+/* در حالت بسته، تمام بخش‌های بررسی دیده می‌شوند و فقط با ارتفاع بریده می‌شوند */
+html body #productReviewSection.is-collapsed .review-section--more { display: block; }
+html body #productReviewSection.is-collapsed .review-section-img--collapsed { display: block; }
+@media (max-width: 768px) {
+  html body .collapsible-fade.is-collapsed { max-height: 300px; }
+  html body .collapsible-fade.is-collapsed::after { height: 140px; }
+}

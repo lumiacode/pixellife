@@ -40,6 +40,7 @@
     const cleanClone = (node) => {
       const copy = node.cloneNode(true);
       copy.removeAttribute("id");
+      copy.classList.remove("collapsible-fade", "is-collapsed"); // در پنل کشویی محتوا کامل است
       // Keep page-only expansion controls out of the full-details panel.
       // Remove them before IDs are renamed for the cloned content.
       copy.querySelectorAll("#btnMoreSpecs, #specsToggleBtn, .btn-more-specs, .specs-toggle-btn, [data-product-details-sheet='specs']").forEach((item) => item.remove());

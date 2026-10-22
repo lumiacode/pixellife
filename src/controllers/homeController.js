@@ -375,7 +375,7 @@ const MOBILE_BOTTOM_NAV_SCRIPT = `
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
-<script src="/js/mobile-product-details-sheet.js?v=20260906-specs-panel"></script>`;
+<script src="/js/mobile-product-details-sheet.js?v=20261022-fade"></script>`;
 const HISTORY_SAFE_ANCHORS_SCRIPT = `
 <script src="/js/history-safe-anchors.js?v=1"></script>`;
 const BEHAVIOR_TRACKER_SCRIPT = `

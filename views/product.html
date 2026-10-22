@@ -6484,6 +6484,7 @@
           const reviewVerdict = String(product.reviewVerdict || "").trim();
           const reviewVerdictScore = Number.isFinite(product.reviewVerdictScore) ? product.reviewVerdictScore : null;
           const hasReviewContent = reviewArticle.length || reviewPros.length || reviewCons.length || reviewVerdict;
+          const reviewCollapsible = reviewArticle.length > 1 || Boolean(reviewVerdict) || reviewPros.length > 0 || reviewCons.length > 0;
           let demoReviews = [];
           // تابع دریافت نظرات از سرور واقعی
           async function fetchReviews() {
@@ -6708,7 +6709,7 @@
             }
           </div>
 
-                    ${technicalSpecGroups.length ? `<div class="section-block" id="fullSpecsSection">
+                    ${technicalSpecGroups.length ? `<div class="section-block${technicalSpecItemCount > 8 ? " collapsible-fade is-collapsed" : ""}" id="fullSpecsSection">
             <div class="section-heading"><i class="ti ti-list-details"></i> مشخصات فنی</div>
             ${(() => {
               let rowIndex = 0;
@@ -6717,7 +6718,8 @@
                 ${group.subtitle ? `<h4 class="specs-subgroup-title">${escapeSpecHtml(group.subtitle)}</h4>` : ""}
                 <div class="specs-table-wrap">
                   ${group.items.map((item) => {
-                    const hidden = rowIndex++ >= 8;
+                    rowIndex++;
+                    const hidden = false; // ردیف‌ها همه هستند؛ بخش با محو‌شدگی کوتاه می‌شود
                     return `<div class="specs-row${hidden ? " hidden-spec" : ""}">
                       <div class="specs-label"><i class="ti ${specIcon(item.label)}"></i>${escapeSpecHtml(item.label)}</div>
                       <div class="specs-value">${escapeSpecHtml(item.value)}</div>
@@ -6733,7 +6735,7 @@
             }
           </div>` : ""}
 
-          <div class="section-block" id="productReviewSection" style="display:${product.showReview && hasReviewContent ? "" : "none"}">
+          <div class="section-block${reviewCollapsible ? " collapsible-fade is-collapsed" : ""}" id="productReviewSection" style="display:${product.showReview && hasReviewContent ? "" : "none"}">
             <div class="section-heading"><i class="ti ti-article"></i> ${escapeCartText(product.reviewTitle || "بررسی تخصصی")}</div>
             <div class="review-article-nav review-article-nav--collapsed" id="reviewArticleNav">
               ${reviewArticle.map((s, i) => `<a class="review-nav-chip" href="#rev-sec-${i}">${s.title}</a>`).join("")}
@@ -6755,7 +6757,7 @@
               </div>`,
                           )
                           .join("")}
-            ${reviewArticle.length > 1 ? `<button type="button" class="review-article-toggle" id="reviewArticleToggle" aria-expanded="false"><i class="ti ti-chevron-down"></i> بررسی کامل محصول</button>` : ""}
+            ${reviewCollapsible ? `<button type="button" class="review-article-toggle" id="reviewArticleToggle" aria-expanded="false"><i class="ti ti-chevron-down"></i> بررسی کامل محصول</button>` : ""}
 
             ${reviewVerdict ? `
             <div class="review-section" id="rev-sec-verdict">
@@ -7400,33 +7402,28 @@
             });
           }
 
-          const specsToggleBtn = document.getElementById("specsToggleBtn");
-          if (specsToggleBtn) {
-            let expanded = false;
-            specsToggleBtn.addEventListener("click", () => {
-              expanded = !expanded;
-              document
-                .querySelectorAll("#fullSpecsSection .hidden-spec")
-                .forEach(
-                  (row) => (row.style.display = expanded ? "grid" : "none"),
-                );
-              specsToggleBtn.innerHTML = expanded
-                ? '<i class="ti ti-chevron-up"></i> بستن مشخصات'
-                : '<i class="ti ti-chevron-down"></i> نمایش کامل مشخصات';
+          const bindFadeToggle = (button, section, labels, onToggle) => {
+            if (!button || !section) return;
+            button.addEventListener("click", () => {
+              const collapsed = section.classList.toggle("is-collapsed");
+              button.setAttribute("aria-expanded", String(!collapsed));
+              button.innerHTML = collapsed ? labels.open : labels.close;
+              if (onToggle) onToggle(!collapsed);
+              if (collapsed) section.scrollIntoView({ block: "start", behavior: "smooth" });
             });
-          }
-
-          const reviewArticleToggle = document.getElementById("reviewArticleToggle");
+          };
+          bindFadeToggle(
+            document.getElementById("specsToggleBtn"),
+            document.getElementById("fullSpecsSection"),
+            { open: '<i class="ti ti-chevron-down"></i> نمایش کامل مشخصات', close: '<i class="ti ti-chevron-up"></i> بستن مشخصات' },
+          );
           const productReviewSection = document.getElementById("productReviewSection");
-          if (reviewArticleToggle && productReviewSection) {
-            reviewArticleToggle.addEventListener("click", () => {
-              const expanded = productReviewSection.classList.toggle("review-expanded");
-              reviewArticleToggle.setAttribute("aria-expanded", String(expanded));
-              reviewArticleToggle.innerHTML = expanded
-                ? '<i class="ti ti-chevron-up"></i> بستن بررسی کامل محصول'
-                : '<i class="ti ti-chevron-down"></i> بررسی کامل محصول';
-            });
-          }
+          bindFadeToggle(
+            document.getElementById("reviewArticleToggle"),
+            productReviewSection,
+            { open: '<i class="ti ti-chevron-down"></i> بررسی کامل محصول', close: '<i class="ti ti-chevron-up"></i> بستن بررسی کامل محصول' },
+            (expanded) => productReviewSection.classList.toggle("review-expanded", expanded),
+          );
 
           const amazingTimer = document.getElementById("amazingCountdown");
           if (amazingTimer && product.amazingOfferEndsAt) {
