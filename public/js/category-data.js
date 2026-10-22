@@ -7,26 +7,19 @@ window.PLCategories = [
     "icon": "ti-device-mobile",
     "groups": [
       {
-        "title": "انتخاب برند موبایل",
-        "href": "/mobiles",
-        "groups": [
+        "title": "برندهای موبایل",
+        "links": [
           {
-            "title": "برندهای موبایل",
-            "href": "/mobiles",
-            "links": [
-              {
-                "label": "آیفون",
-                "href": "/iphone"
-              },
-              {
-                "label": "گوشی سامسونگ",
-                "href": "/samsung"
-              },
-              {
-                "label": "گوشی شیائومی",
-                "href": "/xiaomi"
-              }
-            ]
+            "label": "آیفون",
+            "href": "/iphone"
+          },
+          {
+            "label": "سامسونگ",
+            "href": "/samsung"
+          },
+          {
+            "label": "شیائومی",
+            "href": "/xiaomi"
           }
         ]
       },
@@ -35,39 +28,21 @@ window.PLCategories = [
         "href": "/accessories",
         "links": [
           {
-            "label": "لوازم جانبی اپل",
+            "label": "اپل",
             "href": "/accessories/apple"
           },
           {
-            "label": "لوازم جانبی سامسونگ",
+            "label": "سامسونگ",
             "href": "/accessories/samsung"
           },
           {
-            "label": "لوازم جانبی شیائومی",
+            "label": "شیائومی",
             "href": "/accessories/xiaomi"
           }
         ],
         "groups": [
           {
-            "title": "شارژر گوشی موبایل",
-            "href": "/accessories/chargers",
-            "links": [
-              {
-                "label": "شارژر اپل",
-                "href": "/accessories/chargers?brand=%D8%A7%D9%BE%D9%84"
-              },
-              {
-                "label": "شارژر سامسونگ",
-                "href": "/accessories/chargers?brand=%D8%B3%D8%A7%D9%85%D8%B3%D9%88%D9%86%DA%AF"
-              },
-              {
-                "label": "شارژر شیائومی",
-                "href": "/accessories/chargers?brand=%D8%B4%DB%8C%D8%A7%D8%A6%D9%88%D9%85%DB%8C"
-              }
-            ]
-          },
-          {
-            "title": "کابل موبایل",
+            "title": "شارژر و کابل موبایل",
             "href": "/accessories/chargers"
           }
         ]

@@ -16,24 +16,17 @@
   const enc = encodeURIComponent;
 
   // فقط صفحه‌هایی که در سایت وجود دارند. ستون = تیتر (با لینک اختیاری) + لینک‌ها.
-  const brandLinks = (base, name) => [
-    { label: name + " اپل", href: base + "?brand=" + enc("اپل") },
-    { label: name + " سامسونگ", href: base + "?brand=" + enc("سامسونگ") },
-    { label: name + " شیائومی", href: base + "?brand=" + enc("شیائومی") }
-  ];
   const categories = [
     {
       id: "mobile", name: "موبایل", allHref: "/mobiles",
       columns: [
         [
-          { title: "انتخاب برند موبایل", href: "/mobiles" },
           {
-            title: "برندهای موبایل", href: "/mobiles",
+            title: "برندهای موبایل",
             links: [
               { label: "آیفون", href: "/iphone" },
-              { label: "گوشی سامسونگ", href: "/samsung" },
-              { label: "گوشی شیائومی", href: "/xiaomi" },
-              { label: "همه گوشی‌ها", href: "/mobiles" }
+              { label: "سامسونگ", href: "/samsung" },
+              { label: "شیائومی", href: "/xiaomi" }
             ]
           }
         ],
@@ -41,26 +34,24 @@
           {
             title: "لوازم جانبی موبایل", href: "/accessories",
             links: [
-              { label: "لوازم جانبی اپل", href: "/accessories/apple" },
-              { label: "لوازم جانبی سامسونگ", href: "/accessories/samsung" },
-              { label: "لوازم جانبی شیائومی", href: "/accessories/xiaomi" }
+              { label: "اپل", href: "/accessories/apple" },
+              { label: "سامسونگ", href: "/accessories/samsung" },
+              { label: "شیائومی", href: "/accessories/xiaomi" }
             ]
           },
-          { title: "شارژر گوشی موبایل", href: "/accessories/chargers", links: brandLinks("/accessories/chargers", "شارژر") },
-          { title: "کابل موبایل", href: "/accessories/chargers" }
+          { title: "شارژر و کابل موبایل", href: "/accessories/chargers" }
         ]
       ]
     },
     {
       id: "tablet", name: "تبلت", allHref: "/tablets",
       columns: [[
-        { title: "انتخاب برند تبلت", href: "/tablets" },
         {
-          title: "برندهای تبلت", href: "/tablets",
+          title: "تبلت",
           links: [
-            { label: "تبلت اپل", href: "/ipad" },
-            { label: "تبلت سامسونگ", href: "/samsungtab" },
-            { label: "تبلت شیائومی", href: "/xiaomitab" }
+            { label: "اپل", href: "/ipad" },
+            { label: "سامسونگ", href: "/samsungtab" },
+            { label: "شیائومی", href: "/xiaomitab" }
           ]
         }
       ]]
@@ -71,8 +62,8 @@
         {
           title: "هدفون و هندزفری", href: "/headphones",
           links: [
-            { label: "هدفون اپل", href: "/headphones?brand=" + enc("اپل") },
-            { label: "هدفون سامسونگ", href: "/headphones?brand=" + enc("سامسونگ") }
+            { label: "اپل", href: "/headphones?brand=" + enc("اپل") },
+            { label: "سامسونگ", href: "/headphones?brand=" + enc("سامسونگ") }
           ]
         }
       ]]
@@ -83,8 +74,8 @@
         {
           title: "ساعت هوشمند", href: "/smartwatches",
           links: [
-            { label: "ساعت اپل", href: "/smartwatches?brand=" + enc("اپل") },
-            { label: "ساعت سامسونگ", href: "/smartwatches?brand=" + enc("سامسونگ") }
+            { label: "اپل", href: "/smartwatches?brand=" + enc("اپل") },
+            { label: "سامسونگ", href: "/smartwatches?brand=" + enc("سامسونگ") }
           ]
         }
       ]]
@@ -101,7 +92,9 @@
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   const renderBlock = (block) =>
-    '<div class="cat-block"><a class="cat-heading" href="' + block.href + '"><span>' + esc(block.title) + '</span>' + chevron + '</a>' +
+    '<div class="cat-block">' + (block.href
+      ? '<a class="cat-heading" href="' + block.href + '"><span>' + esc(block.title) + '</span>' + chevron + '</a>'
+      : '<h3 class="cat-heading"><span>' + esc(block.title) + '</span></h3>') +
     (block.links ? '<ul class="cat-links">' + block.links.map((l) => '<li><a href="' + l.href + '">' + esc(l.label) + '</a></li>').join("") + '</ul>' : "") +
     '</div>';
 

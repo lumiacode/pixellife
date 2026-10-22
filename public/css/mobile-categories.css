@@ -151,6 +151,7 @@ body.mobile-category-page {
 }
 
 .cat-block { margin-bottom: 18px; }
+h3.cat-heading { margin: 0; }
 
 .cat-heading {
   padding-right: 10px;

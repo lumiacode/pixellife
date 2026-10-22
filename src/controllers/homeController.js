@@ -689,7 +689,7 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 function injectCategoryData(html) {
   if (!html || html.includes("category-data.js") || !html.includes("</head>")) return html;
   if (!html.includes("nav-cats-wrap") && !html.includes('class="header"') && !html.includes("mobile-bottom-nav")) return html;
-  return html.replace("</head>", '<script src="/js/category-data.js?v=2"></script>\n</head>');
+  return html.replace("</head>", '<script src="/js/category-data.js?v=3"></script>\n</head>');
 }
 
 function injectSearchSuggest(html) {
