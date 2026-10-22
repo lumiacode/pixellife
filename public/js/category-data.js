@@ -1,4 +1,5 @@
-/* داده‌های دسته‌بندی‌های سایت؛ تنها منبع برای مگامنوی دسکتاپ و کشوی دسته‌بندی موبایل. */
+/* داده‌های دسته‌بندی‌های سایت؛ تنها منبع برای مگامنوی دسکتاپ و کشوی دسته‌بندی موبایل.
+   group: {title, href?, links?, groups?: زیرتیترهای هم‌ستون} */
 window.PLCategories = [
   {
     "id": "mobile",
@@ -6,50 +7,68 @@ window.PLCategories = [
     "icon": "ti-device-mobile",
     "groups": [
       {
-        "title": "گوشی موبایل",
-        "links": [
+        "title": "انتخاب برند موبایل",
+        "href": "/mobiles",
+        "groups": [
           {
-            "label": "آیفون",
-            "href": "/iphone"
-          },
-          {
-            "label": "سامسونگ",
-            "href": "/samsung"
-          },
-          {
-            "label": "شیائومی",
-            "href": "/xiaomi"
-          },
-          {
-            "label": "همه گوشی‌ها",
-            "href": "/mobiles"
+            "title": "برندهای موبایل",
+            "href": "/mobiles",
+            "links": [
+              {
+                "label": "آیفون",
+                "href": "/iphone"
+              },
+              {
+                "label": "گوشی سامسونگ",
+                "href": "/samsung"
+              },
+              {
+                "label": "گوشی شیائومی",
+                "href": "/xiaomi"
+              }
+            ]
           }
         ]
       },
       {
-        "title": "لوازم جانبی",
+        "title": "لوازم جانبی موبایل",
+        "href": "/accessories",
         "links": [
           {
-            "label": "کابل، شارژر و آداپتور",
+            "label": "لوازم جانبی اپل",
+            "href": "/accessories/apple"
+          },
+          {
+            "label": "لوازم جانبی سامسونگ",
+            "href": "/accessories/samsung"
+          },
+          {
+            "label": "لوازم جانبی شیائومی",
+            "href": "/accessories/xiaomi"
+          }
+        ],
+        "groups": [
+          {
+            "title": "شارژر گوشی موبایل",
             "href": "/accessories/chargers",
-            "children": [
+            "links": [
               {
-                "label": "اپل",
+                "label": "شارژر اپل",
                 "href": "/accessories/chargers?brand=%D8%A7%D9%BE%D9%84"
               },
               {
-                "label": "سامسونگ",
+                "label": "شارژر سامسونگ",
                 "href": "/accessories/chargers?brand=%D8%B3%D8%A7%D9%85%D8%B3%D9%88%D9%86%DA%AF"
               },
               {
-                "label": "شیائومی",
+                "label": "شارژر شیائومی",
                 "href": "/accessories/chargers?brand=%D8%B4%DB%8C%D8%A7%D8%A6%D9%88%D9%85%DB%8C"
               }
             ]
           },
           {
-            "label": "همه لوازم جانبی",
-            "href": "/accessories"
+            "title": "کابل موبایل",
+            "href": "/accessories/chargers"
           }
         ]
       }

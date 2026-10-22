@@ -81,15 +81,11 @@
       ? `<div class="megamenu-console-logo-links">${cat.logoLinks.map((link) => `<a class="megamenu-console-logo-link" href="${link.href}" aria-label="${link.label}"><img src="${link.image}" alt="${link.label}"></a>`).join('')}</div>`
       : Array.isArray(cat.groups) && cat.groups.length
         ? `<div class="megamenu-groups">${cat.groups.map((group) => `
-          <section class="megamenu-group">
-            <h3 class="megamenu-group-title">${group.title}</h3>
-            <div class="megamenu-group-links">
-              ${dropAll(group.links).map((link) => {
-                const parent = `<a href="${link.href}" class="megamenu-link">${link.label}<i class="ti ti-chevron-left"></i></a>`;
-                if (!Array.isArray(link.children) || !link.children.length) return parent;
-                return `<div class="megamenu-nested">${parent}<div class="megamenu-child-links">${link.children.map((child) => `<a href="${child.href}" class="megamenu-child-link">${child.label}</a>`).join('')}</div></div>`;
-              }).join('')}
-            </div>
+          <section class="megamenu-group">${[group, ...(group.groups || [])].map((block) => `
+            <div class="megamenu-block">
+              ${block.href ? `<a class="megamenu-group-title" href="${block.href}"><span>${block.title}</span><i class="ti ti-chevron-left"></i></a>` : `<h3 class="megamenu-group-title"><span>${block.title}</span></h3>`}
+              ${(block.links || []).length ? `<div class="megamenu-group-links">${dropAll(block.links).map((link) => `<a href="${link.href}" class="megamenu-link">${link.label}</a>`).join('')}</div>` : ''}
+            </div>`).join('')}
           </section>`).join('')}</div>`
         : `<div class="megamenu-links">${cat.links.map((link) => `<a href="${link.href}" class="megamenu-link">${link.label}<i class="ti ti-chevron-left"></i></a>`).join('')}</div>`;
     catPanel.innerHTML = `

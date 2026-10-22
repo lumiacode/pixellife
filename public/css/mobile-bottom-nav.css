@@ -801,3 +801,7 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* تیتر گروه به‌صورت لینک با فلش، مثل مگامنوی دسکتاپ */
+.mobile-category-sheet__group-title { display: flex; align-items: center; gap: 6px; text-decoration: none; border-right-color: #ef394e !important; }
+.mobile-category-sheet__group-title svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }

@@ -269,12 +269,15 @@
       const groups = Array.isArray(category.groups) ? category.groups : [];
       const body = Array.isArray(category.logoLinks) && category.logoLinks.length
         ? `<div class="mobile-category-sheet__console-logo-links">${category.logoLinks.map((link) => `<a class="mobile-category-sheet__console-logo-link" href="${link.href}" aria-label="${link.label}"><img src="${link.image}" alt="${link.label}"></a>`).join("")}</div>`
-        : groups.map((group) => {
+        : groups.map((group) => [group, ...(group.groups || [])].map((block) => {
             // «همه …» که همان لینک سرتیتر است حذف می‌شود تا دوبار نیاید
-            const links = (group.links || []).filter((link) => link.href !== allHref);
-            const title = groups.length > 1 || group.title !== category.name ? `<h3 class="mobile-category-sheet__group-title">${group.title}</h3>` : "";
+            const links = (block.links || []).filter((link) => link.href !== allHref);
+            const showTitle = groups.length > 1 || block.title !== category.name;
+            const title = !showTitle ? "" : block.href
+              ? `<a class="mobile-category-sheet__group-title" href="${block.href}"><span>${block.title}</span>${chevron}</a>`
+              : `<h3 class="mobile-category-sheet__group-title">${block.title}</h3>`;
             return title + links.map(linkMarkup).join("");
-          }).join("");
+          }).join("")).join("");
       renderContent(`
         <div class="mobile-category-sheet__content-head">${catIcon(category)}<span>${category.name}</span></div>
         ${allHref ? `<a class="mobile-category-sheet__all-link" href="${allHref}">همه محصولات ${category.name}${chevron}</a>` : ""}
@@ -289,7 +292,7 @@
       const hits = [];
       categories.forEach((category) => {
         const before = hits.length;
-        (category.groups || []).forEach((group) => (group.links || []).forEach((link) => {
+        (category.groups || []).flatMap((group) => [group, ...(group.groups || [])]).forEach((group) => (group.links || []).forEach((link) => {
           if (norm(category.name + " " + group.title + " " + link.label).includes(normalized)) hits.push({ category, link: { label: group.title === category.name ? link.label : group.title + " — " + link.label, href: link.href } });
           (link.children || []).forEach((child) => {
             if (norm(category.name + " " + link.label + " " + child.label).includes(normalized)) hits.push({ category, link: { label: link.label + " — " + child.label, href: child.href } });
