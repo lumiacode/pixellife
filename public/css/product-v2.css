@@ -133,19 +133,20 @@ html body .collapsible-fade.is-collapsed::after {
 }
 html body .collapsible-fade.is-collapsed .specs-toggle-btn,
 html body .collapsible-fade.is-collapsed .review-article-toggle {
-  position: absolute; bottom: 18px; left: 50%; right: auto; transform: translateX(-50%); z-index: 2; margin: 0 !important;
+  position: absolute; bottom: 14px; right: 32px; left: auto; transform: none; z-index: 2; margin: 0 !important;
 }
+/* دکمه‌ها لینک متنیِ ساده‌اند، نه کادر */
 html body #fullSpecsSection .specs-toggle-btn,
 html body #productReviewSection .review-article-toggle {
-  width: auto !important; height: 42px !important; padding: 0 22px !important; border: 1.5px solid var(--blue) !important; border-radius: 999px !important;
-  background: #fff !important; color: var(--blue) !important; font-size: 13.5px !important; font-weight: 800 !important;
-  display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; cursor: pointer; text-decoration: none !important; white-space: nowrap;
+  width: auto !important; height: auto !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+  background: transparent !important; color: var(--blue) !important; font-size: 13.5px !important; font-weight: 800 !important;
+  display: inline-flex !important; align-items: center !important; justify-content: flex-start !important; gap: 6px !important; cursor: pointer; text-decoration: none !important; white-space: nowrap;
 }
 html body #fullSpecsSection:not(.is-collapsed) .specs-toggle-btn,
-html body #productReviewSection:not(.is-collapsed) .review-article-toggle { display: flex !important; margin: 18px auto 0 !important; }
+html body #productReviewSection:not(.is-collapsed) .review-article-toggle { margin: 14px 0 0 !important; }
 @media (hover: hover) {
   html body #fullSpecsSection .specs-toggle-btn:hover,
-  html body #productReviewSection .review-article-toggle:hover { background: var(--blue) !important; color: #fff !important; }
+  html body #productReviewSection .review-article-toggle:hover { background: transparent !important; color: #174ec2 !important; text-decoration: underline !important; text-underline-offset: 4px; }
 }
 /* در حالت بسته، تمام بخش‌های بررسی دیده می‌شوند و فقط با ارتفاع بریده می‌شوند */
 html body #productReviewSection.is-collapsed .review-section--more { display: block; }
@@ -153,4 +154,6 @@ html body #productReviewSection.is-collapsed .review-section-img--collapsed { di
 @media (max-width: 768px) {
   html body .collapsible-fade.is-collapsed { max-height: 300px; }
   html body .collapsible-fade.is-collapsed::after { height: 140px; }
+  html body .collapsible-fade.is-collapsed .specs-toggle-btn,
+  html body .collapsible-fade.is-collapsed .review-article-toggle { right: 18px; bottom: 12px; }
 }
