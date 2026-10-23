@@ -2908,7 +2908,7 @@
           <h2>محصولات منتخب</h2>
         </div>
 
-        <div class="product-grid" id="featuredProductsGrid" aria-busy="true">
+        <div class="product-grid home-rail" id="featuredProductsGrid" aria-busy="true">
           <div class="home-skeleton-grid" aria-hidden="true"><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div></div>
         </div>
       </section>
@@ -2947,7 +2947,7 @@
           <h2 id="mobileAccessoriesTitle">لوازم جانبی موبایل</h2>
         </div>
 
-        <div class="product-grid" id="mobileAccessoriesGrid" aria-busy="true">
+        <div class="product-grid home-rail" id="mobileAccessoriesGrid" aria-busy="true">
           <div class="home-skeleton-grid" aria-hidden="true"><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div></div>
         </div>
       </section>
@@ -4036,7 +4036,7 @@
           const allProducts = await getHomeProducts();
           let products = allProducts.filter((p) => p.featured);
           if (products.length === 0) products = allProducts;
-          products = takeUnique(products, 4);
+          products = takeUnique(products, allProducts.length >= 16 ? 8 : 4); // کاتالوگ کوچک: سهم ردیف‌های دیگر حفظ شود
 
           if (products.length === 0 && allProducts.length) { hideSectionOf(grid); return; }
           if (products.length === 0) {
@@ -4159,14 +4159,14 @@
         const grid = document.getElementById("mobileAccessoriesGrid");
         try {
           const res = await fetch(
-            "/api/products?category=" + encodeURIComponent("لوازم جانبی موبایل") + "&limit=4",
+            "/api/products?category=" + encodeURIComponent("لوازم جانبی موبایل") + "&limit=8",
           );
           const json = await res.json();
           if (!json.success)
             throw new Error(json.message || "خطا در دریافت محصولات");
 
           const accessoriesAll = json.products || [];
-          const products = takeUnique(accessoriesAll, 4);
+          const products = takeUnique(accessoriesAll, 8);
           if (products.length === 0 && accessoriesAll.length) { hideSectionOf(grid); return; }
           if (products.length === 0) {
             grid.innerHTML =

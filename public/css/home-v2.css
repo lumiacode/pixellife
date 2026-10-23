@@ -63,7 +63,9 @@ html body .home-rail {
   overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; padding-bottom: 6px;
   -webkit-overflow-scrolling: touch;
 }
-html body .home-rail .product-card { flex: 0 0 calc((100% - 36px) / 4); min-width: 200px; scroll-snap-align: start; }
+html body .home-rail .product-card { flex: 0 0 calc((100% - 48px) / 4.3); min-width: 200px; scroll-snap-align: start; }
+html body .home-rail .home-skeleton-card { flex: 0 0 calc((100% - 48px) / 4.3); min-width: 200px; }
+@media (max-width: 640px) { html body .home-rail .home-skeleton-card { flex-basis: 42vw; min-width: 150px; } }
 html body .home-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 14px; }
 html body .home-chips button {
   font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 16px; border-radius: 999px;
@@ -73,7 +75,7 @@ html body .home-chips button {
 html body .home-chips button.active { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); color: #fff; }
 @media (max-width: 640px) {
   html body .home-rail { gap: 8px !important; }
-  html body .home-rail .product-card { flex-basis: 44vw; min-width: 150px; }
+  html body .home-rail .product-card { flex-basis: 42vw; min-width: 150px; }
 }
 
 @media (max-width: 640px) {
