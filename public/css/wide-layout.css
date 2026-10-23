@@ -1,0 +1,32 @@
+/*
+ * عرض مشترک ۱۶۰۰ پیکسلی برای صفحهٔ اصلی و صفحه‌های دسته‌بندی: هدر، منو، مسیر صفحه، بدنه و فوتر
+ * هم‌تراز می‌شوند و حاشیه‌های دو طرف در صفحه‌های عریض هدر نمی‌روند.
+ */
+:root { --page-max: 1600px; --page-gutter: 24px; }
+
+html body .header { padding-inline: var(--page-gutter) !important; }
+html body .header-inner,
+html body .navbar-inner,
+html body .breadcrumb,
+html body .page-body,
+html body .footer-inner,
+html body .footer-bottom,
+html body .pl-footer .footer-inner,
+html body .pl-footer .footer-bottom {
+  width: 100% !important;
+  max-width: var(--page-max) !important;
+  margin-inline: auto !important;
+  box-sizing: border-box;
+}
+html body .page-body { max-width: calc(var(--page-max) + 2 * var(--page-gutter)) !important; }
+html body .navbar-inner { padding-inline: 0 !important; }
+html body .breadcrumb { padding-inline: 0 !important; }
+html body .page-body { padding-inline: var(--page-gutter) !important; }
+html body .navbar { padding-inline: var(--page-gutter) !important; }
+html body footer.footer,
+html body footer.pl-footer,
+html body .footer.pl-footer { padding-inline: var(--page-gutter) !important; }
+
+@media (max-width: 768px) {
+  :root { --page-gutter: 16px; }
+}
