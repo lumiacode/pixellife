@@ -2382,6 +2382,19 @@
       .recent-add:active, .recent-options:active { background: var(--blue-dark); transform: scale(.96); }
       @media (hover: hover) { .recent-add:hover, .recent-options:hover { background: var(--blue-dark); } }
       @media (max-width: 768px) { .slider-nav { display: none; } .recent-card { flex-basis: 168px; padding: 8px; border-radius: 16px; } .recent-card img { height: 128px; } .recent-add, .recent-options { width: 36px; height: 36px; font-size: 18px; border-radius: 11px; } }
+      /* پنجرهٔ انتخاب گزینه */
+      .combo-chooser { position: fixed; inset: 0; z-index: 10060; display: flex; align-items: flex-end; justify-content: center; }
+      .combo-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .45); }
+      .combo-sheet { position: relative; width: min(440px, 100%); max-height: 78vh; overflow: auto; background: #fff; border-radius: 20px 20px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -12px 40px rgba(15, 23, 42, .2); direction: rtl; }
+      .combo-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; font-size: 14px; line-height: 1.7; }
+      .combo-close { flex: 0 0 auto; width: 32px; height: 32px; border: 0; border-radius: 10px; background: #f1f5f9; color: #475569; font-size: 20px; line-height: 1; cursor: pointer; }
+      .combo-note { margin: 4px 0 12px; font-size: 12px; color: #64748b; }
+      .combo-list { display: grid; gap: 8px; }
+      .combo-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; font: inherit; font-size: 13.5px; font-weight: 700; color: #0f172a; cursor: pointer; }
+      .combo-item small { font-size: 11px; font-weight: 600; color: #15803d; }
+      .combo-item:active { background: #eff6ff; border-color: var(--blue); }
+      @media (hover: hover) { .combo-item:hover { background: #eff6ff; border-color: var(--blue); } }
+      @media (min-width: 769px) { .combo-chooser { align-items: center; } .combo-sheet { border-radius: 20px; } }
       /* — حالت سبد خالی — */
       .cart-empty {
         display: none;
@@ -4307,28 +4320,75 @@
           const href = "/product/" + encodeURIComponent(p.slug || p._id);
           const price = out || !(Number(p.price) > 0) ? '<div class="recent-out">ناموجود</div>' : '<div class="recent-price"><span>' + esc(formatPrice(finalOf(p))) + ' <small>تومان</small></span>' + '<span class="recent-old">' + (Number(p.discount) > 0 ? esc(formatPrice(p.price)) : "") + "</span></div>";
           let action = "";
-          if (!out && hasOptions(p)) action = '<a class="recent-options" href="' + esc(href) + '" aria-label="انتخاب گزینه‌ها"><i class="ti ti-shopping-cart-plus"></i></a>';
-          else if (!out) action = '<button type="button" class="recent-add" data-index="' + index + '" aria-label="افزودن به سبد خرید"><i class="ti ti-shopping-cart-plus"></i></button>';
+          if (!out) action = '<button type="button" class="recent-add" data-index="' + index + '" aria-label="افزودن به سبد خرید"><i class="ti ti-shopping-cart-plus"></i></button>';
           return '<article class="recent-card' + (out ? " is-out" : "") + '"><a class="recent-link" href="' + esc(href) + '"><img src="' + img + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'"><div class="recent-name">' + esc(p.name) + '</div><div class="recent-brand">' + esc(p.brand || "") + "</div></a>" + '<div class="recent-foot">' + price + action + "</div></article>";
         }
 
+        // کالای بدون گزینه یا با یک گزینهٔ موجود مستقیم اضافه می‌شود؛ با چند گزینه پنجرهٔ انتخاب باز می‌شود.
+        function combosOf(p) {
+          const variants = Array.isArray(p.variants) ? p.variants : [];
+          if (variants.length) {
+            return variants.filter((v) => Number(v.stock) > 0).map((v) => ({
+              color: (v.color && (v.color.name || v.color)) || "", storage: v.storage || "", stock: Math.floor(Number(v.stock)), price: Number(v.price) > 0 ? Number(v.price) : null,
+            }));
+          }
+          const colors = (Array.isArray(p.colors) ? p.colors : []).map((c) => (c && c.name) || c).filter(Boolean);
+          const storages = (Array.isArray(p.storages) ? p.storages : []).filter(Boolean);
+          const stock = stockOf(p);
+          if (stock <= 0) return [];
+          const list = [];
+          (colors.length ? colors : [""]).forEach((color) => (storages.length ? storages : [""]).forEach((storage) => list.push({ color, storage, stock, price: null })));
+          return list;
+        }
+        function addCombo(p, combo) {
+          const id = String(p._id);
+          const base = (combo.price ?? Number(p.price)) || 0;
+          const d = Math.min(99, Math.max(0, Number(p.discount) || 0));
+          const final = Math.round(base * (100 - d) / 100);
+          const colorValue = combo.color || "";
+          const storageValue = combo.storage || "";
+          const existing = cartData.find((item) => String(item.id) === id && normalizeVariantValue(item.color) === normalizeVariantValue(colorValue) && normalizeVariantValue(item.variant || item.storage) === normalizeVariantValue(storageValue));
+          if (existing) {
+            const current = getCartQuantity(existing);
+            if (current >= combo.stock) { showToast("تعداد انتخابی به سقف موجودی این کالا رسیده است"); return false; }
+            existing.quantity = current + 1; existing.qty = existing.quantity; existing.stock = combo.stock; existing.available = true;
+          } else {
+            cartData.push({ id, name: p.name, brand: p.brand || "", color: colorValue || "—", variant: storageValue || "—", storage: storageValue, warranty: "—", stock: combo.stock, available: true, price: final, originalPrice: d > 0 ? base : final, discount: d, quantity: 1, qty: 1, image: p.mainImage || (p.images && p.images[0]) || "" });
+          }
+          saveCart();
+          document.getElementById("cartContent").style.display = "block";
+          document.getElementById("cartEmpty").classList.remove("show");
+          renderCartItems();
+          updateCartBadge();
+          showToast("محصول به سبد خرید اضافه شد");
+          return true;
+        }
+        function closeChooser() { document.getElementById("comboChooser")?.remove(); }
+        function openChooser(p, combos) {
+          closeChooser();
+          const label = (c) => [c.color, c.storage].filter(Boolean).join(" · ") || "پیش‌فرض";
+          const wrap = document.createElement("div");
+          wrap.id = "comboChooser";
+          wrap.className = "combo-chooser";
+          wrap.innerHTML = '<div class="combo-backdrop" data-close></div><div class="combo-sheet" role="dialog" aria-modal="true" aria-label="انتخاب گزینه"><div class="combo-head"><b>' + esc(p.name) + '</b><button type="button" class="combo-close" data-close aria-label="بستن">×</button></div><div class="combo-note">گزینهٔ موردنظر را انتخاب کنید</div><div class="combo-list">' +
+            combos.map((c, i) => '<button type="button" class="combo-item" data-i="' + i + '"><span>' + esc(label(c)) + '</span><small>' + (c.stock <= 5 ? "تنها " + toPersian(c.stock) + " عدد" : "موجود") + "</small></button>").join("") + "</div></div>";
+          wrap.addEventListener("click", (event) => {
+            if (event.target.closest("[data-close]")) { closeChooser(); return; }
+            const item = event.target.closest(".combo-item");
+            if (item && addCombo(p, combos[Number(item.dataset.i)])) closeChooser();
+          });
+          document.body.appendChild(wrap);
+        }
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeChooser(); });
         track.addEventListener("click", (event) => {
           const button = event.target.closest(".recent-add[data-index]");
           if (!button) return;
           const p = products[Number(button.dataset.index)];
           if (!p) return;
-          const final = finalOf(p);
-          addToCart({
-            id: String(p._id), name: p.name, brand: p.brand || "", color: "—", variant: "—", warranty: "—",
-            stock: stockOf(p), price: final, oldPrice: Number(p.discount) > 0 ? Number(p.price) : final, discount: Number(p.discount) || 0,
-            image: p.mainImage || (p.images && p.images[0]) || "",
-          });
-          // سبد خالی بود؟ حالا محتوا باید جای حالت خالی را بگیرد.
-          if (cartData.length) {
-            document.getElementById("cartContent").style.display = "block";
-            document.getElementById("cartEmpty").classList.remove("show");
-            renderCartItems();
-          }
+          const combos = combosOf(p);
+          if (!combos.length) { showToast("این کالا موجود نیست"); return; }
+          if (combos.length === 1) addCombo(p, combos[0]);
+          else openChooser(p, combos);
         });
         const scrollBy = (direction) => track.scrollBy({ left: direction * Math.max(200, track.clientWidth * 0.8), behavior: "smooth" });
         document.getElementById("recentPrev").addEventListener("click", () => scrollBy(1));
