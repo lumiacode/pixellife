@@ -89,7 +89,7 @@ html body .home-chips button.active { background: var(--blue, #2563eb); border-c
 
 /* بنر اصلی: اسلاید فعال در وسط و گوشه‌ای از اسلاید قبلی و بعدی در دو لبه دیده می‌شود */
 html body .hero-slider-track {
-  --hero-w: 84%; --hero-gap: 16px;
+  --hero-w: 80%; --hero-gap: 16px;
   --hero-step: calc(var(--hero-w) + var(--hero-gap));
   --hero-base: calc((100% - var(--hero-w)) / 2 - var(--hero-step));
   gap: var(--hero-gap);
@@ -119,6 +119,6 @@ html body .hero-nav-btn.next { right: calc(8% + 66px); }
   html body .home-rail .home-skeleton-card { flex: 0 0 calc((100% - 48px) / 5.3); min-width: 200px; }
 }
 @media (min-width: 993px) {
-  html body .hero-slider-container { height: clamp(400px, calc(min(100vw - 48px, 1400px) * .84 / 2.6), 520px); }
-  html body .accessories-banner-slot { height: clamp(400px, calc(min(100vw - 48px, 1400px) * .84 / 2.6), 520px); }
+  html body .hero-slider-container { height: clamp(340px, calc(min(100vw - 48px, 1280px) * .80 / 2.6), 420px); }
+  html body .accessories-banner-slot { height: clamp(340px, calc(min(100vw - 48px, 1280px) * .80 / 2.6), 420px); }
 }
