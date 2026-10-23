@@ -99,6 +99,54 @@
       .featured-badge {
         cursor: pointer;
       }
+      /* لیست محصولات: آمار، نوار ابزار، ردیف‌های منظم، کارت در موبایل */
+      .pl-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:14px; }
+      .pl-stat { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer; text-align:right; font:inherit; }
+      .pl-stat b { display:block; font-size:22px; line-height:1.3; color:#0f172a; }
+      .pl-stat span { font-size:12px; color:#64748b; }
+      .pl-stat.is-active { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+      .pl-stat.warn b { color:#b45309; } .pl-stat.bad b { color:#dc2626; } .pl-stat.good b { color:#15803d; }
+      .pl-list-card { border-radius:12px; overflow:hidden; }
+      .pl-toolbar { display:flex; flex-wrap:wrap; gap:10px; padding:14px; border-bottom:1px solid #e2e8f0; background:#f8fafc; }
+      .pl-toolbar .form-select { width:auto; min-width:150px; }
+      .pl-search { flex:1 1 260px; display:flex; align-items:center; gap:8px; height:31px; padding:0 10px; background:#fff; border:1px solid #cbd5e1; border-radius:6px; color:#64748b; }
+      .pl-search input { flex:1; min-width:0; border:0; outline:0; background:transparent; font-size:13px; color:#0f172a; }
+      .pl-search:focus-within { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+      .pl-table thead th { position:sticky; top:0; background:#f1f5f9; color:#475569; font-size:12px; font-weight:700; white-space:nowrap; padding:11px 14px; border-bottom:1px solid #e2e8f0; }
+      .pl-table td { padding:12px 14px; vertical-align:middle; border-color:#eef2f7; }
+      .pl-table tbody tr:hover { background:#f8fbff; }
+      .pl-prod { display:flex; align-items:center; gap:12px; min-width:260px; }
+      .pl-prod .prod-thumb, .pl-prod .no-product-image { width:56px; height:56px; flex:0 0 56px; border-radius:10px; }
+      .pl-prod-name { font-size:13.5px; font-weight:700; color:#0f172a; line-height:1.7; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+      .pl-prod-meta { font-size:11.5px; color:#64748b; margin-top:2px; }
+      .pl-chip { display:inline-block; padding:1px 8px; border-radius:999px; font-size:11px; font-weight:700; margin-inline-start:4px; }
+      .pl-chip.soon { background:#e0f2fe; color:#0369a1; } .pl-chip.amazing { background:#fee2e2; color:#b91c1c; }
+      .pl-price b { font-size:14px; color:#0f172a; } .pl-price s { display:block; font-size:11.5px; color:#94a3b8; }
+      .pl-price .pl-off { display:inline-block; margin-inline-start:6px; padding:0 6px; border-radius:6px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:800; }
+      .pl-stock { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+      .pl-stock::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+      .pl-stock.ok { background:#dcfce7; color:#15803d; } .pl-stock.low { background:#fef3c7; color:#b45309; } .pl-stock.out { background:#fee2e2; color:#b91c1c; }
+      .pl-star { width:34px; height:34px; border:1px solid #e2e8f0; border-radius:9px; background:#fff; color:#94a3b8; display:inline-grid; place-items:center; cursor:pointer; font-size:17px; }
+      .pl-star.on { color:#f59e0b; border-color:#fcd34d; background:#fffbeb; }
+      .pl-actions { display:inline-flex; gap:6px; }
+      .pl-act { width:34px; height:34px; border:1px solid #e2e8f0; border-radius:9px; background:#fff; color:#475569; display:inline-grid; place-items:center; font-size:16px; text-decoration:none; cursor:pointer; }
+      .pl-act:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+      .pl-act.danger:hover { border-color:#dc2626; color:#dc2626; background:#fef2f2; }
+      .pl-pager { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:12px 14px; border-top:1px solid #e2e8f0; font-size:12.5px; color:#64748b; }
+      .pl-pager .pages { display:flex; gap:4px; }
+      .pl-pager button { min-width:32px; height:32px; padding:0 8px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; color:#334155; font:inherit; cursor:pointer; }
+      .pl-pager button.is-active { background:#2563eb; border-color:#2563eb; color:#fff; }
+      .pl-pager button:disabled { opacity:.45; cursor:default; }
+      .pl-empty { padding:36px 12px; text-align:center; color:#64748b; }
+      @media (max-width: 768px) {
+        .pl-table thead { display:none; }
+        .pl-table, .pl-table tbody, .pl-table tr, .pl-table td { display:block; width:100%; }
+        .pl-table tr { padding:12px; border-bottom:1px solid #e2e8f0; display:grid; grid-template-columns:1fr auto; gap:8px 10px; }
+        .pl-table td { padding:0; border:0; }
+        .pl-table td:first-child { grid-column:1 / -1; }
+        .pl-prod { min-width:0; }
+        .pl-toolbar .form-select { flex:1 1 140px; }
+      }
       .color-picker-tools { display:flex; align-items:end; gap:8px; flex-wrap:wrap; margin-top:10px; padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; }
       .color-picker-tools .color-name-field { flex:1 1 150px; }
       .color-picker-tools input[type="color"] { width:44px; height:38px; padding:2px; cursor:pointer; }
@@ -446,31 +494,44 @@
 
         <div class="app-content">
           <div class="container-fluid">
-            <div class="card">
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table table-hover align-middle">
-                    <thead>
-                      <tr>
-                        <th>عکس</th>
-                        <th>نام محصول</th>
-                        <th>برند</th>
-                        <th>قیمت (تومان)</th>
-                        <th>موجودی</th>
-                        <th>منتخب</th>
-                        <th>عملیات</th>
-                      </tr>
-                    </thead>
-                    <tbody id="productsTableBody">
-                      <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                          در حال بارگذاری...
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+            <div class="pl-stats" id="productStats" aria-live="polite"></div>
+            <div class="card pl-list-card">
+              <div class="pl-toolbar">
+                <label class="pl-search"><i class="ti ti-search"></i><input id="plSearch" type="search" placeholder="جستجوی نام، برند یا شناسه محصول…" autocomplete="off" /></label>
+                <select id="plCategory" class="form-select form-select-sm" aria-label="دسته‌بندی"></select>
+                <select id="plStatus" class="form-select form-select-sm" aria-label="وضعیت">
+                  <option value="">همهٔ وضعیت‌ها</option>
+                  <option value="available">موجود</option>
+                  <option value="low">موجودی کم</option>
+                  <option value="out">ناموجود</option>
+                  <option value="featured">منتخب</option>
+                  <option value="soon">به‌زودی</option>
+                </select>
+                <select id="plSort" class="form-select form-select-sm" aria-label="مرتب‌سازی">
+                  <option value="new">جدیدترین</option>
+                  <option value="priceAsc">ارزان‌ترین</option>
+                  <option value="priceDesc">گران‌ترین</option>
+                  <option value="stockAsc">کمترین موجودی</option>
+                  <option value="name">نام (الفبایی)</option>
+                </select>
               </div>
+              <div class="table-responsive">
+                <table class="table pl-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>محصول</th>
+                      <th>قیمت (تومان)</th>
+                      <th>موجودی</th>
+                      <th class="text-center">منتخب</th>
+                      <th class="text-center">عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productsTableBody">
+                    <tr><td colspan="5" class="text-center text-muted py-4">در حال بارگذاری...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pl-pager" id="plPager"></div>
             </div>
           </div>
         </div>
@@ -1308,60 +1369,139 @@
         };
         return (checks[key] || []).includes(value);
       }
+      const LOW_STOCK = 3;
+      const PAGE_SIZE = 20;
+      const plState = { all: [], search: "", category: categoryFilter || "", status: "", sort: "new", page: 1 };
+      const productById = new Map();
+      const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const normText = (value) => String(value || "").toLowerCase().replace(/[يى]/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, " ").trim();
+      const stockOf = (p) => Math.max(0, Number(p.stock) || 0);
+      const isOut = (p) => p.availability === "out" || stockOf(p) <= 0;
+      const stockLevel = (p) => (isOut(p) ? "out" : stockOf(p) <= LOW_STOCK ? "low" : "ok");
+      const finalPrice = (p) => Math.round((Number(p.price) || 0) * (1 - Math.min(100, Math.max(0, Number(p.discount) || 0)) / 100));
+      const statusMatch = {
+        available: (p) => !isOut(p),
+        low: (p) => stockLevel(p) === "low",
+        out: isOut,
+        featured: (p) => Boolean(p.featured),
+        soon: (p) => Boolean(p.comingSoon),
+      };
+
+      function renderStats() {
+        const list = plState.all.filter((p) => categoryMatches(p, plState.category));
+        const count = (fn) => list.filter(fn).length;
+        const cards = [
+          ["", "کل محصولات", list.length, ""],
+          ["available", "موجود", count(statusMatch.available), "good"],
+          ["low", "موجودی کم", count(statusMatch.low), "warn"],
+          ["out", "ناموجود", count(statusMatch.out), "bad"],
+          ["featured", "منتخب", count(statusMatch.featured), ""],
+        ];
+        document.getElementById("productStats").innerHTML = cards.map(([key, label, n, tone]) =>
+          `<button type="button" class="pl-stat ${tone}${plState.status === key ? " is-active" : ""}" data-status="${key}"><b>${toPersianPrice(n)}</b><span>${label}</span></button>`
+        ).join("");
+      }
+
+      function productRow(p) {
+        const img = p.mainImage || (p.images && p.images[0]) || "";
+        const fallback = (p.images || []).find((image) => image && image !== img) || "";
+        const imageCell = img
+          ? `<img src="${esc(img)}" data-fallback="${esc(fallback)}" class="prod-thumb" alt="" loading="lazy" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.outerHTML='<span class=\\'no-product-image\\'>بدون عکس</span>';}">`
+          : '<span class="no-product-image">بدون عکس</span>';
+        const level = stockLevel(p);
+        const stockText = level === "out" ? "ناموجود" : level === "low" ? `${toPersianPrice(stockOf(p))} عدد · کم` : `${toPersianPrice(stockOf(p))} عدد`;
+        const discount = Math.min(100, Math.max(0, Number(p.discount) || 0));
+        const priceCell = Number(p.price) > 0
+          ? `<b>${toPersianPrice(finalPrice(p))}</b>${discount > 0 ? `<span class="pl-off">${toPersianPrice(discount)}٪</span><s>${toPersianPrice(p.price)}</s>` : ""}`
+          : '<span class="text-muted">—</span>';
+        const meta = [p.brand, p.category].filter(Boolean).map(esc).join(" · ");
+        const href = "/product?id=" + encodeURIComponent(p.slug || p._id);
+        return `
+          <tr data-id="${esc(p._id)}">
+            <td><div class="pl-prod">${imageCell}<div><div class="pl-prod-name">${esc(p.name)}${p.comingSoon ? '<span class="pl-chip soon">به‌زودی</span>' : ""}${p.amazingOffer ? '<span class="pl-chip amazing">شگفت‌انگیز</span>' : ""}</div><div class="pl-prod-meta">${meta}</div></div></div></td>
+            <td class="pl-price">${priceCell}</td>
+            <td><span class="pl-stock ${level}">${stockText}</span></td>
+            <td class="text-center"><button type="button" class="pl-star${p.featured ? " on" : ""}" data-action="feature" title="${p.featured ? "حذف از منتخب" : "افزودن به منتخب"}" aria-pressed="${p.featured ? "true" : "false"}"><i class="ti ${p.featured ? "ti-star-filled" : "ti-star"}"></i></button></td>
+            <td class="text-center"><div class="pl-actions">
+              <button type="button" class="pl-act" data-action="edit" title="ویرایش"><i class="ti ti-pencil"></i></button>
+              <a class="pl-act" href="${esc(href)}" target="_blank" rel="noopener" title="مشاهده در سایت"><i class="ti ti-external-link"></i></a>
+              <button type="button" class="pl-act danger" data-action="delete" title="حذف"><i class="ti ti-trash"></i></button>
+            </div></td>
+          </tr>`;
+      }
+
+      function renderProducts() {
+        const q = normText(plState.search);
+        let list = plState.all.filter((p) => categoryMatches(p, plState.category));
+        if (plState.status) list = list.filter(statusMatch[plState.status]);
+        if (q) list = list.filter((p) => normText([p.name, p.brand, p.slug, p.category].join(" ")).includes(q));
+        const sorters = {
+          new: () => 0,
+          priceAsc: (a, b) => finalPrice(a) - finalPrice(b),
+          priceDesc: (a, b) => finalPrice(b) - finalPrice(a),
+          stockAsc: (a, b) => stockOf(a) - stockOf(b),
+          name: (a, b) => String(a.name).localeCompare(String(b.name), "fa"),
+        };
+        list = [...list].sort(sorters[plState.sort]);
+        const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+        plState.page = Math.min(plState.page, pages);
+        const slice = list.slice((plState.page - 1) * PAGE_SIZE, plState.page * PAGE_SIZE);
+        renderStats();
+        tableBody.innerHTML = slice.length
+          ? slice.map(productRow).join("")
+          : `<tr><td colspan="5" class="pl-empty">${plState.all.length ? "محصولی با این فیلترها پیدا نشد." : "هنوز محصولی ثبت نشده است."}</td></tr>`;
+        const pager = document.getElementById("plPager");
+        const from = list.length ? (plState.page - 1) * PAGE_SIZE + 1 : 0;
+        const nums = Array.from({ length: pages }, (_, i) => i + 1).filter((n) => n === 1 || n === pages || Math.abs(n - plState.page) <= 1);
+        let last = 0;
+        const pageButtons = nums.map((n) => { const gap = n - last > 1 ? "<span>…</span>" : ""; last = n; return `${gap}<button type="button" data-page="${n}" class="${n === plState.page ? "is-active" : ""}">${toPersianPrice(n)}</button>`; }).join("");
+        pager.innerHTML = `<span>نمایش ${toPersianPrice(from)}–${toPersianPrice(from + slice.length - (list.length ? 1 : 0))} از ${toPersianPrice(list.length)} محصول</span>` +
+          (pages > 1 ? `<div class="pages"><button type="button" data-page="${plState.page - 1}" ${plState.page === 1 ? "disabled" : ""}>قبلی</button>${pageButtons}<button type="button" data-page="${plState.page + 1}" ${plState.page === pages ? "disabled" : ""}>بعدی</button></div>` : "");
+      }
+
       async function loadProducts() {
-        tableBody.innerHTML =
-          '<tr><td colspan="7" class="text-center text-muted py-4">در حال بارگذاری...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">در حال بارگذاری...</td></tr>';
         try {
           const res = await fetch("/admin/api/products?_=" + Date.now(), { cache: "no-store" });
           const json = await res.json();
           if (!json.success) throw new Error(json.message);
-
-          const products = json.products.filter(product => categoryMatches(product, categoryFilter));
-          if (products.length === 0) {
-            tableBody.innerHTML =
-              '<tr><td colspan="7" class="text-center text-muted py-4">هنوز محصولی ثبت نشده است.</td></tr>';
-            return;
-          }
-
-          tableBody.innerHTML = products
-            .map((p) => {
-              const img = p.mainImage || (p.images && p.images[0]) || "";
-              const fallbackImage =
-                (p.images || []).find((image) => image && image !== img) || "";
-              const imageCell = img
-                ? `<img src="${img}" data-fallback="${fallbackImage}" class="prod-thumb" alt="" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.closest('td').innerHTML='<span class=\\'no-product-image\\'>بدون عکس</span>';}">`
-                : '<span class="no-product-image">بدون عکس</span>';
-              const isOutOfStock = p.availability === "out" || Number(p.stock) <= 0;
-              const availabilityBadge = isOutOfStock
-                ? '<span class="badge bg-danger ms-2">ناموجود</span>'
-                : '<span class="badge bg-success ms-2">موجود</span>';
-              return `
-                <tr data-id="${p._id}">
-                  <td>${imageCell}</td>
-                  <td>${p.name}${availabilityBadge}${p.comingSoon ? '<span class="badge bg-info text-dark ms-2">به‌زودی</span>' : ""}</td>
-                  <td>${p.brand}</td>
-                  <td>${toPersianPrice(p.price)}</td>
-                  <td>${toPersianPrice(p.stock)}</td>
-                  <td>
-                    <span class="badge featured-badge ${p.featured ? "bg-success" : "bg-secondary"}" onclick="toggleFeatured('${p._id}', ${!p.featured})">
-                      ${p.featured ? "بله" : "خیر"}
-                    </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary" onclick='openEditModal(${JSON.stringify(p)})'>
-                      <i class="ti ti-pencil"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${p._id}')">
-                      <i class="ti ti-trash"></i>
-                    </button>
-                  </td>
-                </tr>`;
-            })
-            .join("");
+          plState.all = json.products;
+          productById.clear();
+          json.products.forEach((p) => productById.set(String(p._id), p));
+          renderProducts();
         } catch (err) {
-          tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">${err.message}</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">${esc(err.message)}</td></tr>`;
         }
       }
+
+      (function initProductList() {
+        const category = document.getElementById("plCategory");
+        category.innerHTML = '<option value="">همهٔ دسته‌بندی‌ها</option>' + Object.entries(categoryLabels).map(([key, label]) => `<option value="${key}">${label}</option>`).join("");
+        category.value = plState.category;
+        const bind = (id, key, event = "input") => document.getElementById(id).addEventListener(event, (e) => { plState[key] = e.target.value; plState.page = 1; renderProducts(); });
+        bind("plSearch", "search"); bind("plCategory", "category", "change"); bind("plStatus", "status", "change"); bind("plSort", "sort", "change");
+        document.getElementById("productStats").addEventListener("click", (e) => {
+          const card = e.target.closest("[data-status]");
+          if (!card) return;
+          plState.status = card.dataset.status; document.getElementById("plStatus").value = plState.status; plState.page = 1; renderProducts();
+        });
+        document.getElementById("plPager").addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-page]");
+          if (!btn || btn.disabled) return;
+          plState.page = Number(btn.dataset.page); renderProducts();
+          document.querySelector(".pl-toolbar").scrollIntoView({ block: "start", behavior: "smooth" });
+        });
+        tableBody.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-action]");
+          const row = e.target.closest("tr[data-id]");
+          if (!btn || !row) return;
+          const product = productById.get(row.dataset.id);
+          if (!product) return;
+          if (btn.dataset.action === "edit") openEditModal(product);
+          else if (btn.dataset.action === "feature") toggleFeatured(product._id, !product.featured);
+          else if (btn.dataset.action === "delete") deleteProduct(product._id, product.name);
+        });
+      })();
 
       async function toggleFeatured(id, newValue) {
         try {
@@ -1379,8 +1519,8 @@
         }
       }
 
-      async function deleteProduct(id) {
-        if (!confirm("محصول حذف شود؟ این عملیات قابل بازگشت نیست.")) return;
+      async function deleteProduct(id, name = "") {
+        if (!confirm(`محصول «${name || "انتخاب‌شده"}» حذف شود؟ این عملیات قابل بازگشت نیست.`)) return;
         try {
           const res = await fetch("/admin/api/products/" + id, {
             method: "DELETE",
