@@ -199,3 +199,5 @@ html body .home-trust-item { justify-content: center; }
   html body .hero-nav-btn.prev { right: calc(10% + 16px); }
   html body .hero-nav-btn.next { right: calc(10% + 66px); }
 }
+/* نوار اعتماد بین ردیف‌های محصول */
+html body .home-trust-strip { margin: 8px auto 36px !important; }
