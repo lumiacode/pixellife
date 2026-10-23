@@ -41,7 +41,6 @@
       a { color: inherit; text-decoration: none; }
       button, input, select, textarea { font: inherit; color: inherit; }
       button { cursor: pointer; }
-      .mobile-bottom-nav { display: none !important; }
 
       .co-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; }
       .co-head {
@@ -157,10 +156,11 @@
         .co-summary .co-btn { display: none; }
         .co-wrap { padding-bottom: 110px; }
         .co-mobile-bar { display: flex; position: fixed; inset: auto 0 0 0; z-index: 40; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 16px; background: var(--white); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(15, 23, 42, .1); }
-        .bar-nav { display: flex; gap: 8px; flex: 0 0 auto; }
-        .bar-nav-btn { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; color: #334155; cursor: pointer; }
-        .bar-nav-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .bar-nav-btn:active { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .co-mobile-bar { bottom: calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)); inset: auto 0 calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)) 0 !important; transition: transform 240ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
+        body:has(.mobile-bottom-nav.is-scroll-hidden) .co-mobile-bar { transform: translate3d(0, calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)), 0); }
+        body:has(.co-mobile-bar) #plAssistantToggle { bottom: calc(150px + env(safe-area-inset-bottom)) !important; }
+        body:has(.co-mobile-bar) #plAssistant { bottom: calc(214px + env(safe-area-inset-bottom)) !important; }
+        .co-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
         .co-mobile-total small { display: block; color: var(--text-3); font-size: 12px; line-height: 1.4; }
         .co-mobile-total b { font-size: 16px; }
         .co-mobile-bar .co-btn { flex: 1; max-width: 220px; }
@@ -361,7 +361,6 @@
         function mobileBar(buttonLabel) {
           return (
             '<div class="co-mobile-bar"><div class="co-mobile-total"><small>مبلغ قابل پرداخت</small><b>' + toman(quote.pricing.total) + "</b></div>" +
-            '<div class="bar-nav">'+ '          <a href="/" class="bar-nav-btn" aria-label="صفحهٔ اصلی"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-6h6v6"/></svg></a>          <button type="button" class="bar-nav-btn" data-open-categories aria-label="دسته\u200cبندی\u200cها"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></button>' +'</div>' +
             '<button type="button" class="co-btn" data-primary>' + esc(buttonLabel) + "</button></div>"
           );
         }
@@ -694,11 +693,5 @@
         init();
       })();
     </script>
-  <script>
-      document.addEventListener("click", (event) => {
-        if (!event.target.closest("[data-open-categories]")) return;
-        document.querySelector('.mobile-bottom-nav [data-nav="categories"]')?.click();
-      });
-    </script>
-</body>
+  </body>
 </html>

@@ -805,10 +805,3 @@
 /* تیتر گروه به‌صورت لینک با فلش، مثل مگامنوی دسکتاپ */
 .mobile-category-sheet__group-title { display: flex; align-items: center; gap: 6px; text-decoration: none; border-right-color: var(--blue, #2563eb) !important; }
 .mobile-category-sheet__group-title svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }
-
-/* صفحهٔ سبد خرید: وقتی نوار «ثبت سفارش» دیده می‌شود، همان تنها نوار پایین است؛
-   ناوبری عمومی روی آن نمی‌افتد (در سبد خالی دوباره نمایش داده می‌شود). */
-@media (max-width: 768px) {
-  body:has(#mobileBar[style*="display: block"]) .mobile-bottom-nav { display: none !important; }
-  body:has(#mobileBar[style*="display: block"]) { padding-bottom: 0; }
-}
