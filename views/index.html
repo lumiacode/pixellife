@@ -4070,24 +4070,7 @@
             return;
           }
 
-          grid.innerHTML = products
-            .map((p) => {
-              const rawImg = p.mainImage || (p.images && p.images[0]) || "";
-              const rawFallback =
-                (p.images || []).find((image) => image && image !== rawImg) || "";
-              const img = escapeHtml(rawImg || "/images/product-placeholder.svg");
-              const fallbackImg = escapeHtml(rawFallback);
-              const name = escapeHtml(p.name);
-              const slug = escapeHtml(p.slug);
-              return `
-                <a href="/product/${slug}" class="product-card">
-                  ${p.comingSoon ? '<span class="product-card-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
-                  <img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}">
-                  <h3>${name}</h3>
-                  ${productPriceMarkup(p)}
-                </a>`;
-            })
-            .join("");
+          grid.innerHTML = products.map(homeCardMarkup).join("");
         } catch (err) {
           grid.innerHTML =
             '<p style="color: var(--red); font-size: 13px;">خطا در بارگذاری محصولات</p>';
@@ -4096,6 +4079,9 @@
 
       /* ══ ردیف‌های صفحهٔ اصلی: بودجه، پرفروش‌ترین‌ها، تازه‌ها ══
          بودجه و تازه‌ها از همان فهرستی ساخته می‌شوند که صفحه پیش‌تر گرفته (بدون درخواست اضافه). */
+      const homeCardProducts = new Map();
+      const cardStock = (p) => (Array.isArray(p.variants) && p.variants.length ? p.variants.reduce((sum, v) => sum + Math.max(0, Number(v.stock) || 0), 0) : Math.max(0, Number(p.stock) || 0));
+      const cardHasOptions = (p) => (Array.isArray(p.colors) && p.colors.length > 0) || (Array.isArray(p.storages) && p.storages.length > 0) || (Array.isArray(p.variants) && p.variants.length > 0);
       function homeCardMarkup(p) {
         const rawImg = p.mainImage || (p.images && p.images[0]) || "";
         const rawFallback = (p.images || []).find((image) => image && image !== rawImg) || "";
@@ -4103,14 +4089,53 @@
         const fallbackImg = escapeHtml(rawFallback);
         const name = escapeHtml(p.name);
         const slug = escapeHtml(p.slug);
+        const id = escapeHtml(String(p._id));
+        homeCardProducts.set(String(p._id), p);
+        const out = isProductOut(p) || p.comingSoon;
+        const cart = out ? "" : `<span class="pc-cart" role="button" tabindex="0" data-id="${id}" data-mode="${cardHasOptions(p) ? "link" : "add"}" aria-label="${cardHasOptions(p) ? "انتخاب گزینه‌ها" : "افزودن به سبد خرید"}"><i class="ti ti-shopping-cart-plus"></i></span>`;
         return `
           <a href="/product/${slug}" class="product-card">
             ${p.comingSoon ? '<span class="product-card-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
-            <img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}">
+            <span class="pc-media"><img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}"></span>
             <h3>${name}</h3>
-            ${productPriceMarkup(p)}
+            <div class="pc-brand">${escapeHtml(p.brand || "")}</div>
+            <div class="pc-foot">${productPriceMarkup(p)}${cart}</div>
           </a>`;
       }
+
+      /* افزودن سریع از کارت: فقط کالاهای بدون گزینه؛ بقیه به صفحهٔ محصول می‌روند. */
+      function quickAddFromCard(p) {
+        const id = String(p._id);
+        const stock = cardStock(p);
+        const info = productPriceInfo(p);
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem("digishop_cart") || "[]"); } catch (_) {}
+        if (!Array.isArray(cart)) cart = [];
+        const existing = cart.find((item) => String(item.id) === id);
+        if (existing) {
+          const current = Math.max(1, Number(existing.quantity ?? existing.qty) || 1);
+          if (current >= stock) { showToast("به سقف موجودی این کالا رسیده‌اید"); return; }
+          existing.quantity = current + 1; existing.qty = existing.quantity; existing.stock = stock; existing.available = true;
+        } else {
+          cart.push({ id, name: p.name, brand: p.brand || "", color: "—", variant: "—", warranty: "—", stock, available: true, price: info.final, originalPrice: info.original, discount: info.discount, quantity: 1, qty: 1, image: p.mainImage || (p.images && p.images[0]) || "" });
+        }
+        localStorage.setItem("digishop_cart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("cartUpdated"));
+        showToast("به سبد خرید اضافه شد");
+      }
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest(".pc-cart");
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const p = homeCardProducts.get(button.dataset.id);
+        if (!p) return;
+        if (button.dataset.mode === "link") location.href = "/product/" + encodeURIComponent(p.slug);
+        else quickAddFromCard(p);
+      }, true);
+      document.addEventListener("keydown", (event) => {
+        if ((event.key === "Enter" || event.key === " ") && event.target.classList?.contains("pc-cart")) { event.preventDefault(); event.target.click(); }
+      });
       function fillRail(sectionId, gridId, products, min = 1) {
         const section = document.getElementById(sectionId);
         const grid = document.getElementById(gridId);
@@ -4199,24 +4224,7 @@
             return;
           }
 
-          grid.innerHTML = products
-            .map((p) => {
-              const rawImg = p.mainImage || (p.images && p.images[0]) || "";
-              const rawFallback =
-                (p.images || []).find((image) => image && image !== rawImg) || "";
-              const img = escapeHtml(rawImg || "/images/product-placeholder.svg");
-              const fallbackImg = escapeHtml(rawFallback);
-              const name = escapeHtml(p.name);
-              const slug = escapeHtml(p.slug);
-              return `
-                <a href="/product/${slug}" class="product-card">
-                  ${p.comingSoon ? '<span class="product-card-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
-                  <img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}">
-                  <h3>${name}</h3>
-                  ${productPriceMarkup(p)}
-                </a>`;
-            })
-            .join("");
+          grid.innerHTML = products.map(homeCardMarkup).join("");
         } catch (err) {
           grid.innerHTML =
             '<p style="color: var(--red); font-size: 13px;">خطا در بارگذاری لوازم جانبی</p>';
