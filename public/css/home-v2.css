@@ -186,3 +186,16 @@ html body .home-trust-item small { font-size: 11px !important; color: #94a3b8 !i
   html body .home-trust-strip { margin-bottom: 20px !important; gap: 2px 6px !important; }
   html body .home-trust-ico { flex-basis: 32px !important; height: 32px !important; font-size: 17px !important; }
 }
+
+/* نوار اعتماد: وسط‌چین و با عرض مناسب؛ هر مورد وسط ستون خودش */
+html body .home-trust-strip { max-width: 1000px; margin-inline: auto !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+html body .home-trust-item { justify-content: center; }
+@media (max-width: 768px) {
+  html body .home-trust-strip { max-width: 520px; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; justify-content: stretch; }
+  html body .home-trust-item { justify-content: flex-start; }
+}
+/* دکمه‌های بنر داخل اسلاید فعال (هر لبه ۱۰٪ برای اسلایدهای کناری است) */
+@media (min-width: 769px) {
+  html body .hero-nav-btn.prev { right: calc(10% + 16px); }
+  html body .hero-nav-btn.next { right: calc(10% + 66px); }
+}
