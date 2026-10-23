@@ -86,3 +86,28 @@ html body .home-chips button.active { background: var(--blue, #2563eb); border-c
   html body .category-circle { width: 64px !important; height: 64px !important; }
   html body .services-section { padding: 14px 0 !important; }
 }
+
+/* بنر اصلی: اسلاید فعال در وسط و گوشه‌ای از اسلاید قبلی و بعدی در دو لبه دیده می‌شود */
+html body .hero-slider-track {
+  --hero-w: 84%; --hero-gap: 16px;
+  --hero-step: calc(var(--hero-w) + var(--hero-gap));
+  --hero-base: calc((100% - var(--hero-w)) / 2 - var(--hero-step));
+  gap: var(--hero-gap);
+  transform: translateX(var(--hero-base));
+}
+html body .hero-slider-track:has(.hero-slide:only-child) { --hero-w: 100%; --hero-base: 0px; }
+html body .hero-slider-track .hero-slide { flex: 0 0 var(--hero-w) !important; min-width: var(--hero-w) !important; border-radius: var(--radius-lg, 16px); overflow: hidden; }
+html body .hero-slider-track .hero-slide:last-child:not(:first-child) { order: -1; }
+html body .hero-slider-container { background: transparent; box-shadow: none; border-radius: 0; }
+@media (max-width: 768px) {
+  html body .hero-slider-track { --hero-w: 90%; --hero-gap: 10px; }
+  html body .hero-slider-track .hero-slide { border-radius: 14px; }
+}
+html body .hero-slider-track .hero-slide > picture > img { width: 100% !important; height: 100% !important; object-fit: cover; display: block; }
+/* دکمه‌های بنر داخل اسلاید فعال بمانند، نه روی گوشهٔ اسلاید بعدی */
+html body .hero-nav-btn.prev { right: calc(8% + 16px); }
+html body .hero-nav-btn.next { right: calc(8% + 66px); }
+@media (max-width: 768px) {
+  html body .hero-nav-btn.prev { right: calc(5% + 10px); }
+  html body .hero-nav-btn.next { right: calc(5% + 56px); }
+}

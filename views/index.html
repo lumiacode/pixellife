@@ -3829,7 +3829,7 @@
             heroTrack.appendChild(heroTrack.firstElementChild);
             currentSlide = (currentSlide + 1) % heroSlideCount;
           }
-          heroTrack.style.transform = "translateX(0)";
+          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
           void heroTrack.offsetWidth;
           heroTrack.style.transition = "";
           updateDots();
@@ -3843,7 +3843,7 @@
         isHeroAnimating = true;
         pendingHeroMove = "next";
         updateDots((currentSlide + 1) % heroSlideCount);
-        heroTrack.style.transform = "translateX(-100%)";
+        heroTrack.style.transform = "translateX(calc(var(--hero-base, 0px) - var(--hero-step, 100%)))";
       }
 
       function prevSlide() {
@@ -3852,11 +3852,11 @@
         pendingHeroMove = "prev";
         heroTrack.style.transition = "none";
         heroTrack.insertBefore(heroTrack.lastElementChild, heroTrack.firstElementChild);
-        heroTrack.style.transform = "translateX(-100%)";
+        heroTrack.style.transform = "translateX(calc(var(--hero-base, 0px) - var(--hero-step, 100%)))";
         void heroTrack.offsetWidth;
         heroTrack.style.transition = "";
         requestAnimationFrame(() => {
-          heroTrack.style.transform = "translateX(0)";
+          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
         });
         updateDots((currentSlide - 1 + heroSlideCount) % heroSlideCount);
       }
@@ -3867,7 +3867,7 @@
         if (pendingHeroMove === "next") {
           heroTrack.style.transition = "none";
           heroTrack.appendChild(heroTrack.firstElementChild);
-          heroTrack.style.transform = "translateX(0)";
+          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
           currentSlide = (currentSlide + 1) % heroSlideCount;
           void heroTrack.offsetWidth;
           heroTrack.style.transition = "";
