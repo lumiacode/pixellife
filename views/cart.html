@@ -2495,6 +2495,11 @@
       }
 
       /* — نوار خرید موبایل — */
+      .toast { pointer-events: none; } /* پیام نامرئی نباید لمس دکمه‌های نوار پایین را بگیرد */
+      .bar-nav { display: flex; gap: 8px; flex: 0 0 auto; }
+      .bar-nav-btn { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; color: #334155; cursor: pointer; }
+      .bar-nav-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      .bar-nav-btn:active { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
       .cart-mobile-bar {
         display: none;
         position: fixed;
@@ -3465,6 +3470,10 @@
         <div class="mobile-bar-total">
           <small>مبلغ قابل پرداخت</small>
           <strong id="mobileBarTotal">۰</strong>
+        </div>
+        <div class="bar-nav" aria-label="دسترسی سریع">
+          <a href="/" class="bar-nav-btn" aria-label="صفحهٔ اصلی"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-6h6v6"/></svg></a>
+          <button type="button" class="bar-nav-btn" data-open-categories aria-label="دسته‌بندی‌ها"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></button>
         </div>
         <button class="mobile-bar-checkout" id="mobileCheckoutBtn">
           <i class="ti ti-lock"></i> ثبت سفارش
@@ -5000,5 +5009,11 @@
       });
     </script>
     <script src="/auth-modal.js"></script>
-  </body>
+  <script>
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest("[data-open-categories]")) return;
+        document.querySelector('.mobile-bottom-nav [data-nav="categories"]')?.click();
+      });
+    </script>
+</body>
 </html>
