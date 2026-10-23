@@ -170,3 +170,19 @@ html body .product-card .pl-live-rating__count { display: none; }
 .combo-item:active { background: #eff6ff; border-color: var(--blue, #2563eb); }
 @media (hover: hover) { .combo-item:hover { background: #eff6ff; border-color: var(--blue, #2563eb); } }
 @media (min-width: 769px) { .combo-chooser { align-items: center; } .combo-sheet { border-radius: 20px; } }
+
+/* نوار اعتماد (ارسال، اصالت، بازگشت، پرداخت): بدون قاب و خط‌کشی، سبک و کم‌رنگ */
+html body .home-trust-strip {
+  background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  margin: 4px 0 28px !important; gap: 8px !important;
+}
+html body .home-trust-item { padding: 8px 10px !important; gap: 10px !important; border: 0 !important; }
+html body .home-trust-item + .home-trust-item,
+html body .home-trust-item:nth-child(even) { border: 0 !important; }
+html body .home-trust-ico { flex: 0 0 36px !important; height: 36px !important; font-size: 18px !important; background: #f1f5fb !important; color: #7d9bd0 !important; }
+html body .home-trust-item strong { font-size: 12.5px !important; font-weight: 700 !important; color: #475569 !important; }
+html body .home-trust-item small { font-size: 11px !important; color: #94a3b8 !important; }
+@media (max-width: 768px) {
+  html body .home-trust-strip { margin-bottom: 20px !important; gap: 2px 6px !important; }
+  html body .home-trust-ico { flex-basis: 32px !important; height: 32px !important; font-size: 17px !important; }
+}
