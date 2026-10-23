@@ -2368,16 +2368,17 @@
       /* ردیف «محصولاتی که قبلاً دیده‌اید» */
       #recentlyViewedSection[hidden] { display: none; }
       .recent-card { flex: 0 0 200px; display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; scroll-snap-align: start; }
-      .recent-card a.recent-link { display: block; color: inherit; text-decoration: none; }
+      .recent-card a.recent-link { display: flex; flex-direction: column; flex: 1; color: inherit; text-decoration: none; }
       .recent-card img { width: 100%; height: 150px; object-fit: contain; background: var(--bg); display: block; padding: 8px; box-sizing: border-box; }
-      .recent-body { padding: 10px 12px 0; flex: 1; }
-      .recent-name { font-size: 12.5px; font-weight: 600; color: var(--text-2); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 42px; }
-      .recent-price { margin-top: 6px; font-size: 14px; font-weight: 800; color: var(--text-1); }
+      .recent-body { display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 0; text-align: right; }
+      .recent-name { font-size: 12.5px; font-weight: 600; color: var(--text-2); line-height: 1.7; height: 42px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .recent-price { min-height: 40px; display: flex; flex-direction: column; justify-content: flex-start; gap: 2px; font-size: 14px; font-weight: 800; color: var(--text-1); }
       .recent-price small { font-size: 10.5px; font-weight: 500; color: var(--text-3); }
-      .recent-old { display: block; font-size: 11px; color: var(--text-4); text-decoration: line-through; }
-      .recent-out { font-size: 12.5px; font-weight: 700; color: #b91c1c; }
-      .recent-actions { padding: 10px 12px 12px; }
-      .recent-add, .recent-options { width: 100%; height: 36px; border: 0; border-radius: var(--radius-sm); background: var(--blue-light); color: var(--blue); font: 700 12px inherit; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; cursor: pointer; }
+      .recent-old { min-height: 16px; font-size: 11px; font-weight: 500; color: var(--text-4); text-decoration: line-through; }
+      .recent-out { min-height: 40px; font-size: 13px; font-weight: 700; color: #b91c1c; }
+      .recent-card .pl-live-rating { display: none !important; } /* نشانگر امتیاز سراسری اینجا جا ندارد و چیدمان را به هم می‌ریزد */
+      .recent-actions { margin-top: auto; padding: 10px 12px 12px; }
+      .recent-add, .recent-options { box-sizing: border-box; width: 100%; height: 38px; border: 0; border-radius: var(--radius-sm); background: var(--blue-light); color: var(--blue); font-family: inherit; font-size: 12.5px; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; cursor: pointer; }
       .recent-add:disabled { background: #e2e8f0; color: #94a3b8; cursor: default; }
       @media (hover: hover) { .recent-add:hover:not(:disabled), .recent-options:hover { background: var(--blue); color: #fff; } }
       @media (max-width: 768px) { .slider-nav { display: none; } .recent-card { flex-basis: 168px; } .recent-card img { height: 128px; } }
@@ -4304,7 +4305,7 @@
           const out = isOut(p);
           const img = esc(p.mainImage || (p.images && p.images[0]) || "/images/product-placeholder.svg");
           const href = "/product/" + encodeURIComponent(p.slug || p._id);
-          const price = out || !(Number(p.price) > 0) ? '<div class="recent-out">ناموجود</div>' : '<div class="recent-price">' + esc(formatPrice(finalOf(p))) + ' <small>تومان</small>' + (Number(p.discount) > 0 ? '<span class="recent-old">' + esc(formatPrice(p.price)) + "</span>" : "") + "</div>";
+          const price = out || !(Number(p.price) > 0) ? '<div class="recent-out">ناموجود</div>' : '<div class="recent-price"><span>' + esc(formatPrice(finalOf(p))) + ' <small>تومان</small></span>' + '<span class="recent-old">' + (Number(p.discount) > 0 ? esc(formatPrice(p.price)) : "") + "</span></div>";
           let action;
           if (out) action = '<button type="button" class="recent-add" disabled>ناموجود</button>';
           else if (hasOptions(p)) action = '<a class="recent-options" href="' + esc(href) + '">انتخاب گزینه‌ها</a>';
