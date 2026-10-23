@@ -40,3 +40,37 @@ html body .btn-continue-shopping i { color: #fff !important; }
 @media (max-width: 960px) {
   html body .cart-summary-col { order: 0 !important; }
 }
+
+/* ───────── کارت کالا در سبد خرید: یک قیمت واحد، جمع فقط برای تعداد بیشتر از یک، کنترل‌ها کنار هم ───────── */
+html body .cart-item-card { grid-template-columns: 112px minmax(0, 1fr) 230px !important; gap: 20px !important; padding: 18px !important; align-items: stretch !important; }
+html body .cart-item-img-wrap { width: 112px !important; height: 112px !important; align-self: start; }
+html body .cart-item-info { gap: 6px !important; }
+html body .cart-item-brand { font-size: 11px !important; letter-spacing: .4px; }
+html body .cart-item-name { font-size: 14.5px !important; font-weight: 700 !important; line-height: 1.8 !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+html body .cart-item-variants { display: flex; flex-wrap: wrap; gap: 6px; }
+html body .cart-item-variant-tag { padding: 3px 10px !important; font-size: 12px !important; border-radius: 999px !important; }
+html body .cart-item-stock { margin-top: 2px; font-size: 12px !important; }
+html body .cart-item-side { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; gap: 14px; }
+html body .cart-item-prices { text-align: left; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+html body .cart-item-price-line { display: flex; align-items: center; gap: 8px; direction: rtl; }
+html body .cart-item-price { font-size: 17px !important; font-weight: 800 !important; color: var(--text-1) !important; }
+html body .cart-item-price small { font-size: 11px; font-weight: 500; color: var(--text-3); }
+html body .cart-item-discount-badge { display: inline-flex !important; padding: 2px 8px !important; border-radius: 8px !important; background: var(--blue) !important; color: #fff !important; font-size: 11px !important; font-weight: 800 !important; }
+html body .cart-item-original-price { font-size: 12px !important; color: var(--text-4) !important; text-decoration: line-through; }
+html body .cart-item-total-price { margin-top: 2px; font-size: 12px !important; color: var(--text-3) !important; }
+html body .cart-item-total-price strong { color: var(--text-1); }
+html body .cart-item-controls { display: flex; align-items: center; gap: 10px; }
+html body .cart-item-remove { display: inline-flex; align-items: center; gap: 5px; height: 38px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-3); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+@media (hover: hover) { html body .cart-item-remove:hover { color: #dc2626; border-color: #fecaca; background: #fef2f2; } }
+html body .cart-item-remove:active { color: #dc2626; background: #fef2f2; }
+@media (max-width: 768px) {
+  html body .cart-item-card { grid-template-columns: 92px minmax(0, 1fr) !important; gap: 12px 14px !important; padding: 14px !important; }
+  html body .cart-item-img-wrap { width: 92px !important; height: 92px !important; }
+  html body .cart-item-name { font-size: 13.5px !important; }
+  html body .cart-item-side { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px dashed var(--border); }
+  html body .cart-item-prices { align-items: flex-start; text-align: right; }
+  html body .cart-item-price { font-size: 16px !important; }
+}
+html body .cart-item-remove { width: auto !important; min-width: 0 !important; flex: 0 0 auto; white-space: nowrap; line-height: 1; }
+html body .cart-item-remove .ti { font-size: 16px; }
+html body .cart-item-price, html body .cart-item-price-line { white-space: nowrap; }

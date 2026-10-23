@@ -3935,7 +3935,7 @@
               <div class="cart-item-quick-view"><i class="ti ti-eye"></i></div>
             </div>
             <div class="cart-item-info">
-              <div class="cart-item-brand">${item.brand || ""}</div>
+              ${item.brand ? `<div class="cart-item-brand">${item.brand}</div>` : ""}
               <div class="cart-item-name">${item.name}</div>
               <div class="cart-item-variants">
                 ${[["رنگ: <strong>" + item.color + "</strong>", item.color], [item.variant, item.variant], [item.warranty, item.warranty]]
@@ -3943,24 +3943,24 @@
                   .map(([label]) => `<span class="cart-item-variant-tag">${label}</span>`)
                   .join("")}
               </div>
-              <div class="cart-item-stock ${stockClass}"><i class="ti ${stockIcon}"></i> ${stockText}</div>
-              <div class="cart-item-ops">
-                <button class="cart-op-btn danger" onclick="removeItem('${item.id}')" aria-label="حذف محصول">
-                  <i class="ti ti-trash"></i><span class="op-tooltip">حذف</span>
-                </button>
-              </div>
+              ${stockClass === "in-stock" ? "" : `<div class="cart-item-stock ${stockClass}"><i class="ti ${stockIcon}"></i> ${stockText}</div>`}
             </div>
-            <div class="cart-item-actions-col">
+            <div class="cart-item-side">
               <div class="cart-item-prices">
-                ${item.discount > 0 ? `<div class="cart-item-discount-badge"><i class="ti ti-tag"></i> ${toPersian(item.discount)}٪ تخفیف</div>` : ""}
-                ${item.originalPrice > item.price ? `<div class="cart-item-original-price">${priceText(item.originalPrice)}</div>` : ""}
-                <div class="cart-item-price"><small>تومان</small> ${formatPrice(item.price)}</div>
-                <div class="cart-item-total-price">جمع: <strong>${priceText(totalItemPrice)}</strong></div>
+                <div class="cart-item-price-line">
+                  <span class="cart-item-price">${formatPrice(item.price)} <small>تومان</small></span>
+                  ${item.discount > 0 ? `<span class="cart-item-discount-badge">${toPersian(item.discount)}٪</span>` : ""}
+                </div>
+                ${item.originalPrice > item.price ? `<div class="cart-item-original-price">${formatPrice(item.originalPrice)}</div>` : ""}
+                ${item.quantity > 1 ? `<div class="cart-item-total-price">جمع ${toPersian(item.quantity)} عدد: <strong>${priceText(totalItemPrice)}</strong></div>` : ""}
               </div>
-              <div class="qty-selector" role="group" aria-label="تعداد محصول">
-                <button class="qty-btn" onclick="changeQty('${item.id}',-1)" ${item.quantity <= 1 || !item.available ? "disabled" : ""} aria-label="کاهش تعداد"><i class="ti ti-minus"></i></button>
-                <input type="number" class="qty-value" value="${item.quantity}" min="1" max="${Math.max(1, item.stock)}" onchange="setQty('${item.id}',this.value)" aria-label="تعداد" ${!item.available ? "disabled" : ""} />
-                <button class="qty-btn" onclick="changeQty('${item.id}',1)" ${item.quantity >= item.stock || !item.available ? "disabled" : ""} aria-label="افزایش تعداد"><i class="ti ti-plus"></i></button>
+              <div class="cart-item-controls">
+                <div class="qty-selector" role="group" aria-label="تعداد محصول">
+                  <button class="qty-btn" onclick="changeQty('${item.id}',-1)" ${item.quantity <= 1 || !item.available ? "disabled" : ""} aria-label="کاهش تعداد"><i class="ti ti-minus"></i></button>
+                  <input type="number" class="qty-value" value="${item.quantity}" min="1" max="${Math.max(1, item.stock)}" onchange="setQty('${item.id}',this.value)" aria-label="تعداد" ${!item.available ? "disabled" : ""} />
+                  <button class="qty-btn" onclick="changeQty('${item.id}',1)" ${item.quantity >= item.stock || !item.available ? "disabled" : ""} aria-label="افزایش تعداد"><i class="ti ti-plus"></i></button>
+                </div>
+                <button class="cart-op-btn danger cart-item-remove" onclick="removeItem('${item.id}')" aria-label="حذف محصول"><i class="ti ti-trash"></i> حذف</button>
               </div>
             </div>
           `;
