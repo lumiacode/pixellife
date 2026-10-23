@@ -95,9 +95,10 @@ html body .hero-slider-track {
   gap: var(--hero-gap);
   transform: translateX(var(--hero-base));
 }
+html body .hero-slider-track.hero-ready { --hero-base: calc((100% - var(--hero-w)) / 2 - 2 * var(--hero-step)); }
 html body .hero-slider-track:has(.hero-slide:only-child) { --hero-w: 100%; --hero-base: 0px; }
+html body .hero-slider-track .hero-slide:last-child:not(:first-child) { order: -1; } /* قبل از اجرای جاوااسکریپت؛ JS ترتیب را inline تعیین می‌کند */
 html body .hero-slider-track .hero-slide { flex: 0 0 var(--hero-w) !important; min-width: var(--hero-w) !important; border-radius: var(--radius-lg, 16px); overflow: hidden; }
-html body .hero-slider-track .hero-slide:last-child:not(:first-child) { order: -1; }
 html body .hero-slider-container { background: transparent; box-shadow: none; border-radius: 0; }
 @media (max-width: 768px) {
   html body .hero-slider-track { --hero-w: 90%; --hero-gap: 10px; }

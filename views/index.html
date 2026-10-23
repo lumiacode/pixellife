@@ -3806,14 +3806,52 @@
         });
       });
 
+      /* بدون جابه‌جایی عناصر DOM: ترتیب با CSS order عوض می‌شود تا عکس‌ها هرگز دوباره بارگذاری/چشمک‌زن نشوند.
+         برای حرکت بی‌انتها دست‌کم ۵ اسلات لازم است؛ اگر اسلایدها کمتر بودند، نسخهٔ کپی (فقط تصویری) اضافه می‌شود. */
+      if (heroSlideCount > 1) {
+        for (let total = heroSlideCount; total < 5; total += heroSlideCount) {
+          heroSlides.forEach((slide) => {
+            const copy = slide.cloneNode(true);
+            copy.setAttribute("aria-hidden", "true");
+            copy.setAttribute("tabindex", "-1");
+            heroTrack.appendChild(copy);
+          });
+        }
+      }
+      const heroItems = Array.from(heroTrack.children);
+      const heroItemCount = heroItems.length;
+      const HERO_BASE = "translateX(var(--hero-base, 0px))";
+      const HERO_STEP = "translateX(calc(var(--hero-base, 0px) - var(--hero-step, 100%)))";
+
       let currentSlide = 0;
       let autoSlideInterval;
       let isHeroAnimating = false;
       let pendingHeroMove = "";
 
+      // اسلات −۱ و ۱ در دو لبه دیده می‌شوند؛ اسلات‌های ۲ و −۲ بیرون از کادر آماده‌اند.
+      function layoutHero() {
+        if (heroItemCount < 2) return;
+        heroItems.forEach((item, i) => {
+          let rel = (((i - currentSlide) % heroItemCount) + heroItemCount) % heroItemCount;
+          if (rel > heroItemCount - 3) rel -= heroItemCount;
+          item.style.order = String(rel);
+        });
+      }
+      function heroJump(transform) {
+        heroTrack.style.transition = "none";
+        layoutHero();
+        heroTrack.style.transform = transform;
+        void heroTrack.offsetWidth;
+        heroTrack.style.transition = "";
+      }
+      if (heroItemCount > 1) heroTrack.classList.add("hero-ready");
+      layoutHero();
+
+      const dotIndex = (index = currentSlide) => ((index % heroSlideCount) + heroSlideCount) % heroSlideCount;
       function updateDots(activeIndex = currentSlide) {
+        const active = dotIndex(activeIndex);
         document.querySelectorAll(".hero-dot").forEach((dot, i) => {
-          dot.classList.toggle("active", i === activeIndex);
+          dot.classList.toggle("active", i === active);
         });
       }
 
@@ -3823,15 +3861,9 @@
         dot.classList.add("hero-dot");
         if (i === 0) dot.classList.add("active");
         dot.addEventListener("click", () => {
-          if (isHeroAnimating || i === currentSlide) return;
-          heroTrack.style.transition = "none";
-          while (currentSlide !== i) {
-            heroTrack.appendChild(heroTrack.firstElementChild);
-            currentSlide = (currentSlide + 1) % heroSlideCount;
-          }
-          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
-          void heroTrack.offsetWidth;
-          heroTrack.style.transition = "";
+          if (isHeroAnimating || i === dotIndex()) return;
+          currentSlide = i;
+          heroJump(HERO_BASE);
           updateDots();
           resetAutoSlide();
         });
@@ -3839,40 +3871,32 @@
       });
 
       function nextSlide() {
-        if (isHeroAnimating) return;
+        if (isHeroAnimating || heroItemCount < 2) return;
         isHeroAnimating = true;
         pendingHeroMove = "next";
-        updateDots((currentSlide + 1) % heroSlideCount);
-        heroTrack.style.transform = "translateX(calc(var(--hero-base, 0px) - var(--hero-step, 100%)))";
+        updateDots(currentSlide + 1);
+        heroTrack.style.transform = HERO_STEP;
       }
 
       function prevSlide() {
-        if (isHeroAnimating) return;
+        if (isHeroAnimating || heroItemCount < 2) return;
         isHeroAnimating = true;
         pendingHeroMove = "prev";
-        heroTrack.style.transition = "none";
-        heroTrack.insertBefore(heroTrack.lastElementChild, heroTrack.firstElementChild);
-        heroTrack.style.transform = "translateX(calc(var(--hero-base, 0px) - var(--hero-step, 100%)))";
-        void heroTrack.offsetWidth;
-        heroTrack.style.transition = "";
+        currentSlide = (currentSlide - 1 + heroItemCount) % heroItemCount;
+        // همهٔ اسلایدها یک اسلات جابه‌جا می‌شوند و با انتقال معکوس در جای دیداری خود می‌مانند.
+        heroJump(HERO_STEP);
         requestAnimationFrame(() => {
-          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
+          heroTrack.style.transform = HERO_BASE;
         });
-        updateDots((currentSlide - 1 + heroSlideCount) % heroSlideCount);
+        updateDots();
       }
 
       heroTrack.addEventListener("transitionend", (event) => {
         if (event.target !== heroTrack || event.propertyName !== "transform" || !isHeroAnimating) return;
 
         if (pendingHeroMove === "next") {
-          heroTrack.style.transition = "none";
-          heroTrack.appendChild(heroTrack.firstElementChild);
-          heroTrack.style.transform = "translateX(var(--hero-base, 0px))";
-          currentSlide = (currentSlide + 1) % heroSlideCount;
-          void heroTrack.offsetWidth;
-          heroTrack.style.transition = "";
-        } else if (pendingHeroMove === "prev") {
-          currentSlide = (currentSlide - 1 + heroSlideCount) % heroSlideCount;
+          currentSlide = (currentSlide + 1) % heroItemCount;
+          heroJump(HERO_BASE);
         }
 
         pendingHeroMove = "";
