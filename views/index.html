@@ -4092,7 +4092,7 @@
         const id = escapeHtml(String(p._id));
         homeCardProducts.set(String(p._id), p);
         const out = isProductOut(p) || p.comingSoon;
-        const cart = out ? "" : `<span class="pc-cart" role="button" tabindex="0" data-id="${id}" data-mode="${cardHasOptions(p) ? "link" : "add"}" aria-label="${cardHasOptions(p) ? "انتخاب گزینه‌ها" : "افزودن به سبد خرید"}"><i class="ti ti-shopping-cart-plus"></i></span>`;
+        const cart = out ? "" : `<span class="pc-cart" role="button" tabindex="0" data-id="${id}" aria-label="افزودن به سبد خرید"><i class="ti ti-shopping-cart-plus"></i></span>`;
         return `
           <a href="/product/${slug}" class="product-card">
             ${p.comingSoon ? '<span class="product-card-coming-soon"><i class="ti ti-clock"></i> به‌زودی</span>' : ""}
@@ -4103,35 +4103,76 @@
           </a>`;
       }
 
-      /* افزودن سریع از کارت: فقط کالاهای بدون گزینه؛ بقیه به صفحهٔ محصول می‌روند. */
-      function quickAddFromCard(p) {
-        const id = String(p._id);
+      /* افزودن سریع از کارت: کالای بدون گزینه یا با یک گزینهٔ موجود مستقیم اضافه می‌شود؛
+         اگر چند گزینه (رنگ/حافظه) موجود باشد، یک پنجرهٔ کوچک برای انتخاب باز می‌شود. */
+      function cardCombos(p) {
+        const variants = Array.isArray(p.variants) ? p.variants : [];
+        if (variants.length) {
+          return variants.filter((v) => Number(v.stock) > 0).map((v) => ({
+            color: (v.color && (v.color.name || v.color)) || "", storage: v.storage || "", stock: Math.floor(Number(v.stock)), price: Number(v.price) > 0 ? Number(v.price) : null,
+          }));
+        }
+        const colors = (Array.isArray(p.colors) ? p.colors : []).map((c) => (c && c.name) || c).filter(Boolean);
+        const storages = (Array.isArray(p.storages) ? p.storages : []).filter(Boolean);
         const stock = cardStock(p);
-        const info = productPriceInfo(p);
+        if (stock <= 0) return [];
+        const list = [];
+        (colors.length ? colors : [""]).forEach((color) => (storages.length ? storages : [""]).forEach((storage) => list.push({ color, storage, stock, price: null })));
+        return list;
+      }
+      function addComboToCart(p, combo) {
+        const id = String(p._id);
+        const base = (combo.price ?? Number(p.price)) || 0;
+        const info = productPriceInfo({ ...p, price: base });
+        const colorValue = combo.color || "";
+        const storageValue = combo.storage || "";
         let cart = [];
         try { cart = JSON.parse(localStorage.getItem("digishop_cart") || "[]"); } catch (_) {}
         if (!Array.isArray(cart)) cart = [];
-        const existing = cart.find((item) => String(item.id) === id);
+        const same = (item) => String(item.id) === id && String(item.color || "").replace("—", "") === colorValue && String(item.variant || item.storage || "").replace("—", "") === storageValue;
+        const existing = cart.find(same);
         if (existing) {
           const current = Math.max(1, Number(existing.quantity ?? existing.qty) || 1);
-          if (current >= stock) { showToast("به سقف موجودی این کالا رسیده‌اید"); return; }
-          existing.quantity = current + 1; existing.qty = existing.quantity; existing.stock = stock; existing.available = true;
+          if (current >= combo.stock) { showToast("به سقف موجودی این کالا رسیده‌اید"); return false; }
+          existing.quantity = current + 1; existing.qty = existing.quantity; existing.stock = combo.stock; existing.available = true;
         } else {
-          cart.push({ id, name: p.name, brand: p.brand || "", color: "—", variant: "—", warranty: "—", stock, available: true, price: info.final, originalPrice: info.original, discount: info.discount, quantity: 1, qty: 1, image: p.mainImage || (p.images && p.images[0]) || "" });
+          cart.push({ id, name: p.name, brand: p.brand || "", color: colorValue || "—", variant: storageValue || "—", storage: storageValue, warranty: "—", stock: combo.stock, available: true, price: info.final, originalPrice: info.original, discount: info.discount, quantity: 1, qty: 1, image: p.mainImage || (p.images && p.images[0]) || "" });
         }
         localStorage.setItem("digishop_cart", JSON.stringify(cart));
         window.dispatchEvent(new Event("cartUpdated"));
         showToast("به سبد خرید اضافه شد");
+        return true;
       }
+      function closeComboChooser() { document.getElementById("comboChooser")?.remove(); }
+      function openComboChooser(p, combos) {
+        closeComboChooser();
+        const label = (c) => [c.color, c.storage].filter(Boolean).join(" · ") || "پیش‌فرض";
+        const wrap = document.createElement("div");
+        wrap.id = "comboChooser";
+        wrap.className = "combo-chooser";
+        wrap.innerHTML = '<div class="combo-backdrop" data-close></div><div class="combo-sheet" role="dialog" aria-modal="true" aria-label="انتخاب گزینه"><div class="combo-head"><b>' + escapeHtml(p.name) + '</b><button type="button" class="combo-close" data-close aria-label="بستن">×</button></div><div class="combo-note">گزینهٔ موردنظر را انتخاب کنید</div><div class="combo-list">' +
+          combos.map((c, i) => '<button type="button" class="combo-item" data-i="' + i + '"><span>' + escapeHtml(label(c)) + '</span><small>' + (c.stock <= 5 ? "تنها " + c.stock.toLocaleString("fa-IR") + " عدد" : "موجود") + "</small></button>").join("") + "</div></div>";
+        wrap.addEventListener("click", (event) => {
+          if (event.target.closest("[data-close]")) { closeComboChooser(); return; }
+          const item = event.target.closest(".combo-item");
+          if (item && addComboToCart(p, combos[Number(item.dataset.i)])) closeComboChooser();
+        });
+        document.body.appendChild(wrap);
+      }
+      function quickAddFromCard(p) {
+        const combos = cardCombos(p);
+        if (!combos.length) { showToast("این کالا موجود نیست"); return; }
+        if (combos.length === 1) addComboToCart(p, combos[0]);
+        else openComboChooser(p, combos);
+      }
+      document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeComboChooser(); });
       document.addEventListener("click", (event) => {
         const button = event.target.closest(".pc-cart");
         if (!button) return;
         event.preventDefault();
         event.stopPropagation();
         const p = homeCardProducts.get(button.dataset.id);
-        if (!p) return;
-        if (button.dataset.mode === "link") location.href = "/product/" + encodeURIComponent(p.slug);
-        else quickAddFromCard(p);
+        if (p) quickAddFromCard(p);
       }, true);
       document.addEventListener("keydown", (event) => {
         if ((event.key === "Enter" || event.key === " ") && event.target.classList?.contains("pc-cart")) { event.preventDefault(); event.target.click(); }
