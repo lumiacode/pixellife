@@ -4316,7 +4316,8 @@
 
         function card(p, index) {
           const out = isOut(p);
-          const img = esc(p.mainImage || (p.images && p.images[0]) || "/images/product-placeholder.svg");
+          const sizedImage = (src, w) => (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(src || "")) ? src + "?w=" + w : src);
+        const img = esc(sizedImage(p.mainImage || (p.images && p.images[0]), 480) || "/images/product-placeholder.svg");
           const href = "/product/" + encodeURIComponent(p.slug || p._id);
           const price = out || !(Number(p.price) > 0) ? '<div class="recent-out">ناموجود</div>' : '<div class="recent-price"><span>' + esc(formatPrice(finalOf(p))) + ' <small>تومان</small></span>' + '<span class="recent-old">' + (Number(p.discount) > 0 ? esc(formatPrice(p.price)) : "") + "</span></div>";
           let action = "";

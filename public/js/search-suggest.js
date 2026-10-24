@@ -1,6 +1,7 @@
 /* پیشنهاد جستجو هنگام تایپ در نوار جستجوی هدر (همهٔ صفحه‌ها، دسکتاپ و موبایل):
    محصولات مطابق نام + دسته‌بندی‌های مرتبط؛ کلیک مستقیم صفحهٔ محصول/دسته را باز می‌کند. */
 (function () {
+  const sizedImage = (src, w) => (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(src || "")) ? src + "?w=" + w : src);
   if (window.__plSearchSuggest) return;
   window.__plSearchSuggest = true;
   var input = document.getElementById("searchInput");
@@ -75,7 +76,7 @@
       html += '<div class="pl-sg-head">محصولات</div>' + data.products.map(function (p) {
         var meta = [p.category, p.brand].filter(Boolean).map(esc).join(" · ");
         return '<a class="pl-sg-item" href="/product/' + encodeURIComponent(p.slug) + '">' +
-          '<img src="' + esc(p.image || "/images/product-placeholder.svg") + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'">' +
+          '<img src="' + esc(sizedImage(p.image, 240) || "/images/product-placeholder.svg") + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'">' +
           '<span class="pl-sg-text"><b>' + highlight(p.name, q) + "</b><small>" + meta + "</small></span>" +
           '<span class="pl-sg-price' + (p.unavailable ? " out" : "") + '">' + (p.unavailable ? "ناموجود" : fa(p.price) + " تومان") + "</span></a>";
       }).join("");

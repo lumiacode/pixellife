@@ -144,6 +144,84 @@ ${uniqueImages.slice(0, 4).map((src, i) => `<img src="${escapeHtml(src)}" alt="$
   };
 }
 
+
+// ───────── فهرست محصولات قابل‌خزش (لینک داخلی در HTML سرور) ─────────
+// کارت‌های محصول با جاوااسکریپت ساخته می‌شوند؛ این فهرست متنی در انتهای هر صفحه، لینک همهٔ محصولات آن دسته را
+// برای گوگل (و کاربر) در همان HTML اولیه می‌گذارد.
+const T = (v) => String(v == null ? "" : v);
+const RX = {
+  phone: (p) => /موبایل|گوشی|mobile|phone/i.test(T(p.category)) && !/لوازم|accessor/i.test(T(p.category)),
+  tablet: (p) => /تبلت|tablet|ipad/i.test(T(p.category)),
+  headphone: (p) => /هدفون|هندزفری|ایرپاد|headphone|earphone|headset/i.test(T(p.category)),
+  watch: (p) => /ساعت|watch/i.test(T(p.category)),
+  console: (p) => /کنسول|console|playstation|xbox/i.test(T(p.category)),
+  accessory: (p) => /لوازم|کابل|شارژر|آداپتور|charger|cable|adapter|accessor/i.test(T(p.category)),
+  charger: (p) => /کابل|شارژر|آداپتور|charger|cable|adapter/i.test(T(p.category) + " " + T(p.name)),
+  apple: (p) => /اپل|apple/i.test(T(p.brand)),
+  samsung: (p) => /سامسونگ|samsung/i.test(T(p.brand)),
+  xiaomi: (p) => /شیائومی|xiaomi|redmi|poco/i.test(T(p.brand)),
+};
+const LIST_FILTERS = {
+  "/iphone": (p) => RX.phone(p) && RX.apple(p),
+  "/samsung": (p) => RX.phone(p) && RX.samsung(p),
+  "/xiaomi": (p) => RX.phone(p) && RX.xiaomi(p),
+  "/mobiles": RX.phone,
+  "/ipad": (p) => RX.tablet(p) && RX.apple(p),
+  "/tablets": RX.tablet,
+  "/samsungtab": (p) => RX.tablet(p) && RX.samsung(p),
+  "/xiaomitab": (p) => RX.tablet(p) && RX.xiaomi(p),
+  "/headphones": RX.headphone,
+  "/smartwatches": RX.watch,
+  "/console": RX.console,
+  "/accessories": RX.accessory,
+  "/accessories/chargers": RX.charger,
+  "/accessories/apple": (p) => RX.accessory(p) && RX.apple(p),
+  "/accessories/samsung": (p) => RX.accessory(p) && RX.samsung(p),
+  "/accessories/xiaomi": (p) => RX.accessory(p) && RX.xiaomi(p),
+  "/amazing": (p) => p.amazingOffer,
+};
+const CATEGORY_LINKS = ["/mobiles", "/iphone", "/samsung", "/xiaomi", "/tablets", "/ipad", "/samsungtab", "/xiaomitab", "/headphones", "/smartwatches", "/console", "/accessories", "/accessories/chargers", "/amazing"];
+
+let productCache = { list: null, expires: 0 };
+async function loadListProducts() {
+  if (productCache.list && productCache.expires > Date.now()) return productCache.list;
+  let Product;
+  try { Product = require("../models/Product"); } catch (_) { return []; }
+  const list = await Product.find({}).select("slug name brand category price discount availability stock variants comingSoon amazingOffer featured").sort({ featured: -1, createdAt: -1 }).limit(500).lean();
+  productCache = { list, expires: Date.now() + 60 * 1000 };
+  return list;
+}
+
+function listItem(p) {
+  const out = isOut(p);
+  const price = finalPriceToman(p);
+  const tail = p.comingSoon ? "به‌زودی" : out ? "ناموجود" : price > 0 ? `${price.toLocaleString("fa-IR")} تومان` : "";
+  return `<li><a href="/product/${encodeURIComponent(p.slug)}">${escapeHtml(plain(p.name))}</a>${tail ? `<span>${escapeHtml(tail)}</span>` : ""}</li>`;
+}
+
+const LIST_CSS = `<style id="seo-list-style">.seo-list{margin:36px 0 12px;padding:20px 22px;background:#fff;border:1px solid #e6ebf2;border-radius:16px}.seo-list h2{margin:0 0 4px;font-size:16px;font-weight:800;color:#0f172a}.seo-list p{margin:0 0 12px;font-size:12.5px;color:#64748b}.seo-list ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 24px}.seo-list li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed #e8edf3;font-size:12.5px}.seo-list li a{color:#334155;text-decoration:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.seo-list li a:hover{color:#2563eb}.seo-list li span{flex:none;color:#64748b;font-weight:600}.seo-list .seo-cats{display:flex;flex-wrap:wrap;gap:8px}.seo-list .seo-cats a{padding:6px 14px;border:1px solid #e2e8f0;border-radius:999px;font-size:12.5px;color:#334155;text-decoration:none}.seo-list .seo-cats a:hover{border-color:#2563eb;color:#2563eb}@media(max-width:768px){.seo-list{margin:24px 0 8px;padding:16px}.seo-list ul{grid-template-columns:1fr}}</style>`;
+
+async function buildListHtml(pathname) {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  if (path !== "/" && !LIST_FILTERS[path]) return "";
+  const products = (await loadListProducts()).filter((p) => p && p.slug);
+  const cats = `<div class="seo-cats">${CATEGORY_LINKS.map((c) => `<a href="${c}">${escapeHtml(PAGES[c].name)}</a>`).join("")}</div>`;
+  if (path === "/") {
+    const items = products.slice(0, 24).map(listItem).join("");
+    return `${LIST_CSS}<section class="seo-list" aria-label="دسته‌بندی‌ها و محصولات"><h2>دسته‌بندی‌های پیکسل لایف</h2>${cats}${items ? `<h2 style="margin-top:20px">محصولات منتخب</h2><ul>${items}</ul>` : ""}</section>`;
+  }
+  const rows = products.filter(LIST_FILTERS[path]).slice(0, 60);
+  if (!rows.length) return "";
+  const name = PAGES[path] ? PAGES[path].name : "محصولات";
+  return `${LIST_CSS}<section class="seo-list" aria-label="فهرست محصولات"><h2>فهرست محصولات: ${escapeHtml(name)}</h2><p>برای مشاهدهٔ مشخصات و قیمت، روی نام محصول بزنید.</p><ul>${rows.map(listItem).join("")}</ul><h2 style="margin-top:20px">دسته‌بندی‌های دیگر</h2>${cats}</section>`;
+}
+
+function insertList(html, listHtml) {
+  if (!listHtml) return html;
+  const index = html.lastIndexOf("</main>");
+  return index === -1 ? html : html.slice(0, index) + listHtml + html.slice(index);
+}
+
 // ───────── تزریق به HTML ─────────
 const SSR_CSS = `<style id="seo-ssr-style">.seo-ssr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>`;
 
@@ -180,15 +258,20 @@ function applySeo(html, meta) {
   return out;
 }
 
-function seoMiddleware(req, res, next) {
+async function seoMiddleware(req, res, next) {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
   if (req.path.startsWith("/admin")) res.set("X-Robots-Tag", "noindex, nofollow");
+  // فهرست محصولات فقط برای صفحه‌های HTML دسته‌بندی؛ از فایل‌های استاتیک و API رد می‌شود.
+  let listHtml = "";
+  if (!/\.[a-z0-9]{2,5}$/i.test(req.path) && !req.path.startsWith("/api/")) {
+    try { listHtml = await buildListHtml(req.path); } catch (error) { console.error("SEO list error:", error.message); }
+  }
   const send = res.send.bind(res);
   res.send = (body) => {
     try {
       if (typeof body === "string" && /text\/html/i.test(String(res.get("Content-Type") || ""))) {
         const meta = res.locals.seo || staticMeta(req.path);
-        body = applySeo(body, meta);
+        body = insertList(applySeo(body, meta), listHtml);
       }
     } catch (error) {
       console.error("SEO inject error:", error.message);
@@ -217,4 +300,4 @@ function robotsTxt() {
   ].join("\n");
 }
 
-module.exports = { SITE_URL, PAGES, staticMeta, buildProductSeo, applySeo, seoMiddleware, robotsTxt, absoluteUrl };
+module.exports = { SITE_URL, PAGES, staticMeta, buildProductSeo, applySeo, buildListHtml, seoMiddleware, robotsTxt, absoluteUrl };

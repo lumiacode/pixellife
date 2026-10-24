@@ -132,7 +132,7 @@ function serializeProduct(product) {
 
 router.get("/image/:id", (req, res) => {
   try {
-    if (!streamProductImage(req.params.id, res)) return res.status(404).end();
+    if (!streamProductImage(req.params.id, res, { width: req.query.w })) return res.status(404).end();
   } catch (_) {
     if (!res.headersSent) res.status(404).end();
   }

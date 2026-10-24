@@ -145,7 +145,7 @@ app.use((req, res, next) => {
       <body>
         <div style="position: fixed; inset: 0; background: #f8fafc; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: Tahoma, sans-serif; text-align: center; padding: 20px;">
           <div style="background: #ffffff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 450px; border: 1px solid #e2e8f0;">
-            <img src="/images/maintenance.png?v=4" alt="PixelLife" style="width: 120px; height: 120px; margin-bottom: 24px; object-fit: contain;">
+            <img src="/images/maintenance.webp?v=5" alt="PixelLife" style="width: 120px; height: 120px; margin-bottom: 24px; object-fit: contain;">
             <h1 style="color: #3b82f6; font-size: 24px; font-weight: 800; margin-bottom: 16px;">سایت در حال بروزرسانی است</h1>
             <p style="color: #334155; font-size: 15px; line-height: 1.8; margin-bottom: 0;">
               تیم پیکسل‌لایف در حال بهبود و تکمیل فروشگاه است.<br>

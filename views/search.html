@@ -273,14 +273,15 @@
     <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=22" />
     <script src="/js/site-header.js"></script>
     <script src="/js/shared-category-nav.js?v=7" defer></script>
-    <script src="/js/mobile-bottom-nav.js?v=21" defer></script>
+    <script src="/js/mobile-bottom-nav.js?v=22" defer></script>
     <script>
       (() => {
         const $ = (id) => document.getElementById(id);
         const fa = (n) => Number(n || 0).toLocaleString("fa-IR");
         const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
         const q = (new URLSearchParams(location.search).get("q") || "").trim();
-        const imageFor = (p) => p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "/images/product-placeholder.svg";
+        const sizedImage = (src, w) => (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(src || "")) ? src + "?w=" + w : src);
+        const imageFor = (p) => sizedImage(p.mainImage || (Array.isArray(p.images) ? p.images[0] : ""), 480) || "/images/product-placeholder.svg";
         const isOut = (p) => p.availability === "out" || Number(p.stock) <= 0 || p.comingSoon === true;
         const discountOf = (p) => Math.min(99, Math.max(0, Number(p.discountPercent || p.discount || 0)));
         const finalPrice = (p) => { const base = Math.max(0, Number(p.price) || 0); const d = discountOf(p); return d ? Math.round(base * (100 - d) / 100) : base; };

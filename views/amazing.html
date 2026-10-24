@@ -316,14 +316,15 @@
     <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=22" />
     <script src="/js/site-header.js"></script>
     <script src="/js/shared-category-nav.js?v=7" defer></script>
-    <script src="/js/mobile-bottom-nav.js?v=21" defer></script>
+    <script src="/js/mobile-bottom-nav.js?v=22" defer></script>
     <script>
       (() => {
         const $ = (id) => document.getElementById(id);
         const fa = (n) => Number(n || 0).toLocaleString("fa-IR");
         const digits = (value) => String(value || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^\d]/g, "");
         const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-        const imageFor = (p) => p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "/images/product-placeholder.svg";
+        const sizedImage = (src, w) => (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(src || "")) ? src + "?w=" + w : src);
+        const imageFor = (p) => sizedImage(p.mainImage || (Array.isArray(p.images) ? p.images[0] : ""), 480) || "/images/product-placeholder.svg";
         const endMs = (p) => (p.amazingOfferEndsAt ? new Date(p.amazingOfferEndsAt).getTime() : Infinity);
         const isActive = (p) => p.amazingOffer === true && p.comingSoon !== true && endMs(p) > Date.now();
         const isOut = (p) => p.availability === "out" || Number(p.stock) <= 0;

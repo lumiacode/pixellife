@@ -65,6 +65,8 @@
   }
   const price = (product) => Number(product.price).toLocaleString("fa-IR") + " تومان";
 
+  const sizedImage = (src, w) => (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(src || "")) ? src + "?w=" + w : src);
+
   function imageMarkup(product, name) {
     // mainImage اولویت دارد، ولی اگر یک فایل قدیمی/حذف‌شده باشد، تمام عکس‌های
     // همان محصول به‌ترتیب امتحان می‌شوند؛ نه این‌که فوراً placeholder نمایش داده شود.
@@ -73,7 +75,8 @@
       ...(Array.isArray(product.images) ? product.images : []),
     ].filter(Boolean);
     const version = product.updatedAt || product._id || "";
-    const candidates = [...new Set(rawCandidates)].map((source) => {
+    const candidates = [...new Set(rawCandidates)].map((source0) => {
+      const source = sizedImage(source0, 480);
       if (!version || String(source).startsWith("data:")) return source;
       return source + (String(source).includes("?") ? "&" : "?") +
         "v=" + encodeURIComponent(version);

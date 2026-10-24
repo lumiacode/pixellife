@@ -22,6 +22,7 @@
     "test:search-suggest": "node tests/search-suggest.test.js",
     "test:ai-assistant": "node tests/ai-assistant.test.js",
     "test:seo": "node tests/seo.test.js",
+    "test:product-images": "node tests/product-images.test.js",
     "test:traffic-patterns": "node tests/traffic-patterns.test.js",
     "prestart": "npm run test:product-page-contract"
   },
@@ -32,14 +33,15 @@
     "adminjs": "^7.8.17",
     "axios": "^1.19.0",
     "bcryptjs": "^3.0.3",
-    "cookie-parser": "^1.4.7",
     "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
     "express-formidable": "^1.2.0",
     "express-session": "^1.19.0",
     "express-validator": "^7.3.2",
+    "jalaali-js": "^1.2.8",
     "jsonwebtoken": "^9.0.3",
     "kavenegar": "^1.1.4",
     "mongodb": "^7.3.0",
@@ -49,9 +51,9 @@
     "nodemailer": "^9.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "sharp": "^0.34.5",
     "sitemap": "^9.0.1",
-    "slugify": "^1.6.9",
-    "jalaali-js": "^1.2.8"
+    "slugify": "^1.6.9"
   },
   "devDependencies": {
     "@types/node": "^22.15.29",

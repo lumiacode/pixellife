@@ -10,9 +10,10 @@ process.env.JWT_SECRET = "s"; process.env.MONGO_URI = "mongodb://x";
 const ID = "a".repeat(24);
 const products = [
   { _id: ID, slug: "iphone-17", name: "گوشی موبایل اپل مدل iPhone 17 Pro Max", brand: "اپل", category: "موبایل", price: 50000000, discount: 10, description: "<p>توضیح کامل و <b>جذاب</b> محصول</p>", images: ["/uploads/a.jpg", "https://cdn.x/b.jpg"], mainImage: "/uploads/a.jpg", stock: 3, availability: "in", rating: 4.5, reviewCount: 12, technicalSpecs: [{ title: "نمایشگر", items: [{ label: "اندازه", value: "۶٫۹ اینچ" }] }] },
+  { _id: "c".repeat(24), slug: "galaxy-s26", name: "گوشی سامسونگ گلکسی S26", brand: "سامسونگ", category: "موبایل", price: 40000000, discount: 0, stock: 4, availability: "in", featured: true, images: [] },
   { _id: "b".repeat(24), slug: "cable-x", name: "کابل ناموجود", brand: "اپل", category: "کابل", price: 300000, discount: 0, stock: 0, availability: "out", images: [] },
 ];
-stub(src("models", "Product.js"), { findOne: (filter) => { const or = filter.$or || []; const hit = products.find((p) => or.some((c) => (c.slug && c.slug === p.slug) || (c.legacyId && c.legacyId === p.legacyId) || (c._id && c._id === p._id))); const q = { select: () => q, lean: async () => hit || null }; return q; } });
+stub(src("models", "Product.js"), { find: () => { const q = { select: () => q, sort: () => q, limit: () => q, lean: async () => products }; return q; }, findOne: (filter) => { const or = filter.$or || []; const hit = products.find((p) => or.some((c) => (c.slug && c.slug === p.slug) || (c.legacyId && c.legacyId === p.legacyId) || (c._id && c._id === p._id))); const q = { select: () => q, lean: async () => hit || null }; return q; } });
 stub(src("controllers", "homeController.js"), {
   product: (req, res) => res.type("html").send(view("product.html")),
 });
@@ -25,6 +26,7 @@ app.use(seoMiddleware);
 app.get("/product", productPage.legacyProductHandler);
 app.use("/product", productPage);
 app.get("/iphone", (req, res) => res.type("html").send(view("iphone.html")));
+app.get("/samsung", (req, res) => res.type("html").send(view("iphone.html")));
 app.get("/cart", (req, res) => res.type("html").send(view("cart.html")));
 app.get("/blog", (req, res) => res.type("html").send(view("index.html")));
 app.get("/", (req, res) => res.type("html").send(view("index.html")));
@@ -80,6 +82,17 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     assert.ok(html.includes('<link rel="canonical" href="https://pixellife.ir/iphone" />'));
     assert.strictEqual(count(html, /rel="canonical"/g), 1);
     assert.ok(html.includes("BreadcrumbList"));
+
+    // فهرست لینک محصول‌ها در HTML سرور
+    html = await (await get("/iphone")).text();
+    assert.ok(/<section class="seo-list"[\s\S]*href="\/product\/iphone-17"/.test(html), "لینک محصول آیفون در صفحهٔ آیفون");
+    assert.ok(!html.split('class="seo-list"')[1].split("</section>")[0].includes("/product/galaxy-s26"), "سامسونگ در فهرست آیفون نیست");
+    html = await (await get("/samsung")).text();
+    assert.ok(html.split('class="seo-list"')[1].split("</section>")[0].includes("/product/galaxy-s26"));
+    html = await (await get("/")).text();
+    assert.ok(html.includes('class="seo-list"') && html.includes('href="/iphone"') && html.includes("/product/iphone-17"), "صفحهٔ اصلی: دسته‌ها و محصولات منتخب");
+    html = await (await get("/cart")).text();
+    assert.ok(!html.includes('class="seo-list"'), "سبد فهرست ندارد");
 
     // صفحهٔ اصلی: Organization + WebSite
     html = await (await get("/")).text();
