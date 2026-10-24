@@ -22,6 +22,7 @@
     "test:search-suggest": "node tests/search-suggest.test.js",
     "test:ai-assistant": "node tests/ai-assistant.test.js",
     "test:seo": "node tests/seo.test.js",
+    "test:traffic-patterns": "node tests/traffic-patterns.test.js",
     "prestart": "npm run test:product-page-contract"
   },
   "dependencies": {

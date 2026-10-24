@@ -371,13 +371,16 @@ async function attachProductNames(rows) {
   }));
 }
 
+const { buildPipelines: buildTrafficPipelines, buildTraffic } = require("../services/trafficPatterns");
+
 router.get("/analytics/behavior", async (req, res) => {
   try {
     const days = analyticsDays(req.query.days);
     const from = new Date(Date.now() - days * 86400000);
     const match = { createdAt: { $gte: from } };
 
-    const [summaryRows, topProductRows, searchTerms, abandonedRows, filterRows] = await Promise.all([
+    const trafficPipelines = buildTrafficPipelines(from);
+    const [summaryRows, topProductRows, searchTerms, abandonedRows, filterRows, hourlyRows, dailyVisitorRows] = await Promise.all([
       BehaviorEvent.aggregate([
         { $match: match },
         {
@@ -435,6 +438,8 @@ router.get("/analytics/behavior", async (req, res) => {
         { $sort: { count: -1 } },
         { $limit: 10 },
       ]),
+      BehaviorEvent.aggregate(trafficPipelines.hourly),
+      BehaviorEvent.aggregate(trafficPipelines.visitors),
     ]);
 
     const summary = summaryRows[0] || {
@@ -453,6 +458,7 @@ router.get("/analytics/behavior", async (req, res) => {
       days,
       from,
       summary,
+      traffic: buildTraffic(hourlyRows, dailyVisitorRows, days),
       topProducts,
       abandonedProducts,
       searchTerms: searchTerms.map((row) => ({ term: row._id, count: row.count })),

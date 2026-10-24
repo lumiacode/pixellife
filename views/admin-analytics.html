@@ -24,6 +24,34 @@
     .simple-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;font-size:13px}.simple-row span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#475569}.simple-row b{color:#2563eb}
     .empty{padding:25px 4px;color:#94a3b8;text-align:center;font-size:13px}.loading{opacity:.55;pointer-events:none}.analytics-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.ai-button{border:0;border-radius:10px;padding:10px 14px;background:#2563eb;color:#fff;font:700 13px inherit;cursor:pointer}.ai-button:disabled{opacity:.65;cursor:wait}.ai-panel{margin-bottom:18px;border-color:#bfdbfe}.ai-panel .panel-title{background:#eff6ff;color:#1d4ed8}.ai-report{padding:17px 18px;white-space:pre-wrap;line-height:2;color:#334155;font-size:13px}.ai-status{color:#64748b;font-size:12px}
     @media(max-width:768px){.analytics-head{align-items:flex-start;flex-direction:column}.data-row{grid-template-columns:minmax(0,1fr) 48px 48px 48px;gap:5px}.panel-body{padding:4px 13px}.metric-value{font-size:24px}}
+
+    /* زمان بازدید کاربران */
+    .traffic-section{margin-bottom:18px}
+    .traffic-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+    .traffic-intro h4{margin:0;font-size:18px;font-weight:800}.traffic-intro p{margin:4px 0 0;color:#64748b;font-size:12.5px}
+    .tz-badge{background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:700}
+    .peak-card{height:100%;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+    .peak-card small{color:#64748b;font-size:12px;font-weight:600}.peak-card b{font-size:21px;font-weight:800;color:#172033;line-height:1.5}.peak-card span{color:#94a3b8;font-size:11.5px}
+    .peak-card.is-hot{border-color:#bfdbfe;background:linear-gradient(180deg,#f8fbff,#fff)}.peak-card.is-hot b{color:#2563eb}
+    .chart-wrap{padding:16px 18px 14px}.chart-note{margin:0 0 10px;color:#64748b;font-size:12px}
+    .bars{display:flex;align-items:flex-end;gap:3px;height:190px;direction:rtl;padding-top:20px;border-bottom:1px solid #e2e8f0}
+    .bar-col{flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;position:relative}
+    .bar{background:#bfdbfe;border-radius:5px 5px 0 0;min-height:2px;transition:background .15s}
+    .bar-col:hover .bar,.bar-col.is-peak .bar{background:#2563eb}.bar.is-zero{background:#e2e8f0;min-height:2px}
+    .bar-val{position:absolute;bottom:calc(var(--h,0%) + 3px);left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#475569;white-space:nowrap;display:none}
+    .bar-col.is-peak .bar-val,.bar-col:hover .bar-val{display:block}
+    .axis{display:flex;gap:3px;direction:rtl;margin-top:6px}.axis span{flex:1 1 0;min-width:0;text-align:center;font-size:10px;color:#94a3b8;white-space:nowrap}
+    .axis span.is-hidden{visibility:hidden}
+    .wd-row{display:grid;grid-template-columns:74px minmax(0,1fr) 84px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:12.5px}
+    .wd-row:last-child{border-bottom:0}.wd-row b{font-weight:700;color:#334155}
+    .wd-track{height:12px;background:#f1f5f9;border-radius:99px;overflow:hidden;direction:rtl}.wd-fill{height:100%;background:#93c5fd;border-radius:99px}
+    .wd-row.is-peak .wd-fill{background:#2563eb}.wd-row.is-peak b{color:#2563eb}.wd-num{text-align:left;color:#475569;font-weight:700}.wd-num small{display:block;color:#94a3b8;font-weight:500;font-size:10.5px}
+    .heat-scroll{overflow-x:auto;padding:4px 18px 16px}
+    .heat{min-width:680px;direction:rtl;display:grid;grid-template-columns:74px repeat(24,minmax(0,1fr));gap:3px;align-items:center}
+    .heat .hh{font-size:10px;color:#94a3b8;text-align:center}.heat .hl{font-size:12px;font-weight:700;color:#334155;text-align:right}
+    .heat .cell{height:26px;border-radius:5px;background:#f1f5f9;position:relative}.heat .cell:hover{outline:2px solid #1d4ed8;outline-offset:1px;z-index:2}
+    .heat-legend{display:flex;align-items:center;gap:8px;padding:0 18px 16px;font-size:11px;color:#94a3b8;direction:rtl}.heat-legend i{display:inline-block;width:22px;height:10px;border-radius:3px}
+    @media(max-width:768px){.bars{height:150px}.wd-row{grid-template-columns:62px minmax(0,1fr) 72px}.chart-wrap{padding:14px 12px 10px}}
   </style>
 
   <style id="admin-sidebar-critical">
@@ -69,6 +97,19 @@
           <div class="col-6 col-lg-3"><div class="metric-card"><div class="metric-label">علاقه‌مندی جدید</div><div class="metric-value" id="wishlistAdds">۰</div><div class="metric-note">نشانه علاقه به محصول</div></div></div>
           <div class="col-6 col-lg-3"><div class="metric-card metric-orange"><div class="metric-label">سبدهای رهاشده</div><div class="metric-value" id="abandonedCount">۰</div><div class="metric-note">محصولات دارای افزودن بدون سفارش</div></div></div>
         </div>
+        <section class="traffic-section" aria-labelledby="trafficTitle">
+          <div class="traffic-intro">
+            <div><h4 id="trafficTitle">چه روز و چه ساعتی کاربران بازدید می‌کنند؟</h4><p>تعداد بازدید صفحه‌های فروشگاه در بازهٔ انتخاب‌شده؛ روزها و ساعت‌ها همه به وقت تهران است.</p></div>
+            <span class="tz-badge">وقت تهران · روز هفته از شنبه</span>
+          </div>
+          <div class="row g-3 mb-3" id="peakCards"></div>
+          <div class="row g-3 mb-3" id="trafficCharts">
+            <div class="col-12"><section class="panel"><div class="panel-title"><span>بازدید در هر روز</span><small id="dailyNote">برای دیدن عدد، روی ستون بروید</small></div><div class="chart-wrap" id="dailyChart"></div></section></div>
+            <div class="col-12 col-xl-7"><section class="panel"><div class="panel-title"><span>پربازدیدترین ساعت‌های شبانه‌روز</span><small>جمع بازدید هر ساعت در کل بازه</small></div><div class="chart-wrap" id="hourChart"></div></section></div>
+            <div class="col-12 col-xl-5"><section class="panel"><div class="panel-title"><span>بازدید در روزهای هفته</span><small>عدد بزرگ: میانگین هر روز · زیرش: جمع</small></div><div class="panel-body" id="weekdayChart"></div></section></div>
+            <div class="col-12"><section class="panel"><div class="panel-title"><span>نقشهٔ حرارتی: روز هفته × ساعت</span><small>هر چه آبی پررنگ‌تر، بازدید بیشتر</small></div><div class="heat-scroll"><div class="heat" id="heatmap"></div></div><div class="heat-legend" id="heatLegend"></div></section></div>
+          </div>
+        </section>
         <div class="row g-3">
           <div class="col-12 col-xl-7"><section class="panel"><div class="panel-title"><span>محصولات پرتعامل</span><small>بازدید · سبد · سفارش</small></div><div class="panel-body" id="topProducts"></div></section></div>
           <div class="col-12 col-xl-5"><section class="panel"><div class="panel-title"><span>محصولات در سبد رهاشده</span><small>فرصت بررسی قیمت یا موجودی</small></div><div class="panel-body" id="abandonedProducts"></div></section></div>
@@ -84,6 +125,60 @@
     const empty = text => '<div class="empty">' + text + '</div>';
     const simpleRows = (rows, label, value) => rows.length ? rows.map(row => '<div class="simple-row"><span>' + escapeHtml(label(row)) + '</span><b>' + format(value(row)) + '</b></div>').join("") : empty("هنوز داده‌ای ثبت نشده است.");
     const set = (id, value) => document.getElementById(id).textContent = format(value);
+
+    const faDay = (key, opts) => new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "UTC", ...opts }).format(new Date(key + "T12:00:00Z"));
+    const hourLabel = h => format(h) + " تا " + format((h + 1) % 24);
+    function barChart(values, labels, { peakIndex, tooltip, labelEvery }) {
+      const max = Math.max(1, ...values);
+      const bars = values.map((v, i) => '<div class="bar-col' + (i === peakIndex ? " is-peak" : "") + '" title="' + escapeHtml(tooltip(i, v)) + '"><span class="bar-val" style="--h:' + (v / max * 100) + '%">' + format(v) + '</span><div class="bar' + (v ? "" : " is-zero") + '" style="height:' + (v / max * 100) + '%"></div></div>').join("");
+      const axis = labels.map((l, i) => '<span class="' + (i % labelEvery === 0 || i === labels.length - 1 ? "" : "is-hidden") + '">' + escapeHtml(l) + '</span>').join("");
+      return '<div class="bars">' + bars + '</div><div class="axis">' + axis + '</div>';
+    }
+    function renderTraffic(t) {
+      const cards = document.getElementById("peakCards");
+      if (!t || !t.totalViews) {
+        cards.innerHTML = '<div class="col-12">' + empty("در این بازه هنوز بازدیدی ثبت نشده است. بعد از اولین بازدیدها، روز و ساعت‌های پربازدید اینجا نشان داده می‌شود.") + '</div>';
+        document.getElementById("trafficCharts").hidden = true;
+        return;
+      }
+      document.getElementById("trafficCharts").hidden = false;
+      const p = t.peaks;
+      cards.innerHTML = [
+        ['is-hot', "پربازدیدترین ساعت", "ساعت " + hourLabel(p.hour.hour), format(p.hour.views) + " بازدید در کل بازه"],
+        ['is-hot', "پربازدیدترین روز هفته", p.weekday.name, "میانگین " + format(p.weekday.average) + " بازدید در هر " + p.weekday.name],
+        ['', "پربازدیدترین تاریخ", faDay(p.day.date, { weekday: "long", day: "numeric", month: "long" }), format(p.day.views) + " بازدید"],
+        ['', "میانگین بازدید روزانه", format(t.averagePerDay), "در " + format(t.activeDays) + " روز فعال از " + format(t.days.length) + " روز"],
+      ].map(c => '<div class="col-6 col-lg-3"><div class="peak-card ' + c[0] + '"><small>' + c[1] + '</small><b>' + c[2] + '</b><span>' + c[3] + '</span></div></div>').join("");
+
+      // بازدید هر روز
+      const dayViews = t.days.map(d => d.views), peakDay = dayViews.indexOf(Math.max(...dayViews));
+      const every = t.days.length <= 7 ? 1 : t.days.length <= 30 ? 3 : 7;
+      document.getElementById("dailyChart").innerHTML = barChart(dayViews, t.days.map(d => faDay(d.date, { day: "numeric", month: "short" })), {
+        peakIndex: peakDay, labelEvery: every,
+        tooltip: (i, v) => faDay(t.days[i].date, { weekday: "long", day: "numeric", month: "long" }) + " — " + format(v) + " بازدید · " + format(t.days[i].visitors) + " بازدیدکنندهٔ یکتا",
+      });
+
+      // ساعت‌های شبانه‌روز
+      document.getElementById("hourChart").innerHTML = '<p class="chart-note">ساعت ۰ نیمه‌شب و ساعت ۱۲ ظهر است. ستون پررنگ، شلوغ‌ترین ساعت.</p>' + barChart(t.hours, t.hours.map((_, h) => format(h)), {
+        peakIndex: p.hour.hour, labelEvery: 2, tooltip: (h, v) => "ساعت " + hourLabel(h) + " — " + format(v) + " بازدید",
+      });
+
+      // روزهای هفته
+      const maxAvg = Math.max(1, ...t.weekdays.map(w => w.average));
+      document.getElementById("weekdayChart").innerHTML = t.weekdays.map(w => '<div class="wd-row' + (w.name === p.weekday.name ? " is-peak" : "") + '"><b>' + w.name + '</b><div class="wd-track"><div class="wd-fill" style="width:' + (w.average / maxAvg * 100) + '%"></div></div><span class="wd-num">' + format(w.average) + ' <small>جمع ' + format(w.total) + '</small></span></div>').join("");
+
+      // نقشهٔ حرارتی
+      const max = Math.max(1, ...t.heatmap.flat());
+      const color = v => v ? "rgba(37,99,235," + (0.12 + 0.88 * v / max).toFixed(2) + ")" : "";
+      let heat = '<span></span>';
+      for (let h = 0; h < 24; h++) heat += '<span class="hh">' + format(h) + '</span>';
+      t.heatmap.forEach((row, w) => {
+        heat += '<span class="hl">' + t.weekdays[w].name + '</span>';
+        row.forEach((v, h) => heat += '<div class="cell" style="background:' + color(v) + '" title="' + escapeHtml(t.weekdays[w].name + "، ساعت " + hourLabel(h) + " — " + format(v) + " بازدید") + '"></div>');
+      });
+      document.getElementById("heatmap").innerHTML = heat;
+      document.getElementById("heatLegend").innerHTML = '<span>کم</span>' + [0.1, 0.3, 0.55, 0.8, 1].map(a => '<i style="background:rgba(37,99,235,' + a + ')"></i>').join("") + '<span>زیاد</span><span style="margin-right:auto">بیشترین: ' + format(max) + ' بازدید در یک ساعت</span>';
+    }
     async function loadDashboard() {
       const dashboard = document.getElementById("dashboard");
       dashboard.classList.add("loading");
@@ -95,6 +190,7 @@
         set("pageViews", s.pageViews); set("visitors", s.uniqueVisitors); set("productViews", s.productViews);
         set("cartAdds", s.cartAdds); set("checkoutStarts", s.checkoutStarts); set("orderItems", s.orderItems);
         set("wishlistAdds", s.wishlistAdds); set("abandonedCount", data.abandonedProducts.length);
+        renderTraffic(data.traffic);
         document.getElementById("cartRate").textContent = format(s.cartRate);
         document.getElementById("conversionRate").textContent = format(s.conversionRate);
         document.getElementById("topProducts").innerHTML = data.topProducts.length
@@ -104,7 +200,7 @@
         document.getElementById("searchTerms").innerHTML = simpleRows(data.searchTerms, row => row.term, row => row.count);
         document.getElementById("filters").innerHTML = simpleRows(data.filters, row => row.label, row => row.count);
       } catch (_) {
-        ["topProducts","abandonedProducts","searchTerms","filters"].forEach(id => document.getElementById(id).innerHTML = empty("خطا در دریافت گزارش؛ دوباره تلاش کنید."));
+        ["topProducts","abandonedProducts","searchTerms","filters","dailyChart","hourChart","weekdayChart"].forEach(id => document.getElementById(id).innerHTML = empty("خطا در دریافت گزارش؛ دوباره تلاش کنید."));
       } finally {
         dashboard.classList.remove("loading");
       }
