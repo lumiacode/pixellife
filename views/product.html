@@ -7683,11 +7683,11 @@
               : '<button class="slider-add-btn" data-id="' + id + '"><i class="ti ti-shopping-cart-plus"></i> افزودن</button><button class="slider-wish-btn" data-id="' + id + '"><i class="ti ti-heart"></i></button>';
             return `
             <div class="slider-card">
-              <a href="/product?id=${id}" style="color:inherit">
+              <a href="/product/${id}" style="color:inherit">
                 <div class="slider-card-image">${productImageHtml(p, 0)}</div>
               </a>
               <div class="slider-card-body">
-                <a href="/product?id=${id}" style="color:inherit">
+                <a href="/product/${id}" style="color:inherit">
                   <div class="slider-card-name">${p.name}</div>
                   <div class="stars">${starsHtml(p.rating)}</div>
                   ${priceMarkup}

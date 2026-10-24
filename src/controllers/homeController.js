@@ -371,7 +371,7 @@ const SHARED_CATEGORY_SCRIPT = `
 const MOBILE_BOTTOM_NAV_HEAD = `
 <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=22" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=20"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=21"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
@@ -779,7 +779,7 @@ function injectDatabaseCatalog(html) {
 
   // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
   // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
-  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=5"></script>';
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=6"></script>';
   if (html.includes("/js/database-catalog-amazing-v1.js")) {
     return html.replace(
       /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
@@ -841,7 +841,7 @@ function renderServerCatalogCard(product) {
     ? ""
     : '<div class="pl-catalog-prices"><span class="pl-catalog-price">' +
       finalPrice.toLocaleString("fa-IR") + " تومان</span></div>";
-  return '<a href="/product?id=' + slug + '" class="iphone-card pl-catalog-card" data-stock="' +
+  return '<a href="/product/' + slug + '" class="iphone-card pl-catalog-card" data-stock="' +
     (outOfStock ? 0 : stock) + '" style="color:inherit;text-decoration:none;position:relative">' +
     '<div class="iphone-card-image"><img src="' + escapeCatalogText(image) + '" alt="' + name +
     '" loading="lazy" decoding="async"></div><div class="iphone-card-body pl-catalog-body">' +
@@ -973,8 +973,8 @@ function sendAccessoryBrandView(res, brand) {
         '<i class="ti ti-headphones" style="font-size:32px;color:var(--text-2)"></i><div>',
       )
       .replace(
-        "/js/database-catalog.js?v=20260820-card-design-10",
-        "/js/database-catalog.js?v=20260821-accessories-4",
+        "/js/database-catalog.js?v=20261024-slug-urls-1",
+        "/js/database-catalog.js?v=20261024-slug-urls-2",
       );
     html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, "iphone.html"), "iphone.html")));
     html = injectSharedCategoryNav(html);

@@ -1375,7 +1375,7 @@
 
       function wishlistProductUrl(product) {
         const id = product._id || product.slug || product.legacyId;
-        return "/product?id=" + encodeURIComponent(id || "");
+        return "/product/" + encodeURIComponent(id || "");
       }
 
       async function loadWishlist() {
@@ -1505,7 +1505,7 @@
         const steps = (t.steps || []).map((step) => `<li class="${step.done ? "done" : ""}"><i class="ti ${step.done ? "ti-check" : ""}"></i><span>${escapeHtml(step.label)}${step.done && step.at ? `<small>${fmtDate(step.at, { dateStyle: "short", timeStyle: "short" })}</small>` : ""}</span></li>`).join("");
         const items = (order.items || []).map((item) => {
           const meta = [item.color, item.storage, item.warranty].filter(Boolean).map(escapeHtml).join(" · ");
-          const href = item.product ? "/product?id=" + encodeURIComponent(item.product) : "#";
+          const href = item.product ? "/product/" + encodeURIComponent(item.product) : "#";
           return `<div class="od-item"><img src="${escapeHtml(item.image || "/images/placeholder-product.png")}" alt="${escapeHtml(item.name)}" onerror="this.style.visibility='hidden'"><div class="od-item-main"><a href="${href}">${escapeHtml(item.name)}</a>${meta ? `<div class="od-item-meta">${meta}</div>` : ""}<div class="od-item-meta">${fa(item.quantity)} عدد</div></div><div class="od-item-price">${money(Number(item.price || 0) * Number(item.quantity || 0))}</div></div>`;
         }).join("");
         const methodText = { online: "پرداخت آنلاین", bale: "پرداخت با بله" }[order.paymentMethod] || "پرداخت آنلاین";

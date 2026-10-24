@@ -316,7 +316,7 @@
     <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=22" />
     <script src="/js/site-header.js"></script>
     <script src="/js/shared-category-nav.js?v=7" defer></script>
-    <script src="/js/mobile-bottom-nav.js?v=20" defer></script>
+    <script src="/js/mobile-bottom-nav.js?v=21" defer></script>
     <script>
       (() => {
         const $ = (id) => document.getElementById(id);
@@ -378,7 +378,7 @@
         function cardHtml(p) {
           const out = isOut(p), d = discountOf(p), base = Math.max(0, Number(p.price) || 0), end = endMs(p);
           const price = out ? '<span class="am-unavailable">ناموجود</span>' : (d ? '<span class="am-old">' + fa(base) + "</span>" : "") + '<span class="am-new">' + fa(finalPrice(p)) + " <small>تومان</small></span>";
-          return '<a class="am-card' + (out ? " is-out" : "") + '" href="/product?id=' + encodeURIComponent(p.slug || p._id || "") + '">' +
+          return '<a class="am-card' + (out ? " is-out" : "") + '" href="/product/' + encodeURIComponent(p.slug || p._id || "") + '">' +
             (d ? '<span class="am-badge">' + fa(d) + "٪</span>" : "") +
             '<div class="am-media"><img src="' + esc(imageFor(p)) + '" alt="' + esc(p.name) + '" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'"></div>' +
             "<h3>" + esc(p.name) + "</h3>" +

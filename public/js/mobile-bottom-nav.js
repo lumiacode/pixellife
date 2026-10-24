@@ -307,7 +307,7 @@
       });
       return hits;
     };
-    const productRow = (product) => `<a class="mobile-category-sheet__link mobile-category-sheet__product" href="/product?id=${encodeURIComponent(product.slug)}"><img src="${esc(product.image || "/images/product-placeholder.svg")}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/product-placeholder.svg'"><span class="mobile-category-sheet__product-text"><b>${esc(product.name)}</b><small>${[product.category, product.brand].filter(Boolean).map(esc).join(" · ")}</small></span><em class="${product.unavailable ? "is-out" : ""}">${product.unavailable ? "ناموجود" : faNum(product.price) + " تومان"}</em></a>`;
+    const productRow = (product) => `<a class="mobile-category-sheet__link mobile-category-sheet__product" href="/product/${encodeURIComponent(product.slug)}"><img src="${esc(product.image || "/images/product-placeholder.svg")}" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/product-placeholder.svg'"><span class="mobile-category-sheet__product-text"><b>${esc(product.name)}</b><small>${[product.category, product.brand].filter(Boolean).map(esc).join(" · ")}</small></span><em class="${product.unavailable ? "is-out" : ""}">${product.unavailable ? "ناموجود" : faNum(product.price) + " تومان"}</em></a>`;
     let searchSeq = 0;
     let searchTimer = null;
     const paintSearch = (query, localHits, productsState) => {

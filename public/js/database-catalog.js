@@ -98,7 +98,7 @@
 
   function card(product) {
     const name = escapeHtml(product.name);
-    const href = "/product?id=" + encodeURIComponent(product.slug);
+    const href = "/product/" + encodeURIComponent(product.slug);
     const outOfStock = isOutOfStock(product);
     const stock = Math.max(0, Number(product.stock) || 0);
     const status = outOfStock

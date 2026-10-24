@@ -1415,7 +1415,7 @@
           ? `<b>${toPersianPrice(finalPrice(p))}</b>${discount > 0 ? `<span class="pl-off">${toPersianPrice(discount)}٪</span><s>${toPersianPrice(p.price)}</s>` : ""}`
           : '<span class="text-muted">—</span>';
         const meta = [p.brand, p.category].filter(Boolean).map(esc).join(" · ");
-        const href = "/product?id=" + encodeURIComponent(p.slug || p._id);
+        const href = "/product/" + encodeURIComponent(p.slug || p._id);
         return `
           <tr data-id="${esc(p._id)}">
             <td><div class="pl-prod">${imageCell}<div><div class="pl-prod-name">${esc(p.name)}${p.comingSoon ? '<span class="pl-chip soon">به‌زودی</span>' : ""}${p.amazingOffer ? '<span class="pl-chip amazing">شگفت‌انگیز</span>' : ""}</div><div class="pl-prod-meta">${meta}</div></div></div></td>

@@ -74,7 +74,7 @@
     if (data.products && data.products.length) {
       html += '<div class="pl-sg-head">محصولات</div>' + data.products.map(function (p) {
         var meta = [p.category, p.brand].filter(Boolean).map(esc).join(" · ");
-        return '<a class="pl-sg-item" href="/product?id=' + encodeURIComponent(p.slug) + '">' +
+        return '<a class="pl-sg-item" href="/product/' + encodeURIComponent(p.slug) + '">' +
           '<img src="' + esc(p.image || "/images/product-placeholder.svg") + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'">' +
           '<span class="pl-sg-text"><b>' + highlight(p.name, q) + "</b><small>" + meta + "</small></span>" +
           '<span class="pl-sg-price' + (p.unavailable ? " out" : "") + '">' + (p.unavailable ? "ناموجود" : fa(p.price) + " تومان") + "</span></a>";
