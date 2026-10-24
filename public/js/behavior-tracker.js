@@ -12,7 +12,8 @@
   })();
 
   const clean = (value, limit) => typeof value === "string" ? value.trim().slice(0, limit) : "";
-  const currentProductId = () => new URLSearchParams(window.location.search).get("id") || "";
+  const slugFromPath = (pathname) => { const m = String(pathname || "").match(/^\/product\/([^/]+)/); return m ? decodeURIComponent(m[1]) : ""; };
+  const currentProductId = () => new URLSearchParams(window.location.search).get("id") || slugFromPath(window.location.pathname);
   const track = (type, details = {}) => {
     const event = {
       type,
@@ -35,7 +36,7 @@
 
   window.PixelLifeBehavior = { track };
   track("page_view");
-  if (window.location.pathname === "/product" && currentProductId()) {
+  if (/^\/product(?:\/|$)/.test(window.location.pathname) && currentProductId()) {
     track("product_view", { productId: currentProductId() });
   }
 
@@ -44,7 +45,7 @@
     if (productLink) {
       try {
         const url = new URL(productLink.href, window.location.origin);
-        track("product_click", { productId: url.searchParams.get("id") || "" });
+        track("product_click", { productId: url.searchParams.get("id") || slugFromPath(url.pathname) });
       } catch (_) {}
     }
 

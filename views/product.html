@@ -6283,7 +6283,9 @@
       }
 
       const searchParams = new URLSearchParams(location.search);
-      const requestedId = searchParams.get("id") || searchParams.get("slug");
+      // آدرس اصلی هر محصول /product/اسلاگ است؛ آدرس قدیمی ?id= هم همچنان کار می‌کند.
+      const pathSlug = (location.pathname.match(/^\/product\/([^/]+)/) || [])[1];
+      const requestedId = searchParams.get("id") || searchParams.get("slug") || (pathSlug ? decodeURIComponent(pathSlug) : null);
       // شناسه‌ی نهایی که در cart/wishlist/recently-viewed ذخیره می‌شود، بعد از
       // دریافت پاسخ سرور با canonicalProductId جایگزین می‌شود (پایین‌تر)
       let productId = requestedId;
@@ -6293,7 +6295,7 @@
           const isMongoId = /^[a-f0-9]{24}$/i.test(productId || "");
           const apiUrl = isMongoId
             ? `/api/products/id/${productId}`
-            : `/api/products/${productId}`;
+            : `/api/products/${encodeURIComponent(productId)}`;
           // روی اینترنت ضعیف موبایل، منتظر ماندن نامحدود برای API صفحه را
           // ظاهراً «هنگ» می‌کرد. پس از 5 ثانیه دادهٔ نمایشیِ امن بارگذاری می‌شود.
           const productRequestController = new AbortController();

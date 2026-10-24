@@ -15,6 +15,7 @@ const visitTracker = require("./middleware/visitTracker");
 const analyticsRoutes = require("./routes/analytics");
 
 const { SitemapStream, streamToPromise } = require("sitemap");
+const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl } = require("./services/seo");
 
 const Product = require("./models/Product");
 
@@ -30,6 +31,9 @@ app.set("trust proxy", 1);
 
 // فشرده‌سازی پاسخ‌ها (HTML، JSON، CSS، JS)؛ قبلاً داخل بلوک کامنت‌شدهٔ «به‌روزرسانی» مانده بود.
 app.use(compression({ threshold: 1024 }));
+
+// سئوی یکپارچه: عنوان/توضیح/canonical/JSON-LD برای همهٔ صفحه‌های HTML (محصول‌های جدید هم خودکار).
+app.use(seoMiddleware);
 
 if (env.nodeEnv !== "production") {
   console.warn("⚠️ NODE_ENV روی production نیست؛ کش صفحه‌ها و فایل‌های استاتیک غیرفعال است. در سرور واقعی NODE_ENV=production بگذارید.");
@@ -254,33 +258,34 @@ app.use("/api/test-email", testEmailRoutes);
 let sitemapCache = { xml: "", expiresAt: 0 };
 const SITEMAP_TTL_MS = 60 * 60 * 1000;
 
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain").set("Cache-Control", "public, max-age=3600").send(robotsTxt());
+});
+
 app.get("/sitemap.xml", async (req, res) => {
   try {
     res.header("Content-Type", "application/xml");
     if (sitemapCache.xml && sitemapCache.expiresAt > Date.now()) return res.send(sitemapCache.xml);
 
-    const sitemap = new SitemapStream({
-      hostname: "https://pixellife.ir",
+    const sitemap = new SitemapStream({ hostname: SITE_URL });
+
+    // صفحه‌های ثابت (خانه، دسته‌بندی‌ها، قوانین و تماس)
+    Object.keys(PAGES).forEach((url) => {
+      sitemap.write({ url, changefreq: url === "/" || url === "/amazing" ? "daily" : "weekly", priority: url === "/" ? 1 : /^\/(terms|contact)$/.test(url) ? 0.3 : 0.7 });
     });
 
-    // صفحه اصلی
-    sitemap.write({
-      url: "/",
-      changefreq: "daily",
-      priority: 1,
-    });
-
-    // فقط slug محصولات خوانده می‌شود، نه همهٔ فیلدهای هر محصول
-    const products = await Product.find({}).select("slug").lean();
-
+    // همهٔ محصولات (هر محصول جدید خودکار اضافه می‌شود) با تاریخ به‌روزرسانی و تصویر
+    const products = await Product.find({}).select("slug updatedAt images mainImage").lean();
     products.forEach((product) => {
-      if (product.slug) {
-        sitemap.write({
-          url: `/product/${product.slug}`,
-          changefreq: "weekly",
-          priority: 0.8,
-        });
-      }
+      if (!product.slug) return;
+      const images = [product.mainImage, ...(Array.isArray(product.images) ? product.images : [])].map(absoluteUrl).filter(Boolean);
+      sitemap.write({
+        url: `/product/${encodeURIComponent(product.slug)}`,
+        changefreq: "weekly",
+        priority: 0.8,
+        ...(product.updatedAt ? { lastmod: new Date(product.updatedAt).toISOString() } : {}),
+        ...(images.length ? { img: [...new Set(images)].slice(0, 5).map((url) => ({ url })) } : {}),
+      });
     });
 
     sitemap.end();

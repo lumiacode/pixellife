@@ -379,7 +379,7 @@ const MOBILE_PRODUCT_DETAILS_SCRIPT = `
 const HISTORY_SAFE_ANCHORS_SCRIPT = `
 <script src="/js/history-safe-anchors.js?v=1"></script>`;
 const BEHAVIOR_TRACKER_SCRIPT = `
-<script src="/js/behavior-tracker.js?v=1" defer></script>`;
+<script src="/js/behavior-tracker.js?v=2" defer></script>`;
 const CATALOG_NO_FLASH_HEAD = `
 <style id="database-catalog-no-flash">.grid,.iphone-grid,.samsung-grid,.xiaomi-grid,.prod-grid,.xiaomitab-grid,.console-grid{visibility:hidden}</style>`;
 const HIDE_SEE_ALL_HEAD = `

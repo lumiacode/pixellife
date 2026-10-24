@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const router = express.Router();
 const homeController = require("../controllers/homeController");
+const { legacyProductHandler } = require("./productPage");
 
 router.get("/", homeController.index);
 router.get("/contact", homeController.contact);
@@ -25,9 +26,9 @@ router.get("/checkout", (req, res) => res.redirect(302, "/checkout/shipping"));
 router.get(["/checkout/shipping", "/checkout/payment"], homeController.checkout);
 router.get("/mobile/apple", homeController.iphone);
 router.get("/iphone", homeController.iphone);
-router.get("/product", homeController.product);
+router.get("/product", legacyProductHandler);
 // Backward-compatible alias for links/bookmarks using the old .html path.
-router.get("/product.html", homeController.product);
+router.get("/product.html", legacyProductHandler);
 router.get("/samsung", homeController.samsung);
 router.get("/xiaomi", homeController.xiaomi);
 router.get("/accessories", homeController.accessoriesAll);
