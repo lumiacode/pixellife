@@ -183,6 +183,7 @@ const LIST_FILTERS = {
 const CATEGORY_LINKS = ["/mobiles", "/iphone", "/samsung", "/xiaomi", "/tablets", "/ipad", "/samsungtab", "/xiaomitab", "/headphones", "/smartwatches", "/console", "/accessories", "/accessories/chargers", "/amazing"];
 
 let productCache = { list: null, expires: 0 };
+function resetListCache() { productCache = { list: null, expires: 0 }; }
 async function loadListProducts() {
   if (productCache.list && productCache.expires > Date.now()) return productCache.list;
   let Product;
@@ -300,4 +301,4 @@ function robotsTxt() {
   ].join("\n");
 }
 
-module.exports = { SITE_URL, PAGES, staticMeta, buildProductSeo, applySeo, buildListHtml, seoMiddleware, robotsTxt, absoluteUrl };
+module.exports = { SITE_URL, PAGES, staticMeta, buildProductSeo, applySeo, buildListHtml, resetListCache, seoMiddleware, robotsTxt, absoluteUrl };

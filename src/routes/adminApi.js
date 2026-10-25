@@ -20,6 +20,7 @@ const requireAdmin = require("../middleware/adminAuth");
 const adminSession = require("../middleware/adminSession");
 const demoProducts = require("../data/demoProducts");
 const { removeProductImage, saveProductImage } = require("../utils/productImages");
+const { clearProductCaches } = require("../services/cacheBus");
 
 function parseList(value) {
   if (value === undefined) return undefined;
@@ -746,6 +747,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
     }, variantInventory, availability));
 
     await product.save();
+    clearProductCaches();
     res.json({ success: true, product: serializeProduct(product) });
   } catch (error) {
     res.status(error.statusCode || 500).json({ success: false, message: error.message });
@@ -902,6 +904,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     }
 
     await product.save();
+    clearProductCaches();
     res.json({ success: true, product: serializeProduct(product) });
   } catch (error) {
     res.status(error.statusCode || 500).json({ success: false, message: error.message });
@@ -917,6 +920,7 @@ router.delete("/products/:id", async (req, res) => {
         .json({ success: false, message: "محصول پیدا نشد" });
     }
     await Promise.all((product.images || []).map(removeProductImage));
+    clearProductCaches();
     res.json({ success: true });
   } catch (error) {
     res.status(error.statusCode || 500).json({ success: false, message: error.message });

@@ -13,7 +13,7 @@ const products = [
   { _id: "c".repeat(24), slug: "galaxy-s26", name: "گوشی سامسونگ گلکسی S26", brand: "سامسونگ", category: "موبایل", price: 40000000, discount: 0, stock: 4, availability: "in", featured: true, images: [] },
   { _id: "b".repeat(24), slug: "cable-x", name: "کابل ناموجود", brand: "اپل", category: "کابل", price: 300000, discount: 0, stock: 0, availability: "out", images: [] },
 ];
-stub(src("models", "Product.js"), { find: () => { const q = { select: () => q, sort: () => q, limit: () => q, lean: async () => products }; return q; }, findOne: (filter) => { const or = filter.$or || []; const hit = products.find((p) => or.some((c) => (c.slug && c.slug === p.slug) || (c.legacyId && c.legacyId === p.legacyId) || (c._id && c._id === p._id))); const q = { select: () => q, lean: async () => hit || null }; return q; } });
+stub(src("models", "Product.js"), { find: () => { const q = { select: () => q, sort: () => q, limit: () => q, lean: async () => products }; return q; }, findOne: (filter) => { const or = filter.$or || []; const hit = products.find((p) => or.some((c) => (c.slug && c.slug === p.slug) || (c.legacyId && c.legacyId === p.legacyId) || (c._id && c._id === p._id))); const q = { select: () => q, lean: async () => (hit ? { ...hit } : null) }; return q; } });
 stub(src("controllers", "homeController.js"), {
   product: (req, res) => res.type("html").send(view("product.html")),
 });
@@ -21,6 +21,7 @@ stub(src("controllers", "homeController.js"), {
 const express = require("express");
 const { seoMiddleware, robotsTxt } = require(src("services", "seo.js"));
 const productPage = require(src("routes", "productPage.js"));
+const { clearProductCaches } = require(src("services", "cacheBus.js"));
 const app = express();
 app.use(seoMiddleware);
 app.get("/product", productPage.legacyProductHandler);
@@ -56,6 +57,14 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     assert.ok(ld.some((d) => d["@type"] === "BreadcrumbList"));
     assert.ok(/<main[^>]*id="pageBody"[^>]*>\s*<article id="seoProduct"[\s\S]*<h1 itemprop="name">گوشی موبایل اپل/.test(html), "متن محصول در HTML سرور");
     assert.ok(html.includes("اندازه: ۶٫۹ اینچ"), "مشخصات در HTML");
+
+    // پاک‌کردن توضیح در ادمین: بعد از ذخیره، متن قدیمی همان لحظه ناپدید شود (کش پاک می‌شود)
+    products[0].description = "";
+    html = await (await get("/product/iphone-17")).text();
+    assert.ok(html.includes("توضیح کامل و جذاب محصول"), "تا قبل از پاک‌شدن کش، نسخهٔ کش‌شده می‌ماند");
+    clearProductCaches();
+    html = await (await get("/product/iphone-17")).text();
+    assert.ok(!html.includes("توضیح کامل و جذاب محصول"), "بعد از ذخیرهٔ ادمین، توضیح قدیمی نمایش داده نمی‌شود");
 
     // ناموجود
     html = await (await get("/product/cable-x")).text();

@@ -11,6 +11,7 @@ const Order = require("../models/Order");
 const { withApprovedReviewStats } = require("../services/reviewStats");
 const { streamProductImage } = require("../utils/productImages");
 
+const { onProductChange } = require("../services/cacheBus");
 const catalogResponseCache = new Map();
 const CATALOG_CACHE_TTL_MS = 15_000;
 
@@ -266,6 +267,7 @@ const SUGGEST_ALIASES = {
   sony: "sony|سونی", "سونی": "sony|سونی",
 };
 const suggestCache = new Map();
+onProductChange(() => { catalogResponseCache.clear(); suggestCache.clear(); bestsellersCache = { expiresAt: 0, payload: null }; });
 // همهٔ کلمه‌های جستجو باید در نام یا برند محصول باشند (ترتیب مهم نیست).
 function suggestFilter(q) {
   const tokens = normalizeText(q).split(" ").filter(Boolean).slice(0, 5);
