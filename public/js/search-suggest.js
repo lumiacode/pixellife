@@ -26,14 +26,56 @@
     ".pl-sg-price.out{color:#94a3b8;font-weight:600}" +
     ".pl-sg mark{background:#fef08a;color:inherit;border-radius:3px;padding:0 1px}" +
     ".pl-sg a.pl-sg-all{justify-content:center;border-top:1px solid #e2e8f0;color:#2563eb;font-size:13px;font-weight:700}" +
-    ".pl-sg-empty{padding:16px 14px;text-align:center;font-size:13px;color:#64748b}";
+    ".pl-sg-empty{padding:16px 14px;text-align:center;font-size:13px;color:#64748b}" +
+    ".pl-sg-headrow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 4px}" +
+    ".pl-sg-headrow .pl-sg-head{padding:0}" +
+    ".pl-sg-clear{border:0;background:none;color:#2563eb;font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px}" +
+    ".pl-sg-clear:hover{background:#eff6ff}" +
+    ".pl-sg-recent{position:relative;display:flex;align-items:center}" +
+    ".pl-sg-recent a{flex:1;min-width:0;font-size:13px;font-weight:600}" +
+    ".pl-sg-recent a i{color:#94a3b8;font-size:17px}" +
+    ".pl-sg-recent a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
+    ".pl-sg-del{flex:0 0 auto;width:36px;height:36px;margin-inline-end:6px;border:0;border-radius:50%;background:none;color:#94a3b8;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}" +
+    ".pl-sg-del:hover,.pl-sg-del:focus-visible{background:#f1f5f9;color:#dc2626}" +
+    ".pl-sg a:focus-visible,.pl-sg button:focus-visible{outline:2px solid #2563eb;outline-offset:-2px}";
   document.head.appendChild(style);
 
   var panel = document.createElement("div");
   panel.className = "pl-sg";
   panel.hidden = true;
   panel.setAttribute("role", "listbox");
+  panel.id = "plSearchPanel";
   document.body.appendChild(panel);
+  input.setAttribute("aria-controls", "plSearchPanel");
+  input.setAttribute("aria-expanded", "false");
+  input.setAttribute("aria-autocomplete", "list");
+
+  /* جستجوهای اخیر: فقط در مرورگر خود کاربر (localStorage) نگه‌داری می‌شود و به سرور ارسال نمی‌شود. */
+  var RECENT_KEY = "pl_recent_searches_v1", RECENT_MAX = 8, RECENT_LEN = 60;
+  var cleanTerm = function (v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, RECENT_LEN); };
+  function readRecents() {
+    try {
+      var list = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+      return Array.isArray(list) ? list.map(cleanTerm).filter(function (t) { return t.length >= 2; }).slice(0, RECENT_MAX) : [];
+    } catch (e) { return []; }
+  }
+  function writeRecents(list) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch (e) {} }
+  function addRecent(term) {
+    term = cleanTerm(term);
+    if (term.length < 2) return;
+    var key = term.toLowerCase();
+    var list = readRecents().filter(function (t) { return t.toLowerCase() !== key; });
+    list.unshift(term);
+    writeRecents(list.slice(0, RECENT_MAX));
+  }
+  function removeRecent(term) {
+    var key = cleanTerm(term).toLowerCase();
+    writeRecents(readRecents().filter(function (t) { return t.toLowerCase() !== key; }));
+  }
+  // هر ورود به صفحهٔ نتایج (از هر مسیری) ثبت می‌شود
+  try {
+    if (/^\/search(\.html)?\/?$/.test(location.pathname)) addRecent(new URLSearchParams(location.search).get("q"));
+  } catch (e) {}
 
   var timer = null, controller = null, active = -1, lastQuery = "";
   var fa = function (n) { return Number(n || 0).toLocaleString("fa-IR"); };
@@ -49,7 +91,22 @@
     panel.style.right = Math.round(right) + "px";
     panel.style.left = "auto";
   }
-  function hide() { panel.hidden = true; active = -1; }
+  function hide() { panel.hidden = true; active = -1; input.setAttribute("aria-expanded", "false"); }
+  function show() { panel.hidden = false; input.setAttribute("aria-expanded", "true"); }
+  function renderRecents(q) {
+    var key = (q || "").toLowerCase();
+    var list = readRecents().filter(function (t) { return !key || t.toLowerCase().indexOf(key) !== -1; });
+    if (!list.length) { hide(); return false; }
+    panel.innerHTML = '<div class="pl-sg-headrow"><span class="pl-sg-head">جستجوهای اخیر</span><button type="button" class="pl-sg-clear" data-clear>پاک کردن همه</button></div>' +
+      list.map(function (t) {
+        return '<div class="pl-sg-recent" role="presentation"><a href="/search.html?q=' + encodeURIComponent(t) + '" data-recent="' + esc(t) + '"><i class="ti ti-history" aria-hidden="true"></i><span>' + esc(t) + '</span></a>' +
+          '<button type="button" class="pl-sg-del" data-del="' + esc(t) + '" aria-label="حذف «' + esc(t) + '» از جستجوهای اخیر"><i class="ti ti-x" aria-hidden="true"></i></button></div>';
+      }).join("");
+    place();
+    show();
+    active = -1;
+    return true;
+  }
   function links() { return Array.prototype.slice.call(panel.querySelectorAll("a")); }
   function setActive(i) {
     var list = links();
@@ -86,7 +143,7 @@
     html += '<a class="pl-sg-all" href="/search?q=' + encodeURIComponent(q) + '">نمایش همهٔ نتایج برای «' + esc(q) + "» ‹</a>";
     panel.innerHTML = html;
     place();
-    panel.hidden = false;
+    show();
     active = -1;
   }
   function fetchSuggest(q) {
@@ -102,18 +159,29 @@
   input.addEventListener("input", function () {
     var q = input.value.trim();
     clearTimeout(timer);
-    if (q.length < 2) { lastQuery = ""; hide(); return; }
+    if (q.length < 2) { lastQuery = ""; renderRecents(q); return; }
     if (q === lastQuery) return;
     lastQuery = q;
     timer = setTimeout(function () { fetchSuggest(q); }, 200);
   });
-  input.addEventListener("focus", function () { if (panel.innerHTML && input.value.trim().length >= 2) { place(); panel.hidden = false; } });
+  function openForInput() {
+    var q = input.value.trim();
+    if (q.length < 2) renderRecents(q);
+    else if (panel.innerHTML) { place(); show(); }
+  }
+  input.addEventListener("focus", openForInput);
+  input.addEventListener("click", function () { if (panel.hidden) openForInput(); });
   input.addEventListener("keydown", function (event) {
     if (panel.hidden) return;
     var list = links();
     if (event.key === "ArrowDown") { event.preventDefault(); setActive(Math.min(list.length - 1, active + 1)); }
     else if (event.key === "ArrowUp") { event.preventDefault(); setActive(Math.max(-1, active - 1)); }
     else if (event.key === "Escape") { hide(); }
+    else if (event.key === "Delete" && active >= 0 && list[active] && list[active].hasAttribute("data-recent")) {
+      event.preventDefault();
+      removeRecent(list[active].getAttribute("data-recent"));
+      renderRecents(input.value.trim());
+    }
     else if (event.key === "Enter" && active >= 0 && list[active]) {
       // Enter روی گزینهٔ انتخاب‌شده، مستقیم همان صفحه را باز می‌کند (قبل از رفتار قدیمی جستجو)
       event.preventDefault();
@@ -121,9 +189,36 @@
       location.href = list[active].href;
     }
   }, true);
+  panel.addEventListener("click", function (event) {
+    var del = event.target.closest("[data-del]");
+    if (del) {
+      event.preventDefault();
+      removeRecent(del.getAttribute("data-del"));
+      renderRecents(input.value.trim());
+      input.focus();
+      return;
+    }
+    if (event.target.closest("[data-clear]")) {
+      event.preventDefault();
+      writeRecents([]);
+      hide();
+      input.focus();
+      return;
+    }
+    var all = event.target.closest(".pl-sg-all, .pl-sg-item, .pl-sg-cat");
+    if (all) addRecent(input.value);
+    var rec = event.target.closest("[data-recent]");
+    if (rec) addRecent(rec.getAttribute("data-recent"));
+  });
+  // ثبت جستجو قبل از رفتن به صفحهٔ نتایج (Enter یا دکمهٔ جستجو)؛ مرحلهٔ capture تا قبل از ریدایرکت اجرا شود
+  input.addEventListener("keydown", function (event) { if (event.key === "Enter" && active < 0) addRecent(input.value); }, true);
+  var searchBtn = document.querySelector(".search-btn");
+  if (searchBtn) searchBtn.addEventListener("click", function () { addRecent(input.value); }, true);
   document.addEventListener("click", function (event) {
     if (!panel.contains(event.target) && event.target !== input && !anchorEl.contains(event.target)) hide();
   });
   window.addEventListener("resize", function () { if (!panel.hidden) place(); });
+  // همگام‌سازی بین تب‌ها
+  window.addEventListener("storage", function (e) { if (e.key === RECENT_KEY && !panel.hidden && input.value.trim().length < 2) renderRecents(input.value.trim()); });
   window.addEventListener("scroll", function () { if (!panel.hidden) place(); }, { passive: true });
 })();
