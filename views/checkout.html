@@ -409,7 +409,8 @@
           var methods = config.shippingMethods;
           var subtotal = quote.pricing.subtotal;
           var rows = methods.map(function (m) {
-            var fee = subtotal >= config.freeShippingThreshold ? 0 : m.fee;
+            var th = Number(m.freeThreshold) || 0;
+            var fee = th > 0 && subtotal >= th ? 0 : m.fee;
             var selected = m.id === quote.shippingMethod.id;
             return (
               '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-shipping="' + esc(m.id) + '">' +
@@ -418,7 +419,7 @@
               '<span class="co-choice-price' + (fee === 0 ? " free" : "") + '">' + (fee === 0 ? "رایگان" : toman(fee)) + "</span></button>"
             );
           }).join("");
-          var hint = subtotal < config.freeShippingThreshold
+          var hint = config.freeShippingThreshold > 0 && subtotal < config.freeShippingThreshold
             ? '<div class="co-choice-meta" style="margin-top:10px"><span><i class="ti ti-info-circle"></i> ارسال سفارش‌های بالای ' + toman(config.freeShippingThreshold) + " رایگان است.</span></div>"
             : "";
           return '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-package"></i> روش ارسال</span></div>' + rows + hint + "</section>";

@@ -21,6 +21,7 @@ const adminSession = require("../middleware/adminSession");
 const demoProducts = require("../data/demoProducts");
 const { removeProductImage, saveProductImage } = require("../utils/productImages");
 const { clearProductCaches } = require("../services/cacheBus");
+const { getShippingSettings, saveShippingSettings } = require("../services/shippingSettings");
 
 function parseList(value) {
   if (value === undefined) return undefined;
@@ -331,6 +332,22 @@ function analyticsDateKey(date) {
   const value = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
   return `${value.year}-${value.month}-${value.day}`;
 }
+// هزینهٔ ارسال: ادمین مبلغ ثابت و شرط ارسال رایگان را تعیین می‌کند؛ سبد، پرداخت و ثبت سفارش از همین تنظیم می‌خوانند.
+router.get("/settings/shipping", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await getShippingSettings() });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+router.put("/settings/shipping", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await saveShippingSettings(req.body || {}) });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+
 router.get("/analytics/overview", async (req, res) => {
   try {
     const today = analyticsDateKey(new Date());

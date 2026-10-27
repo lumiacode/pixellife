@@ -3977,6 +3977,19 @@
       let appliedCoupon = null;
       let appliedGift = null;
 
+      /* هزینهٔ ارسال از تنظیمات ادمین (همان مقداری که سرور در پرداخت حساب می‌کند) */
+      let shippingRule = { fee: 150000, freeThreshold: 5000000 };
+      fetch("/api/checkout/config")
+        .then((r) => r.json())
+        .then((c) => {
+          const m = c && c.shippingMethods && c.shippingMethods[0];
+          if (m) {
+            shippingRule = { fee: Number(m.fee) || 0, freeThreshold: Number(m.freeThreshold) || 0 };
+            updateSummary();
+          }
+        })
+        .catch(() => {});
+
       function updateSummary() {
         const availableItems = cartData.filter((i) => i.available);
         const subtotal = availableItems.reduce(
@@ -3988,16 +4001,15 @@
           0,
         );
         const productDiscount = subtotal - discountedSubtotal;
-        const shipping = discountedSubtotal >= 5000000 ? 0 : 150000;
+        const shipping =
+          shippingRule.freeThreshold > 0 && discountedSubtotal >= shippingRule.freeThreshold
+            ? 0
+            : shippingRule.fee;
         const total = Math.max(
           0,
           discountedSubtotal + shipping - couponDiscount - giftDiscount,
         );
-        const totalSavings =
-          productDiscount +
-          couponDiscount +
-          giftDiscount +
-          (shipping === 0 && discountedSubtotal < 5000000 ? 150000 : 0);
+        const totalSavings = productDiscount + couponDiscount + giftDiscount;
 
         const itemCount = availableItems.reduce((s, i) => s + i.quantity, 0);
         document.getElementById("cartItemCountText").textContent =

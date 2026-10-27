@@ -3,6 +3,7 @@ const DiscountCode = require("../models/DiscountCode");
 const ApiError = require("../utils/ApiError");
 const checkoutConfig = require("../config/checkout");
 const { availableStock } = require("./inventory");
+const { loadShippingMethods } = require("./shippingSettings");
 
 const OBJECT_ID_RE = /^[a-f\d]{24}$/i;
 
@@ -16,9 +17,17 @@ function findPaymentMethod(id) {
   return methods.find((method) => method.id === id) || null;
 }
 
+// آستانهٔ ارسال رایگان روی خود روش ارسال می‌آید (از تنظیم ادمین)؛ صفر یعنی ارسال رایگان نداریم.
 function shippingFee(method, subtotal) {
   if (!method) return 0;
-  return subtotal >= checkoutConfig.freeShippingThreshold ? 0 : method.fee;
+  const threshold = method.freeThreshold !== undefined ? Number(method.freeThreshold) : checkoutConfig.freeShippingThreshold;
+  return threshold > 0 && subtotal >= threshold ? 0 : method.fee;
+}
+
+// روش‌های ارسال با هزینهٔ تنظیم‌شده در پنل ادمین
+async function loadShippingMethod(id) {
+  const methods = (await loadShippingMethods()).filter((method) => method.enabled);
+  return methods.find((method) => method.id === id) || methods[0] || null;
 }
 
 // قیمت‌ها همیشه از دیتابیس خوانده می‌شوند؛ قیمتی که مرورگر می‌فرستد معتبر نیست.
@@ -103,7 +112,7 @@ async function buildQuote({ items, shippingMethodId, discountCode }) {
     const names = unavailable.map((item) => item.name).filter(Boolean).map((name) => `«${name}»`).join("، ");
     throw new ApiError(409, names ? `کالای ${names} دیگر موجود نیست` : "برخی کالاهای سبد خرید دیگر موجود نیستند", { unavailable });
   }
-  const shippingMethod = findShippingMethod(shippingMethodId);
+  const shippingMethod = await loadShippingMethod(shippingMethodId);
   if (!shippingMethod) throw new ApiError(400, "روش ارسال معتبر نیست");
   const subtotal = lines.reduce((sum, item) => sum + item.price * item.quantity, 0);
   let discount = null;
@@ -118,4 +127,4 @@ async function buildQuote({ items, shippingMethodId, discountCode }) {
   return { lines, shippingMethod, discount, discountError, pricing };
 }
 
-module.exports = { findShippingMethod, findPaymentMethod, shippingFee, loadLineItems, evaluateDiscount, computePricing, buildQuote };
+module.exports = { findShippingMethod, loadShippingMethod, findPaymentMethod, shippingFee, loadLineItems, evaluateDiscount, computePricing, buildQuote };

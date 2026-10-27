@@ -4,14 +4,21 @@ const { protect } = require("../middleware/authMiddleware");
 const ApiError = require("../utils/ApiError");
 const checkoutConfig = require("../config/checkout");
 const { buildQuote } = require("../services/checkoutPricing");
+const { loadShippingMethods } = require("../services/shippingSettings");
 
-router.get("/config", (req, res) => {
-  res.json({
-    success: true,
-    freeShippingThreshold: checkoutConfig.freeShippingThreshold,
-    shippingMethods: checkoutConfig.shippingMethods.filter((method) => method.enabled).map(({ id, title, eta, fee }) => ({ id, title, eta, fee })),
-    paymentMethods: checkoutConfig.paymentMethods.filter((method) => method.enabled).map(({ id, title, description }) => ({ id, title, description })),
-  });
+router.get("/config", async (req, res, next) => {
+  try {
+    const methods = (await loadShippingMethods()).filter((method) => method.enabled);
+    res.json({
+      success: true,
+      // ۰ یعنی ارسال رایگان نداریم
+      freeShippingThreshold: methods[0] ? methods[0].freeThreshold : 0,
+      shippingMethods: methods.map(({ id, title, eta, fee, freeThreshold }) => ({ id, title, eta, fee, freeThreshold })),
+      paymentMethods: checkoutConfig.paymentMethods.filter((method) => method.enabled).map(({ id, title, description }) => ({ id, title, description })),
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post("/quote", protect, async (req, res, next) => {
