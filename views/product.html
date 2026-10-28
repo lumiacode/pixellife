@@ -5590,6 +5590,7 @@
           stock: Math.max(0, Number(doc.stock) || 0),
           outOfStock: outOfStock,
           price: doc.price,
+          discount: Math.min(99, Math.max(0, Number(doc.discount) || 0)),
           oldPrice: oldPrice,
           hasStorage: hasStorage,
           storages: storages,
@@ -6136,6 +6137,13 @@
         document.getElementById("toastText").textContent = text;
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 2600);
+      }
+
+      // قیمت سبد مثل سرور: price پایهٔ محصول است و تخفیف درصدی روی آن اعمال می‌شود (همان مبلغی که در پرداخت حساب می‌شود).
+      function cartPriceFields(item) {
+        const base = Math.max(0, Math.round(Number(item && item.price) || 0));
+        const percent = Math.min(99, Math.max(0, Math.round(Number(item && item.discount) || 0)));
+        return { price: percent ? Math.round(base * (100 - percent) / 100) : base, originalPrice: base, discount: percent };
       }
 
       function getCart() {
@@ -7850,7 +7858,7 @@
                 brand: p.brand || "",
                 variant: p.storages?.[0] || "",
                 image: p.images?.[0] || "",
-                price: p.price,
+                ...cartPriceFields(p),
                 stock: maxStock,
                 available: true,
                 qty: 1,
@@ -7912,7 +7920,7 @@
                 brand: product.brand || "",
                 variant: selectedStorage,
                 image: product.images?.[0] || "",
-                price: product.price,
+                ...cartPriceFields(product),
                 stock: maxQuantity,
                 qty: qty,
               });

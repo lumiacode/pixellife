@@ -3767,6 +3767,14 @@
               item.image = product.mainImage || product.images?.[0] || item.image || CART_IMAGE_FALLBACK;
               item.name = product.name || item.name;
               item.brand = product.brand || item.brand || "";
+              // قیمت و تخفیف همیشه از خود محصول (مثل پرداخت) تازه می‌شود؛ کالایی که با قیمت قدیمی یا بدون تخفیف به سبد آمده اینجا اصلاح می‌شود.
+              const liveBase = Math.max(0, Math.round(Number(product.price) || 0));
+              if (liveBase > 0) {
+                const livePercent = Math.min(99, Math.max(0, Math.round(Number(product.discount) || 0)));
+                item.originalPrice = liveBase;
+                item.discount = livePercent;
+                item.price = livePercent ? Math.round(liveBase * (100 - livePercent) / 100) : liveBase;
+              }
 
               const quantity = getCartQuantity(item);
               if (item.available) {
@@ -3785,7 +3793,7 @@
           cartData.forEach((current) => {
             const synced = syncedByKey.get(cartItemKey(current));
             if (synced && synced !== current) {
-              ["stock", "available", "inventoryStatus", "image", "name", "brand", "quantity", "qty"].forEach((field) => {
+              ["stock", "available", "inventoryStatus", "image", "name", "brand", "quantity", "qty", "price", "originalPrice", "discount"].forEach((field) => {
                 if (synced[field] !== undefined) current[field] = synced[field];
               });
             }
