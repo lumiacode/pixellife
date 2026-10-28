@@ -149,7 +149,7 @@
     item("/admin/customers", "ti-users", "مشتریان") +
     item("/admin/wallets", "ti-wallet", "کیف پول کاربران") +
     item("/admin/discounts", "ti-ticket", "کدهای تخفیف") +
-    item("/admin/shipping", "ti-truck-delivery", "هزینهٔ ارسال") +
+    item("/admin/shipping", "ti-truck-delivery", "روش ارسال") +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +
     item("/admin/ai-products", "ti-sparkles", "دستیار هوشمند محصولات") +

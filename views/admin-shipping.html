@@ -1,61 +1,71 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>هزینهٔ ارسال | پیکسل‌لایف</title><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"/><link rel="stylesheet" href="/vendor/adminlte/css/adminlte.rtl.min.css"/><link rel="stylesheet" href="/css/admin-light.css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>روش ارسال | پیکسل‌لایف</title><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"/><link rel="stylesheet" href="/vendor/adminlte/css/adminlte.rtl.min.css"/><link rel="stylesheet" href="/css/admin-light.css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
 <style>
 body{font-family:Vazirmatn,Tahoma,sans-serif;color-scheme:light;background:#f8fafc!important;color:#1e293b!important}.app-wrapper,.app-main,.app-content,.app-content-header{background:#f8fafc!important;color:#1e293b!important}
 .panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;height:100%}.panel h5{font-weight:800;font-size:16px;margin:0 0 4px}.hint{color:#64748b;font-size:12.5px;margin:0 0 14px}
 .form-label{font-weight:700;font-size:13px}.money{position:relative}.money input{padding-left:64px;font-weight:700;font-size:16px}.money span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-size:12px;pointer-events:none}
 .switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;margin-bottom:12px}.switch-row b{display:block;font-size:13.5px}.switch-row small{color:#64748b}
-.err{color:#dc2626;font-size:.85rem;min-height:1.3em}.ok{color:#15803d;font-size:.85rem;min-height:1.3em}
+.err{color:#dc2626;font-size:.85rem;min-height:1.3em}.ok{color:#15803d;font-size:.85rem;min-height:1.3em}.msg{min-height:1.3em;font-size:.85rem}
 .sim{border:1px dashed #cbd5e1;border-radius:12px;padding:14px;background:#fbfdff}.sim .row-s{display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:13.5px;border-bottom:1px solid #eef2f7}.sim .row-s:last-child{border-bottom:0;font-weight:800;font-size:15px;color:#1d4ed8}.sim .free{color:#15803d;font-weight:700}
 </style>
 <style id="admin-sidebar-critical">.app-sidebar:not(.admin-unified-sidebar){visibility:hidden!important;opacity:0!important;pointer-events:none!important}</style>
 </head>
-<body class="layout-fixed sidebar-expand-lg"><div class="app-wrapper"><nav class="app-header navbar bg-white border-bottom"><div class="container-fluid"><button class="btn btn-sm btn-outline-danger me-auto" id="logoutBtn"><i class="ti ti-logout"></i> خروج</button></div></nav><aside class="app-sidebar bg-white shadow-sm"><div class="sidebar-brand"><a href="/admin/products" class="brand-link">پیکسل<span>لایف</span></a></div><div class="sidebar-wrapper"><nav class="mt-2"><ul class="nav sidebar-menu flex-column"><li class="nav-item"><a href="/admin/products" class="nav-link"><p>محصولات</p></a></li><li class="nav-item"><a href="/admin/orders" class="nav-link"><p>سفارش‌ها</p></a></li><li class="nav-item"><a href="/admin/shipping" class="nav-link active"><p>هزینهٔ ارسال</p></a></li></ul></nav></div></aside>
-<main class="app-main"><div class="app-content-header"><div class="container-fluid"><h3 class="mb-1">هزینهٔ ارسال</h3><p class="text-muted mb-0">هزینهٔ پست را خودتان تعیین کنید؛ همین مبلغ در سبد خرید، مرحلهٔ پرداخت و جمع نهایی سفارش برای مشتری حساب می‌شود.</p></div></div>
-<div class="app-content"><div class="container-fluid"><form id="form" novalidate><div class="row g-3">
-<div class="col-12 col-xl-7"><section class="panel">
-<h5>هزینه و ارسال رایگان</h5><p class="hint">مبلغ‌ها به تومان‌اند. تغییر، چند ثانیه بعد از ذخیره برای همهٔ مشتری‌ها اعمال می‌شود. سفارش‌هایی که قبلاً ثبت شده‌اند تغییر نمی‌کنند.</p>
-<div class="mb-3"><label class="form-label" for="f-fee">هزینهٔ ارسال (تومان)</label><div class="money"><input id="f-fee" class="form-control" inputmode="numeric" dir="ltr" autocomplete="off" placeholder="مثلاً 150000"><span>تومان</span></div><div class="small text-muted mt-1">برای ارسال رایگان همیشگی، عدد ۰ بگذارید.</div></div>
-<div class="switch-row"><div><b>ارسال رایگان برای سفارش‌های بزرگ</b><small>اگر جمع کالاها از مبلغ زیر بیشتر باشد، هزینهٔ ارسال صفر می‌شود.</small></div><div class="form-check form-switch m-0"><input id="f-free" class="form-check-input" type="checkbox" role="switch" style="width:3em;height:1.5em"></div></div>
-<div class="mb-3" id="thresholdWrap"><label class="form-label" for="f-threshold">حداقل جمع کالاها برای ارسال رایگان (تومان)</label><div class="money"><input id="f-threshold" class="form-control" inputmode="numeric" dir="ltr" autocomplete="off" placeholder="مثلاً 5000000"><span>تومان</span></div></div>
-<div class="row g-3"><div class="col-12 col-md-5"><label class="form-label" for="f-title">عنوان روش ارسال</label><input id="f-title" class="form-control" maxlength="60" placeholder="ارسال پستی"></div><div class="col-12 col-md-7"><label class="form-label" for="f-eta">زمان تحویل (به مشتری نشان داده می‌شود)</label><input id="f-eta" class="form-control" maxlength="120" placeholder="تحویل تا ۳ روز کاری پس از ثبت سفارش"></div></div>
-<div id="msg" class="mt-3" role="status"></div>
-<div class="d-flex gap-2 justify-content-end mt-2"><button type="button" id="resetBtn" class="btn btn-outline-secondary">بازگرداندن مقدار ذخیره‌شده</button><button type="submit" id="saveBtn" class="btn btn-primary"><i class="ti ti-device-floppy"></i> ذخیرهٔ تنظیمات</button></div>
-</section></div>
-<div class="col-12 col-xl-5"><section class="panel"><h5>پیش‌نمایش برای مشتری</h5><p class="hint">یک مبلغ سفارش بنویسید تا ببینید با تنظیمات بالا چه جمعی پرداخت می‌شود.</p>
-<label class="form-label" for="f-sample">جمع کالاهای سفارش (تومان)</label><div class="money mb-3"><input id="f-sample" class="form-control" inputmode="numeric" dir="ltr" value="2000000"><span>تومان</span></div>
-<div class="sim" id="sim" aria-live="polite"></div></section></div>
-</div></form></div></div></main></div>
+<body class="layout-fixed sidebar-expand-lg"><div class="app-wrapper"><nav class="app-header navbar bg-white border-bottom"><div class="container-fluid"><button class="btn btn-sm btn-outline-danger me-auto" id="logoutBtn"><i class="ti ti-logout"></i> خروج</button></div></nav><aside class="app-sidebar bg-white shadow-sm"><div class="sidebar-brand"><a href="/admin/products" class="brand-link">پیکسل<span>لایف</span></a></div><div class="sidebar-wrapper"><nav class="mt-2"><ul class="nav sidebar-menu flex-column"><li class="nav-item"><a href="/admin/products" class="nav-link"><p>محصولات</p></a></li><li class="nav-item"><a href="/admin/orders" class="nav-link"><p>سفارش‌ها</p></a></li><li class="nav-item"><a href="/admin/shipping" class="nav-link active"><p>روش ارسال</p></a></li></ul></nav></div></aside>
+<main class="app-main"><div class="app-content-header"><div class="container-fluid"><h3 class="mb-1">روش ارسال</h3><p class="text-muted mb-0">روش‌های ارسال فروشگاه را اینجا مدیریت کنید. هزینه، شرط ارسال رایگان و فعال بودن هر روش را خودتان تعیین می‌کنید و همان در سبد خرید، مرحلهٔ پرداخت و جمع نهایی برای مشتری حساب می‌شود.</p></div></div>
+<div class="app-content"><div class="container-fluid"><div id="methods" class="row g-3" aria-live="polite"><div class="col-12 text-muted">در حال دریافت…</div></div></div></div></main></div>
 <script>
 (function(){
-var $=function(id){return document.getElementById(id)};
-var saved=null;
+var box=document.getElementById('methods');
 var nf=function(n){return Number(n||0).toLocaleString('fa-IR')};
+var esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 function digits(v){return String(v==null?'':v).replace(/[۰-۹]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)}).replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d)}).replace(/[^\d]/g,'')}
-function num(id){var d=digits($(id).value);return d===''?NaN:parseInt(d,10)}
+function num(el){var d=digits(el.value);return d===''?NaN:parseInt(d,10)}
 function fmtInput(el){var d=digits(el.value);el.value=d===''?'':Number(d).toLocaleString('en-US')}
 function api(url,opt){opt=opt||{};if(opt.body&&typeof opt.body!=='string'){opt.body=JSON.stringify(opt.body);opt.headers={'Content-Type':'application/json'}}
 return fetch(url,opt).then(function(r){return r.json().catch(function(){return{success:false,message:'پاسخ نامعتبر'}})})}
-function fill(s){saved=s;$('f-fee').value=Number(s.fee).toLocaleString('en-US');$('f-free').checked=!!s.freeEnabled;$('f-threshold').value=s.freeThreshold?Number(s.freeThreshold).toLocaleString('en-US'):'';$('f-title').value=s.title||'';$('f-eta').value=s.eta||'';sync()}
-function sync(){$('thresholdWrap').style.display=$('f-free').checked?'':'none';preview()}
-function preview(){var fee=num('f-fee'),sample=num('f-sample');var box=$('sim');
-if(isNaN(fee)||isNaN(sample)){box.innerHTML='<div class="text-muted">مبلغ‌ها را وارد کنید.</div>';return}
-var th=$('f-free').checked?num('f-threshold'):0;var free=th>0&&sample>=th;var ship=free?0:fee;
-box.innerHTML='<div class="row-s"><span>جمع کالاها</span><span>'+nf(sample)+' تومان</span></div>'+
+var saved={};
+
+function card(m){
+  var id=esc(m.id);
+  return '<div class="col-12 col-xl-6"><form class="panel method" data-id="'+id+'" novalidate>'+
+  '<div class="d-flex align-items-start justify-content-between gap-2 mb-1"><div><h5><i class="ti ti-truck-delivery"></i> <span data-name>'+esc(m.title)+'</span></h5><p class="hint mb-0">مبلغ‌ها به تومان‌اند. تغییر چند ثانیه بعد از ذخیره برای مشتری‌ها اعمال می‌شود و سفارش‌های قبلی تغییر نمی‌کنند.</p></div>'+
+  '<div class="form-check form-switch m-0 d-flex align-items-center gap-2"><label class="small fw-bold" for="en-'+id+'">فعال</label><input id="en-'+id+'" class="form-check-input f-enabled" type="checkbox" role="switch" style="width:2.6em;height:1.4em;margin:0"></div></div>'+
+  '<div class="row g-3 mt-1"><div class="col-12 col-md-6"><label class="form-label" for="fee-'+id+'">هزینهٔ ارسال (تومان)</label><div class="money"><input id="fee-'+id+'" class="form-control f-fee" inputmode="numeric" dir="ltr" autocomplete="off" placeholder="مثلاً 150000"><span>تومان</span></div><div class="small text-muted mt-1">برای ارسال همیشه رایگان، عدد ۰.</div></div>'+
+  '<div class="col-12 col-md-6"><label class="form-label" for="sample-'+id+'">پیش‌نمایش: جمع کالاها (تومان)</label><div class="money"><input id="sample-'+id+'" class="form-control f-sample" inputmode="numeric" dir="ltr" value="2,000,000"><span>تومان</span></div></div></div>'+
+  '<div class="switch-row mt-3"><div><b>ارسال رایگان برای سفارش‌های بزرگ</b><small>اگر جمع کالاها از مبلغ زیر بیشتر باشد، هزینهٔ ارسال صفر می‌شود.</small></div><div class="form-check form-switch m-0"><input class="form-check-input f-free" type="checkbox" role="switch" aria-label="ارسال رایگان برای سفارش‌های بزرگ" style="width:3em;height:1.5em"></div></div>'+
+  '<div class="mb-3 thresholdWrap"><label class="form-label" for="th-'+id+'">حداقل جمع کالاها برای ارسال رایگان (تومان)</label><div class="money"><input id="th-'+id+'" class="form-control f-threshold" inputmode="numeric" dir="ltr" autocomplete="off" placeholder="مثلاً 5000000"><span>تومان</span></div></div>'+
+  '<div class="row g-3"><div class="col-12 col-md-5"><label class="form-label" for="ti-'+id+'">عنوان روش ارسال</label><input id="ti-'+id+'" class="form-control f-title" maxlength="60"></div><div class="col-12 col-md-7"><label class="form-label" for="eta-'+id+'">زمان تحویل (به مشتری نشان داده می‌شود)</label><input id="eta-'+id+'" class="form-control f-eta" maxlength="120"></div></div>'+
+  '<div class="sim mt-3 f-sim" aria-live="polite"></div><div class="msg mt-3" role="status"></div>'+
+  '<div class="d-flex gap-2 justify-content-end mt-2"><button type="button" class="btn btn-outline-secondary f-reset">بازگرداندن مقدار ذخیره‌شده</button><button type="submit" class="btn btn-primary f-save"><i class="ti ti-device-floppy"></i> ذخیرهٔ تنظیمات</button></div></form></div>';
+}
+function q(f,c){return f.querySelector('.'+c)}
+function fill(f,m){saved[m.id]=m;q(f,'f-enabled').checked=m.enabled!==false;q(f,'f-fee').value=Number(m.fee).toLocaleString('en-US');q(f,'f-free').checked=!!m.freeEnabled;q(f,'f-threshold').value=m.freeThreshold?Number(m.freeThreshold).toLocaleString('en-US'):'';q(f,'f-title').value=m.title||'';q(f,'f-eta').value=m.eta||'';f.querySelector('[data-name]').textContent=m.title||'';sync(f)}
+function sync(f){f.querySelector('.thresholdWrap').style.display=q(f,'f-free').checked?'':'none';preview(f)}
+function preview(f){var fee=num(q(f,'f-fee')),sample=num(q(f,'f-sample')),el=q(f,'f-sim');
+if(isNaN(fee)||isNaN(sample)){el.innerHTML='<div class="text-muted">مبلغ‌ها را وارد کنید.</div>';return}
+var th=q(f,'f-free').checked?num(q(f,'f-threshold')):0;if(isNaN(th))th=0;var free=th>0&&sample>=th;var ship=free?0:fee;
+el.innerHTML='<div class="row-s"><span>جمع کالاها</span><span>'+nf(sample)+' تومان</span></div>'+
 '<div class="row-s"><span>هزینهٔ ارسال</span>'+(ship===0?'<span class="free">رایگان</span>':'<span>'+nf(ship)+' تومان</span>')+'</div>'+
 (th>0&&!free?'<div class="row-s"><span class="text-muted">تا ارسال رایگان</span><span class="text-muted">'+nf(th-sample)+' تومان دیگر</span></div>':'')+
 '<div class="row-s"><span>جمع قابل پرداخت</span><span>'+nf(sample+ship)+' تومان</span></div>'}
-['f-fee','f-threshold','f-sample'].forEach(function(id){$(id).addEventListener('input',function(){fmtInput($(id));preview()})});
-$('f-free').addEventListener('change',sync);
-function load(){api('/admin/api/settings/shipping').then(function(j){if(!j.success){$('msg').className='err mt-3';$('msg').textContent=j.message||'دریافت تنظیمات ناموفق بود';return}fill(j.settings)})}
-$('resetBtn').onclick=function(){if(saved)fill(saved);$('msg').textContent=''};
-$('form').addEventListener('submit',function(ev){ev.preventDefault();var msg=$('msg');msg.className='mt-3';msg.textContent='';
-var body={fee:num('f-fee'),freeEnabled:$('f-free').checked,freeThreshold:num('f-threshold'),title:$('f-title').value,eta:$('f-eta').value};
-if(isNaN(body.fee)){msg.className='err mt-3';msg.textContent='هزینهٔ ارسال را وارد کنید (برای رایگان، ۰).';return}
-if(body.freeEnabled&&(isNaN(body.freeThreshold)||body.freeThreshold<=0)){msg.className='err mt-3';msg.textContent='حداقل مبلغ ارسال رایگان را وارد کنید.';return}
-$('saveBtn').disabled=true;api('/admin/api/settings/shipping',{method:'PUT',body:body}).then(function(j){$('saveBtn').disabled=false;
-if(!j.success){msg.className='err mt-3';msg.textContent=j.message||'ذخیره نشد';return}fill(j.settings);msg.className='ok mt-3';msg.textContent='ذخیره شد؛ از همین لحظه برای مشتری‌ها اعمال می‌شود.'})});
-$('logoutBtn').onclick=function(){fetch('/admin/logout',{method:'POST'}).finally(function(){location.href='/admin/login'})};
-load();
+function bind(f){
+  ['f-fee','f-threshold','f-sample'].forEach(function(c){q(f,c).addEventListener('input',function(){fmtInput(q(f,c));preview(f)})});
+  q(f,'f-free').addEventListener('change',function(){sync(f)});
+  q(f,'f-reset').onclick=function(){fill(f,saved[f.dataset.id]);f.querySelector('.msg').textContent=''};
+  f.addEventListener('submit',function(ev){ev.preventDefault();var msg=f.querySelector('.msg');msg.className='msg mt-3';msg.textContent='';
+    var body={fee:num(q(f,'f-fee')),enabled:q(f,'f-enabled').checked,freeEnabled:q(f,'f-free').checked,freeThreshold:num(q(f,'f-threshold')),title:q(f,'f-title').value,eta:q(f,'f-eta').value};
+    if(isNaN(body.fee)){msg.className='msg err mt-3';msg.textContent='هزینهٔ ارسال را وارد کنید (برای رایگان، ۰).';return}
+    if(body.freeEnabled&&(isNaN(body.freeThreshold)||body.freeThreshold<=0)){msg.className='msg err mt-3';msg.textContent='حداقل مبلغ ارسال رایگان را وارد کنید.';return}
+    var btn=q(f,'f-save');btn.disabled=true;
+    api('/admin/api/settings/shipping/'+encodeURIComponent(f.dataset.id),{method:'PUT',body:body}).then(function(j){btn.disabled=false;
+      if(!j.success){msg.className='msg err mt-3';msg.textContent=j.message||'ذخیره نشد';return}
+      fill(f,j.method);msg.className='msg ok mt-3';msg.textContent='ذخیره شد؛ از همین لحظه برای مشتری‌ها اعمال می‌شود.'})});
+}
+api('/admin/api/settings/shipping').then(function(j){
+  if(!j.success){box.innerHTML='<div class="col-12 err">'+esc(j.message||'دریافت تنظیمات ناموفق بود')+'</div>';return}
+  box.innerHTML=j.methods.map(card).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('form.method'),function(f){var m=j.methods.filter(function(x){return x.id===f.dataset.id})[0];fill(f,m);bind(f)});
+});
+document.getElementById('logoutBtn').onclick=function(){fetch('/admin/logout',{method:'POST'}).finally(function(){location.href='/admin/login'})};
 })();
-</script><script src="/js/admin-sidebar.js?v=12" defer></script></body></html>
+</script><script src="/js/admin-sidebar.js?v=13" defer></script></body></html>
