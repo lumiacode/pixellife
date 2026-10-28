@@ -99,7 +99,7 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     html = await (await get("/samsung")).text();
     assert.ok(html.split('class="seo-list"')[1].split("</section>")[0].includes("/product/galaxy-s26"));
     html = await (await get("/")).text();
-    assert.ok(html.includes('class="seo-list"') && html.includes('href="/iphone"') && html.includes("/product/iphone-17"), "صفحهٔ اصلی: دسته‌ها و محصولات منتخب");
+    assert.ok(!html.includes('class="seo-list"') && !html.includes("دسته‌بندی‌های پیکسل لایف"), "صفحهٔ اصلی فهرست سئو ندارد");
     html = await (await get("/cart")).text();
     assert.ok(!html.includes('class="seo-list"'), "سبد فهرست ندارد");
 

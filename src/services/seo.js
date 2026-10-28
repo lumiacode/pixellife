@@ -204,13 +204,10 @@ const LIST_CSS = `<style id="seo-list-style">.seo-list{margin:36px 0 12px;paddin
 
 async function buildListHtml(pathname) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  if (path !== "/" && !LIST_FILTERS[path]) return "";
+  // صفحهٔ اصلی فهرست نمایشی ندارد؛ فقط صفحه‌های دسته‌بندی فهرست محصولات دارند.
+  if (!LIST_FILTERS[path]) return "";
   const products = (await loadListProducts()).filter((p) => p && p.slug);
   const cats = `<div class="seo-cats">${CATEGORY_LINKS.map((c) => `<a href="${c}">${escapeHtml(PAGES[c].name)}</a>`).join("")}</div>`;
-  if (path === "/") {
-    const items = products.slice(0, 24).map(listItem).join("");
-    return `${LIST_CSS}<section class="seo-list" aria-label="دسته‌بندی‌ها و محصولات"><h2>دسته‌بندی‌های پیکسل لایف</h2>${cats}${items ? `<h2 style="margin-top:20px">محصولات منتخب</h2><ul>${items}</ul>` : ""}</section>`;
-  }
   const rows = products.filter(LIST_FILTERS[path]).slice(0, 60);
   if (!rows.length) return "";
   const name = PAGES[path] ? PAGES[path].name : "محصولات";
