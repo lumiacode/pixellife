@@ -499,6 +499,10 @@
 .nav-link { font-weight: 500 !important; color: var(--text-2) !important; }
 .nav-link i { display: none !important; }
 .nav-cats .nav-cats-icon-image { width: 20px !important; height: 20px !important; flex-basis: 20px !important; }
+/* آیکن همبرگری استاندارد: مشکی، بدون تغییر رنگ در هاور */
+.nav-cats .nav-cats-hamburger,
+.nav-cats:hover .nav-cats-hamburger,
+.nav-cats.active .nav-cats-hamburger { color: #0f172a !important; }
 
 /* جستجو: فقط یک کادر؛ آیکن ذره‌بین داخل کادر و کلید Enter */
 .search-bar { height: 40px !important; }
