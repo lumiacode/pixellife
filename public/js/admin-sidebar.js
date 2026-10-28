@@ -119,6 +119,11 @@
   const currentPath = location.pathname;
   const selectedCategory = new URLSearchParams(location.search).get("category") || "";
   const productOpen = currentPath === "/admin/products";
+  // زیرمنوی «روش ارسال»؛ صفحه‌های بعدی (مثلاً هزینه بر اساس شهر) فقط یک مورد به این فهرست اضافه می‌کنند.
+  const shippingItems = [
+    { href: "/admin/shipping", icon: "ti-truck-delivery", text: "روش‌ها و هزینه ارسال" }
+  ];
+  const shippingOpen = shippingItems.some(link => link.href === currentPath);
   // ترتیب و نام‌ها دقیقاً با منوی دسته‌بندی صفحهٔ اصلی یکسان هستند.
   const links = [
     { href: "/admin/products", icon: "ti-package", text: "همهٔ محصولات", match: "" },
@@ -132,6 +137,9 @@
   const active = (path) => currentPath === path ? " active" : "";
   const item = (href, icon, text, extra = "") =>
     '<a href="' + href + '" class="admin-nav-link' + active(href) + '" data-title="' + text + '"' + extra + '><i class="ti ' + icon + '"></i><span class="adm-label">' + text + '</span><span class="adm-tip">' + text + '</span></a>';
+  const shippingLinks = shippingItems.map(link =>
+    '<li><a class="admin-submenu-link' + (currentPath === link.href ? " active" : "") + '" data-title="' + link.text + '" href="' + link.href + '"><i class="ti ' + link.icon + '"></i><span>' + link.text + '</span></a></li>'
+  ).join("");
   const categoryLinks = links.map(link => {
     const isActive = currentPath === "/admin/products" && selectedCategory === link.match;
     return '<li><a class="admin-submenu-link' + (isActive ? " active" : "") + '" data-title="' + link.text + '" href="' + link.href + '"><i class="ti ' + link.icon + '"></i><span>' + link.text + '</span></a></li>';
@@ -149,7 +157,7 @@
     item("/admin/customers", "ti-users", "مشتریان") +
     item("/admin/wallets", "ti-wallet", "کیف پول کاربران") +
     item("/admin/discounts", "ti-ticket", "کدهای تخفیف") +
-    item("/admin/shipping", "ti-truck-delivery", "روش ارسال") +
+    '<section class="admin-nav-group' + (shippingOpen ? " open" : "") + '" data-title="روش ارسال"><button type="button" class="admin-nav-toggle" aria-expanded="' + shippingOpen + '"><span><i class="ti ti-truck-delivery"></i><span class="adm-label">روش ارسال</span></span><i class="ti ti-chevron-down admin-chevron"></i><span class="adm-tip">روش ارسال</span></button><ul class="admin-submenu">' + shippingLinks + '</ul></section>' +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +
     item("/admin/ai-products", "ti-sparkles", "دستیار هوشمند محصولات") +
@@ -186,10 +194,8 @@
   // ─── جمع‌شدن / باز شدن (دسکتاپ) ───
   const collapseBtn = aside.querySelector(".adm-collapse");
   const search = aside.querySelector('input[type="search"]');
-  const group = aside.querySelector(".admin-nav-group");
-  const groupToggle = aside.querySelector(".admin-nav-toggle");
+  const groups = [...aside.querySelectorAll(".admin-nav-group")];
   const filterable = [...aside.querySelectorAll(".admin-nav-link[data-title]")];
-  const submenuItems = [...aside.querySelectorAll(".admin-submenu li")];
   const dividers = [...aside.querySelectorAll(".admin-nav-divider")];
   const normalize = text => String(text).replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/‌/g, "").toLowerCase();
 
@@ -201,16 +207,19 @@
       link.style.display = match ? "" : "none";
       if (match) shown++;
     });
-    let submenuMatches = 0;
-    submenuItems.forEach(li => {
-      const match = !query || normalize(li.firstElementChild.dataset.title).includes(query);
-      li.style.display = match ? "" : "none";
-      if (match) submenuMatches++;
+    groups.forEach(group => {
+      const toggle = group.querySelector(".admin-nav-toggle");
+      let submenuMatches = 0;
+      group.querySelectorAll(".admin-submenu li").forEach(li => {
+        const match = !query || normalize(li.firstElementChild.dataset.title).includes(query);
+        li.style.display = match ? "" : "none";
+        if (match) submenuMatches++;
+      });
+      const groupMatch = !query || normalize(group.dataset.title).includes(query) || submenuMatches > 0;
+      group.style.display = groupMatch ? "" : "none";
+      if (query && submenuMatches > 0) { group.classList.add("open"); toggle.setAttribute("aria-expanded", "true"); }
+      if (groupMatch) shown++;
     });
-    const groupMatch = !query || normalize(group.dataset.title).includes(query) || submenuMatches > 0;
-    group.style.display = groupMatch ? "" : "none";
-    if (query && submenuMatches > 0) { group.classList.add("open"); groupToggle.setAttribute("aria-expanded", "true"); }
-    if (groupMatch) shown++;
     dividers.forEach(divider => { divider.style.display = query ? "none" : ""; });
     aside.querySelector(".adm-empty").style.display = shown ? "none" : "block";
   }
@@ -226,11 +235,14 @@
   setCollapsed(root.classList.contains("adm-sb-collapsed"));
   collapseBtn.addEventListener("click", () => setCollapsed(!root.classList.contains("adm-sb-collapsed")));
 
-  groupToggle.addEventListener("click", () => {
-    // در حالت جمع، زیرمنو جا ندارد؛ منو را باز می‌کنیم.
-    if (root.classList.contains("adm-sb-collapsed") && matchMedia("(min-width: 992px)").matches) { setCollapsed(false); group.classList.add("open"); groupToggle.setAttribute("aria-expanded", "true"); return; }
-    const open = group.classList.toggle("open");
-    groupToggle.setAttribute("aria-expanded", String(open));
+  groups.forEach(group => {
+    const groupToggle = group.querySelector(".admin-nav-toggle");
+    groupToggle.addEventListener("click", () => {
+      // در حالت جمع، زیرمنو جا ندارد؛ منو را باز می‌کنیم.
+      if (root.classList.contains("adm-sb-collapsed") && matchMedia("(min-width: 992px)").matches) { setCollapsed(false); group.classList.add("open"); groupToggle.setAttribute("aria-expanded", "true"); return; }
+      const open = group.classList.toggle("open");
+      groupToggle.setAttribute("aria-expanded", String(open));
+    });
   });
 
   search.addEventListener("input", filterMenu);
