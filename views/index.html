@@ -2411,6 +2411,27 @@
 
     /* بنر آیفون ۱۸: تصویر کامل (متن داخل خود طرح است) */
     .hero-slide.iphone18-hero { position: relative; overflow: hidden; background: #140513; }
+    .iphone18-caption {
+      position: absolute;
+      z-index: 2;
+      left: clamp(14px, 2.4vw, 32px);
+      bottom: clamp(12px, 2vw, 24px);
+      direction: rtl;
+      padding: 7px 14px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 999px;
+      background: rgba(20, 5, 19, .55);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      line-height: 1.5;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .iphone18-caption { left: 8px; bottom: 8px; padding: 3px 9px; font-size: 9.5px; }
+    }
     .iphone18-hero picture { display: block; height: 100%; }
     .iphone18-hero picture img { display: block; width: 100%; height: 100% !important; object-fit: cover; }
 
@@ -2853,6 +2874,7 @@
                 <source media="(max-width: 768px)" srcset="/images/iphone18-hero-mobile-v7.webp" />
                 <img src="/images/iphone18-hero-v7.webp" alt="آیفون ۱۸ پرو مکس" loading="lazy" decoding="async" style="width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 40%;">
               </picture>
+              <span class="iphone18-caption">جدیدترین آیفون اپل در پیکسل‌لایف</span>
             </a>
 
           </div>
