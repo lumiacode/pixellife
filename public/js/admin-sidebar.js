@@ -121,7 +121,7 @@
   const productOpen = currentPath === "/admin/products";
   // زیرمنوی «روش ارسال»؛ صفحه‌های بعدی (مثلاً هزینه بر اساس شهر) فقط یک مورد به این فهرست اضافه می‌کنند.
   const shippingItems = [
-    { href: "/admin/shipping", icon: "ti-truck-delivery", text: "روش‌ها و هزینه ارسال" }
+    { href: "/admin/shipping", icon: "ti-truck-delivery", text: "روش ارسال" }
   ];
   const shippingOpen = shippingItems.some(link => link.href === currentPath);
   // ترتیب و نام‌ها دقیقاً با منوی دسته‌بندی صفحهٔ اصلی یکسان هستند.
