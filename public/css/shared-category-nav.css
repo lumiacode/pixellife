@@ -370,7 +370,9 @@
   box-shadow: none !important;
 }
 .header + .navbar {
-  margin-top: -1px !important;
+  margin-top: 0 !important;
+  /* نوار چسبندهٔ منو یک پیکسل پایین‌تر از هدر می‌نشست و رنگ پس‌زمینهٔ صفحه به‌صورت خط نازک بین آن‌ها دیده می‌شد؛ لبهٔ بالایی منو همرنگ هدر پوشانده می‌شود */
+  box-shadow: 0 -3px 0 var(--white) !important;
 }
 
 /* لینک‌های تصویری برندهای کنسول در منوی دسته‌بندی */
@@ -535,7 +537,7 @@
   .header-inner { height: 60px !important; }
   .header .logo-mark { width: 34px !important; height: 34px !important; }
   .header .logo-text { font-size: 20px !important; }
-  .navbar { top: 61px !important; }
+  .navbar { top: 60px !important; }
   .navbar-inner { height: 40px !important; min-height: 40px !important; }
   .nav-link, .nav-cats { font-size: 13px !important; }
 }
