@@ -2408,6 +2408,44 @@
       }
     }
 
+
+    /* بنر آیفون ۱۸: متن به‌صورت HTML تا همیشه واضح و قابل‌ویرایش باشد */
+    .hero-slide.iphone18-hero { position: relative; overflow: hidden; background: #0b1240; }
+    .iphone18-copy {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: clamp(28px, 6vw, 110px);
+      right: auto;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 2px 16px rgba(5, 10, 40, .55);
+      pointer-events: none;
+    }
+    .iphone18-copy strong {
+      direction: ltr;
+      font-size: clamp(32px, 4.4vw, 66px);
+      font-weight: 800;
+      letter-spacing: -.05em;
+      line-height: 1;
+    }
+    .iphone18-copy > span {
+      direction: rtl;
+      font-size: clamp(14px, 1.45vw, 22px);
+      font-weight: 600;
+      color: rgba(255, 255, 255, .9);
+    }
+    @media (max-width: 768px) {
+      .iphone18-copy { top: 7%; left: 5%; transform: none; align-items: flex-start; text-align: left; gap: 4px; max-width: 60%; }
+      .iphone18-copy strong { font-size: clamp(20px, 6.4vw, 30px); }
+      .iphone18-copy > span { font-size: clamp(10.5px, 3.1vw, 13px); text-align: left; white-space: nowrap; }
+    }
+
     /* تنها یک اسلاید در بنر اصلی باقی مانده است؛ کنترل‌های ناوبری نیاز نیستند. */
     .hero-slider-container:has(.hero-slide:only-child) .hero-nav-btn,
     .hero-slider-container:has(.hero-slide:only-child) .hero-dots {
@@ -2842,11 +2880,15 @@
             </a>
 
             <!-- اسلاید دوم: آیفون ۱۸ پرومکس -->
-            <a class="hero-slide" href="/product/6a9fd2e3cbf04d0184d19221" style="min-width: 100%; display: block; padding: 0;">
+            <a class="hero-slide iphone18-hero" href="/product/6a9fd2e3cbf04d0184d19221" aria-label="آیفون ۱۸ پرو مکس" style="min-width: 100%; display: block; padding: 0;">
               <picture>
-                <source media="(max-width: 768px)" srcset="/images/iphone18-pro-max-banner-mobile.webp" />
-                <img src="/images/iphone18-pro-max-banner.webp" alt="بنر آیفون ۱۸ پرومکس" loading="lazy" decoding="async" style="width: 100%; height: auto; display: block;">
+                <source media="(max-width: 768px)" srcset="/images/iphone18-banner-mobile-v2.webp" />
+                <img src="/images/iphone18-banner-v2.webp" alt="" loading="lazy" decoding="async" style="width: 100%; height: auto; display: block;">
               </picture>
+              <span class="iphone18-copy">
+                <strong>iPhone 18 Pro Max</strong>
+                <span>جدیدترین آیفون اپل در پیکسل‌لایف</span>
+              </span>
             </a>
 
           </div>
