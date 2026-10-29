@@ -83,6 +83,10 @@ router.get("/shipping", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-shipping.html"));
 });
 
+router.get("/ai", requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "../../views/admin-ai-settings.html"));
+});
+
 router.get("/support", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-support.html"));
 });

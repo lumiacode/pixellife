@@ -23,6 +23,7 @@ const { removeProductImage, saveProductImage } = require("../utils/productImages
 const { clearProductCaches } = require("../services/cacheBus");
 const { getShippingMethods, saveShippingMethod } = require("../services/shippingSettings");
 const { getSupportSettings, saveSupportSettings } = require("../services/supportSettings");
+const { getAiConfig, getAiPublicView, saveAiSettings, testAiConnection } = require("../services/aiSettings");
 
 function parseList(value) {
   if (value === undefined) return undefined;
@@ -365,6 +366,30 @@ router.put("/settings/support", async (req, res) => {
   }
 });
 
+// هوش مصنوعی (OpenAI): کلید هرگز برگردانده نمی‌شود؛ فقط وضعیت و چهار نویسهٔ آخر.
+router.get("/settings/ai", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await getAiPublicView() });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+router.put("/settings/ai", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await saveAiSettings(req.body || {}) });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+router.post("/settings/ai/test", async (req, res) => {
+  try {
+    await testAiConnection();
+    res.json({ success: true, message: "اتصال به OpenAI برقرار است و کلید پذیرفته شد" });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+
 router.get("/analytics/overview", async (req, res) => {
   try {
     const today = analyticsDateKey(new Date());
@@ -512,8 +537,9 @@ const analyticsAiCooldown = new Map();
 
 router.post("/analytics/behavior/insights", async (req, res) => {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ success: false, message: "OPENAI_API_KEY در تنظیمات Render ثبت نشده است" });
+    const aiConfig = await getAiConfig();
+    if (!aiConfig.apiKey) {
+      return res.status(503).json({ success: false, message: "کلید OpenAI ثبت نشده است؛ از منوی «هوش مصنوعی» در پنل کلید را وارد کنید" });
     }
 
     const key = req.sessionID || req.ip || "admin";
@@ -604,7 +630,7 @@ router.post("/analytics/behavior/insights", async (req, res) => {
         max_output_tokens: 900,
       },
       {
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${aiConfig.apiKey}`, "Content-Type": "application/json" },
         timeout: 60000,
       },
     );

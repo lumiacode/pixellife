@@ -8,6 +8,7 @@ const tokenService = require("../services/tokenService");
 const aiLimiter = require("../middleware/aiLimiter");
 const SUPPORT_KNOWLEDGE = require("../config/supportKnowledge");
 const { getSupportSettings } = require("../services/supportSettings");
+const { getAiConfig } = require("../services/aiSettings");
 
 const router = express.Router();
 const MAX_MESSAGE_LENGTH = 800;
@@ -128,15 +129,15 @@ const SYSTEM_PROMPT = `تو دستیار فارسی فروشگاه PixelLife ه�
 - اگر کاربر وارد نشده و دربارهٔ سفارش خودش می‌پرسد، بگو ابتدا وارد حساب شود.
 - اگر جواب مطمئن نداری، کاربر ناراضی یا درخواستش نیاز به بررسی انسانی دارد (لغو، مرجوعی، بازگشت وجه، شکایت)، کوتاه توضیح بده و در انتهای پاسخ دقیقاً عبارت ${HANDOFF_MARK} را بنویس.`;
 
-async function callOpenAI(messages) {
+async function callOpenAI(messages, config) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.openaiApiKey}` },
-      body: JSON.stringify({ model: env.openaiModel, temperature: 0.2, max_tokens: 450, messages }),
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.apiKey}` },
+      body: JSON.stringify({ model: config.model, temperature: 0.2, max_tokens: 450, messages }),
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data?.error?.message || `OpenAI HTTP ${response.status}`);
@@ -156,7 +157,8 @@ async function handleAssistant(req, res) {
   try { products = await findRelevantProducts(message); } catch (error) { console.error("Assistant product lookup:", error.message); }
   const productContext = products.map(normalizeProduct);
 
-  if (!env.openaiApiKey) {
+  const aiConfig = await getAiConfig();
+  if (!aiConfig.apiKey) {
     return res.json({ success: true, answer: fallbackAnswer(products), products: productContext, aiEnabled: false, handoff: !products.length });
   }
 
@@ -173,7 +175,7 @@ async function handleAssistant(req, res) {
       { role: "system", content: SYSTEM_PROMPT },
       ...cleanHistory(req.body?.history),
       { role: "user", content: `${context}\n\nپیام کاربر:\n${message}` },
-    ]);
+    ], aiConfig);
     const handoff = raw.includes(HANDOFF_MARK);
     const answer = raw.split(HANDOFF_MARK).join("").trim() || fallbackAnswer(products);
     res.json({ success: true, answer, products: productContext, aiEnabled: true, handoff });

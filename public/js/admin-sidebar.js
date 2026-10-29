@@ -161,6 +161,7 @@
     item("/admin/support", "ti-headset", "پشتیبانی در بله") +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +
+    item("/admin/ai", "ti-key", "هوش مصنوعی (OpenAI)") +
     item("/admin/ai-products", "ti-sparkles", "دستیار هوشمند محصولات") +
     item("/admin/analytics", "ti-chart-bar", "تحلیل رفتار مشتریان") +
     '<p class="adm-empty">موردی پیدا نشد</p></nav>' +
