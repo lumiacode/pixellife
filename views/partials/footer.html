@@ -13,10 +13,10 @@
           <!--FOOTER_SUPPORT-->
           <div class="pl-footer-social">
             <div class="footer-social">
-              <div class="social-btn"><i class="ti ti-brand-instagram"></i></div>
-              <div class="social-btn"><i class="ti ti-brand-telegram"></i></div>
-              <div class="social-btn"><i class="ti ti-brand-twitter"></i></div>
-              <div class="social-btn"><i class="ti ti-brand-youtube"></i></div>
+              <a class="social-btn" href="https://www.instagram.com/pixellife.ir/" target="_blank" rel="noopener noreferrer" aria-label="صفحهٔ اینستاگرام پیکسل لایف"><i class="ti ti-brand-instagram" aria-hidden="true"></i></a>
+              <button type="button" class="social-btn" data-soon aria-label="تلگرام (به‌زودی)"><i class="ti ti-brand-telegram" aria-hidden="true"></i></button>
+              <button type="button" class="social-btn" data-soon aria-label="ایکس (به‌زودی)"><svg class="social-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+              <button type="button" class="social-btn" data-soon aria-label="یوتیوب (به‌زودی)"><i class="ti ti-brand-youtube" aria-hidden="true"></i></button>
             </div>
             <p>ما را در شبکه‌های اجتماعی دنبال کنید!</p>
           </div>
@@ -101,6 +101,33 @@
           </span>
         </div>
       </div>
+    <script>
+(function () {
+  // شبکه‌هایی که هنوز صفحه ندارند: پیام خیلی کوتاه «به‌زودی» و محو شدن
+  var timer;
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest && event.target.closest(".pl-footer [data-soon]");
+    if (!btn) return;
+    var tip = document.getElementById("plSoonTip");
+    if (!tip) {
+      tip = document.createElement("div");
+      tip.id = "plSoonTip";
+      tip.setAttribute("role", "status");
+      tip.setAttribute("aria-live", "polite");
+      tip.textContent = "به‌زودی";
+      document.body.appendChild(tip);
+    }
+    var r = btn.getBoundingClientRect();
+    tip.style.left = Math.round(r.left + r.width / 2) + "px";
+    tip.style.top = Math.round(r.top - 8) + "px";
+    tip.classList.remove("show");
+    void tip.offsetWidth;
+    tip.classList.add("show");
+    clearTimeout(timer);
+    timer = setTimeout(function () { tip.classList.remove("show"); }, 1100);
+  });
+})();
+</script>
     </footer>
 <script>
       (function () {

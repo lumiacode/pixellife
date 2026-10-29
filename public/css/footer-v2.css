@@ -78,3 +78,17 @@ html body .pl-footer .footer-trust .footer-trust-text { color: #9ca3af; text-ali
   html body .pl-footer .footer-trust .ftrust-zarinpal img { max-height: 46px; }
   html body .pl-footer .footer-trust .footer-trust-text { margin-top: 8px; font-size: 12px; line-height: 1.8; }
 }
+
+/* شبکه‌های اجتماعی فوتر: لینک اینستاگرام + دکمه‌های «به‌زودی» */
+html body .pl-footer a.social-btn, html body .pl-footer button.social-btn {
+  display: inline-flex; align-items: center; justify-content: center; border: 0; padding: 0; cursor: pointer; text-decoration: none; font-family: inherit;
+}
+html body .pl-footer .social-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; border-radius: 10px; }
+html body .pl-footer .social-btn .social-x { width: .72em; height: .72em; fill: currentColor; }
+#plSoonTip {
+  position: fixed; z-index: 3000; transform: translate(-50%, -100%) scale(.92); opacity: 0; pointer-events: none;
+  padding: 3px 10px; border-radius: 999px; background: #0f172a; color: #fff; font: 600 11px/1.6 Vazirmatn, Tahoma, sans-serif; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .3); transition: opacity .14s ease, transform .14s ease;
+}
+#plSoonTip.show { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+@media (prefers-reduced-motion: reduce) { #plSoonTip { transition: none; } }
