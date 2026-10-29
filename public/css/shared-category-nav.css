@@ -575,3 +575,19 @@ html body .search-bar:focus-within .search-btn { color: #6b6b6b !important; }
 html body .search-bar input { padding: 0 4px 0 22px !important; font-size: 15px !important; color: #262626 !important; }
 html body .search-bar input::placeholder { color: #9a9a9a !important; opacity: 1; }
 @media (max-width: 768px) { html body .header .search-bar { height: 46px !important; border-radius: 999px !important; background: #efefef !important; } }
+
+/* نمای کاربرِ واردشده: فقط آیکن آدمک خطی + مثلث کوچک (نام کاربر داخل منوی بازشو است) */
+.profile-trigger { padding: 6px 8px !important; gap: 6px !important; border-radius: 12px !important; }
+.profile-trigger .profile-trigger-name {
+  position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important; padding: 0 !important;
+  overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+}
+.profile-trigger .profile-avatar { width: 30px !important; height: 30px !important; background: transparent !important; color: #0f172a !important; border: 0 !important; box-shadow: none !important; }
+.profile-trigger .profile-avatar svg { width: 27px !important; height: 27px !important; stroke-width: 1.5 !important; }
+.profile-trigger .profile-chevron {
+  font-size: 0 !important; width: 0 !important; height: 0 !important; flex: 0 0 auto;
+  border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #0f172a; border-bottom: 0;
+}
+.profile-trigger .profile-chevron::before { content: none !important; }
+.profile-trigger.open .profile-chevron { transform: rotate(180deg); }
+.profile-trigger:focus-visible { outline: 2px solid rgba(15, 23, 42, .35); outline-offset: 2px; }
