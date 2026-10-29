@@ -217,3 +217,23 @@ html body .home-trust-strip { margin: 8px auto 36px !important; }
     padding: 8px 10px !important; border: 0 !important; background: transparent;
   }
 }
+
+/* برندهای محبوب: کوچک‌تر و مینیمال؛ در موبایل یک ردیف افقیِ قابل‌کشیدن */
+html body .home-brands-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 12px !important; max-width: 860px; margin-inline: auto; }
+html body .home-brand-card {
+  min-height: 72px !important; padding: 14px 18px !important; border: 1px solid #eef2f7 !important; border-radius: 14px !important;
+  box-shadow: none !important; background: #fff;
+}
+html body .home-brand-card img { max-height: 30px !important; max-width: 104px !important; width: auto !important; height: auto !important; }
+@media (hover: hover) { html body .home-brand-card:hover { transform: none !important; border-color: #dbe4f0 !important; box-shadow: none !important; } }
+@media (max-width: 1100px) { html body .home-brands-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+@media (max-width: 768px) {
+  html body .home-brands-grid {
+    display: flex !important; grid-template-columns: none !important; max-width: none !important; flex-wrap: nowrap; gap: 10px !important;
+    overflow-x: auto; overflow-y: hidden; margin-inline: -16px !important; padding: 2px 16px;
+    scroll-snap-type: x proximity; scroll-padding-inline: 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  html body .home-brands-grid::-webkit-scrollbar { display: none; }
+  html body .home-brand-card { flex: 0 0 112px; min-height: 60px !important; padding: 10px 14px !important; scroll-snap-align: start; }
+  html body .home-brand-card img { max-height: 24px !important; max-width: 82px !important; }
+}
