@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const homeController = require("../controllers/homeController");
-const { buildProductSeo, resetListCache } = require("../services/seo");
+const { buildProductSeo } = require("../services/seo");
 const { onProductChange } = require("../services/cacheBus");
 
 const router = express.Router();
@@ -12,7 +12,7 @@ const SEO_FIELDS = "slug legacyId name brand category price discount description
 const cache = new Map();
 const TTL_MS = 60 * 1000;
 const MAX_CACHE = 500;
-onProductChange(() => { cache.clear(); resetListCache(); });
+onProductChange(() => { cache.clear(); });
 
 async function findProduct(key) {
   const value = String(key || "").trim();

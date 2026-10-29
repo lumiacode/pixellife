@@ -92,16 +92,11 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     assert.strictEqual(count(html, /rel="canonical"/g), 1);
     assert.ok(html.includes("BreadcrumbList"));
 
-    // فهرست لینک محصول‌ها در HTML سرور
-    html = await (await get("/iphone")).text();
-    assert.ok(/<section class="seo-list"[\s\S]*href="\/product\/iphone-17"/.test(html), "لینک محصول آیفون در صفحهٔ آیفون");
-    assert.ok(!html.split('class="seo-list"')[1].split("</section>")[0].includes("/product/galaxy-s26"), "سامسونگ در فهرست آیفون نیست");
-    html = await (await get("/samsung")).text();
-    assert.ok(html.split('class="seo-list"')[1].split("</section>")[0].includes("/product/galaxy-s26"));
-    html = await (await get("/")).text();
-    assert.ok(!html.includes('class="seo-list"') && !html.includes("دسته‌بندی‌های پیکسل لایف"), "صفحهٔ اصلی فهرست سئو ندارد");
-    html = await (await get("/cart")).text();
-    assert.ok(!html.includes('class="seo-list"'), "سبد فهرست ندارد");
+    // فهرست نمایشی سئو در پایین صفحه‌ها وجود ندارد
+    for (const path of ["/iphone", "/samsung", "/", "/cart"]) {
+      html = await (await get(path)).text();
+      assert.ok(!html.includes('class="seo-list"') && !html.includes("فهرست محصولات:") && !html.includes("دسته‌بندی‌های دیگر"), "فهرست سئو در " + path);
+    }
 
     // صفحهٔ اصلی: Organization + WebSite
     html = await (await get("/")).text();
