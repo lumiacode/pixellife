@@ -15,4 +15,4 @@ document.getElementById('body').addEventListener('click',ev=>{const b=ev.target.
 document.getElementById('trkCancel').onclick=()=>document.getElementById('trackDlg').close();
 document.querySelector('#trackDlg form').addEventListener('submit',async ev=>{ev.preventDefault();const steps=[...trkRows.querySelectorAll('input:checked')].map(x=>TRACK[Number(x.dataset.i)][0]);const btn=document.getElementById('trkSave');btn.disabled=true;const r=await fetch('/admin/api/orders/'+encodeURIComponent(trkId)+'/tracking',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({steps})}),j=await r.json().catch(()=>({success:false,message:'پاسخ نامعتبر'}));btn.disabled=false;if(!j.success){document.getElementById('trkErr').textContent=j.message||'ذخیره نشد';return}document.getElementById('trackDlg').close();load()});
 document.getElementById('logoutBtn').onclick=async()=>{await fetch('/admin/logout',{method:'POST'});location='/admin/login'};load();
-</script><script src="/js/admin-sidebar.js?v=15" defer></script></body></html>
+</script><script src="/js/admin-sidebar.js?v=16" defer></script></body></html>

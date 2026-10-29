@@ -7,6 +7,7 @@ const env = require("../config/env");
 const tokenService = require("../services/tokenService");
 const aiLimiter = require("../middleware/aiLimiter");
 const SUPPORT_KNOWLEDGE = require("../config/supportKnowledge");
+const { getSupportSettings } = require("../services/supportSettings");
 
 const router = express.Router();
 const MAX_MESSAGE_LENGTH = 800;
@@ -183,6 +184,15 @@ async function handleAssistant(req, res) {
   }
 }
 
+// لینک گفتگوی پشتیبانی در بله (عمومی؛ خالی یعنی دکمه نمایش داده نشود)
+router.get("/support-link", async (req, res) => {
+  try {
+    res.set("Cache-Control", "public, max-age=60");
+    res.json({ success: true, baleUrl: (await getSupportSettings()).baleUrl });
+  } catch (error) {
+    res.json({ success: true, baleUrl: "" });
+  }
+});
 router.post("/assistant", optionalAuth, aiLimiter, handleAssistant);
 router.post("/shopping-assistant", optionalAuth, aiLimiter, handleAssistant); // نام قدیمی
 

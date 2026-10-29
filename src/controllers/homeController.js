@@ -442,7 +442,7 @@ function injectBehaviorTracker(html) {
 
 // دستیار خرید در تمام صفحه‌های عمومی فروشگاه درج می‌شود. صفحهٔ محصول از قبل
 // این اسکریپت را دارد؛ شرط زیر از درج دوبارهٔ آن جلوگیری می‌کند.
-const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=16" defer></script>';
+const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=17" defer></script>';
 function injectShoppingAssistant(html) {
   if (!html || html.includes("/js/shopping-assistant.js")) return html;
   return html.includes("</body>")

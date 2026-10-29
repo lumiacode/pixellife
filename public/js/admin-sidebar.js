@@ -158,6 +158,7 @@
     item("/admin/wallets", "ti-wallet", "کیف پول کاربران") +
     item("/admin/discounts", "ti-ticket", "کدهای تخفیف") +
     '<section class="admin-nav-group' + (shippingOpen ? " open" : "") + '" data-title="روش ارسال"><button type="button" class="admin-nav-toggle" aria-expanded="' + shippingOpen + '"><span><i class="ti ti-truck-delivery"></i><span class="adm-label">روش ارسال</span></span><i class="ti ti-chevron-down admin-chevron"></i><span class="adm-tip">روش ارسال</span></button><ul class="admin-submenu">' + shippingLinks + '</ul></section>' +
+    item("/admin/support", "ti-headset", "پشتیبانی در بله") +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +
     item("/admin/ai-products", "ti-sparkles", "دستیار هوشمند محصولات") +

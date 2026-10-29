@@ -22,6 +22,7 @@ const demoProducts = require("../data/demoProducts");
 const { removeProductImage, saveProductImage } = require("../utils/productImages");
 const { clearProductCaches } = require("../services/cacheBus");
 const { getShippingMethods, saveShippingMethod } = require("../services/shippingSettings");
+const { getSupportSettings, saveSupportSettings } = require("../services/supportSettings");
 
 function parseList(value) {
   if (value === undefined) return undefined;
@@ -343,6 +344,22 @@ router.get("/settings/shipping", async (req, res) => {
 router.put("/settings/shipping/:id", async (req, res) => {
   try {
     res.json({ success: true, method: await saveShippingMethod(String(req.params.id), req.body || {}) });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+
+// پشتیبانی: لینک گفتگوی بله که دکمهٔ «پشتیبانی در بله» دستیار سایت به آن می‌رود.
+router.get("/settings/support", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await getSupportSettings() });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+router.put("/settings/support", async (req, res) => {
+  try {
+    res.json({ success: true, settings: await saveSupportSettings(req.body || {}) });
   } catch (error) {
     res.status(error.statusCode || 500).json({ success: false, message: error.message });
   }
