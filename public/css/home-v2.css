@@ -201,3 +201,19 @@ html body .home-trust-item { justify-content: center; }
 }
 /* نوار اعتماد بین ردیف‌های محصول */
 html body .home-trust-strip { margin: 8px auto 36px !important; }
+
+/* موبایل: نوار اعتماد به‌صورت یک ردیف افقیِ قابل‌کشیدن (به‌جای دو ستون) */
+@media (max-width: 768px) {
+  html body .home-trust-strip {
+    display: flex !important; grid-template-columns: none !important; max-width: none !important;
+    flex-wrap: nowrap; gap: 8px !important; overflow-x: auto; overflow-y: hidden;
+    margin-inline: -16px !important; padding: 2px 16px;
+    scroll-snap-type: x proximity; scroll-padding-inline: 16px; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; overscroll-behavior-x: contain;
+  }
+  html body .home-trust-strip::-webkit-scrollbar { display: none; }
+  html body .home-trust-item {
+    flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap;
+    padding: 8px 10px !important; border: 0 !important; background: transparent;
+  }
+}
