@@ -364,7 +364,7 @@ const PROFILE_DROPDOWN_LAYER_FIX = `
 </style>`;
 
 const SHARED_CATEGORY_HEAD = `
-<link rel="stylesheet" href="/css/shared-category-nav.css?v=7" />`;
+<link rel="stylesheet" href="/css/shared-category-nav.css?v=8" />`;
 const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=8"></script>`;
 
