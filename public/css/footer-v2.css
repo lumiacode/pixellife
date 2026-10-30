@@ -92,3 +92,12 @@ html body .pl-footer .social-btn .social-x { width: .72em; height: .72em; fill: 
 }
 #plSoonTip.show { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 @media (prefers-reduced-motion: reduce) { #plSoonTip { transition: none; } }
+/* نام انگلیسی شبکهٔ اجتماعی زیر آیکون هنگام هاور */
+html body .pl-footer .social-btn { position: relative; }
+html body .pl-footer .social-btn[data-name]::after {
+  content: attr(data-name); position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  padding: 2px 8px; border-radius: 6px; background: #e5e7eb; color: #374151; font: 600 11px/1.6 Vazirmatn, Tahoma, sans-serif;
+  white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .14s ease; z-index: 5;
+}
+@media (hover: hover) { html body .pl-footer .social-btn[data-name]:hover::after { opacity: 1; } }
+html body .pl-footer .social-btn[data-name]:focus-visible::after { opacity: 1; }
