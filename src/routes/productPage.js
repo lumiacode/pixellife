@@ -29,12 +29,20 @@ async function findProduct(key) {
 
 const productUrl = (product) => `/product/${encodeURIComponent(product.slug || String(product._id))}`;
 
-function renderProduct(req, res, product) {
+async function relatedFor(product) {
+  if (!product || !product.category) return [];
+  try {
+    const rows = await Product.find({ category: product.category, _id: { $ne: product._id }, slug: { $exists: true, $ne: "" } }).select("slug name").limit(6).lean();
+    return (rows || []).filter((r) => r && r.slug && r.name);
+  } catch (e) { return []; }
+}
+
+async function renderProduct(req, res, product) {
   if (!product) {
     res.status(404);
     res.locals.seo = { title: "محصول یافت نشد | پیکسل لایف", noindex: true, follow: false };
   } else {
-    res.locals.seo = buildProductSeo(product);
+    res.locals.seo = buildProductSeo(product, await relatedFor(product));
   }
   return homeController.product(req, res);
 }
@@ -44,7 +52,7 @@ router.get("/:slug", async (req, res) => {
   try {
     const product = await findProduct(req.params.slug);
     if (product && product.slug && product.slug !== req.params.slug) return res.redirect(301, productUrl(product));
-    return renderProduct(req, res, product);
+    return await renderProduct(req, res, product);
   } catch (error) {
     console.error("Product page error:", error.message);
     return res.status(500).send("خطا در بارگذاری محصول");
@@ -55,9 +63,9 @@ router.get("/:slug", async (req, res) => {
 async function legacyProductHandler(req, res) {
   try {
     const key = req.query.id || req.query.slug;
-    if (!key) return renderProduct(req, res, null);
+    if (!key) return await renderProduct(req, res, null);
     const product = await findProduct(key);
-    if (!product) return renderProduct(req, res, null);
+    if (!product) return await renderProduct(req, res, null);
     const rest = new URLSearchParams(req.query);
     rest.delete("id"); rest.delete("slug");
     const query = rest.toString();

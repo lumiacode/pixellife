@@ -33,6 +33,13 @@ app.set("trust proxy", 1);
 // فشرده‌سازی پاسخ‌ها (HTML، JSON، CSS، JS)؛ قبلاً داخل بلوک کامنت‌شدهٔ «به‌روزرسانی» مانده بود.
 app.use(compression({ threshold: 1024 }));
 
+// یک دامنهٔ اصلی: www.pixellife.ir همیشه با ۳۰۱ به pixellife.ir می‌رود (فقط بر اساس Host؛ پروتکل را nginx کنترل می‌کند).
+app.use((req, res, next) => {
+  const host = String(req.headers.host || "");
+  if (/^www\.pixellife\.ir(:\d+)?$/i.test(host)) return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
+  next();
+});
+
 // سئوی یکپارچه: عنوان/توضیح/canonical/JSON-LD برای همهٔ صفحه‌های HTML (محصول‌های جدید هم خودکار).
 app.use(seoMiddleware);
 app.use(authSessionScript);
@@ -339,6 +346,13 @@ app.get("/api/health", (req, res) => {
 // =======================
 
 app.use((req, res, next) => {
+  const wantsHtml = req.method === "GET" && !req.path.startsWith("/api") && /text\/html/i.test(String(req.headers.accept || ""));
+  if (wantsHtml) {
+    // صفحهٔ ۴۰۴ ساده برای مرورگر/خزنده؛ ایندکس نمی‌شود.
+    return res.status(404).set("X-Robots-Tag", "noindex, nofollow").type("html").send(
+      '<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>صفحه پیدا نشد | پیکسل لایف</title></head><body style="font-family:Vazirmatn,Tahoma,sans-serif;text-align:center;padding:60px 16px"><h1>صفحهٔ مورد نظر پیدا نشد</h1><p>ممکن است آدرس تغییر کرده یا صفحه حذف شده باشد.</p><p><a href="/">بازگشت به صفحهٔ اصلی</a></p></body></html>'
+    );
+  }
   res.status(404).json({
     success: false,
     message: "مسیر مورد نظر پیدا نشد",

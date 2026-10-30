@@ -19,7 +19,8 @@ stub(src("controllers", "homeController.js"), {
 });
 
 const express = require("express");
-const { seoMiddleware, robotsTxt } = require(src("services", "seo.js"));
+const { seoMiddleware, robotsTxt, setCatalogLoader } = require(src("services", "seo.js"));
+setCatalogLoader(async (f) => (f.brand === "اپل" ? [{ slug: "iphone-17", name: "آیفون ۱۷", mainImage: "/uploads/a.jpg" }] : []));
 const productPage = require(src("routes", "productPage.js"));
 const { clearProductCaches } = require(src("services", "cacheBus.js"));
 const app = express();
@@ -31,6 +32,7 @@ app.get("/samsung", (req, res) => res.type("html").send(view("iphone.html")));
 app.get("/cart", (req, res) => res.type("html").send(view("cart.html")));
 app.get("/blog", (req, res) => res.type("html").send(view("index.html")));
 app.get("/", (req, res) => res.type("html").send(view("index.html")));
+app.get("/api/ping", (req, res) => res.json({ ok: true }));
 app.get("/admin/products", (req, res) => res.type("html").send(view("admin-products.html")));
 
 (async () => {
@@ -113,6 +115,18 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
 
     const robots = robotsTxt();
     assert.ok(robots.includes("Sitemap: https://pixellife.ir/sitemap.xml") && robots.includes("Disallow: /admin") && robots.includes("Disallow: /cart"));
+    // صفحهٔ دسته‌بندی: لینک محصول واقعی + ItemList در HTML سرور
+    r = await get("/iphone"); html = await r.text();
+    assert.ok(/<section id="seoCatalog"[\s\S]*href="\/product\/iphone-17"/.test(html), "لینک محصول در صفحهٔ دسته");
+    assert.ok(html.includes('"@type":"ItemList"'), "ItemList");
+    assert.strictEqual(count(html, /<link rel="canonical"/g), 1);
+    // دسته‌ای که محصول ندارد چیزی نمی‌سازد (بدون داده ساختگی)
+    r = await get("/samsung"); html = await r.text();
+    assert.ok(!html.includes("seoCatalog"), "بدون محصول، بدون بلوک");
+    // هدر noindex برای API و صفحه‌های خصوصی
+    r = await get("/api/ping"); assert.strictEqual(r.headers.get("x-robots-tag"), "noindex, nofollow");
+    r = await get("/cart"); assert.strictEqual(r.headers.get("x-robots-tag"), "noindex, nofollow");
+    r = await get("/iphone"); assert.strictEqual(r.headers.get("x-robots-tag"), null);
     console.log("SEO tests passed.");
   } finally { server.close(); }
 })().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });

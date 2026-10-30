@@ -46,6 +46,52 @@ const PAGES = {
   "/contact": { name: "تماس با ما", title: "تماس با ما | پشتیبانی پیکسل لایف", description: "راه‌های ارتباط با پشتیبانی پیکسل لایف؛ پیگیری سفارش، مشاوره خرید و ثبت پیام." },
   "/terms": { name: "قوانین و مقررات", title: "قوانین و مقررات | پیکسل لایف", description: "قوانین و مقررات استفاده از خدمات، ارسال، مرجوعی و حریم خصوصی در فروشگاه پیکسل لایف." },
 };
+// فیلتر کاتالوگ هر صفحهٔ دسته‌بندی (همان مقادیری که public/js/database-catalog.js برای /api/products می‌فرستد).
+const CATALOG = {
+  "/mobiles": { category: "موبایل" }, "/iphone": { brand: "اپل", category: "موبایل" }, "/samsung": { brand: "سامسونگ", category: "موبایل" }, "/xiaomi": { brand: "شیائومی", category: "موبایل" },
+  "/ipad": { brand: "اپل", category: "تبلت" }, "/samsungtab": { brand: "سامسونگ", category: "تبلت" }, "/xiaomitab": { brand: "شیائومی", category: "تبلت" }, "/tablets": { category: "تبلت" },
+  "/headphones": { category: "هدفون و هندزفری" }, "/smartwatches": { category: "ساعت هوشمند" }, "/console": { category: "کنسول بازی" },
+  "/accessories/chargers": { category: "کابل، شارژر و آداپتور" }, "/accessories/apple": { brand: "اپل", category: "لوازم جانبی موبایل" },
+  "/accessories/samsung": { brand: "سامسونگ", category: "لوازم جانبی موبایل" }, "/accessories/xiaomi": { brand: "شیائومی", category: "لوازم جانبی موبایل" },
+};
+const CATALOG_TTL_MS = 5 * 60 * 1000;
+const catalogCache = new Map();
+// پیش‌فرض: همان API عمومی سایت را از داخل سرور صدا می‌زند تا لیست دقیقاً با چیزی که کاربر می‌بیند یکی باشد.
+let catalogLoader = async (filter) => {
+  const params = new URLSearchParams({ category: filter.category, limit: "24" });
+  if (filter.brand) params.set("brand", filter.brand);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(`http://127.0.0.1:${env.port}/api/products?${params}`, { signal: controller.signal });
+    const data = await res.json();
+    return Array.isArray(data.products) ? data.products : [];
+  } finally { clearTimeout(timer); }
+};
+const setCatalogLoader = (fn) => { catalogLoader = fn; catalogCache.clear(); };
+
+async function loadCatalogProducts(path) {
+  const filter = CATALOG[path];
+  if (!filter) return [];
+  const hit = catalogCache.get(path);
+  if (hit && hit.expires > Date.now()) return hit.items;
+  let items = [];
+  try {
+    items = (await catalogLoader(filter)).filter((x) => x && x.slug && x.name).slice(0, 24).map((x) => ({ slug: x.slug, name: plain(x.name), image: absoluteUrl(x.mainImage || (x.images && x.images[0]) || "") }));
+  } catch (e) { return hit ? hit.items : []; }
+  catalogCache.set(path, { items, expires: Date.now() + CATALOG_TTL_MS });
+  return items;
+}
+
+// لینک‌های قابل‌خزش محصولات + ItemList برای صفحهٔ دسته‌بندی؛ فقط از دادهٔ واقعی دیتابیس.
+function catalogSeo(path, items) {
+  const page = PAGES[path];
+  if (!page || !items.length) return null;
+  const ssr = `<section id="seoCatalog" class="seo-ssr" aria-label="${escapeHtml(page.name)}"><h2>${escapeHtml(page.name)}</h2><p>${escapeHtml(page.description)}</p><ul>${items.map((i) => `<li><a href="/product/${encodeURIComponent(i.slug)}">${escapeHtml(i.name)}</a></li>`).join("")}</ul></section>`;
+  const itemList = { "@context": "https://schema.org", "@type": "ItemList", name: page.name, url: SITE_URL + path, itemListElement: items.map((i, n) => ({ "@type": "ListItem", position: n + 1, url: `${SITE_URL}/product/${encodeURIComponent(i.slug)}`, name: i.name })) };
+  return { ssr, itemList };
+}
+
 // صفحه‌های بدون ارزش سئو: ایندکس نمی‌شوند. اگر target داشته باشند، canonical به صفحهٔ اصلیِ مشابه اشاره می‌کند.
 const NOINDEX_PREFIXES = ["/cart", "/checkout", "/profile", "/login", "/search", "/categories", "/admin", "/wallet", "/orders"];
 const ALIASES = { "/mobile/apple": "/iphone", "/blog": "/", "/new": "/mobiles", "/bestsellers": "/mobiles", "/brands": "/mobiles", "/support": "/contact", "/offers": "/amazing" };
@@ -94,7 +140,7 @@ function productSpecsText(p) {
   return rows.slice(0, 40);
 }
 
-function buildProductSeo(p) {
+function buildProductSeo(p, related = []) {
   const slug = p.slug || String(p._id);
   const url = `${SITE_URL}/product/${encodeURIComponent(slug)}`;
   const name = plain(p.name);
@@ -135,6 +181,7 @@ ${brand ? `<p>برند: <span itemprop="brand">${escapeHtml(brand)}</span></p>` 
 <p>${out ? "ناموجود" : price > 0 ? `قیمت: ${price.toLocaleString("fa-IR")} تومان` : ""}</p>
 <div itemprop="description">${escapeHtml(truncate(p.description, 2000))}</div>
 ${specs.length ? `<h2>مشخصات فنی</h2><ul>${specs.map(([k, v]) => `<li>${escapeHtml(k)}: ${escapeHtml(v)}</li>`).join("")}</ul>` : ""}
+${related.length ? `<h2>محصولات مرتبط</h2><ul>${related.map((r) => `<li><a href="/product/${encodeURIComponent(r.slug)}">${escapeHtml(plain(r.name))}</a></li>`).join("")}</ul>` : ""}
 ${uniqueImages.slice(0, 4).map((src, i) => `<img src="${escapeHtml(src)}" alt="${escapeHtml(name)}${i ? " - تصویر " + (i + 1).toLocaleString("fa-IR") : ""}" loading="lazy" width="400" height="400">`).join("")}
 </article>`;
 
@@ -177,13 +224,23 @@ function applySeo(html, meta) {
   if (meta.ssr) tags.push(SSR_CSS);
 
   out = out.replace(/<\/head>/i, `${tags.filter(Boolean).join("\n")}\n</head>`);
-  if (meta.ssr) out = out.replace(/(<main[^>]*id=["']pageBody["'][^>]*>)/i, `$1\n${meta.ssr}`);
+  if (meta.ssr && meta.ssrAtEnd) out = /<\/body>/i.test(out) ? out.replace(/<\/body>/i, () => `${meta.ssr}\n</body>`) : out;
+  else if (meta.ssr) out = out.replace(/(<main[^>]*id=["']pageBody["'][^>]*>)/i, `$1\n${meta.ssr}`);
   return out;
 }
 
+const NOINDEX_HEADER_PREFIXES = ["/admin", "/api", "/cart", "/checkout", "/profile", "/login", "/wallet", "/orders"];
+
 async function seoMiddleware(req, res, next) {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
-  if (req.path.startsWith("/admin")) res.set("X-Robots-Tag", "noindex, nofollow");
+  const reqPath = req.path.length > 1 ? req.path.replace(/\/+$/, "") : req.path;
+  // پاسخ‌های خصوصی/API/ادمین هرگز نباید ایندکس شوند (حتی اگر HTML نباشند).
+  if (NOINDEX_HEADER_PREFIXES.some((p) => reqPath === p || reqPath.startsWith(p + "/"))) res.set("X-Robots-Tag", "noindex, nofollow");
+  if (CATALOG[reqPath] && !res.locals.seo) {
+    const base = staticMeta(reqPath);
+    const cat = base && !base.noindex ? catalogSeo(reqPath, await loadCatalogProducts(reqPath)) : null;
+    if (cat) res.locals.seo = { ...base, jsonLd: [...(base.jsonLd || []), cat.itemList], ssr: cat.ssr, ssrAtEnd: true };
+  }
   const send = res.send.bind(res);
   res.send = (body) => {
     try {
@@ -218,4 +275,4 @@ function robotsTxt() {
   ].join("\n");
 }
 
-module.exports = { SITE_URL, PAGES, staticMeta, buildProductSeo, applySeo, seoMiddleware, robotsTxt, absoluteUrl };
+module.exports = { SITE_URL, PAGES, CATALOG, setCatalogLoader, staticMeta, buildProductSeo, applySeo, seoMiddleware, robotsTxt, absoluteUrl };
