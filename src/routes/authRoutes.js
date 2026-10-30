@@ -82,6 +82,8 @@ router.post(
 router.get("/me", protect, authController.me);
 
 // ----- خروج -----
+// POST روش اصلی است؛ GET فقط برای صفحه‌های قدیمیِ کش‌شده نگه داشته شده.
+router.post("/logout", authController.logout);
 router.get("/logout", authController.logout);
 
 module.exports = router;

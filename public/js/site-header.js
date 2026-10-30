@@ -45,8 +45,9 @@
   var logout = $("headerLogoutBtn");
   if (logout) {
     logout.addEventListener("click", function () {
-      fetch("/api/auth/logout", { credentials: "include" }).catch(function () {}).then(function () {
+      fetch("/api/auth/logout", { method: "POST", credentials: "include", cache: "no-store" }).catch(function () {}).then(function () {
         ["user", "token", "authToken"].forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
+        try { sessionStorage.removeItem("pl_checkout"); } catch (e) {}
         location.href = "/";
       });
     });

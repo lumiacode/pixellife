@@ -410,7 +410,14 @@ exports.me = async (req, res, next) => {
 // ============================================================
 exports.logout = (req, res, next) => {
   try {
-    res.clearCookie("token");
+    // کوکی با همان ویژگی‌هایی پاک می‌شود که با آن ساخته شده؛ پاسخ هم هرگز کش نشود.
+    res.set("Cache-Control", "no-store");
+    res.clearCookie("token", {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
     res.json({
       success: true,
       message: "خروج موفق",

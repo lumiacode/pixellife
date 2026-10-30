@@ -16,6 +16,7 @@
     "test:shipping-settings": "node tests/shipping-settings.test.js",
     "test:support-settings": "node tests/support-settings.test.js",
     "test:ai-settings": "node tests/ai-settings.test.js",
+    "test:logout-session": "node tests/logout-session.test.js",
     "test:discount-admin": "node tests/discount-admin.test.js",
     "test:auth-otp": "node tests/auth-otp.test.js",
     "test:order-tracking": "node tests/order-tracking.test.js",

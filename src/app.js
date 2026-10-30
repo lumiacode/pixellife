@@ -16,6 +16,7 @@ const analyticsRoutes = require("./routes/analytics");
 
 const { SitemapStream, streamToPromise } = require("sitemap");
 const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl } = require("./services/seo");
+const { authSessionScript } = require("./middleware/authSessionScript");
 
 const Product = require("./models/Product");
 
@@ -34,6 +35,11 @@ app.use(compression({ threshold: 1024 }));
 
 // سئوی یکپارچه: عنوان/توضیح/canonical/JSON-LD برای همهٔ صفحه‌های HTML (محصول‌های جدید هم خودکار).
 app.use(seoMiddleware);
+app.use(authSessionScript);
+// پاسخ‌های شخصی (حساب، آدرس، سفارش، پرداخت، کیف پول) و صفحه‌های پرداخت/پروفایل هرگز کش نشوند؛
+// وگرنه با دکمهٔ «بازگشت» مرورگر بعد از خروج، اطلاعات قبلی دوباره دیده می‌شد.
+const privateNoStore = (req, res, next) => { res.set("Cache-Control", "no-store"); next(); };
+app.use(["/api/auth", "/api/addresses", "/api/orders", "/api/checkout", "/api/payments", "/api/wallet", "/checkout", "/profile"], privateNoStore);
 
 if (env.nodeEnv !== "production") {
   console.warn("⚠️ NODE_ENV روی production نیست؛ کش صفحه‌ها و فایل‌های استاتیک غیرفعال است. در سرور واقعی NODE_ENV=production بگذارید.");
