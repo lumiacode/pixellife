@@ -286,6 +286,8 @@ app.use("/api/test-email", testEmailRoutes);
 let sitemapCache = { xml: "", expiresAt: 0 };
 const SITEMAP_TTL_MS = 60 * 60 * 1000;
 
+app.get("/favicon.ico", (req, res) => res.redirect(301, "/images/brand/logo-mark-192.png"));
+
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain").set("Cache-Control", "public, max-age=3600").send(robotsTxt());
 });

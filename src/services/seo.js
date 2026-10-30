@@ -103,7 +103,7 @@ const breadcrumb = (items) => ({
 });
 
 const siteJsonLd = () => [
-  { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, alternateName: "PixelLife", url: SITE_URL + "/", logo: absoluteUrl(DEFAULT_IMAGE) },
+  { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, alternateName: "PixelLife", url: SITE_URL + "/", logo: absoluteUrl(DEFAULT_IMAGE), sameAs: ["https://www.instagram.com/pixellife.ir/"] },
   { "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: SITE_URL + "/", inLanguage: "fa-IR", potentialAction: { "@type": "SearchAction", target: `${SITE_URL}/search?q={search_term_string}`, "query-input": "required name=search_term_string" } },
 ];
 
@@ -206,6 +206,8 @@ function applySeo(html, meta) {
   if (meta.noindex) out = out.replace(/<meta\s+name=["']robots["'][^>]*>/i, "");
 
   const tags = [];
+  // آیکن سایت (favicon): گوگل برای نمایش کنار نام سایت در نتایج به لینک rel=icon با اندازهٔ مضرب ۴۸ نیاز دارد.
+  if (!/<link[^>]+rel=["'](?:shortcut )?icon["']/i.test(out)) tags.push(`<link rel="icon" type="image/png" sizes="192x192" href="/images/brand/logo-mark-192.png" />`, `<link rel="apple-touch-icon" href="/images/brand/logo-mark-192.png" />`);
   if (hasOwn("title")) tags.push(`<title>${escapeHtml(meta.title)}</title>`);
   if (hasOwn("description")) tags.push(`<meta name="description" content="${escapeHtml(meta.description)}" />`);
   if (hasOwn("canonical")) tags.push(`<link rel="canonical" href="${escapeHtml(meta.canonical)}" />`);
