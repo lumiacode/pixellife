@@ -1793,6 +1793,14 @@
         background: var(--blue-light);
         color: var(--blue);
       }
+      .qty-btn[aria-disabled="true"] {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .qty-btn[aria-disabled="true"]:hover {
+        background: var(--bg);
+        color: var(--text-2);
+      }
       .qty-val {
         width: 42px;
         text-align: center;
@@ -7279,8 +7287,7 @@
             qty = Math.min(Math.max(1, qty), maxQuantity);
             document.getElementById("storageVal").textContent = selectedStorage;
             document.getElementById("colorVal").textContent = selectedColor.name;
-            const quantityValueEl = document.getElementById("qtyVal");
-            if (quantityValueEl) quantityValueEl.textContent = qty;
+            renderQty();
             document.querySelectorAll(".storage-chip").forEach((chip) => {
               const enabled = variants.some((variant) => variant.storage === chip.dataset.val);
               chip.classList.toggle("active", chip.dataset.val === selectedStorage);
@@ -7340,11 +7347,21 @@
           }
 
           const qtyValEl = document.getElementById("qtyVal");
+          function renderQty() {
+            const allowed = product._fromDb ? maxQuantity : 10;
+            const valueEl = document.getElementById("qtyVal");
+            if (valueEl) valueEl.textContent = qty.toLocaleString("fa-IR");
+            const minusBtn = document.getElementById("qtyMinusBtn");
+            const plusBtn = document.getElementById("qtyPlusBtn");
+            if (minusBtn) minusBtn.setAttribute("aria-disabled", qty <= 1 ? "true" : "false");
+            if (plusBtn) plusBtn.setAttribute("aria-disabled", qty >= allowed ? "true" : "false");
+          }
+          renderQty();
           document
             .getElementById("qtyMinusBtn")
             ?.addEventListener("click", () => {
               qty = Math.max(1, qty - 1);
-              if (qtyValEl) qtyValEl.textContent = qty;
+              renderQty();
             });
           document
             .getElementById("qtyPlusBtn")
@@ -7355,7 +7372,7 @@
                 return;
               }
               qty = Math.min(allowed, qty + 1);
-              if (qtyValEl) qtyValEl.textContent = qty;
+              renderQty();
             });
 
           document.getElementById("wishBtn").addEventListener("click", (e) => {
