@@ -28,7 +28,8 @@
   var wasLoggedIn = document.body.classList.contains("logged-in");
   new MutationObserver(function () {
     var now = document.body.classList.contains("logged-in");
-    if (now && !wasLoggedIn && isIncomplete(storedUser())) setTimeout(goComplete, 2000);
+    // پنجرهٔ ورود مشترک خودش مرحلهٔ «تکمیل اطلاعات» را نشان می‌دهد؛ جابه‌جایی خودکار و ناگهانیِ صفحه نباید رخ دهد.
+    if (now && !wasLoggedIn && isIncomplete(storedUser()) && !window.__plAuthModal) setTimeout(goComplete, 2000);
     wasLoggedIn = now;
   }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
 

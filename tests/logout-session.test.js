@@ -36,7 +36,8 @@ function run(reqPath, contentType, html) {
 }
 const page = "<html><body>x</body></html>";
 assert.ok(run("/cart", "text/html; charset=utf-8", page).includes("/js/auth-session.js"), "صفحهٔ عمومی");
-assert.ok(!run("/admin/products", "text/html", page).includes("auth-session"), "ادمین بدون تزریق");
+assert.ok(run("/cart", "text/html", page).includes("/js/auth-modal.js"), "پنجرهٔ ورود مشترک");
+assert.ok(!run("/admin/products", "text/html", page).includes("auth-session") && !run("/admin/products", "text/html", page).includes("auth-modal"), "ادمین بدون تزریق");
 assert.ok(!run("/api/x", "application/json", "{}").includes("auth-session"), "API");
 assert.strictEqual((run("/cart", "text/html", run("/cart", "text/html", page)).match(/auth-session\.js/g) || []).length, 1, "تزریق دوباره نباشد");
 
@@ -45,6 +46,13 @@ const js = fs.readFileSync(path.join(root, "public/js/auth-session.js"), "utf8")
 assert.ok(/#logoutBtn/.test(js) && /#headerLogoutBtn/.test(js), "هر دو دکمهٔ خروج");
 assert.ok(/\/api\/auth\/logout/.test(js) && /method: "POST"/.test(js));
 assert.ok(/pl_checkout/.test(js) && /removeItem/.test(js), "اطلاعات پرداخت پاک شود");
+
+// ۴-ب) پنجرهٔ ورود: بدون بستن با کلیک بیرون، با دکمهٔ ✕ و Esc
+const modal = fs.readFileSync(path.join(root, "public/js/auth-modal.js"), "utf8");
+assert.ok(/pla-close/.test(modal) && /Escape/.test(modal), "✕ و Esc");
+assert.ok(!/root\.addEventListener\("click"/.test(modal), "کلیک روی پس‌زمینه نباید پنجره را ببندد");
+const gate = fs.readFileSync(path.join(root, "public/js/profile-gate.js"), "utf8");
+assert.ok(/__plAuthModal/.test(gate), "جابه‌جایی خودکار پروفایل با پنجرهٔ ورود هماهنگ است");
 
 // ۵) میان‌افزار no-store برای مسیرهای شخصی
 const app = fs.readFileSync(path.join(root, "src/app.js"), "utf8");
