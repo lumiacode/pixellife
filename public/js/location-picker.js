@@ -37,13 +37,13 @@
     var isDesktop = navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean"
       ? !navigator.userAgentData.mobile && !/android|iphone|ipad|ipod/i.test(ua)
       : !/android|iphone|ipad|ipod|mobile/i.test(ua);
+    // روی کامپیوتر ثبت موقعیت کاملاً غیرفعال است (فقط گوشی). موقعیتِ قبلاً ثبت‌شده از گوشی دیده و حذف می‌شود و هنگام ویرایش آدرس حفظ می‌ماند.
     if (isDesktop) {
-      var warn = document.createElement("div");
-      warn.className = "plloc-note";
-      warn.textContent = "شما از کامپیوتر استفاده می‌کنید؛ کامپیوتر GPS ندارد و موقعیتش فقط تقریبی (و گاهی قدیمی) است. برای ثبت دقیق، از گوشی استفاده کنید و بعد از ثبت، «مشاهده روی نقشه» را بررسی کنید.";
-      container.querySelector(".plloc").appendChild(warn);
+      var desc = container.querySelector(".plloc-text p");
+      if (desc) desc.textContent = "ثبت موقعیت روی نقشه فقط با گوشی ممکن است؛ کامپیوتر GPS ندارد و موقعیتش دقیق نیست. برای ثبت موقعیت، همین صفحه را با گوشی خود باز کنید.";
+      container.querySelector(".plloc-btn").style.display = "none";
     }
-    var maxAccuracy = isDesktop ? 300 : 1500;
+    var maxAccuracy = 1500;
     var btn = container.querySelector(".plloc-btn");
     var label = btn.querySelector("span");
     var status = container.querySelector(".plloc-status");
@@ -56,7 +56,7 @@
         ? "<li>برنامهٔ «تنظیمات» ← «حریم خصوصی و امنیت» ← «خدمات مکانی» را روشن کنید.</li><li>در همان صفحه برای مرورگر (Safari یا Chrome) گزینهٔ «هنگام استفاده از برنامه» را بزنید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>"
         : "<li>نوار اعلان گوشی را پایین بکشید و آیکن «موقعیت مکانی / Location» را روشن کنید.</li><li>اگر مرورگر اجازه نخواست: روی قفل کنار آدرس سایت بزنید ← «مجوزها» ← «موقعیت» را روی «اجازه» بگذارید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>";
       var title = kind === "approx" ? "فقط موقعیت تقریبی (بر پایهٔ اینترنت) دریافت شد، نه GPS دقیق" : kind === "timeout" ? "دریافت موقعیت طول کشید" : kind === "insecure" ? "موقعیت‌یابی فقط روی اتصال امن (https) کار می‌کند" : "موقعیت (GPS) گوشی شما خاموش است یا دسترسی داده نشده";
-      var vpn = kind === "approx" ? (isDesktop ? "<li>کامپیوتر GPS ندارد؛ برای ثبت موقعیت دقیق از گوشی خود استفاده کنید.</li>" : "") + "<li>اگر VPN یا فیلترشکن روشن است خاموشش کنید؛ با VPN موقعیت همیشه شهرِ سرور VPN می‌شود، نه محل شما.</li><li>در تنظیمات موقعیت گوشی «دقت موقعیت گوگل / Improve accuracy» را روشن کنید و بیرون از ساختمان یا کنار پنجره امتحان کنید.</li>" : "";
+      var vpn = kind === "approx" ? "<li>اگر VPN یا فیلترشکن روشن است خاموشش کنید؛ با VPN موقعیت همیشه شهرِ سرور VPN می‌شود، نه محل شما.</li><li>در تنظیمات موقعیت گوشی «دقت موقعیت گوگل / Improve accuracy» را روشن کنید و بیرون از ساختمان یا کنار پنجره امتحان کنید.</li>" : "";
       return '<div class="plloc-help"><strong>' + title + "</strong>" + (kind === "insecure" ? "" : "<ol>" + vpn + steps + "</ol>") +
         '<a href="#" class="plloc-retry" data-plloc-retry><i class="ti ti-current-location"></i> تلاش دوباره</a></div>';
     }
@@ -78,6 +78,7 @@
     });
     btn.addEventListener("click", locate);
     function locate() {
+      if (isDesktop) return;
       if (!navigator.geolocation) return render("مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند.");
       if (window.isSecureContext === false) return render("", "insecure");
       btn.disabled = true;
