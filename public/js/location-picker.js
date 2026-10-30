@@ -43,8 +43,9 @@
       var steps = isIos
         ? "<li>برنامهٔ «تنظیمات» ← «حریم خصوصی و امنیت» ← «خدمات مکانی» را روشن کنید.</li><li>در همان صفحه برای مرورگر (Safari یا Chrome) گزینهٔ «هنگام استفاده از برنامه» را بزنید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>"
         : "<li>نوار اعلان گوشی را پایین بکشید و آیکن «موقعیت مکانی / Location» را روشن کنید.</li><li>اگر مرورگر اجازه نخواست: روی قفل کنار آدرس سایت بزنید ← «مجوزها» ← «موقعیت» را روی «اجازه» بگذارید.</li><li>به همین صفحه برگردید و «تلاش دوباره» را بزنید.</li>";
-      var title = kind === "timeout" ? "دریافت موقعیت طول کشید" : kind === "insecure" ? "موقعیت‌یابی فقط روی اتصال امن (https) کار می‌کند" : "موقعیت (GPS) گوشی شما خاموش است یا دسترسی داده نشده";
-      return '<div class="plloc-help"><strong>' + title + "</strong>" + (kind === "insecure" ? "" : "<ol>" + steps + "</ol>") +
+      var title = kind === "approx" ? "فقط موقعیت تقریبی (بر پایهٔ اینترنت) دریافت شد، نه GPS دقیق" : kind === "timeout" ? "دریافت موقعیت طول کشید" : kind === "insecure" ? "موقعیت‌یابی فقط روی اتصال امن (https) کار می‌کند" : "موقعیت (GPS) گوشی شما خاموش است یا دسترسی داده نشده";
+      var vpn = kind === "approx" ? "<li>اگر VPN یا فیلترشکن روشن است خاموشش کنید؛ با VPN موقعیت همیشه شهرِ سرور VPN می‌شود، نه محل شما.</li><li>در تنظیمات موقعیت گوشی «دقت موقعیت گوگل / Improve accuracy» را روشن کنید و بیرون از ساختمان یا کنار پنجره امتحان کنید.</li>" : "";
+      return '<div class="plloc-help"><strong>' + title + "</strong>" + (kind === "insecure" ? "" : "<ol>" + vpn + steps + "</ol>") +
         '<a href="#" class="plloc-retry" data-plloc-retry><i class="ti ti-current-location"></i> تلاش دوباره</a></div>';
     }
     function render(error, helpKind) {
@@ -82,6 +83,8 @@
         if (done) return;
         stop();
         if (!best) { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", "timeout"); }
+        // دقت بدتر از ۱٫۵ کیلومتر یعنی موقعیت از روی IP/شبکه یا VPN حدس زده شده، نه GPS؛ چنین نقطه‌ای برای آدرس ثبت نمی‌شود.
+        if ((best.coords.accuracy || 1e9) > 1500) { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", "approx"); }
         loc = {
           lat: Math.round(best.coords.latitude * 1e6) / 1e6,
           lng: Math.round(best.coords.longitude * 1e6) / 1e6,
