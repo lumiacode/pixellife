@@ -56,6 +56,7 @@ assert.ok(/__plAuthModal/.test(gate), "جابه‌جایی خودکار پروف
 
 // ۵) میان‌افزار no-store برای مسیرهای شخصی
 const app = fs.readFileSync(path.join(root, "src/app.js"), "utf8");
+assert.ok(/CDN-Cache-Control/.test(app) && /res\.vary\("Cookie"\)/.test(app), "پاسخ‌های نشست‌دار هرگز در کش مشترک نمانند");
 for (const p of ["/api/addresses", "/api/orders", "/api/checkout", "/checkout", "/profile"]) assert.ok(app.includes('"' + p + '"'), p + " بدون کش");
 
 console.log("Logout session test passed.");

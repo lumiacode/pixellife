@@ -40,6 +40,21 @@ app.use(authSessionScript);
 // وگرنه با دکمهٔ «بازگشت» مرورگر بعد از خروج، اطلاعات قبلی دوباره دیده می‌شد.
 const privateNoStore = (req, res, next) => { res.set("Cache-Control", "no-store"); next(); };
 app.use(["/api/auth", "/api/addresses", "/api/orders", "/api/checkout", "/api/payments", "/api/wallet", "/checkout", "/profile"], privateNoStore);
+// هر درخواستی که با نشست کاربر (کوکی یا هدر Authorization) آمده، پاسخش شخصی است: هیچ کش مشترکی (CDN، nginx، پروکسی) نباید آن را نگه دارد
+// و به کاربر دیگری بدهد. Vary: Cookie هم برای همهٔ پاسخ‌های API ثبت می‌شود تا کش‌ها کوکی را در کلید کش بگیرند.
+app.use("/api", (req, res, next) => {
+  res.vary("Cookie");
+  res.vary("Authorization");
+  if (/(?:^|;\s*)token=/.test(req.headers.cookie || "") || req.headers.authorization) {
+    res.set({
+      "Cache-Control": "private, no-store, max-age=0",
+      "CDN-Cache-Control": "no-store",
+      "Cloudflare-CDN-Cache-Control": "no-store",
+      "Surrogate-Control": "no-store",
+    });
+  }
+  next();
+});
 
 if (env.nodeEnv !== "production") {
   console.warn("⚠️ NODE_ENV روی production نیست؛ کش صفحه‌ها و فایل‌های استاتیک غیرفعال است. در سرور واقعی NODE_ENV=production بگذارید.");
