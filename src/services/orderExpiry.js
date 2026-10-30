@@ -18,7 +18,7 @@ async function cancelPending(order, note) {
   const cancelled = await Order.findOneAndUpdate(
     { _id: order._id, status: "awaiting_payment", paymentStatus: { $ne: "paid" } },
     { $set: { status: "cancelled" }, $push: { statusHistory: { status: "cancelled", note, changedAt: new Date() } } },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!cancelled) return null;
   if (cancelled.discountCode) {

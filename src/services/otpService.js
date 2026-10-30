@@ -91,7 +91,7 @@ const otpService = {
     const record = await OTP.findOneAndUpdate(
       { identifier, type, isUsed: false, expiresAt: { $gt: new Date() }, attempts: { $lt: MAX_VERIFY_ATTEMPTS } },
       { $inc: { attempts: 1 } },
-      { sort: { createdAt: -1 }, new: true },
+      { sort: { createdAt: -1 }, returnDocument: "after" },
     );
 
     if (!record) {
@@ -113,7 +113,7 @@ const otpService = {
 
     if (consume) {
       // مصرف اتمیک: دو درخواست هم‌زمان با کد درست نمی‌توانند هر دو موفق شوند.
-      const used = await OTP.findOneAndUpdate({ _id: record._id, isUsed: false }, { $set: { isUsed: true } }, { new: true });
+      const used = await OTP.findOneAndUpdate({ _id: record._id, isUsed: false }, { $set: { isUsed: true } }, { returnDocument: "after" });
       if (!used) throw new ApiError(400, "کد تأیید نادرست یا منقضی شده است");
     }
     return record;

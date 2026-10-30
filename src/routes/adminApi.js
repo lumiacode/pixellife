@@ -313,7 +313,11 @@ router.use(requireAdmin);
 
 // محصولات قدیمیِ کابل/شارژر که پیش‌تر با دستهٔ «موبایل» ثبت شده‌اند، پیش از
 // نمایش پنل ادمین به دستهٔ درست منتقل می‌شوند تا هرگز در فهرست موبایل نباشند.
+// فقط یک‌بار در هر اجرای برنامه و فقط وقتی دیتابیس وصل است (قبلاً با هر درخواست ادمین اجرا می‌شد و هنگام قطع بودن اتصال ۱۰ ثانیه منتظر می‌ماند).
+let accessoryMigrationDone = false;
 router.use(async (req, res, next) => {
+  if (accessoryMigrationDone || mongoose.connection.readyState !== 1) return next();
+  accessoryMigrationDone = true;
   try {
     await Product.updateMany(
       {

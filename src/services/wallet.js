@@ -21,14 +21,14 @@ async function record(userId, type, amount, balanceAfter, meta) {
 }
 
 async function credit(userId, amount, meta = {}) {
-  const wallet = await Wallet.findOneAndUpdate({ user: userId }, { $inc: { balance: amount } }, { new: true, upsert: true, setDefaultsOnInsert: true });
+  const wallet = await Wallet.findOneAndUpdate({ user: userId }, { $inc: { balance: amount } }, { returnDocument: "after", upsert: true, setDefaultsOnInsert: true });
   await record(userId, meta.type || "adjust", amount, wallet.balance, meta);
   return wallet.balance;
 }
 
 // null یعنی موجودی کافی نیست (چیزی کم نشده است).
 async function debit(userId, amount, meta = {}) {
-  const wallet = await Wallet.findOneAndUpdate({ user: userId, balance: { $gte: amount } }, { $inc: { balance: -amount } }, { new: true });
+  const wallet = await Wallet.findOneAndUpdate({ user: userId, balance: { $gte: amount } }, { $inc: { balance: -amount } }, { returnDocument: "after" });
   if (!wallet) return null;
   await record(userId, meta.type || "purchase", -amount, wallet.balance, meta);
   return wallet.balance;
@@ -51,7 +51,7 @@ async function payOrder(order) {
   const paid = await Order.findOneAndUpdate(
     { _id: order._id, status: "awaiting_payment", paymentStatus: { $ne: "paid" } },
     { $set: { paymentStatus: "paid", status: "processing", paymentMethod: "wallet" }, $push: { statusHistory: { status: "processing", note: "پرداخت از کیف پول انجام شد", changedAt: new Date() } } },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!paid) {
     await credit(order.user, amount, { type: "refund", order: order._id, ref: order.orderNumber, note: `بازگشت مبلغ؛ سفارش ${order.orderNumber} دیگر قابل پرداخت نبود` });

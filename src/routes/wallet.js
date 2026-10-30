@@ -79,7 +79,7 @@ router.get("/topup/callback", async (req, res, next) => {
     const claimed = await WalletTopup.findOneAndUpdate(
       { _id: topup._id, status: "pending" },
       { $set: { status: "paid", refId: Number(data.ref_id || 0) || null, cardPan: String(data.card_pan || ""), paidAt: new Date() } },
-      { new: true },
+      { returnDocument: "after" },
     );
     if (claimed) await walletService.credit(topup.user, topup.amount, { type: "topup", ref: String(data.ref_id || authority), note: "شارژ کیف پول از درگاه" });
     res.redirect("/profile/wallet?topup=success");
