@@ -69,24 +69,43 @@
       if (window.isSecureContext === false) return render("", "insecure");
       btn.disabled = true;
       label.textContent = "در حال دریافت موقعیت...";
-      navigator.geolocation.getCurrentPosition(
+      // موقعیتِ قدیمیِ کش‌شده توسط مرورگر/گوشی (مثلاً آخرین نقطهٔ همین دستگاه) پذیرفته نمی‌شود؛ فقط نقطهٔ تازه.
+      // تا ۱۲ ثانیه تازه‌ترین و دقیق‌ترین نقطه نگه داشته می‌شود و با دقت کافی (≤ ۶۰ متر) زودتر تمام می‌شود.
+      var started = Date.now(), best = null, done = false, watchId = null, timer = null;
+      function stop() {
+        done = true;
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        clearTimeout(timer);
+        btn.disabled = false;
+      }
+      function finish() {
+        if (done) return;
+        stop();
+        if (!best) { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", "timeout"); }
+        loc = {
+          lat: Math.round(best.coords.latitude * 1e6) / 1e6,
+          lng: Math.round(best.coords.longitude * 1e6) / 1e6,
+          accuracy: Math.round(best.coords.accuracy || 0),
+        };
+        render();
+      }
+      watchId = navigator.geolocation.watchPosition(
         function (position) {
-          btn.disabled = false;
-          loc = {
-            lat: Math.round(position.coords.latitude * 1e6) / 1e6,
-            lng: Math.round(position.coords.longitude * 1e6) / 1e6,
-            accuracy: Math.round(position.coords.accuracy || 0),
-          };
-          render();
+          if (done) return;
+          if (position.timestamp && position.timestamp < started - 10000) return; // قدیمی
+          if (!best || (position.coords.accuracy || 1e9) < (best.coords.accuracy || 1e9)) best = position;
+          if ((best.coords.accuracy || 1e9) <= 60) finish();
         },
         function (error) {
-          btn.disabled = false;
+          if (done) return;
+          stop();
           label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من";
           // کد ۱ (اجازه/GPS خاموش) و ۲ (موقعیت در دسترس نیست): راهنمای روشن‌کردن GPS؛ کد ۳: زمان‌بر
           render("", error && error.code === 3 ? "timeout" : "off");
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
       );
+      timer = setTimeout(finish, 12000);
     }
     render();
     return {
