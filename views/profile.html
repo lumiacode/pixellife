@@ -493,19 +493,19 @@
         font-weight: 700;
       }
       .wishlist-remove {
-        position: absolute;
-        z-index: 2;
-        top: 18px;
-        left: 18px;
-        width: 33px;
-        height: 33px;
-        display: grid;
-        place-items: center;
-        border: 0;
-        border-radius: 50%;
+        margin: 8px 2px 0;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
         background: var(--white);
         color: var(--red);
-        box-shadow: var(--shadow-sm);
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
         cursor: pointer;
       }
       .wishlist-remove:hover {
@@ -1468,9 +1468,6 @@
             Number(product.stock) === 0;
           card.className = "wishlist-card";
           card.innerHTML =
-            '<button type="button" class="wishlist-remove" data-wishlist-remove="' +
-            escapeHtml(product._id || product.slug || product.legacyId) +
-            '" aria-label="حذف از علاقه‌مندی‌ها" title="حذف از علاقه‌مندی‌ها"><i class="ti ti-heart-filled"></i></button>' +
             '<a href="' +
             wishlistProductUrl(product) +
             '">' +
@@ -1493,7 +1490,9 @@
                 '</div><div class="wishlist-price">' +
                 (price ? price.toLocaleString("fa-IR") + " تومان" : "تماس بگیرید") +
                 "</div>") +
-            "</div></div></a>";
+            '</div></div></a><button type="button" class="wishlist-remove" data-wishlist-remove="' +
+            escapeHtml(product._id || product.slug || product.legacyId) +
+            '" aria-label="حذف از علاقه‌مندی‌ها"><i class="ti ti-trash"></i> حذف</button>';
           list.appendChild(card);
         });
       }
