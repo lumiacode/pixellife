@@ -83,8 +83,8 @@
       if (window.isSecureContext === false) return render("", "insecure");
       btn.disabled = true;
       label.textContent = "در حال دریافت موقعیت...";
-      // موقعیتِ قدیمیِ کش‌شده توسط مرورگر/گوشی (مثلاً آخرین نقطهٔ همین دستگاه) پذیرفته نمی‌شود؛ فقط نقطهٔ تازه.
-      // تا ۱۲ ثانیه تازه‌ترین و دقیق‌ترین نقطه نگه داشته می‌شود و با دقت کافی (≤ ۶۰ متر) زودتر تمام می‌شود.
+      // maximumAge: 0 یعنی مرورگر نقطهٔ کش‌شده نمی‌دهد. تا ۲۰ ثانیه دقیق‌ترین نقطه نگه داشته می‌شود (استارت سرد GPS ممکن است طول بکشد)
+      // و با دقت کافی (≤ ۶۰ متر) زودتر تمام می‌شود. فیلتر زمانِ نقطه حذف شد: روی بعضی گوشی‌ها زمان نقطه با ساعت مرورگر نمی‌خواند و همهٔ نقطه‌ها رد می‌شدند.
       var started = Date.now(), best = null, done = false, watchId = null, timer = null;
       function stop() {
         done = true;
@@ -108,7 +108,6 @@
       watchId = navigator.geolocation.watchPosition(
         function (position) {
           if (done) return;
-          if (position.timestamp && position.timestamp < started - 10000) return; // قدیمی
           if (!best || (position.coords.accuracy || 1e9) < (best.coords.accuracy || 1e9)) best = position;
           if ((best.coords.accuracy || 1e9) <= 60) finish();
         },
@@ -119,9 +118,9 @@
           // کد ۱ (اجازه/GPS خاموش) و ۲ (موقعیت در دسترس نیست): راهنمای روشن‌کردن GPS؛ کد ۳: زمان‌بر
           render("", error && error.code === 3 ? "timeout" : "off");
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
       );
-      timer = setTimeout(finish, 12000);
+      timer = setTimeout(finish, 20000);
     }
     render();
     return {
