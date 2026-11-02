@@ -133,6 +133,37 @@
   }
 
 
+  // موبایل: فهرست عمودی به سبک دیجیکالا (عکس سمت راست، عنوان و قیمت کنارش، فقط خط جداکننده بین ردیف‌ها). دسکتاپ بدون تغییر.
+  // با حذف این بلوک، شبکهٔ دوستونهٔ قبلی برمی‌گردد.
+  if (!document.getElementById("database-catalog-mobile-list-style")) {
+    const style = document.createElement("style");
+    style.id = "database-catalog-mobile-list-style";
+    style.textContent = `
+      @media(max-width:640px){
+        html body .iphone-grid.pl-v2,html body .samsung-grid.pl-v2,html body .xiaomi-grid.pl-v2,html body .prod-grid.pl-v2,html body .xiaomitab-grid.pl-v2,html body .console-grid.pl-v2,html body .grid.pl-v2{display:block!important;gap:0!important;padding:0 4px!important;border:0!important;background:#fff!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:14px!important;width:100%!important;min-height:0!important;margin:0!important;padding:16px 0!important;border:0!important;border-bottom:1px solid #eceff3!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2:last-child{border-bottom:0!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:first-of-type{flex:0 0 108px!important;width:108px!important;height:108px!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:10px!important;background:transparent!important;position:relative!important;overflow:hidden!important;aspect-ratio:auto!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:first-of-type img{position:static!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;aspect-ratio:auto!important;object-fit:contain!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-color-dots{display:none!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:nth-of-type(2){flex:1 1 0!important;min-width:0!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;padding:0!important;margin:0!important;background:transparent!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-brand{display:none!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:nth-of-type(2)>div:nth-of-type(2){display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;font-size:13.5px!important;font-weight:700!important;line-height:2!important;color:#1e293b!important;text-align:right!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-footer{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:4px!important;margin-top:auto!important;padding:8px 0 0!important;border:0!important;min-height:0!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-stock{display:block!important;min-height:0!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-prices{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:2px!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-price-meta{display:flex!important;align-items:center!important;gap:6px!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-price{font-size:15px!important;font-weight:800!important;color:#0f172a!important;white-space:nowrap!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-amazing-timer-slot{height:auto!important;margin-top:6px!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-amazing-timer-slot:empty{display:none!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-coming-soon{top:16px!important;right:0!important;font-size:11px!important;padding:4px 9px!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>span:first-child:not(.pl-coming-soon){top:16px!important;right:0!important}
+        html body .pl-catalog-skeleton{min-height:140px!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   // طراحی ساده‌تر فیلتر و مرتب‌سازی (نسخهٔ ۲). با حذف این بلوک، ظاهر قبلی برمی‌گردد.
   if (!document.getElementById("database-catalog-filters-v2-style")) {
     const style = document.createElement("style");
