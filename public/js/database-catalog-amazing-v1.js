@@ -148,7 +148,8 @@
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-color-dots{display:none!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2>div:nth-of-type(2){flex:1 1 0!important;min-width:0!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;padding:0!important;margin:0!important;background:transparent!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-brand{display:none!important}
-        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:nth-of-type(2)>div:nth-of-type(2){display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;font-size:13.5px!important;font-weight:700!important;line-height:2!important;color:#1e293b!important;text-align:right!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-n-rest{display:none!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2>div:nth-of-type(2)>div:nth-of-type(2){display:-webkit-box!important;-webkit-line-clamp:1!important;-webkit-box-orient:vertical!important;overflow:hidden!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;font-size:13px!important;font-weight:700!important;line-height:1.9!important;color:#1e293b!important;text-align:right!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-footer{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important;gap:4px!important;margin-top:auto!important;padding:8px 0 0!important;border:0!important;min-height:0!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-stock{display:block!important;min-height:0!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-prices{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:2px!important}
@@ -269,6 +270,19 @@
       '</div>';
   }
 
+  // عنوان کوتاه برای کارت موبایل: بخش اصلی (مثلاً «گوشی موبایل اپل مدل iPhone 17 Pro ZAA») نشان داده می‌شود و ادامه‌اش
+  // (تک/دو سیم، ظرفیت، رم، eSim …) فقط در دسکتاپ دیده می‌شود. نام کامل محصول تغییری نمی‌کند.
+  function splitName(raw) {
+    const text = String(raw == null ? "" : raw);
+    const cut = text.match(/\s(?:تک|دو)\s*سیم|\sظرفیت|\sرم\s|\s\+\s|\s\d+\s*(?:GB|TB|گیگ|ترابایت)|\seSim/i);
+    if (!cut || cut.index < 8) return { main: text, rest: "" };
+    return { main: text.slice(0, cut.index), rest: text.slice(cut.index) };
+  }
+  function nameHtml(raw) {
+    const parts = splitName(raw);
+    return escapeHtml(parts.main) + (parts.rest ? '<span class="pl-n-rest">' + escapeHtml(parts.rest) + "</span>" : "");
+  }
+
   function card(product) {
     const name = escapeHtml(product.name);
     const href = "/product/" + encodeURIComponent(product.slug);
@@ -298,7 +312,7 @@
       ? '<div class="pl-amazing-timer"><i class="ti ti-clock"></i><span data-amazing-end="' + escapeHtml(product.amazingOfferEndsAt) + '"></span></div>'
       : "";
     // نام برند فقط یک‌بار، بالای مدل محصول نمایش داده می‌شود.
-    return `<a href="${href}" class="${config.card} pl-catalog-card pl-card-v2" data-stock="${outOfStock ? 0 : stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${name}</div>${amazingTimer ? '<div class="pl-amazing-timer-slot">' + amazingTimer + '</div>' : ''}<div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div></div></a>`;
+    return `<a href="${href}" class="${config.card} pl-catalog-card pl-card-v2" data-stock="${outOfStock ? 0 : stock}" style="color:inherit;text-decoration:none;position:relative">${amazingRibbon}${comingSoonBadge}<div class="${imageClass}">${colorDots(product, outOfStock)}${imageMarkup(product, name)}</div><div class="${bodyClass}"><div class="pl-catalog-brand">${escapeHtml(product.brand || "")}</div><div class="${config.name}">${nameHtml(product.name)}</div>${amazingTimer ? '<div class="pl-amazing-timer-slot">' + amazingTimer + '</div>' : ''}<div class="pl-catalog-footer"><div class="pl-catalog-stock">${status}</div>${priceHtml}</div></div></a>`;
   }
 
   function uniqueValues(products, valueFor) {
