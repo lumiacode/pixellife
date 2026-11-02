@@ -1,6 +1,8 @@
 /* ثبت اختیاری موقعیت GPS برای آدرس: فقط با اجازهٔ کاربر، بدون نقشهٔ خارجی (فقط لینک «مشاهده روی نقشه»). */
 (function () {
   if (window.PLLocation) return;
+  var policy = window.PLLocationPolicy; // قواعد: location-policy.js (باید قبل از این فایل بارگذاری شود)
+  if (!policy) { if (window.console) console.error("location-policy.js بارگذاری نشده است"); return; }
   var css =
     ".plloc{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border:1.5px dashed #cbd5e1;border-radius:12px;background:#f8fafc;margin:2px 0 6px}" +
     ".plloc-text strong{display:block;font-size:13.5px;font-weight:800;color:#1e293b}" +
@@ -33,17 +35,13 @@
       '<button type="button" class="plloc-btn"><i class="ti ti-current-location"></i><span>ثبت موقعیت فعلی من</span></button>' +
       '<div class="plloc-status" hidden></div></div>';
     // کامپیوتر GPS ندارد؛ موقعیتش از روی Wi‑Fi/IP یا آخرین نقطهٔ ذخیره‌شدهٔ سیستم‌عامل حدس زده می‌شود و ممکن است قدیمی یا اشتباه باشد.
-    var ua = navigator.userAgent || "";
-    var isDesktop = navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean"
-      ? !navigator.userAgentData.mobile && !/android|iphone|ipad|ipod/i.test(ua)
-      : !/android|iphone|ipad|ipod|mobile/i.test(ua);
+    var isDesktop = policy.isDesktopEnvironment(navigator);
     // روی کامپیوتر ثبت موقعیت کاملاً غیرفعال است (فقط گوشی). موقعیتِ قبلاً ثبت‌شده از گوشی دیده و حذف می‌شود و هنگام ویرایش آدرس حفظ می‌ماند.
     if (isDesktop) {
       var desc = container.querySelector(".plloc-text p");
       if (desc) desc.textContent = "ثبت موقعیت روی نقشه فقط با گوشی ممکن است؛ کامپیوتر GPS ندارد و موقعیتش دقیق نیست. برای ثبت موقعیت، همین صفحه را با گوشی خود باز کنید.";
       container.querySelector(".plloc-btn").style.display = "none";
     }
-    var maxAccuracy = 1500;
     var btn = container.querySelector(".plloc-btn");
     var label = btn.querySelector("span");
     var status = container.querySelector(".plloc-status");
@@ -83,9 +81,8 @@
       if (window.isSecureContext === false) return render("", "insecure");
       btn.disabled = true;
       label.textContent = "در حال دریافت موقعیت...";
-      // maximumAge: 0 یعنی مرورگر نقطهٔ کش‌شده نمی‌دهد. تا ۲۰ ثانیه دقیق‌ترین نقطه نگه داشته می‌شود (استارت سرد GPS ممکن است طول بکشد)
-      // و با دقت کافی (≤ ۶۰ متر) زودتر تمام می‌شود. فیلتر زمانِ نقطه حذف شد: روی بعضی گوشی‌ها زمان نقطه با ساعت مرورگر نمی‌خواند و همهٔ نقطه‌ها رد می‌شدند.
-      var started = Date.now(), best = null, done = false, watchId = null, timer = null;
+      // قواعد دریافت و پذیرش نقطه (دقت، زمان انتظار، کش) در location-policy.js است؛ اینجا فقط دکمه و پیام‌ها مدیریت می‌شوند.
+      var collector = policy.createFixCollector(), done = false, watchId = null, timer = null;
       function stop() {
         done = true;
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
@@ -95,32 +92,25 @@
       function finish() {
         if (done) return;
         stop();
-        if (!best) { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", "timeout"); }
-        // دقت بدتر از ۱٫۵ کیلومتر یعنی موقعیت از روی IP/شبکه یا VPN حدس زده شده، نه GPS؛ چنین نقطه‌ای برای آدرس ثبت نمی‌شود.
-        if ((best.coords.accuracy || 1e9) > maxAccuracy) { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", "approx"); }
-        loc = {
-          lat: Math.round(best.coords.latitude * 1e6) / 1e6,
-          lng: Math.round(best.coords.longitude * 1e6) / 1e6,
-          accuracy: Math.round(best.coords.accuracy || 0),
-        };
+        var result = collector.result();
+        if (result.status !== "ok") { label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من"; return render("", result.status); }
+        loc = result.fix;
         render();
       }
       watchId = navigator.geolocation.watchPosition(
         function (position) {
           if (done) return;
-          if (!best || (position.coords.accuracy || 1e9) < (best.coords.accuracy || 1e9)) best = position;
-          if ((best.coords.accuracy || 1e9) <= 60) finish();
+          if (collector.add(position)) finish();
         },
         function (error) {
           if (done) return;
           stop();
           label.textContent = loc ? "به‌روزرسانی موقعیت" : "ثبت موقعیت فعلی من";
-          // کد ۱ (اجازه/GPS خاموش) و ۲ (موقعیت در دسترس نیست): راهنمای روشن‌کردن GPS؛ کد ۳: زمان‌بر
-          render("", error && error.code === 3 ? "timeout" : "off");
+          render("", policy.errorKind(error));
         },
-        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
+        policy.GEO_OPTIONS,
       );
-      timer = setTimeout(finish, 20000);
+      timer = setTimeout(finish, policy.WAIT_MS);
     }
     render();
     return {
