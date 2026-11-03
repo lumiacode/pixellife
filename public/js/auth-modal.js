@@ -125,21 +125,32 @@
   function stopWebOtp() {
     if (state.otpAbort) { try { state.otpAbort.abort(); } catch (e) {} state.otpAbort = null; }
   }
+  // حالت عیب‌یابی: با ?otpdebug=1 در آدرس صفحه، وضعیت WebOTP زیر کادر کد نوشته می‌شود (برای پیدا کردن دلیل پر نشدن خودکار).
+  function otpDebug(text) {
+    if (!/[?&]otpdebug=1\b/.test(location.search)) return;
+    var el = $("#plaOtpDebug");
+    if (!el) { var field = $(".pla-otp"); if (!field) return; el = document.createElement("div"); el.id = "plaOtpDebug"; el.style.cssText = "margin-top:6px;font:11px/1.7 monospace;color:#64748b;direction:ltr;text-align:left;word-break:break-word"; field.appendChild(el); }
+    el.textContent = text;
+  }
   function startWebOtp(input) {
     stopWebOtp();
-    if (!input || !window.isSecureContext || !("OTPCredential" in window) || !navigator.credentials || typeof AbortController === "undefined") return;
+    if (!input) return;
+    if (!window.isSecureContext) return otpDebug("WebOTP: page is not HTTPS (secure context required)");
+    if (!("OTPCredential" in window) || !navigator.credentials || typeof AbortController === "undefined") return otpDebug("WebOTP: not supported by this browser (iOS/Safari never supports it; use the keyboard suggestion). host=" + location.hostname);
     var controller = new AbortController();
     state.otpAbort = controller;
+    otpDebug("WebOTP: waiting for SMS. Its LAST line must be: @" + location.hostname + " #12345");
     navigator.credentials.get({ otp: { transport: ["sms"] }, signal: controller.signal })
       .then(function (credential) {
         if (state.otpAbort === controller) state.otpAbort = null;
         if (!credential || !credential.code || !document.body.contains(input)) return;
         var code = toLatin(credential.code).replace(/\D/g, "").slice(0, 5);
+        otpDebug("WebOTP: received a code of length " + String(credential.code).length);
         if (code.length !== 5) return;
         input.value = code;
         input.dispatchEvent(new Event("input", { bubbles: true })); // همان مسیر تایپ دستی: تأیید خودکار در ۵ رقم
       })
-      .catch(function () { /* لغو، رد اجازه یا نبود پشتیبانی: ورود دستی */ });
+      .catch(function (err) { otpDebug("WebOTP: " + (err && err.name ? err.name : "error") + (err && err.message ? " - " + err.message : "")); });
   }
 
   function render(html, focusSel) {
