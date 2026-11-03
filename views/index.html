@@ -1707,9 +1707,9 @@
       .discount-price-icon::before { font-weight:700; }
 
 
-      /* ═══ PIXELLIFE AMAZING OFFERS (طراحی نو: قرمز پرتپش، شمارندهٔ زنده، میزان صرفه‌جویی، کمبود موجودی، دکمهٔ خرید) ═══ */
-      .amazing-offers { margin: 28px 0 40px; border-radius: 24px; overflow: hidden; position: relative; color: #fff; background: linear-gradient(120deg, #9f1239 0%, #e11d48 48%, #f97316 100%); box-shadow: 0 18px 40px rgba(225, 29, 72, .32); }
-      .amazing-offers::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 12% 16%, rgba(255,255,255,.2), transparent 38%), radial-gradient(circle at 92% 92%, rgba(253,224,71,.3), transparent 42%); }
+      /* ═══ PIXELLIFE AMAZING OFFERS (طراحی نو: پس‌زمینهٔ آبیِ تم سایت با تأکید قرمز روی تخفیف/قیمت/دکمه، شمارندهٔ زنده، میزان صرفه‌جویی، کمبود موجودی، دکمهٔ خرید) ═══ */
+      .amazing-offers { margin: 28px 0 40px; border-radius: 24px; overflow: hidden; position: relative; color: #fff; background: linear-gradient(120deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%); box-shadow: 0 18px 40px rgba(37, 99, 235, .32); }
+      .amazing-offers::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 12% 16%, rgba(255,255,255,.2), transparent 38%), radial-gradient(circle at 92% 92%, rgba(147,197,253,.35), transparent 42%); }
       .amazing-offers-inner { position: relative; display: grid; grid-template-columns: 268px minmax(0, 1fr); direction: rtl; }
       .amazing-offers-brand { padding: 26px 22px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px; text-align: right; }
       .amazing-bolt { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; color: #7c2d12; background: linear-gradient(145deg, #fde047, #f59e0b); box-shadow: 0 8px 20px rgba(0, 0, 0, .28); animation: amz-pulse 1.8s ease-in-out infinite; }
@@ -1717,10 +1717,10 @@
       .amazing-offers-brand p { margin: 0; font-size: 12.5px; line-height: 1.8; color: rgba(255, 255, 255, .92); }
       .amazing-timer small { display: block; margin-bottom: 6px; font-size: 11.5px; opacity: .92; }
       .amazing-timer-boxes { display: flex; gap: 6px; direction: ltr; }
-      .amazing-timer-boxes .t-box { min-width: 46px; padding: 6px 4px; border-radius: 10px; text-align: center; background: rgba(15, 23, 42, .45); }
+      .amazing-timer-boxes .t-box { min-width: 46px; padding: 6px 4px; border-radius: 10px; text-align: center; background: rgba(15, 23, 42, .42); }
       .amazing-timer-boxes .t-box b { display: block; font-size: 19px; font-weight: 800; line-height: 1.25; font-variant-numeric: tabular-nums; }
       .amazing-timer-boxes .t-box i { display: block; font-size: 9.5px; font-style: normal; opacity: .85; }
-      .amazing-all { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; background: #fff; color: #be123c; font-size: 13px; font-weight: 800; box-shadow: 0 8px 18px rgba(0, 0, 0, .2); transition: transform .2s ease; }
+      .amazing-all { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; background: #fff; color: #1d4ed8; font-size: 13px; font-weight: 800; box-shadow: 0 8px 18px rgba(0, 0, 0, .2); transition: transform .2s ease; }
       .amazing-all:hover { transform: translateY(-2px); }
       .amazing-offers-list { position: relative; min-width: 0; padding: 18px 18px 18px 22px; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
       .amazing-offers-list::-webkit-scrollbar { display: none; }
@@ -1742,8 +1742,8 @@
       .amazing-card-body { display: flex; flex-direction: column; flex: 1; padding-top: 10px; }
       .amazing-more { flex: 0 0 150px; scroll-snap-align: start; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 12px; border-radius: 18px; text-align: center; font-size: 13px; font-weight: 800; line-height: 1.8; color: #fff; border: 2px dashed rgba(255, 255, 255, .65); background: rgba(255, 255, 255, .14); transition: background .2s ease; }
       .amazing-more:hover { background: rgba(255, 255, 255, .24); }
-      .amazing-more-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; color: #be123c; background: #fff; }
-      @keyframes amz-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(0,0,0,.28); } 50% { transform: scale(1.07); box-shadow: 0 10px 26px rgba(253,224,71,.5); } }
+      .amazing-more-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; color: #1d4ed8; background: #fff; }
+      @keyframes amz-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(0,0,0,.28); } 50% { transform: scale(1.07); box-shadow: 0 10px 26px rgba(253,224,71,.55); } }
       @media (prefers-reduced-motion: reduce) { .amazing-bolt { animation: none; } .amazing-card, .amazing-all { transition: none; } }
       @media (max-width: 768px) {
         .amazing-offers { margin: 20px 0 30px; border-radius: 18px; }
