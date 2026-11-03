@@ -118,7 +118,7 @@ app.use(
 // سشن برای ورود ادمین
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "pixellife-admin-secret-change-me",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -147,10 +147,12 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // ۲. آدرس مخفی برای شما: اگر وارد آدرس pixellife.ir/?bypass=sasan1376 شدید
-  if (req.query.bypass === "sasan1376") {
+  // ۲. آدرس مخفی برای شما: اگر وارد آدرس pixellife.ir/?bypass=<MAINTENANCE_BYPASS_KEY> شدید
+  // (مقدار کلید فقط در .env نگه داشته می‌شود؛ هرگز در کد نگذارید)
+  const bypassKey = process.env.MAINTENANCE_BYPASS_KEY;
+  if (bypassKey && req.query.bypass === bypassKey) {
     // یک کوکی برای ۷ روز در مرورگر شما ذخیره می‌شود
-    res.cookie("maintenance_bypass", "sasan1376", {
+    res.cookie("maintenance_bypass", bypassKey, {
       maxAge: 604800000, // ۷ روز به میلی‌ثانیه
       httpOnly: true,
     });
@@ -158,7 +160,7 @@ app.use((req, res, next) => {
   }
 
   // ۳. اگر کوکی در مرورگر وجود داشت (یعنی قبلا آدرس مخفی را زده‌اید)
-  if (req.cookies && req.cookies.maintenance_bypass === "sasan1376") {
+  if (bypassKey && req.cookies && req.cookies.maintenance_bypass === bypassKey) {
     return next(); // اجازه دیدن سایت
   }
 
