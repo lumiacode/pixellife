@@ -75,8 +75,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // نمایش در ردیف «موبایل» صفحهٔ اصلی (از پنل ادمین تنظیم می‌شود)
-    homeMobile: { type: Boolean, default: false },
     availability: {
       type: String,
       default: "in",

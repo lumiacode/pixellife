@@ -51,7 +51,7 @@ router.use(async (req, res, next) => {
 
 const PRODUCT_CARD_FIELDS = [
   "name", "slug", "legacyId", "brand", "category", "price", "discount",
-  "featured", "homeMobile", "availability", "amazingOffer", "amazingOfferEndsAt", "images", "mainImage", "colors", "variants",
+  "featured", "availability", "amazingOffer", "amazingOfferEndsAt", "images", "mainImage", "colors", "variants",
   "storages", "hasStorage", "rating", "reviewCount", "comingSoon", "stock",
   "createdAt", "updatedAt",
 ].join(" ");
@@ -149,7 +149,7 @@ router.get("/", async (req, res) => {
     if (cached) catalogResponseCache.delete(cacheKey);
 
     const filter = {};
-    const { brand, category, featured, homeMobile, amazing, exclude, limit, sort, search } = req.query;
+    const { brand, category, featured, amazing, exclude, limit, sort, search } = req.query;
 
     if (search) {
       const normalizedSearch = normalizeText(search);
@@ -219,7 +219,6 @@ router.get("/", async (req, res) => {
       }
     }
     if (featured !== undefined) filter.featured = toBoolean(featured);
-    if (homeMobile !== undefined) filter.homeMobile = toBoolean(homeMobile);
     if (amazing !== undefined) {
       const amazingEnabled = toBoolean(amazing);
       filter.amazingOffer = amazingEnabled;
@@ -354,6 +353,31 @@ router.get("/bestsellers", async (req, res) => {
     res.json(payload);
   } catch (error) {
     console.error("Bestsellers error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ردیف‌های صفحهٔ اصلی: برای هر بخش، محصولاتی که ادمین در «محصولات صفحهٔ اصلی» انتخاب کرده (به همان ترتیب).
+// بخشِ بدون محصول در پاسخ نمی‌آید. انتخاب‌ها: src/services/homeSections.js
+const { SECTIONS: HOME_SECTIONS, readSelections: readHomeSelections } = require("../services/homeSections");
+router.get("/home-sections", async (req, res) => {
+  try {
+    const cacheKey = req.originalUrl;
+    const cached = catalogResponseCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) return res.json(cached.payload);
+    const selections = await readHomeSelections();
+    const allIds = [...new Set(Object.values(selections).flat())];
+    const rows = allIds.length ? await Product.find({ _id: { $in: allIds } }).select(PRODUCT_CARD_FIELDS).lean() : [];
+    const products = await withApprovedReviewStats(rows.map(serializeProduct));
+    const byId = new Map(products.map((product) => [String(product._id), product]));
+    const sections = HOME_SECTIONS
+      .map((section) => ({ key: section.key, title: section.title, products: (selections[section.key] || []).map((id) => byId.get(id)).filter(Boolean) }))
+      .filter((section) => section.products.length);
+    const payload = { success: true, sections };
+    catalogResponseCache.set(cacheKey, { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, payload });
+    res.json(payload);
+  } catch (error) {
+    console.error("Home sections error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

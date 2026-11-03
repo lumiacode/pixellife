@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>محصولات صفحهٔ اصلی | پیکسل‌لایف</title><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"/><link rel="stylesheet" href="/vendor/adminlte/css/adminlte.rtl.min.css"/><link rel="stylesheet" href="/css/admin-light.css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<style id="page-style">
+body{font-family:Vazirmatn,Tahoma,sans-serif;color-scheme:light;background:#f8fafc!important;color:#1e293b!important}.app-wrapper,.app-main,.app-content,.app-content-header{background:#f8fafc!important;color:#1e293b!important}
+.panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;height:100%}.panel h5{font-weight:800;font-size:16px;margin:0;display:flex;align-items:center;gap:8px}.panel h5 .count{font-size:11.5px;font-weight:700;color:#1d4ed8;background:#eff6ff;border-radius:999px;padding:2px 9px}
+.hint{color:#64748b;font-size:12.5px;margin:4px 0 12px}.intro{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 16px;color:#1e3a8a;font-size:13.5px;line-height:2}
+.sel-list{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;padding:0;list-style:none;min-height:24px}
+.sel-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}
+.sel-item img,.sel-thumb{width:44px;height:44px;border-radius:10px;object-fit:contain;background:#fff;border:1px solid #eef2f7;flex:0 0 44px}.sel-thumb{display:grid;place-items:center;color:#94a3b8}
+.sel-info{flex:1;min-width:0}.sel-info b{display:block;font-size:13px;font-weight:700;line-height:1.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sel-info small{color:#64748b;font-size:11.5px}.sel-info .warn{color:#b45309;font-weight:700}
+.sel-btn{width:30px;height:30px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#475569;display:grid;place-items:center;padding:0;cursor:pointer}.sel-btn:hover:not(:disabled){background:#f1f5f9}.sel-btn:disabled{opacity:.35;cursor:default}.sel-btn.del:hover:not(:disabled){background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.sel-empty{color:#94a3b8;font-size:13px;padding:14px;border:1px dashed #cbd5e1;border-radius:12px;text-align:center}
+.picker{position:relative;margin-bottom:12px}.picker input{width:100%}.results{position:absolute;z-index:20;inset-inline:0;top:calc(100% + 4px);background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.12);max-height:300px;overflow:auto}
+.res-item{display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border:0;background:none;width:100%;text-align:right}.res-item:hover,.res-item:focus-visible{background:#eff6ff;outline:none}.res-item img,.res-item .sel-thumb{width:36px;height:36px;flex:0 0 36px}.res-empty{padding:12px;color:#64748b;font-size:13px;text-align:center}
+.msg{min-height:1.3em;font-size:.85rem}.msg.err{color:#dc2626}.msg.ok{color:#15803d}
+</style>
+<style id="admin-sidebar-critical">.app-sidebar:not(.admin-unified-sidebar){visibility:hidden!important;opacity:0!important;pointer-events:none!important}</style>
+</head>
+<body class="layout-fixed sidebar-expand-lg"><div class="app-wrapper"><nav class="app-header navbar bg-white border-bottom"><div class="container-fluid"><button class="btn btn-sm btn-outline-danger me-auto" id="logoutBtn"><i class="ti ti-logout"></i> خروج</button></div></nav><aside class="app-sidebar bg-white shadow-sm"><div class="sidebar-brand"><a href="/admin/products" class="brand-link">پیکسل<span>لایف</span></a></div><div class="sidebar-wrapper"><nav class="mt-2"><ul class="nav sidebar-menu flex-column"><li class="nav-item"><a href="/admin/products" class="nav-link"><p>محصولات</p></a></li><li class="nav-item"><a href="/admin/home-sections" class="nav-link active"><p>محصولات صفحهٔ اصلی</p></a></li></ul></nav></div></aside>
+<main class="app-main"><div class="app-content-header"><div class="container-fluid"><h3 class="mb-1">محصولات صفحهٔ اصلی</h3>
+<p class="text-muted mb-2">برای هر بخش صفحهٔ اصلی، محصولاتی که می‌خواهید در همان بخش نمایش داده شوند را انتخاب کنید.</p>
+<div class="intro"><b>راهنما:</b> هر بخش (موبایل، تبلت، ساعت هوشمند و …) در صفحهٔ اصلی یک ردیف اسکرولی است. محصولی را که در یک بخش اضافه می‌کنید، با همان ترتیب فهرست (بالاترین = اول) در ردیف همان بخش دیده می‌شود. بخشی که هیچ محصولی نداشته باشد در صفحهٔ اصلی نشان داده نمی‌شود. برای هر بخش حداکثر <span id="maxN">۱۲</span> محصول. بعد از «ذخیره»، تغییر حداکثر چند ثانیه بعد در صفحهٔ اصلی دیده می‌شود. محصول انتخاب‌شده در ردیف‌های دیگر صفحهٔ اصلی (مثل «منتخب») دوباره تکرار نمی‌شود.</div>
+</div></div>
+<div class="app-content"><div class="container-fluid"><div id="loadMsg" class="msg mb-2" role="status"></div><div class="row g-3" id="sections"></div></div></div></main></div>
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var MAX=12, sections=[], catalog=[];
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fa(n){return Number(n).toLocaleString('fa-IR')}
+function api(url,opt){opt=opt||{};if(opt.body&&typeof opt.body!=='string'){opt.body=JSON.stringify(opt.body);opt.headers={'Content-Type':'application/json'}}
+ return fetch(url,opt).then(function(r){return r.json().catch(function(){return{success:false,message:'پاسخ نامعتبر'}})})}
+function priceOf(p){var d=Math.min(99,Math.max(0,Number(p.discount)||0));return Math.round((Number(p.price)||0)*(100-d)/100)}
+function thumb(p,cls){return p.image?'<img src="'+esc(p.image.indexOf('/api/products/image/')===0?p.image+'?w=96':p.image)+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">':'<span class="sel-thumb"><i class="ti ti-photo"></i></span>'}
+function status(p){if(p.availability==='out'||Number(p.stock)<=0)return '<span class="warn">ناموجود</span>';if(p.comingSoon)return '<span class="warn">به‌زودی</span>';return ''}
+function panelHtml(s){
+ return '<div class="col-12 col-xl-6"><section class="panel" data-key="'+esc(s.key)+'"><h5><i class="ti ti-layout-grid"></i> '+esc(s.title)+' <span class="count"></span></h5>'
+ +'<p class="hint">محصولات ردیف «'+esc(s.title)+'» در صفحهٔ اصلی.</p>'
+ +'<ul class="sel-list"></ul>'
+ +'<div class="picker"><input class="form-control" type="search" placeholder="افزودن محصول: نام یا برند را بنویسید…" autocomplete="off" aria-label="افزودن محصول به بخش '+esc(s.title)+'"><div class="results" hidden></div></div>'
+ +'<div class="msg" role="status"></div><div class="d-flex justify-content-end"><button type="button" class="btn btn-primary save"><i class="ti ti-device-floppy"></i> ذخیره</button></div></section></div>'}
+function render(s){
+ var el=document.querySelector('[data-key="'+s.key+'"]');var ul=el.querySelector('.sel-list');
+ el.querySelector('.count').textContent=fa(s.products.length)+' / '+fa(MAX);
+ if(!s.products.length){ul.innerHTML='<li class="sel-empty">هنوز محصولی انتخاب نشده؛ این بخش در صفحهٔ اصلی نمایش داده نمی‌شود.</li>';}
+ else ul.innerHTML=s.products.map(function(p,i){return '<li class="sel-item" data-id="'+esc(p._id)+'">'+thumb(p)+'<div class="sel-info"><b title="'+esc(p.name)+'">'+esc(p.name)+'</b><small>'+esc(p.brand)+(p.brand?' · ':'')+fa(priceOf(p))+' تومان '+status(p)+'</small></div>'
+  +'<button type="button" class="sel-btn" data-act="up" aria-label="بالا" '+(i===0?'disabled':'')+'><i class="ti ti-chevron-up"></i></button><button type="button" class="sel-btn" data-act="down" aria-label="پایین" '+(i===s.products.length-1?'disabled':'')+'><i class="ti ti-chevron-down"></i></button><button type="button" class="sel-btn del" data-act="del" aria-label="حذف"><i class="ti ti-x"></i></button></li>'}).join('');
+ el.querySelector('.picker input').disabled=s.products.length>=MAX;
+}
+function search(el,s,q){
+ var box=el.querySelector('.results');q=(q||'').trim().toLowerCase();
+ if(!q){box.hidden=true;return}
+ var have={};s.products.forEach(function(p){have[p._id]=1});
+ var list=catalog.filter(function(p){return !have[p._id]&&((p.name||'').toLowerCase().indexOf(q)!==-1||(p.brand||'').toLowerCase().indexOf(q)!==-1||(p.category||'').toLowerCase().indexOf(q)!==-1)}).slice(0,8);
+ box.innerHTML=list.length?list.map(function(p){return '<button type="button" class="res-item" data-id="'+esc(p._id)+'">'+thumb(p)+'<span class="sel-info"><b>'+esc(p.name)+'</b><small>'+esc(p.category)+' · '+fa(priceOf(p))+' تومان '+status(p)+'</small></span></button>'}).join(''):'<div class="res-empty">محصولی پیدا نشد.</div>';
+ box.hidden=false;
+}
+function bind(s){
+ var el=document.querySelector('[data-key="'+s.key+'"]');var input=el.querySelector('.picker input'),box=el.querySelector('.results'),msg=el.querySelector('.msg');
+ input.addEventListener('input',function(){search(el,s,input.value)});
+ input.addEventListener('focus',function(){if(input.value)search(el,s,input.value)});
+ box.addEventListener('click',function(e){var b=e.target.closest('.res-item');if(!b)return;var p=catalog.filter(function(x){return x._id===b.dataset.id})[0];if(p&&s.products.length<MAX){s.products.push(p);input.value='';box.hidden=true;msg.textContent='';render(s)}});
+ el.querySelector('.sel-list').addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b)return;var id=b.closest('.sel-item').dataset.id;var i=s.products.findIndex(function(p){return p._id===id});if(i<0)return;
+  if(b.dataset.act==='del')s.products.splice(i,1);
+  else if(b.dataset.act==='up'&&i>0){var t=s.products[i];s.products[i]=s.products[i-1];s.products[i-1]=t}
+  else if(b.dataset.act==='down'&&i<s.products.length-1){var t2=s.products[i];s.products[i]=s.products[i+1];s.products[i+1]=t2}
+  msg.textContent='';render(s)});
+ el.querySelector('.save').addEventListener('click',function(){var btn=this;btn.disabled=true;msg.className='msg';msg.textContent='';
+  api('/admin/api/home-sections/'+encodeURIComponent(s.key),{method:'PUT',body:{productIds:s.products.map(function(p){return p._id})}}).then(function(j){btn.disabled=false;
+   if(!j.success){msg.className='msg err';msg.textContent=j.message||'ذخیره نشد';return}
+   var keep={};j.productIds.forEach(function(id){keep[id]=1});s.products=s.products.filter(function(p){return keep[p._id]});render(s);
+   msg.className='msg ok';msg.textContent=j.productIds.length?'ذخیره شد؛ در صفحهٔ اصلی نمایش داده می‌شود.':'ذخیره شد؛ این بخش از صفحهٔ اصلی برداشته شد.'})});
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.picker'))document.querySelectorAll('.results').forEach(function(b){b.hidden=true})});
+Promise.all([api('/admin/api/home-sections'),api('/admin/api/home-sections/catalog')]).then(function(r){
+ if(!r[0].success||!r[1].success){$('loadMsg').className='msg err mb-2';$('loadMsg').textContent=(r[0].message||r[1].message)||'دریافت اطلاعات ناموفق بود';return}
+ MAX=r[0].max||12;$('maxN').textContent=fa(MAX);catalog=r[1].products;sections=r[0].sections;
+ $('sections').innerHTML=sections.map(panelHtml).join('');
+ sections.forEach(function(s){render(s);bind(s)});
+});
+$('logoutBtn').onclick=function(){fetch('/admin/logout',{method:'POST'}).finally(function(){location.href='/admin/login'})};
+})();
+</script><script src="/js/admin-sidebar.js?v=18" defer></script></body></html>

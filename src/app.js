@@ -266,6 +266,13 @@ app.use("/api/payments/zarinpal", zarinpalPaymentRoutes);
 app.use("/api/wallet", require("./routes/wallet"));
 
 // Admin Panel
+// محصولات صفحهٔ اصلی (پنل ادمین): فقط با نشست ادمین؛ قبل از adminApi سوار می‌شود.
+app.use(
+  "/admin/api/home-sections",
+  adminSession,
+  (req, res, next) => (req.session && req.session.isAdmin ? next() : res.status(401).json({ success: false, message: "ابتدا وارد شوید" })),
+  require("./routes/adminHomeSections"),
+);
 app.use("/admin/api", adminApiRoutes);
 app.use("/admin/api/ai", adminAiProductsRoutes);
 app.use("/admin", adminRoutes);

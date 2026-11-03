@@ -636,7 +636,6 @@
                 <div class="col-12">
                   <div class="product-flags">
                     <label class="product-flag" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><span>محصول منتخب <small>صفحهٔ اصلی</small></span></label>
-                    <label class="product-flag" for="fHomeMobile"><input class="form-check-input" type="checkbox" id="fHomeMobile" data-availability-dependent /><span>بخش «موبایل» <small>صفحهٔ اصلی</small></span></label>
                     <label class="product-flag" for="fComingSoon"><input class="form-check-input" type="checkbox" id="fComingSoon" data-availability-dependent /><span>به‌زودی <small>نشان روی کارت</small></span></label>
                     <label class="product-flag product-flag--hot" for="fAmazingOffer"><input class="form-check-input" type="checkbox" id="fAmazingOffer" data-availability-dependent /><span>پیشنهاد شگفت‌انگیز <small>با زمان پایان</small></span></label>
                   </div>
@@ -1552,7 +1551,6 @@
         document.getElementById("fReviewTitle").value = "بررسی تخصصی";
         document.getElementById("fHideColorsWhenOutOfStock").checked = true;
         document.getElementById("fComingSoon").checked = false;
-        document.getElementById("fHomeMobile").checked = false;
         document.getElementById("fAmazingOffer").checked = false;
         document.getElementById("fAmazingOfferEndsAt").value = "";
         document.getElementById("fShowSpecs").checked = true;
@@ -1586,7 +1584,6 @@
         document.getElementById("fStock").value = p.stock || "";
         document.getElementById("fAvailability").value = p.availability || "in";
         document.getElementById("fFeatured").checked = !!p.featured;
-        document.getElementById("fHomeMobile").checked = p.homeMobile === true;
         document.getElementById("fComingSoon").checked = p.comingSoon === true;
         document.getElementById("fAmazingOffer").checked = p.amazingOffer === true;
         document.getElementById("fAmazingOfferEndsAt").value = p.amazingOfferEndsAt ? new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(p.amazingOfferEndsAt)).replace("،", "") : "";
@@ -1989,7 +1986,6 @@
             document.getElementById("fAvailability").value,
           );
           fd.append("featured", document.getElementById("fFeatured").checked);
-          fd.append("homeMobile", document.getElementById("fHomeMobile").checked);
           fd.append("comingSoon", document.getElementById("fComingSoon").checked);
           fd.append("amazingOffer", document.getElementById("fAmazingOffer").checked);
           fd.append("amazingOfferEndsAt", document.getElementById("fAmazingOfferEndsAt").value);
@@ -2073,6 +2069,6 @@
       }
       loadProducts();
     </script>
-  <script src="/js/admin-sidebar.js?v=17" defer></script>
+  <script src="/js/admin-sidebar.js?v=18" defer></script>
   <script src="/js/history-safe-anchors.js?v=1"></script></body>
 </html>

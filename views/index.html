@@ -2941,13 +2941,8 @@
 
 
 
-      <!-- ═══ موبایل (محصولات انتخاب‌شده در پنل ادمین: «بخش موبایل صفحهٔ اصلی») ═══ -->
-      <section class="product-section home-rail-section" id="mobileSection" aria-labelledby="mobileSectionTitle" hidden>
-        <div class="section-header">
-          <h2 id="mobileSectionTitle">موبایل</h2>
-        </div>
-        <div class="product-grid home-rail" id="mobileGrid"></div>
-      </section>
+      <!-- ═══ محصولات صفحهٔ اصلی: برای هر بخش (موبایل، تبلت، ساعت هوشمند، …) ردیفی که ادمین در فرم محصول برایش تیک زده؛ با JS ساخته می‌شود ═══ -->
+      <div id="homeSections"></div>
 
       <!-- ═══ خرید بر اساس بودجه ═══ -->
       <section class="product-section home-rail-section" id="budgetSection" aria-labelledby="budgetTitle" hidden>
@@ -4320,22 +4315,37 @@
       }
 
       // ترتیب اولویتِ برداشتن محصول (نه ترتیب نمایش در صفحه): هر محصول در اولین ردیفی که به آن می‌رسد می‌ماند.
-      /* ══ موبایل: محصولاتی که ادمین در فرم محصول «بخش موبایل صفحهٔ اصلی» را برایشان زده است ══
-         بعد از شگفت‌انگیز و قبل از بقیهٔ ردیف‌ها بار می‌شود تا انتخاب ادمین در ردیف‌های دیگر تکراری نشود؛
-         اگر ادمین هیچ محصولی انتخاب نکرده باشد، ردیف نمایش داده نمی‌شود. */
-      async function loadMobileRail() {
-        const section = document.getElementById("mobileSection");
-        if (!section) return;
+      /* ══ محصولات صفحهٔ اصلی (بخش‌ها: src/config/homeSections.js؛ انتخاب محصول: فرم محصول در ادمین) ══
+         بعد از شگفت‌انگیز و قبل از بقیهٔ ردیف‌ها بار می‌شود تا انتخاب ادمین در ردیف‌های دیگر تکراری نشود.
+         بخشی که ادمین برایش محصولی تیک نزده، نمایش داده نمی‌شود. */
+      async function loadHomeSections() {
+        const host = document.getElementById("homeSections");
+        if (!host) return;
         try {
-          const res = await fetch("/api/products?homeMobile=true&limit=12");
+          const res = await fetch("/api/products/home-sections");
           const json = await res.json();
-          if (!json.success) return;
-          const items = takeUnique(json.products || [], 12);
-          fillRail("mobileSection", "mobileGrid", items, 1);
+          if (!json.success || !Array.isArray(json.sections)) return;
+          json.sections.forEach((section) => {
+            const items = takeUnique(section.products || [], 12);
+            if (!items.length) return;
+            const wrap = document.createElement("section");
+            wrap.className = "product-section home-rail-section";
+            wrap.dataset.homeSection = section.key;
+            const head = document.createElement("div");
+            head.className = "section-header";
+            const title = document.createElement("h2");
+            title.textContent = section.title;
+            head.appendChild(title);
+            const grid = document.createElement("div");
+            grid.className = "product-grid home-rail";
+            grid.innerHTML = items.map(homeCardMarkup).join("");
+            wrap.appendChild(head); wrap.appendChild(grid);
+            host.appendChild(wrap);
+          });
         } catch (err) { /* اختیاری */ }
       }
 
-      [loadAmazingOffers, loadMobileRail, loadFeaturedProducts, loadBestsellersRail, loadBudgetRail, loadNewRail, loadMobileAccessories].forEach(enqueueHomeRow);
+      [loadAmazingOffers, loadHomeSections, loadFeaturedProducts, loadBestsellersRail, loadBudgetRail, loadNewRail, loadMobileAccessories].forEach(enqueueHomeRow);
 
       /* ══ MINI CART (سبد خرید کوچک هدر) ══
          این بخش سبد را از localStorage می‌خواند (کلید digishop_cart، آرایه‌ای از
