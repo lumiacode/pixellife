@@ -9,7 +9,7 @@
 
   var MOBILE_RE = /^09\d{9}$/;
   var OTP_SECONDS = 120;
-  var state = { identifier: "", info: null, mode: "login", timer: null, lastFocus: null, busy: false, resetCode: "" };
+  var state = { identifier: "", info: null, mode: "login", timer: null, lastFocus: null, busy: false, resetCode: "", otpAbort: null };
   var root, card, body;
 
   /* ───────── استایل ───────── */
@@ -118,7 +118,32 @@
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
+  /* ───────── پر شدن خودکار کد پیامک (WebOTP) ─────────
+     روی اندروید (Chrome/Samsung Internet) کد از خود پیامک خوانده و در کادر گذاشته می‌شود؛ اجازه را خود مرورگر از کاربر می‌گیرد.
+     شرط: خط آخر پیامک دقیقاً به این شکل باشد:   @pixellife.ir #12345   (قالب پیامک در پنل کاوه‌نگار). روی iOS و کیبورد اندروید،
+     autocomplete="one-time-code" کد را بالای کیبورد پیشنهاد می‌دهد. اگر مرورگر پشتیبانی نکند، هیچ اتفاقی نمی‌افتد و ورود دستی کار می‌کند. */
+  function stopWebOtp() {
+    if (state.otpAbort) { try { state.otpAbort.abort(); } catch (e) {} state.otpAbort = null; }
+  }
+  function startWebOtp(input) {
+    stopWebOtp();
+    if (!input || !window.isSecureContext || !("OTPCredential" in window) || !navigator.credentials || typeof AbortController === "undefined") return;
+    var controller = new AbortController();
+    state.otpAbort = controller;
+    navigator.credentials.get({ otp: { transport: ["sms"] }, signal: controller.signal })
+      .then(function (credential) {
+        if (state.otpAbort === controller) state.otpAbort = null;
+        if (!credential || !credential.code || !document.body.contains(input)) return;
+        var code = toLatin(credential.code).replace(/\D/g, "").slice(0, 5);
+        if (code.length !== 5) return;
+        input.value = code;
+        input.dispatchEvent(new Event("input", { bubbles: true })); // همان مسیر تایپ دستی: تأیید خودکار در ۵ رقم
+      })
+      .catch(function () { /* لغو، رد اجازه یا نبود پشتیبانی: ورود دستی */ });
+  }
+
   function render(html, focusSel) {
+    stopWebOtp();
     body.innerHTML = '<div class="pla-step">' + html + "</div>";
     if (focusSel) setTimeout(function () { var el = card.querySelector(focusSel); if (el) el.focus(); }, 60);
   }
@@ -169,7 +194,7 @@
     render(
       '<h2 class="pla-title" id="plaTitle">' + (forgot ? "بازیابی رمز عبور" : "کد تأیید را وارد کنید") + "</h2>" +
       '<p class="pla-sub">کد ۵ رقمی به <b>' + esc(state.identifier) + "</b> ارسال شد.</p>" +
-      '<div class="pla-field pla-otp"><label for="plaCode" class="pla-muted">کد تأیید</label><input id="plaCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="5" dir="ltr" placeholder="•••••"></div>' +
+      '<div class="pla-field pla-otp"><label for="plaCode" class="pla-muted">کد تأیید</label><input id="plaCode" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" maxlength="5" dir="ltr" placeholder="•••••"></div>' +
       '<div class="pla-err" role="alert"></div>' +
       '<button type="button" class="pla-btn" id="plaVerify">' + (forgot ? "ادامه" : "تأیید و ورود") + "</button>" +
       '<div class="pla-links"><span class="pla-muted" id="plaTimer"></span><button type="button" class="pla-link" id="plaResend" hidden>ارسال مجدد کد</button>' +
@@ -189,6 +214,7 @@
     $("#plaResend").addEventListener("click", function () { resend(kind); });
     var toPw = $("#plaToPw"); if (toPw) toPw.addEventListener("click", stepPassword);
     startTimer(OTP_SECONDS);
+    startWebOtp(input);
   }
 
   function startTimer(sec) {
@@ -213,7 +239,7 @@
     if (state.busy) return;
     setBusy(btn, true);
     var call = kind === "forgot" ? api("/api/auth/forgot-password", { identifier: state.identifier }) : api("/api/auth/resend-otp", { identifier: state.identifier, type: state.mode });
-    call.then(function () { setBusy(btn, false); startTimer(OTP_SECONDS); showError(""); var i = $("#plaCode"); if (i) { i.value = ""; i.focus(); } })
+    call.then(function () { setBusy(btn, false); startTimer(OTP_SECONDS); showError(""); var i = $("#plaCode"); if (i) { i.value = ""; i.focus(); startWebOtp(i); } })
       .catch(function (err) { setBusy(btn, false); showError(err.message); });
   }
 
@@ -367,6 +393,7 @@
     document.documentElement.style.overflow = "hidden";
   }
   function close() {
+    stopWebOtp();
     if (!root) return;
     clearInterval(state.timer);
     root.classList.remove("open");
