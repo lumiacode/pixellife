@@ -157,7 +157,7 @@
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-catalog-price{font-size:15px!important;font-weight:800!important;color:#0f172a!important;white-space:nowrap!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-amazing-timer-slot{height:auto!important;margin-top:6px!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-amazing-timer-slot:empty{display:none!important}
-        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-coming-soon{top:16px!important;right:0!important;font-size:11px!important;padding:4px 9px!important}
+        html body .pl-v2 .pl-catalog-card.pl-card-v2 .pl-coming-soon{top:auto!important;bottom:16px!important;left:0!important;right:auto!important;font-size:11px!important;padding:4px 9px!important}
         html body .pl-v2 .pl-catalog-card.pl-card-v2>span:first-child:not(.pl-coming-soon){top:16px!important;right:0!important}
         html body .pl-catalog-skeleton{min-height:140px!important}
       }
