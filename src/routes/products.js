@@ -65,6 +65,11 @@ function safeLimit(value, fallback = 100) {
   return !Number.isFinite(parsed) || parsed <= 0 ? fallback : Math.min(parsed, 100);
 }
 
+// متن کاربر هرگز نباید به‌صورت regex خام وارد کوئری شود (ReDoS / تزریق الگو).
+function escapeRegex(value) {
+  return String(value == null ? "" : value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function normalizeText(value) {
   return String(value || "").trim().replace(/[يى]/g, "ی").replace(/[ك]/g, "ک").replace(/\s+/g, " ");
 }
@@ -166,7 +171,7 @@ router.get("/", async (req, res) => {
       } else {
         const searchPattern = /^(?:iphone|آیفون|ایفون)$/i.test(normalizedSearch)
           ? "iphone|آیفون|ایفون"
-          : normalizedSearch.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
+          : escapeRegex(normalizedSearch);
         filter.name = { $regex: searchPattern, $options: "i" };
       }
     }
@@ -189,7 +194,7 @@ router.get("/", async (req, res) => {
         "microsoft": "ایکس[‌\\s-]*باکس|xbox|microsoft",
       };
       const requestedBrand = normalizeText(brand).toLowerCase();
-      filter.brand = { $regex: brandAliases[requestedBrand] || normalizeText(brand), $options: "i" };
+      filter.brand = { $regex: brandAliases[requestedBrand] || escapeRegex(normalizeText(brand)), $options: "i" };
     }
 
     if (category) {
@@ -230,7 +235,8 @@ router.get("/", async (req, res) => {
         ];
       }
     }
-    if (exclude) filter._id = { $ne: exclude };
+    // فقط شناسهٔ معتبر Mongo پذیرفته می‌شود؛ مقدار دیگر (یا آبجکت) نادیده گرفته می‌شود.
+    if (typeof exclude === "string" && /^[a-f0-9]{24}$/i.test(exclude)) filter._id = { $ne: exclude };
 
     const order = sort === "price-asc" ? { price: 1 } : sort === "price-desc" ? { price: -1 } : { amazingOffer: -1, featured: -1, createdAt: -1 };
     const products = await Product.find(filter).select(PRODUCT_CARD_FIELDS).sort(order).limit(safeLimit(limit)).lean();

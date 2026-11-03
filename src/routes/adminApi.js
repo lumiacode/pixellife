@@ -1059,8 +1059,9 @@ router.get("/orders", async (req, res) => {
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const limit = Math.min(100, Math.max(10, Number.parseInt(req.query.limit, 10) || 20));
     const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.search) filter.orderNumber = { $regex: String(req.query.search).trim(), $options: "i" };
+    const ORDER_STATUSES = ["awaiting_payment", "processing", "shipped", "delivered", "cancelled", "returned"];
+    if (typeof req.query.status === "string" && ORDER_STATUSES.includes(req.query.status)) filter.status = req.query.status;
+    if (req.query.search) filter.orderNumber = { $regex: String(req.query.search).trim().slice(0, 60).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" };
     const [total, orders] = await Promise.all([
       Order.countDocuments(filter),
       Order.find(filter).populate("user", "firstName lastName mobile").sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
