@@ -43,7 +43,10 @@
         .pl-ai-form { display:flex; gap:7px; padding:11px; background:#f8fbff; border-top:1px solid #e5efff; }
         #plAssistantInput { flex:1; min-width:0; height:38px; border:1px solid #cfe1fb; border-radius:10px; padding:0 10px; outline:none; font:12px Vazirmatn,Tahoma,sans-serif; }
         #plAssistantInput:focus { border-color:#93c5fd; box-shadow:0 0 0 3px rgba(147,197,253,.22); }
-        .pl-ai-form button { border:0; border-radius:10px; padding:0 13px; background:#75acf0; color:#fff; font:700 12px Vazirmatn,Tahoma,sans-serif; cursor:pointer; }
+        .pl-ai-form button { border:0; border-radius:10px; padding:0 16px; min-height:38px; background:#2563eb; color:#fff; font:700 12px Vazirmatn,Tahoma,sans-serif; cursor:pointer; }
+        .pl-ai-form button:hover { background:#1d4ed8; }
+        .pl-ai-form button:active { background:#1e40af; }
+        .pl-ai-form button:focus-visible { outline:2px solid #93c5fd; outline-offset:2px; }
 
         #plAssistantMenu {
           position: fixed; right: 22px; bottom: 158px; z-index: 1751; width: min(268px, calc(100vw - 32px));
