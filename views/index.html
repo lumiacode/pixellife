@@ -1707,23 +1707,62 @@
       .discount-price-icon::before { font-weight:700; }
 
 
-      /* ═══ PIXELLIFE AMAZING OFFERS ═══ */
-      .amazing-offers { cursor:pointer; margin: 28px 0 40px; border-radius: 20px; overflow: hidden; background: linear-gradient(125deg,#4338ca,#2563eb 52%,#0f172a); box-shadow: 0 14px 32px rgba(37,99,235,.24); color:#fff; }
-      .amazing-offers-inner { display:grid; grid-template-columns: 205px minmax(0,1fr); direction:rtl; }
-      .amazing-offers-brand { padding:28px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; background:linear-gradient(155deg,rgba(255,255,255,.15),rgba(255,255,255,.03)); border-left:1px solid rgba(255,255,255,.2); }
-      .amazing-offers-brand .bolt { font-size:44px; line-height:1; color:#fbbf24; filter:drop-shadow(0 4px 8px rgba(0,0,0,.18)); }
-      .amazing-offers-brand h2 { font-size:22px; line-height:1.45; font-weight:800; margin:9px 0 5px; }
-      .amazing-offers-brand p { font-size:12px; color:rgba(255,255,255,.8); }
-      .amazing-offers-list { min-width:0; padding:16px; display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.6) transparent; }
-      .amazing-offers-list::-webkit-scrollbar{height:6px}.amazing-offers-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.55);border-radius:99px}
-      .amazing-card { flex:0 0 184px; scroll-snap-align:start; position:relative; padding:12px; border-radius:13px; background:var(--white); color:var(--text-1); box-shadow:0 4px 13px rgba(15,23,42,.16); transition:transform .2s ease,box-shadow .2s ease; }
-      .amazing-card:hover{transform:translateY(-4px);box-shadow:0 12px 20px rgba(15,23,42,.25)}
-      .amazing-card img{width:100%;height:125px;object-fit:contain;display:block;margin-bottom:9px}
-      .amazing-card h3{font-size:12px;line-height:1.75;font-weight:650;height:42px;overflow:hidden;margin:0 0 7px}
-      .amazing-card-price{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:14px;font-weight:700;direction:rtl;text-align:right}.amazing-card-price span{font-size:10px;color:var(--text-3);font-weight:500}
-      .amazing-card-discount{position:absolute;top:10px;right:10px;background:#ef4444;color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:800}
-      .amazing-empty{align-self:center;font-size:13px;color:rgba(255,255,255,.85);padding:28px}
-      @media(max-width:768px){.amazing-offers{margin:20px 0 30px;border-radius:16px}.amazing-offers-inner{grid-template-columns:1fr}.amazing-offers-brand{min-height:108px;padding:16px;flex-direction:row;gap:12px;border-left:0;border-bottom:1px solid rgba(255,255,255,.2);text-align:right}.amazing-offers-brand .bolt{font-size:34px}.amazing-offers-brand h2{font-size:18px;margin:0}.amazing-offers-list{padding:12px;gap:10px}.amazing-card{flex-basis:155px}.amazing-card img{height:105px}}
+      /* ═══ PIXELLIFE AMAZING OFFERS (طراحی نو: قرمز پرتپش، شمارندهٔ زنده، میزان صرفه‌جویی، کمبود موجودی، دکمهٔ خرید) ═══ */
+      .amazing-offers { margin: 28px 0 40px; border-radius: 24px; overflow: hidden; position: relative; color: #fff; background: linear-gradient(120deg, #9f1239 0%, #e11d48 48%, #f97316 100%); box-shadow: 0 18px 40px rgba(225, 29, 72, .32); }
+      .amazing-offers::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 12% 16%, rgba(255,255,255,.2), transparent 38%), radial-gradient(circle at 92% 92%, rgba(253,224,71,.3), transparent 42%); }
+      .amazing-offers-inner { position: relative; display: grid; grid-template-columns: 268px minmax(0, 1fr); direction: rtl; }
+      .amazing-offers-brand { padding: 26px 22px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 10px; text-align: right; }
+      .amazing-bolt { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; color: #7c2d12; background: linear-gradient(145deg, #fde047, #f59e0b); box-shadow: 0 8px 20px rgba(0, 0, 0, .28); animation: amz-pulse 1.8s ease-in-out infinite; }
+      .amazing-offers-brand h2 { margin: 0; font-size: 24px; line-height: 1.5; font-weight: 800; color: #fff; }
+      .amazing-offers-brand p { margin: 0; font-size: 12.5px; line-height: 1.8; color: rgba(255, 255, 255, .92); }
+      .amazing-timer small { display: block; margin-bottom: 6px; font-size: 11.5px; opacity: .92; }
+      .amazing-timer-boxes { display: flex; gap: 6px; direction: ltr; }
+      .amazing-timer-boxes .t-box { min-width: 46px; padding: 6px 4px; border-radius: 10px; text-align: center; background: rgba(15, 23, 42, .45); }
+      .amazing-timer-boxes .t-box b { display: block; font-size: 19px; font-weight: 800; line-height: 1.25; font-variant-numeric: tabular-nums; }
+      .amazing-timer-boxes .t-box i { display: block; font-size: 9.5px; font-style: normal; opacity: .85; }
+      .amazing-all { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; background: #fff; color: #be123c; font-size: 13px; font-weight: 800; box-shadow: 0 8px 18px rgba(0, 0, 0, .2); transition: transform .2s ease; }
+      .amazing-all:hover { transform: translateY(-2px); }
+      .amazing-offers-list { position: relative; min-width: 0; padding: 18px 18px 18px 22px; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .amazing-offers-list::-webkit-scrollbar { display: none; }
+      .amazing-card { flex: 0 0 210px; scroll-snap-align: start; position: relative; display: flex; flex-direction: column; padding: 12px; border-radius: 18px; background: #fff; color: var(--text-1); box-shadow: 0 10px 24px rgba(0, 0, 0, .22); transition: transform .2s ease, box-shadow .2s ease; }
+      .amazing-card:hover { transform: translateY(-5px); box-shadow: 0 16px 30px rgba(0, 0, 0, .3); }
+      .amazing-card-off { position: absolute; top: 10px; right: 10px; z-index: 2; width: 54px; height: 54px; border-radius: 50%; display: grid; place-content: center; text-align: center; font-size: 17px; font-weight: 800; line-height: 1.1; color: #fff; background: linear-gradient(145deg, #ef4444, #be123c); box-shadow: 0 6px 14px rgba(190, 18, 60, .45); direction: ltr; }
+      .amazing-card-off small { display: block; font-size: 9px; font-weight: 600; }
+      .amazing-card-time { position: absolute; top: 12px; left: 10px; z-index: 2; padding: 3px 9px; border-radius: 999px; background: #0f172a; color: #fff; font-size: 11px; font-weight: 700; direction: ltr; font-variant-numeric: tabular-nums; }
+      .amazing-card img { width: 100%; height: 150px; object-fit: contain; display: block; margin: 20px 0 8px; mix-blend-mode: multiply; }
+      .amazing-card h3 { margin: 0 0 8px; height: 42px; overflow: hidden; font-size: 12.5px; line-height: 1.7; font-weight: 700; color: var(--text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .amazing-card-save { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; padding: 3px 9px; border-radius: 8px; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 800; }
+      .amazing-card-old { display: block; font-size: 11.5px; color: #94a3b8; text-decoration: line-through; }
+      .amazing-card-now { display: block; font-size: 18px; font-weight: 800; line-height: 1.5; color: #be123c; }
+      .amazing-card-now small { font-size: 11px; font-weight: 600; color: #64748b; }
+      .amazing-card-stock { margin: 8px 0 2px; font-size: 11px; font-weight: 700; color: #b45309; }
+      .amazing-card-stock span { display: block; height: 5px; margin-top: 4px; border-radius: 999px; background: #fde68a; overflow: hidden; }
+      .amazing-card-stock span i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #ef4444); }
+      .amazing-card-cta { margin-top: auto; padding: 10px; border-radius: 12px; text-align: center; font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(180deg, #ef4444, #be123c); box-shadow: 0 6px 14px rgba(190, 18, 60, .3); }
+      .amazing-card-body { display: flex; flex-direction: column; flex: 1; padding-top: 10px; }
+      .amazing-more { flex: 0 0 150px; scroll-snap-align: start; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 12px; border-radius: 18px; text-align: center; font-size: 13px; font-weight: 800; line-height: 1.8; color: #fff; border: 2px dashed rgba(255, 255, 255, .65); background: rgba(255, 255, 255, .14); transition: background .2s ease; }
+      .amazing-more:hover { background: rgba(255, 255, 255, .24); }
+      .amazing-more-ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; color: #be123c; background: #fff; }
+      @keyframes amz-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(0,0,0,.28); } 50% { transform: scale(1.07); box-shadow: 0 10px 26px rgba(253,224,71,.5); } }
+      @media (prefers-reduced-motion: reduce) { .amazing-bolt { animation: none; } .amazing-card, .amazing-all { transition: none; } }
+      @media (max-width: 768px) {
+        .amazing-offers { margin: 20px 0 30px; border-radius: 18px; }
+        .amazing-offers-inner { grid-template-columns: 1fr; }
+        .amazing-offers-brand { padding: 16px 16px 4px; gap: 8px; display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; }
+        .amazing-bolt { width: 42px; height: 42px; font-size: 24px; border-radius: 13px; grid-row: 1 / span 2; }
+        .amazing-offers-brand h2 { font-size: 18px; }
+        .amazing-offers-brand p { font-size: 11.5px; }
+        .amazing-timer { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .amazing-timer small { margin: 0; }
+        .amazing-timer-boxes .t-box { min-width: 40px; padding: 4px 3px; }
+        .amazing-timer-boxes .t-box b { font-size: 16px; }
+        .amazing-all { grid-column: 1 / -1; justify-content: center; padding: 9px 16px; }
+        .amazing-offers-list { padding: 12px 14px 16px; gap: 10px; }
+        .amazing-card { flex-basis: 178px; padding: 10px; }
+        .amazing-card img { height: 128px; }
+        .amazing-card-off { width: 48px; height: 48px; font-size: 15px; }
+        .amazing-more { flex-basis: 130px; }
+      }
 
       /* ═══ SIMPLE BANNER (بنر ساده) ═══ */
       .simple-banner {
@@ -2918,13 +2957,21 @@
       <!-- ═══ کدهای جدید را دقیقاً اینجا کپی کنید ═══ -->
 
       <!-- ═══ PIXELLIFE AMAZING OFFERS ═══ -->
-      <section class="amazing-offers" id="amazingOffers" aria-label="مشاهده همه پیشنهادهای شگفت‌انگیز پیکسل لایف" role="link" tabindex="0" onclick="if(!event.target.closest('.amazing-card')) location.href='/amazing'" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('.amazing-card')){event.preventDefault();location.href='/amazing'}" hidden>
+      <section class="amazing-offers" id="amazingOffers" aria-labelledby="amazingTitle" hidden>
         <div class="amazing-offers-inner">
           <div class="amazing-offers-brand">
-            <i class="ti ti-bolt bolt" aria-hidden="true"></i>
-            <div><h2>شگفت‌انگیزهای پیکسل‌لایف</h2><p>فرصت‌های محدود با تخفیف ویژه</p></div>
+            <span class="amazing-bolt" aria-hidden="true"><i class="ti ti-bolt"></i></span>
+            <h2 id="amazingTitle">شگفت‌انگیزهای پیکسل‌لایف</h2>
+            <p>فرصت‌های محدود با تخفیف ویژه؛ تا تمام نشده بخرید!</p>
+            <div class="amazing-timer" role="timer" aria-label="زمان باقی‌مانده تا پایان نزدیک‌ترین پیشنهاد">
+              <small>پایان نزدیک‌ترین پیشنهاد</small>
+              <div class="amazing-timer-boxes">
+                <span class="t-box"><b id="amzD">۰۰</b><i>روز</i></span><span class="t-box"><b id="amzH">۰۰</b><i>ساعت</i></span><span class="t-box"><b id="amzM">۰۰</b><i>دقیقه</i></span><span class="t-box"><b id="amzS">۰۰</b><i>ثانیه</i></span>
+              </div>
+            </div>
+            <a class="amazing-all" href="/amazing">مشاهده همهٔ پیشنهادها <i class="ti ti-arrow-left" aria-hidden="true"></i></a>
           </div>
-          <div class="amazing-offers-list" id="amazingOffersList" aria-live="polite"></div>
+          <div class="amazing-offers-list" id="amazingOffersList"></div>
         </div>
       </section>
 
@@ -4067,7 +4114,62 @@
       const hideSectionOf = (el) => { const section = el && el.closest("section"); if (section) section.hidden = true; };
       const MIN_RAIL_ITEMS = 3; // ردیفی که بعد از حذف تکراری‌ها کمتر از این بماند، نمایش داده نمی‌شود
 
-      /* ══ شگفت‌انگیزهای PixelLife (حداکثر ۷ محصول فعال) ══ */
+      /* ══ شگفت‌انگیزهای PixelLife (حداکثر ۸ محصول فعال) ══
+         هر کارت: درصد تخفیف، شمارندهٔ زندهٔ پایان همان پیشنهاد، مبلغ صرفه‌جویی، کمبود موجودی (۵ عدد یا کمتر) و دکمهٔ خرید.
+         شمارندهٔ بالای بخش تا پایان نزدیک‌ترین پیشنهاد می‌شمارد؛ کارتِ تمام‌شده خودکار برداشته می‌شود و اگر هیچ کارتی نماند بخش پنهان می‌شود. */
+      const faTwo = (n) => Math.max(0, n).toLocaleString("fa-IR", { minimumIntegerDigits: 2, useGrouping: false });
+      function amazingLeftText(ms) {
+        const total = Math.max(0, Math.floor(ms / 1000));
+        const days = Math.floor(total / 86400);
+        if (days > 0) return days.toLocaleString("fa-IR") + " روز";
+        return faTwo(Math.floor(total / 3600)) + ":" + faTwo(Math.floor((total % 3600) / 60)) + ":" + faTwo(total % 60);
+      }
+      function amazingCardMarkup(p) {
+        const info = productPriceInfo(p);
+        const saved = Math.max(0, info.original - info.final);
+        const stock = cardStock(p);
+        const rawImg = p.mainImage || (p.images && p.images[0]) || "";
+        const image = escapeHtml(sizedImage(rawImg, 320) || "/images/product-placeholder.svg");
+        const name = escapeHtml(p.name);
+        const ends = new Date(p.amazingOfferEndsAt).getTime();
+        const badge = info.discount > 0
+          ? '<span class="amazing-card-off">' + info.discount.toLocaleString("fa-IR") + '٪<small>تخفیف</small></span>'
+          : '<span class="amazing-card-off"><i class="ti ti-bolt" aria-hidden="true"></i><small>ویژه</small></span>';
+        const stockBar = stock > 0 && stock <= 5
+          ? '<div class="amazing-card-stock">فقط ' + stock.toLocaleString("fa-IR") + ' عدد باقی مانده<span><i style="width:' + Math.max(12, stock * 20) + '%"></i></span></div>'
+          : "";
+        return '<a class="amazing-card" data-end="' + ends + '" href="/product/' + escapeHtml(p.slug) + '">' + badge +
+          '<span class="amazing-card-time" aria-hidden="true"></span>' +
+          '<img src="' + image + '" alt="' + name + '" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\';">' +
+          '<span class="amazing-card-body"><h3>' + name + '</h3>' +
+          (saved > 0 ? '<span class="amazing-card-save"><i class="ti ti-gift" aria-hidden="true"></i> ' + saved.toLocaleString("fa-IR") + ' تومان صرفه‌جویی</span>' : "") +
+          (info.discount > 0 ? '<span class="amazing-card-old">' + info.original.toLocaleString("fa-IR") + '</span>' : "") +
+          '<span class="amazing-card-now">' + info.final.toLocaleString("fa-IR") + ' <small>تومان</small></span>' +
+          stockBar + '<span class="amazing-card-cta">مشاهده و خرید</span></span></a>';
+      }
+      function startAmazingTimers(section, list) {
+        const boxes = { d: document.getElementById("amzD"), h: document.getElementById("amzH"), m: document.getElementById("amzM"), s: document.getElementById("amzS") };
+        let timerId = null;
+        const tick = () => {
+          const now = Date.now();
+          let nearest = Infinity;
+          list.querySelectorAll(".amazing-card").forEach((card) => {
+            const left = Number(card.dataset.end) - now;
+            if (!(left > 0)) { card.remove(); return; }
+            nearest = Math.min(nearest, left);
+            const chip = card.querySelector(".amazing-card-time");
+            if (chip) { chip.textContent = amazingLeftText(left); chip.style.direction = left >= 86400000 ? "rtl" : "ltr"; }
+          });
+          if (!list.querySelector(".amazing-card")) { clearInterval(timerId); section.hidden = true; return; }
+          const total = Math.floor(nearest / 1000);
+          if (boxes.d) boxes.d.textContent = faTwo(Math.floor(total / 86400));
+          if (boxes.h) boxes.h.textContent = faTwo(Math.floor((total % 86400) / 3600));
+          if (boxes.m) boxes.m.textContent = faTwo(Math.floor((total % 3600) / 60));
+          if (boxes.s) boxes.s.textContent = faTwo(total % 60);
+        };
+        tick();
+        timerId = setInterval(tick, 1000);
+      }
       async function loadAmazingOffers() {
         const section = document.getElementById("amazingOffers");
         const list = document.getElementById("amazingOffersList");
@@ -4076,22 +4178,12 @@
           const products = await getHomeProducts();
           const now = Date.now();
           const amazingAll = products.filter((p) => p.amazingOffer && !isProductOut(p) && p.amazingOfferEndsAt && new Date(p.amazingOfferEndsAt).getTime() > now);
-          const offers = takeUnique(amazingAll, 7);
+          const offers = takeUnique(amazingAll, 8);
           if (!offers.length) return;
-          list.innerHTML = offers.map((p) => {
-            const image = escapeHtml(p.mainImage || (p.images && p.images[0]) || "/images/product-placeholder.svg");
-            const name = escapeHtml(p.name);
-            const slug = escapeHtml(p.slug);
-            const discount = Math.max(0, Number(p.discountPercent || p.discount || 0));
-            return '<a class="amazing-card" href="/product/' + slug + '">' +
-              (discount ? '<span class="amazing-card-discount">' + discount.toLocaleString("fa-IR") + '%</span>' : '<span class="amazing-card-discount"><i class="ti ti-bolt"></i> ویژه</span>') +
-              '<img src="' + image + '" alt="' + name + '" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\';">' +
-              '<h3>' + name + '</h3>' + productPriceMarkup(p, "amazing-card-price") + '</a>';
-          }).join("");
+          list.innerHTML = offers.map(amazingCardMarkup).join("") +
+            '<a class="amazing-more" href="/amazing"><span class="amazing-more-ico"><i class="ti ti-arrow-left" aria-hidden="true"></i></span><span>مشاهدهٔ همهٔ پیشنهادها</span></a>';
           section.hidden = false;
-          section.addEventListener("click", (event) => {
-            if (!event.target.closest(".amazing-card")) window.location.href = "/amazing";
-          }, { once: true });
+          startAmazingTimers(section, list);
         } catch (err) { section.hidden = true; }
       }
 
