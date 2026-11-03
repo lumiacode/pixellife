@@ -115,6 +115,8 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
 
     const robots = robotsTxt();
     assert.ok(robots.includes("Sitemap: https://pixellife.ir/sitemap.xml") && robots.includes("Disallow: /admin") && robots.includes("Disallow: /cart"));
+    assert.ok(robots.indexOf("Allow: /api/products") !== -1 && robots.indexOf("Allow: /api/products") < robots.indexOf("Disallow: /api/"), "گوگل باید بتواند /api/products را برای رندر صفحه بخواند");
+    assert.ok(!robots.includes("Allow: /api/auth") && !robots.includes("Allow: /api/orders"), "APIهای خصوصی باز نمی‌شوند");
     // صفحهٔ دسته‌بندی: لینک محصول واقعی + ItemList در HTML سرور
     r = await get("/iphone"); html = await r.text();
     assert.ok(/<section id="seoCatalog"[\s\S]*href="\/product\/iphone-17"/.test(html), "لینک محصول در صفحهٔ دسته");

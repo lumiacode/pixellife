@@ -263,6 +263,9 @@ function robotsTxt() {
     "User-agent: *",
     "Allow: /",
     "Disallow: /admin",
+    // صفحه‌های سایت محصولات را با /api/products می‌گیرند (و عکس‌ها از /api/products/image/ می‌آیند)؛ اگر گوگل نتواند این مسیر را بخواند،
+    // صفحهٔ رندرشده‌اش بدون محصول و بدون عکس دیده می‌شود. بقیهٔ /api/ بسته می‌ماند (پاسخ‌های /api هدر noindex هم دارند).
+    "Allow: /api/products",
     "Disallow: /api/",
     "Disallow: /cart",
     "Disallow: /checkout",
