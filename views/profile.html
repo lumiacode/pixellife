@@ -650,15 +650,14 @@
         .orders-head .p-main-title { font-size: 16px; }
       }
       @media (max-width: 860px) {
-        /* موبایل: منوی کناری به یک ردیف چیپِ افقی تبدیل می‌شود تا محتوای هر بخش بالا و بدون اسکرول اضافه دیده شود */
+        /* موبایل: همهٔ بخش‌ها همزمان و بدون اسکرول افقی دیده می‌شوند (شبکهٔ دوستونه) تا دسترسی با یک لمس باشد */
         .p-sidebar-head { padding: 10px 14px; }
         .p-sidebar-user { font-size: 14px; }
-        .p-menu { display: flex; flex-direction: row-reverse; gap: 8px; overflow-x: auto; padding: 10px 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .p-menu::-webkit-scrollbar { display: none; }
-        .p-menu-item { flex: 0 0 auto; padding: 7px 12px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; white-space: nowrap; }
+        .p-menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 10px 12px 12px; }
+        .p-menu-item { display: flex; align-items: center; min-width: 0; padding: 9px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; }
         .p-menu-item > i.ti-chevron-left { display: none; }
-        .p-menu-item .p-menu-ico { width: 26px; height: 26px; border-radius: 50%; font-size: 14px; }
-        .p-menu-item-label { gap: 6px; }
+        .p-menu-item .p-menu-ico { width: 28px; height: 28px; border-radius: 50%; font-size: 15px; flex: 0 0 auto; }
+        .p-menu-item-label { gap: 8px; min-width: 0; }
         .p-menu-item.active { border-color: var(--blue); }
         .p-menu-divider { display: none; }
       }
@@ -1370,9 +1369,6 @@
         document.querySelectorAll(".p-menu-item[data-tab]").forEach((el) => {
           el.classList.toggle("active", el.dataset.tab === tab);
         });
-        // موبایل: چیپِ بخش فعال داخل نوار افقی دیده شود
-        const activeChip = document.querySelector(".p-menu-item.active");
-        if (activeChip && activeChip.scrollIntoView) activeChip.scrollIntoView({ inline: "center", block: "nearest" });
         // لینک مستقیم جزئیات سفارش (/profile/orders/<شماره سفارش>) هنگام بارگذاری اولیه حفظ می‌شود.
         const keepOrderPath = tab === "orders" && keepQuery && /^\/profile\/orders\/[^/]+/.test(window.location.pathname);
         const path = keepOrderPath
