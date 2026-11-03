@@ -27,6 +27,7 @@
     "test:ai-assistant": "node tests/ai-assistant.test.js",
     "test:rule-assistant": "node tests/rule-assistant.test.js",
     "test:seo": "node tests/seo.test.js",
+    "test:app-boot": "node tests/app-boot.test.js",
     "test:home-sections": "node tests/home-sections.test.js",
     "test:location-picker": "node tests/location-picker.test.js",
     "test:product-images": "node tests/product-images.test.js",

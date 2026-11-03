@@ -17,6 +17,7 @@ const analyticsRoutes = require("./routes/analytics");
 const { SitemapStream, streamToPromise } = require("sitemap");
 const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl } = require("./services/seo");
 const { authSessionScript } = require("./middleware/authSessionScript");
+const adminSession = require("./middleware/adminSession");
 
 const Product = require("./models/Product");
 
