@@ -36,6 +36,11 @@
         .pl-ai-title { display:flex; flex-direction:column; gap:2px; font-weight:800; font-size:14px; }
         .pl-ai-title small { color:#64748b; font-size:10px; font-weight:600; }
         #plAssistantClose { width:30px; height:30px; border:0; border-radius:9px; background:#dbeafe; color:#4b89dd; font-size:22px; line-height:1; cursor:pointer; }
+        .pl-ai-head-actions { display:flex; align-items:center; gap:6px; }
+        #plAssistantClear { width:30px; height:30px; border:0; border-radius:9px; background:#dbeafe; color:#4b89dd; cursor:pointer; display:grid; place-items:center; padding:0; }
+        #plAssistantClear svg { width:16px; height:16px; }
+        #plAssistantClear:hover, #plAssistantClear:focus-visible { background:#fee2e2; color:#dc2626; outline:none; }
+        #plAssistantClear[hidden] { display:none; }
         .pl-ai-messages { flex:1; min-height:160px; overflow:auto; padding:13px; background:#fff; }
         .pl-ai-msg { width:fit-content; max-width:88%; margin:0 0 9px; padding:9px 11px; border-radius:12px; font-size:12px; line-height:1.8; }
         .pl-ai-msg.bot { background:#eff6ff; color:#334155; border:1px solid #dbeafe; }
@@ -88,7 +93,7 @@
     // آیکن حباب گفتگو با سه نقطه: دایرهٔ آبی با خطوط سفید (هم‌رنگ تم سایت).
     toggle.innerHTML = '<svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true" focusable="false"><path d="M19 15h26a7 7 0 0 1 7 7v18a7 7 0 0 1-7 7H37l-5 7-5-7h-8a7 7 0 0 1-7-7V22a7 7 0 0 1 7-7z" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"/><circle cx="23.5" cy="31" r="2.8" fill="#fff"/><circle cx="32" cy="31" r="2.8" fill="#fff"/><circle cx="40.5" cy="31" r="2.8" fill="#fff"/></svg>';
     const panel = add("section", { id: "plAssistant", ariaLabel: "دستیار PixelLife" });
-    panel.innerHTML = '<div class="pl-ai-head"><div class="pl-ai-title"><span>دستیار هوشمند PixelLife</span><small dir="rtl">قدرت گرفته از <bdi>OpenAI</bdi></small></div><button id="plAssistantClose" type="button" aria-label="بستن">×</button></div><div class="pl-ai-messages" id="plAssistantMessages"><div class="pl-ai-msg bot">سلام! برای انتخاب گوشی، تبلت یا کنسول و همچنین سؤال دربارهٔ سفارش و پرداخت کمکتان می‌کنم.</div></div><form class="pl-ai-form" id="plAssistantForm"><input id="plAssistantInput" maxlength="800" autocomplete="off" placeholder="مثلاً گوشی مناسب بازی تا ۵۰ میلیون" /><button type="submit">ارسال</button></form>';
+    panel.innerHTML = '<div class="pl-ai-head"><div class="pl-ai-title"><span>دستیار هوشمند PixelLife</span><small dir="rtl">قدرت گرفته از <bdi>OpenAI</bdi></small></div><div class="pl-ai-head-actions"><button id="plAssistantClear" type="button" aria-label="پاک کردن کامل گفتگو" title="پاک کردن گفتگو" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button><button id="plAssistantClose" type="button" aria-label="بستن">×</button></div></div><div class="pl-ai-messages" id="plAssistantMessages"><div class="pl-ai-msg bot">سلام! برای انتخاب گوشی، تبلت یا کنسول و همچنین سؤال دربارهٔ سفارش و پرداخت کمکتان می‌کنم.</div></div><form class="pl-ai-form" id="plAssistantForm"><input id="plAssistantInput" maxlength="800" autocomplete="off" placeholder="مثلاً گوشی مناسب بازی تا ۵۰ میلیون" /><button type="submit">ارسال</button></form>';
     const menu = add("div", { id: "plAssistantMenu", role: "menu", ariaLabel: "انتخاب نوع گفتگو" });
     document.body.append(toggle, panel, menu);
     let baleUrl = "";
@@ -178,6 +183,19 @@
       if (isOpen) { buildMenu(); const first = menu.querySelector(".pl-ai-opt"); if (first) first.focus(); }
       toggle.setAttribute("aria-expanded", String(isOpen));
     });
+    // پاک کردن کامل گفتگو: پیام‌ها، تاریخچهٔ ارسالی به سرور، دکمهٔ ارجاع به پشتیبان و کارت‌ها پاک می‌شوند و فقط سلام اولیه می‌ماند.
+    // اگر پاسخی در راه باشد، بعد از پاک شدن نادیده گرفته می‌شود (chatEpoch).
+    const clearBtn = document.getElementById("plAssistantClear");
+    const greetingHtml = messages.innerHTML;
+    let chatEpoch = 0;
+    const updateClear = () => { clearBtn.hidden = !messages.querySelector(".pl-ai-msg.user"); };
+    clearBtn.addEventListener("click", () => {
+      chatEpoch += 1;
+      messages.innerHTML = greetingHtml;
+      history.length = 0;
+      input.value = ""; input.disabled = false;
+      syncBaleLink(); updateClear(); input.focus();
+    });
     document.getElementById("plAssistantClose").addEventListener("click", closePanel);
     document.addEventListener("click", (event) => {
       if (toggle.contains(event.target) || menu.contains(event.target)) return;
@@ -191,11 +209,14 @@
     });
     document.getElementById("plAssistantForm").addEventListener("submit", async (event) => {
       event.preventDefault(); const message = input.value.trim(); if (!message) return;
-      addMessage(message, "user"); input.value = ""; input.disabled = true;
+      const epoch = chatEpoch;
+      addMessage(message, "user"); updateClear(); input.value = ""; input.disabled = true;
       const pending = addMessage("در حال بررسی…", "bot");
       try {
         const response = await fetch("/api/ai/assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history }) });
-        const data = await response.json(); pending.remove();
+        const data = await response.json();
+        if (epoch !== chatEpoch) return; // گفتگو در این فاصله پاک شده است
+        pending.remove();
         if (!response.ok || !data.success) throw new Error(data.message || "خطا");
         const cards = Array.isArray(data.cards) ? data.cards : [];
         // با کارت‌های محصول، متن کوتاه (intro) نشان داده می‌شود تا فهرست متنی و کارت‌ها تکراری نشوند.
