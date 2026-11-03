@@ -4,6 +4,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
@@ -30,6 +31,18 @@ app.use(cookieParser());
 
 app.set("etag", "strong");
 app.set("trust proxy", 1);
+
+// هدرهای امنیتی (X-Content-Type-Options، X-Frame-Options، Referrer-Policy و حذف X-Powered-By).
+// عمداً خاموش: CSP (سایت اسکریپت/استایل درون‌خطی و CDN دارد و با CSP پیش‌فرض خراب می‌شود)، HSTS (nginx تصمیم می‌گیرد)،
+// و COEP/CORP (تصاویر و فونت‌های بیرونی را مسدود می‌کنند). CORS هم فعال نیست: API فقط از همین دامنه قابل استفاده است.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  strictTransportSecurity: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false,
+  crossOriginOpenerPolicy: false,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+}));
 
 // فشرده‌سازی پاسخ‌ها (HTML، JSON، CSS، JS)؛ قبلاً داخل بلوک کامنت‌شدهٔ «به‌روزرسانی» مانده بود.
 app.use(compression({ threshold: 1024 }));
