@@ -15,6 +15,8 @@ const env = {
   kavehNegarApiKey: process.env.KAVEH_NEGAR_API_KEY,
   kavehNegarSender: process.env.KAVEH_NEGAR_SENDER || "2000660110",
   kavehNegarOtpTemplate: process.env.KAVEH_NEGAR_OTP_TEMPLATE,
+  // template (پیش‌فرض): VerifyLookup با قالب پنل | send: متن را سایت می‌سازد (برای پر شدن خودکار کد با WebOTP؛ نیاز به خط ارسال اختصاصی)
+  kavehNegarOtpMode: String(process.env.KAVEH_NEGAR_OTP_MODE || "template").toLowerCase(),
 
   otpLength: parseInt(process.env.OTP_LENGTH, 10) || 5,
   otpExpiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES, 10) || 2,

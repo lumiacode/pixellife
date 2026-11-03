@@ -4,7 +4,17 @@ const env = require("../config/env");
 /**
  * سرویس ارسال پیامک با پکیج رسمی کاوه‌نگار
  */
+// متن پیامک کد تأیید با قالب «کد وابسته به دامنه» (برای پر شدن خودکار در مرورگر، WebOTP): خط آخر باید دقیقاً «@دامنه #کد» باشد
+// و بعد از آن هیچ متنی نیاید. دامنه از SITE_URL گرفته می‌شود (بدون www).
+function buildOtpMessage(code, siteUrl = env.siteUrl) {
+  let host = "pixellife.ir";
+  try { host = new URL(siteUrl).hostname.replace(/^www\./i, ""); } catch (_) { /* پیش‌فرض */ }
+  return `کد ورود شما به پیکسل لایف: ${code}\n\n@${host} #${code}`;
+}
+
 const smsService = {
+  buildOtpMessage,
+
   /**
    * ارسال پیامک به شماره موبایل
    * @param {string} receptor - شماره گیرنده (مثلاً 09123456789)
@@ -57,6 +67,9 @@ const smsService = {
    * @param {string} code - کد تأیید
    */
   async sendOTP(receptor, code) {
+    // حالت «send»: متن پیامک را خود سایت می‌سازد (با خط آخرِ «@دامنه #کد») و از خط ارسال KAVEH_NEGAR_SENDER می‌فرستد.
+    // حالت پیش‌فرض «template» همان VerifyLookup با قالب پنل کاوه‌نگار است (رفتار قبلی).
+    if (env.kavehNegarOtpMode === "send") return this.sendSMS(receptor, buildOtpMessage(code));
     if (!env.kavehNegarOtpTemplate) {
       return Promise.reject(
         new Error("قالب پیامک OTP کاوه‌نگار تنظیم نشده است"),
