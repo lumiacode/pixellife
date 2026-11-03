@@ -1707,7 +1707,7 @@
       .discount-price-icon::before { font-weight:700; }
 
 
-      /* ═══ PIXELLIFE AMAZING OFFERS (طراحی نو: پس‌زمینهٔ آبیِ تم سایت با تأکید قرمز روی تخفیف/قیمت/دکمه، شمارندهٔ زنده، میزان صرفه‌جویی، کمبود موجودی، دکمهٔ خرید) ═══ */
+      /* ═══ PIXELLIFE AMAZING OFFERS (طراحی نو: پس‌زمینه، قیمت و دکمه آبیِ تم سایت و فقط درصد تخفیف قرمز، شمارندهٔ زنده، میزان صرفه‌جویی، کمبود موجودی، دکمهٔ خرید) ═══ */
       .amazing-offers { margin: 28px 0 40px; border-radius: 24px; overflow: hidden; position: relative; color: #fff; background: linear-gradient(120deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%); box-shadow: 0 18px 40px rgba(37, 99, 235, .32); }
       .amazing-offers::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 12% 16%, rgba(255,255,255,.2), transparent 38%), radial-gradient(circle at 92% 92%, rgba(147,197,253,.35), transparent 42%); }
       .amazing-offers-inner { position: relative; display: grid; grid-template-columns: 268px minmax(0, 1fr); direction: rtl; }
@@ -1728,17 +1728,18 @@
       .amazing-card:hover { transform: translateY(-5px); box-shadow: 0 16px 30px rgba(0, 0, 0, .3); }
       .amazing-card-off { position: absolute; top: 10px; right: 10px; z-index: 2; width: 54px; height: 54px; border-radius: 50%; display: grid; place-content: center; text-align: center; font-size: 17px; font-weight: 800; line-height: 1.1; color: #fff; background: linear-gradient(145deg, #ef4444, #be123c); box-shadow: 0 6px 14px rgba(190, 18, 60, .45); direction: ltr; }
       .amazing-card-off small { display: block; font-size: 9px; font-weight: 600; }
+      .amazing-card-off.is-special { background: linear-gradient(145deg, #3b82f6, #1d4ed8); box-shadow: 0 6px 14px rgba(37, 99, 235, .4); }
       .amazing-card-time { position: absolute; top: 12px; left: 10px; z-index: 2; padding: 3px 9px; border-radius: 999px; background: #0f172a; color: #fff; font-size: 11px; font-weight: 700; direction: ltr; font-variant-numeric: tabular-nums; }
       .amazing-card img { width: 100%; height: 150px; object-fit: contain; display: block; margin: 20px 0 8px; mix-blend-mode: multiply; }
       .amazing-card h3 { margin: 0 0 8px; height: 42px; overflow: hidden; font-size: 12.5px; line-height: 1.7; font-weight: 700; color: var(--text-1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
       .amazing-card-save { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px; padding: 3px 9px; border-radius: 8px; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 800; }
       .amazing-card-old { display: block; font-size: 11.5px; color: #94a3b8; text-decoration: line-through; }
-      .amazing-card-now { display: block; font-size: 18px; font-weight: 800; line-height: 1.5; color: #be123c; }
+      .amazing-card-now { display: block; font-size: 18px; font-weight: 800; line-height: 1.5; color: #1d4ed8; }
       .amazing-card-now small { font-size: 11px; font-weight: 600; color: #64748b; }
       .amazing-card-stock { margin: 8px 0 2px; font-size: 11px; font-weight: 700; color: #b45309; }
       .amazing-card-stock span { display: block; height: 5px; margin-top: 4px; border-radius: 999px; background: #fde68a; overflow: hidden; }
-      .amazing-card-stock span i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #ef4444); }
-      .amazing-card-cta { margin-top: auto; padding: 10px; border-radius: 12px; text-align: center; font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(180deg, #ef4444, #be123c); box-shadow: 0 6px 14px rgba(190, 18, 60, .3); }
+      .amazing-card-stock span i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #fbbf24, #f97316); }
+      .amazing-card-cta { margin-top: auto; padding: 10px; border-radius: 12px; text-align: center; font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(180deg, #3b82f6, #1d4ed8); box-shadow: 0 6px 14px rgba(37, 99, 235, .3); }
       .amazing-card-body { display: flex; flex-direction: column; flex: 1; padding-top: 10px; }
       .amazing-more { flex: 0 0 150px; scroll-snap-align: start; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 12px; border-radius: 18px; text-align: center; font-size: 13px; font-weight: 800; line-height: 1.8; color: #fff; border: 2px dashed rgba(255, 255, 255, .65); background: rgba(255, 255, 255, .14); transition: background .2s ease; }
       .amazing-more:hover { background: rgba(255, 255, 255, .24); }
@@ -4134,7 +4135,7 @@
         const ends = new Date(p.amazingOfferEndsAt).getTime();
         const badge = info.discount > 0
           ? '<span class="amazing-card-off">' + info.discount.toLocaleString("fa-IR") + '٪<small>تخفیف</small></span>'
-          : '<span class="amazing-card-off"><i class="ti ti-bolt" aria-hidden="true"></i><small>ویژه</small></span>';
+          : '<span class="amazing-card-off is-special"><i class="ti ti-bolt" aria-hidden="true"></i><small>ویژه</small></span>';
         const stockBar = stock > 0 && stock <= 5
           ? '<div class="amazing-card-stock">فقط ' + stock.toLocaleString("fa-IR") + ' عدد باقی مانده<span><i style="width:' + Math.max(12, stock * 20) + '%"></i></span></div>'
           : "";
