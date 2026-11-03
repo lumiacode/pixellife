@@ -51,7 +51,7 @@ router.use(async (req, res, next) => {
 
 const PRODUCT_CARD_FIELDS = [
   "name", "slug", "legacyId", "brand", "category", "price", "discount",
-  "featured", "availability", "amazingOffer", "amazingOfferEndsAt", "images", "mainImage", "colors", "variants",
+  "featured", "homeMobile", "availability", "amazingOffer", "amazingOfferEndsAt", "images", "mainImage", "colors", "variants",
   "storages", "hasStorage", "rating", "reviewCount", "comingSoon", "stock",
   "createdAt", "updatedAt",
 ].join(" ");
@@ -149,7 +149,7 @@ router.get("/", async (req, res) => {
     if (cached) catalogResponseCache.delete(cacheKey);
 
     const filter = {};
-    const { brand, category, featured, amazing, exclude, limit, sort, search } = req.query;
+    const { brand, category, featured, homeMobile, amazing, exclude, limit, sort, search } = req.query;
 
     if (search) {
       const normalizedSearch = normalizeText(search);
@@ -219,6 +219,7 @@ router.get("/", async (req, res) => {
       }
     }
     if (featured !== undefined) filter.featured = toBoolean(featured);
+    if (homeMobile !== undefined) filter.homeMobile = toBoolean(homeMobile);
     if (amazing !== undefined) {
       const amazingEnabled = toBoolean(amazing);
       filter.amazingOffer = amazingEnabled;

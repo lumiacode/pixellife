@@ -713,6 +713,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       technicalSpecs,
       showSpecs,
       featured,
+      homeMobile,
       comingSoon,
       amazingOffer,
       amazingOfferEndsAt,
@@ -789,6 +790,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       technicalSpecs: parsedTechnicalSpecs,
       showSpecs: specsEnabled,
       featured: featured === "true" || featured === "on" || featured === true,
+      homeMobile: parseEnabled(homeMobile, false),
       comingSoon: parseEnabled(comingSoon, false),
       amazingOffer: parseEnabled(amazingOffer, false),
       amazingOfferEndsAt: parseTehranJalaliDate(amazingOfferEndsAt),
@@ -837,6 +839,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
       technicalSpecs,
       showSpecs,
       featured,
+      homeMobile,
       comingSoon,
       amazingOffer,
       amazingOfferEndsAt,
@@ -941,6 +944,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     if (comingSoon !== undefined) {
       product.comingSoon = parseEnabled(comingSoon, false);
     }
+    if (homeMobile !== undefined) product.homeMobile = parseEnabled(homeMobile, false);
     if (amazingOffer !== undefined) product.amazingOffer = parseEnabled(amazingOffer, false);
     if (amazingOfferEndsAt !== undefined) product.amazingOfferEndsAt = parseTehranJalaliDate(amazingOfferEndsAt);
 
