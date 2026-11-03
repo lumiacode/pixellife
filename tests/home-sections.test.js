@@ -12,9 +12,17 @@ const id = (n) => String(n).padStart(24, "0");
 const settings = {}; let cachesCleared = 0;
 const products = [1, 2, 3, 4, 5].map((n) => ({ _id: id(n), name: "محصول " + n, brand: "اپل", category: "موبایل", slug: "p" + n, price: 1000000 * n, discount: 0, stock: 5, availability: "in", images: [], mainImage: "" }));
 const query = (list) => { const q = { select: () => q, sort: () => q, limit: () => q, lean: async () => list, then: (a, b) => Promise.resolve(list).then(a, b) }; return q; };
+const getPath = (obj, pathStr) => pathStr.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+const setPath = (obj, pathStr, value) => { const keys = pathStr.split("."); let o = obj; keys.slice(0, -1).forEach((k) => { if (typeof o[k] !== "object" || o[k] === null) o[k] = {}; o = o[k]; }); o[keys[keys.length - 1]] = value; };
 stub(src("models", "Setting.js"), {
-  findOne: ({ key }) => ({ lean: async () => (settings[key] ? { key, value: settings[key] } : null) }),
-  updateOne: async ({ key }, update) => { settings[key] = settings[key] || {}; Object.entries(update.$set).forEach(([path, v]) => { settings[key][path.replace(/^value\./, "")] = v; }); },
+  findOne: ({ key }) => ({ lean: async () => (settings[key] ? { key, value: JSON.parse(JSON.stringify(settings[key])) } : null) }),
+  updateOne: async ({ key }, update) => {
+    settings[key] = settings[key] || {};
+    Object.entries(update.$set || {}).forEach(([p, v]) => setPath(settings[key], p.replace(/^value\./, ""), v));
+    Object.entries(update.$push || {}).forEach(([p, v]) => { const path = p.replace(/^value\./, ""); const cur = getPath(settings[key], path); setPath(settings[key], path, [...(Array.isArray(cur) ? cur : []), v]); });
+    Object.entries(update.$pull || {}).forEach(([p, cond]) => { const path = p.replace(/^value\./, ""); const cur = getPath(settings[key], path); if (Array.isArray(cur)) setPath(settings[key], path, cur.filter((item) => (cond && typeof cond === "object" ? !Object.entries(cond).every(([k, v]) => item[k] === v) : item !== cond))); });
+    Object.keys(update.$unset || {}).forEach((p) => { const keys = p.replace(/^value\./, "").split("."); const parent = keys.length > 1 ? getPath(settings[key], keys.slice(0, -1).join(".")) : settings[key]; if (parent) delete parent[keys[keys.length - 1]]; });
+  },
 });
 stub(src("models", "Product.js"), { find: (filter) => { const ids = filter && filter._id && filter._id.$in; return query(ids ? products.filter((p) => ids.includes(p._id)) : products); }, updateMany: async () => ({}) });
 stub(src("models", "Order.js"), {});
@@ -26,7 +34,7 @@ const service = require(src("services", "homeSections.js"));
 
 (async () => {
   // ۱) سرویس
-  assert.deepStrictEqual(service.SECTIONS.map((s) => s.key), ["mobile", "tablet", "headphone", "watch", "console", "accessories"]);
+  assert.deepStrictEqual((await service.getSections()).map((s) => s.key), ["mobile", "tablet", "headphone", "watch", "console", "accessories"]);
   assert.deepStrictEqual((await service.readSelections()).mobile, [], "ابتدا همهٔ بخش‌ها خالی‌اند");
   await assert.rejects(() => service.saveSection("nope", []), (e) => e.statusCode === 404, "بخش نامعتبر");
   const saved = await service.saveSection("mobile", [id(3), id(1), id(3), "bad", id(99), id(2)]);
@@ -36,6 +44,21 @@ const service = require(src("services", "homeSections.js"));
   const all = await service.readSelections();
   assert.deepStrictEqual(all.mobile, [id(3), id(1), id(2)]); assert.deepStrictEqual(all.watch, [id(4)]); assert.deepStrictEqual(all.tablet, []);
   await assert.rejects(() => service.saveSection("tablet", Array.from({ length: 13 }, (_, i) => id(i + 1))), (e) => e.statusCode === 400, "سقف ۱۲ محصول");
+
+  // ۱-ب) بخش‌های ساخته‌شده توسط ادمین: ساخت، نام تکراری/کوتاه، تغییر نام، ترتیب، حذف
+  await assert.rejects(() => service.createSection(" "), (e) => e.statusCode === 400, "نام خالی");
+  await assert.rejects(() => service.createSection("موبایل"), (e) => /وجود دارد/.test(e.message), "نام تکراری");
+  const mine = await service.createSection("  پرفروش‌های   ماه ");
+  assert.ok(/^c[a-f0-9]{8}$/.test(mine.key) && mine.title === "پرفروش‌های ماه" && mine.builtin === false, "کلید یکتا و نام تمیز");
+  assert.strictEqual((await service.getSections()).length, 7);
+  assert.deepStrictEqual(await service.saveSection(mine.key, [id(5), id(4)]), [id(5), id(4)], "محصول برای بخش ساخته‌شده");
+  await service.renameSection("watch", "ساعت و مچ‌بند");
+  assert.strictEqual((await service.getSections()).find((s) => s.key === "watch").title, "ساعت و مچ‌بند", "تغییر نام بخش پیش‌فرض");
+  const order = await service.saveOrder([mine.key, "watch", "ghost"]);
+  assert.deepStrictEqual(order.slice(0, 2), [mine.key, "watch"], "ترتیب جدید؛ کلید ناشناس نادیده"); assert.strictEqual(order.length, 7, "بخش‌های ذکرنشده در انتها می‌مانند");
+  assert.strictEqual((await service.getSections())[0].key, mine.key);
+  await assert.rejects(() => service.deleteSection("mobile"), (e) => e.statusCode === 400, "بخش پیش‌فرض حذف نمی‌شود");
+  await assert.rejects(() => service.deleteSection("cffffffff"), (e) => e.statusCode === 404, "بخش ناموجود");
 
   // ۲) API ادمین (روتر؛ احراز هویت در app.js)
   const express = require("express");
@@ -51,6 +74,14 @@ const service = require(src("services", "homeSections.js"));
     assert.strictEqual(json.products.length, 5);
     const put = await fetch(base + "/admin/api/home-sections/tablet", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productIds: [id(5), id(4)] }) });
     assert.deepStrictEqual((await put.json()).productIds, [id(5), id(4)]);
+    const created = await (await fetch(base + "/admin/api/home-sections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "ویترین ویژه" }) })).json();
+    assert.ok(created.success && created.section.key, "ساخت بخش از API ادمین");
+    assert.strictEqual((await fetch(base + "/admin/api/home-sections", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "x" }) })).status, 400, "نام کوتاه رد می‌شود");
+    const renamed = await (await fetch(base + "/admin/api/home-sections/" + created.section.key, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "ویترین جدید" }) })).json();
+    assert.strictEqual(renamed.title, "ویترین جدید");
+    assert.strictEqual((await fetch(base + "/admin/api/home-sections/order", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ keys: [created.section.key] }) })).status, 200, "مسیر order قبل از :key است");
+    assert.strictEqual((await fetch(base + "/admin/api/home-sections/" + created.section.key, { method: "DELETE" })).status, 200, "حذف بخش ساخته‌شده");
+    assert.strictEqual((await (await fetch(base + "/admin/api/home-sections")).json()).sections.some((s) => s.key === created.section.key), false);
     assert.strictEqual((await fetch(base + "/admin/api/home-sections/zzz", { method: "PUT", headers: { "Content-Type": "application/json" }, body: "{}" })).status, 404);
   } finally { server.close(); }
 
@@ -58,9 +89,11 @@ const service = require(src("services", "homeSections.js"));
   ({ server, base } = await listen(publicApp));
   try {
     const json = await (await fetch(base + "/api/products/home-sections")).json();
-    assert.deepStrictEqual(json.sections.map((s) => s.key), ["mobile", "tablet", "watch"], "ترتیب بخش‌ها از تنظیمات سایت؛ بخش‌های خالی حذف");
-    assert.deepStrictEqual(json.sections[0].products.map((p) => p._id), [id(3), id(1), id(2)], "ترتیب محصولات همان انتخاب ادمین");
-    assert.strictEqual(json.sections[0].title, "موبایل");
+    assert.deepStrictEqual(json.sections.map((s) => s.key).slice(1), ["watch", "mobile", "tablet"], "بخش‌ها به ترتیب تنظیم‌شده؛ بخش‌های خالی حذف");
+    assert.ok(/^c[a-f0-9]{8}$/.test(json.sections[0].key) && json.sections[0].title === "پرفروش‌های ماه", "بخش ساخته‌شده هم در صفحهٔ اصلی است");
+    const mobile = json.sections.find((s) => s.key === "mobile");
+    assert.deepStrictEqual(mobile.products.map((p) => p._id), [id(3), id(1), id(2)], "ترتیب محصولات همان انتخاب ادمین");
+    assert.strictEqual(json.sections.find((s) => s.key === "watch").title, "ساعت و مچ‌بند", "نام ویرایش‌شده");
   } finally { server.close(); }
 
   // ۴) ثابت‌ها: صفحهٔ ادمین، منو، صفحهٔ اصلی؛ فرم و مدل محصول دست‌نخورده

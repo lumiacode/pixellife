@@ -2,7 +2,7 @@
 // زیر /admin/api/home-sections سوار می‌شود؛ احراز هویت ادمین در app.js اعمال می‌شود.
 const express = require("express");
 const Product = require("../models/Product");
-const { SECTIONS, MAX_PER_SECTION, readSelections, saveSection } = require("../services/homeSections");
+const { MAX_PER_SECTION, MAX_SECTIONS, getSections, readSelections, saveSection, createSection, renameSection, deleteSection, saveOrder } = require("../services/homeSections");
 
 const router = express.Router();
 router.use(express.json({ limit: "100kb" }));
@@ -17,14 +17,15 @@ const FIELDS = "name brand category slug mainImage images price discount stock a
 // بخش‌ها + محصولات انتخاب‌شدهٔ هر بخش (به ترتیب نمایش)
 router.get("/", async (req, res) => {
   try {
+    const sections = await getSections();
     const selections = await readSelections();
     const allIds = [...new Set(Object.values(selections).flat())];
     const rows = allIds.length ? await Product.find({ _id: { $in: allIds } }).select(FIELDS).lean() : [];
     const byId = new Map(rows.map((row) => [String(row._id), light(row)]));
     res.json({
       success: true,
-      max: MAX_PER_SECTION,
-      sections: SECTIONS.map((section) => ({ key: section.key, title: section.title, products: (selections[section.key] || []).map((id) => byId.get(id)).filter(Boolean) })),
+      max: MAX_PER_SECTION, maxSections: MAX_SECTIONS,
+      sections: sections.map((section) => ({ key: section.key, title: section.title, builtin: section.builtin, products: (selections[section.key] || []).map((id) => byId.get(id)).filter(Boolean) })),
     });
   } catch (error) { res.status(error.statusCode || 500).json({ success: false, message: error.message }); }
 });
@@ -35,6 +36,28 @@ router.get("/catalog", async (req, res) => {
     const rows = await Product.find().select(FIELDS).sort({ createdAt: -1 }).limit(1000).lean();
     res.json({ success: true, products: rows.map(light) });
   } catch (error) { res.status(error.statusCode || 500).json({ success: false, message: error.message }); }
+});
+
+const fail = (res, error) => res.status(error.statusCode || 500).json({ success: false, message: error.message });
+
+// ساخت بخش جدید: { title }
+router.post("/", async (req, res) => {
+  try { res.status(201).json({ success: true, section: await createSection(req.body && req.body.title) }); } catch (error) { fail(res, error); }
+});
+
+// ترتیب بخش‌ها: { keys: [...] } (باید قبل از /:key باشد)
+router.put("/order", async (req, res) => {
+  try { res.json({ success: true, order: await saveOrder(req.body && req.body.keys) }); } catch (error) { fail(res, error); }
+});
+
+// تغییر نام بخش: { title }
+router.patch("/:key", async (req, res) => {
+  try { res.json({ success: true, title: await renameSection(String(req.params.key || ""), req.body && req.body.title) }); } catch (error) { fail(res, error); }
+});
+
+// حذف بخش ساخته‌شده
+router.delete("/:key", async (req, res) => {
+  try { await deleteSection(String(req.params.key || "")); res.json({ success: true }); } catch (error) { fail(res, error); }
 });
 
 // ذخیرهٔ یک بخش: { productIds: [...] }

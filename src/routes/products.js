@@ -359,18 +359,19 @@ router.get("/bestsellers", async (req, res) => {
 
 // ردیف‌های صفحهٔ اصلی: برای هر بخش، محصولاتی که ادمین در «محصولات صفحهٔ اصلی» انتخاب کرده (به همان ترتیب).
 // بخشِ بدون محصول در پاسخ نمی‌آید. انتخاب‌ها: src/services/homeSections.js
-const { SECTIONS: HOME_SECTIONS, readSelections: readHomeSelections } = require("../services/homeSections");
+const { getSections: getHomeSections, readSelections: readHomeSelections } = require("../services/homeSections");
 router.get("/home-sections", async (req, res) => {
   try {
     const cacheKey = req.originalUrl;
     const cached = catalogResponseCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return res.json(cached.payload);
+    const homeSections = await getHomeSections();
     const selections = await readHomeSelections();
     const allIds = [...new Set(Object.values(selections).flat())];
     const rows = allIds.length ? await Product.find({ _id: { $in: allIds } }).select(PRODUCT_CARD_FIELDS).lean() : [];
     const products = await withApprovedReviewStats(rows.map(serializeProduct));
     const byId = new Map(products.map((product) => [String(product._id), product]));
-    const sections = HOME_SECTIONS
+    const sections = homeSections
       .map((section) => ({ key: section.key, title: section.title, products: (selections[section.key] || []).map((id) => byId.get(id)).filter(Boolean) }))
       .filter((section) => section.products.length);
     const payload = { success: true, sections };
