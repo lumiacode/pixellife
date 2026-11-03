@@ -782,7 +782,7 @@ function injectDatabaseCatalog(html) {
 
   // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
   // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
-  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=10"></script>';
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=11"></script>';
   if (html.includes("/js/database-catalog-amazing-v1.js")) {
     return html.replace(
       /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
