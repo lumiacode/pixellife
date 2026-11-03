@@ -650,20 +650,23 @@
         .orders-head .p-main-title { font-size: 16px; }
       }
       @media (max-width: 860px) {
-        /* موبایل: بخش‌های کاربردی با هم و بدون اسکرول افقی (شبکهٔ دوستونه؛ آیتم آخر تمام‌عرض).
-           «خروج» عمداً از دکمه‌های کاربردی جداست: زیر یک خط جداکننده، به‌صورت متن ساده و کم‌اهمیت‌تر (نه کادر/دکمه). */
+        /* موبایل: ناوبار پنج‌تایی (آیکن بالا، نام پایین) با خط رنگی زیر بخش فعال؛ همهٔ بخش‌ها همزمان دیده می‌شوند و اسکرول لازم نیست.
+           «خروج» عمداً از ناوبار جداست: زیر یک خط جداکننده، متن ساده و کم‌اهمیت. */
         .p-sidebar-head { padding: 10px 14px; }
         .p-sidebar-user { font-size: 14px; }
-        .p-menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; overflow: visible; padding: 12px 12px 6px; }
-        .p-menu-item { display: flex; align-items: center; min-width: 0; padding: 11px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; background: var(--white); }
-        .p-menu-item[data-tab="history"] { grid-column: 1 / -1; }
-        .p-menu-item > i.ti-chevron-left { display: none; }
-        .p-menu-item .p-menu-ico { width: 28px; height: 28px; border-radius: 50%; font-size: 15px; flex: 0 0 auto; }
-        .p-menu-item-label { gap: 8px; min-width: 0; }
-        .p-menu-item.active { border-color: var(--blue); background: var(--blue-light); }
-        .p-menu-divider { display: block; grid-column: 1 / -1; height: 1px; margin: 6px 0 0; background: var(--border); }
-        .p-menu-item.logout { grid-column: 1 / -1; justify-content: center; border: 0; border-radius: 10px; background: transparent; padding: 10px 12px; font-size: 12.5px; font-weight: 600; }
-        .p-menu-item.logout .p-menu-ico { width: 24px; height: 24px; background: transparent; font-size: 16px; }
+        .p-menu { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; overflow: visible; padding: 0; }
+        .p-menu-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; padding: 10px 2px 11px; border: 0; border-radius: 0; background: transparent; color: var(--text-3); font-size: 10.5px; font-weight: 600; line-height: 1.5; text-align: center; }
+        .p-menu-item > i.ti-chevron-left, .p-menu-more { display: none; }
+        .p-menu-item-label { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; white-space: nowrap; }
+        .p-menu-item .p-menu-ico { width: 34px; height: 34px; border-radius: 50%; font-size: 18px; flex: 0 0 auto; background: var(--bg); }
+        .p-menu-item.active { color: var(--blue); background: transparent; border: 0; }
+        .p-menu-item.active .p-menu-ico { background: var(--blue-light); color: var(--blue); }
+        .p-menu-item.active::after { content: ""; position: absolute; bottom: 0; left: 18%; right: 18%; height: 3px; border-radius: 3px 3px 0 0; background: var(--blue); }
+        .p-menu-divider { display: block; grid-column: 1 / -1; height: 1px; margin: 0; background: var(--border); }
+        .p-menu-item.logout { grid-column: 1 / -1; padding: 9px 12px; color: var(--red); font-size: 12.5px; font-weight: 600; }
+        .p-menu-item.logout .p-menu-item-label { flex-direction: row; gap: 6px; }
+        .p-menu-item.logout .p-menu-ico { width: 22px; height: 22px; background: transparent; font-size: 16px; }
+        @media (max-width: 380px) { .p-menu-item { font-size: 10px; letter-spacing: -0.2px; } .p-menu-item .p-menu-ico { width: 30px; height: 30px; font-size: 16px; } }
       }
       .order-pay-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #fff8e6; border: 1px solid #fde8a8; }
       .order-pay-box .pay-timer { font-size: 13px; color: #8a5a00; font-weight: 700; }
@@ -988,7 +991,7 @@
             <div class="p-menu-item" data-tab="history">
               <span class="p-menu-item-label"
                 ><span class="p-menu-ico"><i class="ti ti-clock"></i></span
-                >تاریخچه جست‌وجوها</span
+                >تاریخچه<span class="p-menu-more"> جست‌وجوها</span></span
               >
               <i class="ti ti-chevron-left"></i>
             </div>
