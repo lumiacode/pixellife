@@ -6,8 +6,8 @@ const stub = (file, exports) => { const p = require.resolve(file); require.cache
 const query = (list) => { const q = { select: () => q, sort: () => q, limit: () => q, lean: async () => list }; return q; };
 
 process.env.OPENAI_API_KEY = "sk-test"; process.env.JWT_SECRET = "s"; process.env.MONGO_URI = "mongodb://x";
-process.env.AI_RATE_PER_MINUTE = "4";
-const product = { _id: "p1", name: "گوشی سامسونگ A56", brand: "samsung", category: "موبایل", price: 20000000, slug: "a56" };
+process.env.AI_RATE_PER_MINUTE = "5";
+const product = { _id: "p1", name: "گوشی سامسونگ A56", brand: "samsung", category: "موبایل", price: 20000000, slug: "a56", stock: 3, availability: "in" };
 let orderFilter = null; const created = [];
 stub(src("models", "Product.js"), { find: () => query([product]) });
 stub(src("models", "Order.js"), { find: (f) => { orderFilter = f; return query([{ orderNumber: "PL1", status: "shipped", paymentStatus: "paid", total: 5, items: [{ name: "x", quantity: 1 }], trackingSteps: [{ key: "packed" }] }]); } });
@@ -46,15 +46,21 @@ app.use("/api/ai", require(src("routes", "aiAssistant.js")));
     assert.ok(!sent.messages.some((m) => m.content === "evil"), "نقش system از تاریخچه حذف می‌شود");
     assert.ok(!/PL1/.test(JSON.stringify(sent)), "مهمان سفارشی نمی‌بیند");
 
+    const sentBefore = sent;
     r = await call("/assistant", { message: "سفارش من کجاست؟" }, { Authorization: "Bearer good" });
     assert.strictEqual(orderFilter.user, "u1", "فقط سفارش‌های خود کاربر");
-    assert.ok(/PL1/.test(JSON.stringify(sent)));
+    assert.strictEqual(r.body.source, "rules", "وضعیت سفارش را ربات قاعده‌محور جواب می‌دهد");
+    assert.ok(/PL1/.test(r.body.answer), "شمارهٔ سفارش در پاسخ");
+    assert.strictEqual(sent, sentBefore, "برای وضعیت سفارش به OpenAI درخواست نمی‌رود");
+    r = await call("/assistant", { message: "سفارش من کجاست؟" });
+    assert.ok(/وارد حساب/.test(r.body.answer) && !/PL1/.test(r.body.answer), "مهمان سفارش نمی‌بیند");
 
     mode = "handoff"; r = await call("/assistant", { message: "میخوام مرجوع کنم" });
     assert.strictEqual(r.body.handoff, true); assert.ok(!r.body.answer.includes("HANDOFF"));
 
     mode = "fail"; r = await call("/assistant", { message: "گوشی سامسونگ" });
-    assert.strictEqual(r.status, 200); assert.strictEqual(r.body.aiEnabled, false); assert.strictEqual(r.body.handoff, true);
+    assert.strictEqual(r.status, 200); assert.strictEqual(r.body.aiEnabled, false); assert.strictEqual(r.body.source, "rules");
+    assert.ok(/A56/.test(r.body.answer), "خطای OpenAI: پاسخ قاعده‌محور با محصول واقعی"); assert.strictEqual(r.body.handoff, false);
 
     r = await call("/assistant", { message: "گوشی سامسونگ" });
     assert.strictEqual(r.status, 200);

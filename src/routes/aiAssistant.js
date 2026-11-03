@@ -9,6 +9,10 @@ const aiLimiter = require("../middleware/aiLimiter");
 const SUPPORT_KNOWLEDGE = require("../config/supportKnowledge");
 const { getSupportSettings } = require("../services/supportSettings");
 const { getAiConfig } = require("../services/aiSettings");
+const ruleAssistant = require("../services/ruleAssistant");
+const { trackingView } = require("../services/orderTracking");
+const { loadShippingMethods } = require("../services/shippingSettings");
+const checkoutConfig = require("../config/checkout");
 
 const router = express.Router();
 const MAX_MESSAGE_LENGTH = 800;
@@ -36,40 +40,6 @@ function normalizeProduct(product) {
     storages: product.storages || [],
     slug: product.slug,
   };
-}
-
-function looksLikeShoppingRequest(message) {
-  const text = String(message || "").toLowerCase();
-  return /(گوشی|موبایل|آیفون|iphone|سامسونگ|samsung|شیائومی|xiaomi|اپل|apple|تبلت|لپ.?تاپ|مک.?بوک|کنسول|پلی.?استیشن|ps5|خرید|قیمت|مقایسه|موجودی|بازی|گیم|دوربین|باتری|حافظه|رم|هدفون|هندزفری|بودجه|میلیون)/i.test(text);
-}
-
-function extractBudget(message) {
-  const normalized = String(message).replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
-  const match = normalized.match(/(?:تا|زیر|حدود)\s*([\d,\.]+)\s*(میلیون|m)?/i);
-  if (!match) return null;
-  const value = Number(match[1].replace(/[,.]/g, ""));
-  return Number.isFinite(value) ? (match[2] ? value * 1000000 : value) : null;
-}
-
-async function findRelevantProducts(message) {
-  const text = String(message).trim();
-  if (!looksLikeShoppingRequest(text)) return [];
-  const budget = extractBudget(text);
-  const keywords = text.split(/\s+/).map(escapeRegex).filter((word) => word.length > 2).slice(0, 8);
-  const conditions = keywords.map((word) => ({
-    $or: [
-      { name: { $regex: word, $options: "i" } },
-      { brand: { $regex: word, $options: "i" } },
-      { category: { $regex: word, $options: "i" } },
-      { description: { $regex: word, $options: "i" } },
-      { specs: { $regex: word, $options: "i" } },
-    ],
-  }));
-  const filter = conditions.length ? { $or: conditions } : {};
-  if (budget) filter.price = { $lte: budget };
-  const products = await Product.find(filter).sort({ featured: -1, rating: -1, updatedAt: -1 }).limit(8).lean();
-  // اگر هیچ تطابقی پیدا نشد، محصول پیش‌فرض برنگردان؛ پاسخ نامرتبط نباید مقایسه بسازد.
-  return products;
 }
 
 const STATUS_FA = {
@@ -107,7 +77,7 @@ function cleanHistory(raw) {
 async function userOrdersContext(user) {
   const orders = await Order.find({ user: user._id, superseded: { $ne: true } })
     .sort({ createdAt: -1 }).limit(5)
-    .select("orderNumber status paymentStatus paymentMethod total items.name items.quantity trackingSteps createdAt").lean();
+    .select("orderNumber status paymentStatus paymentMethod total items.name items.quantity trackingSteps zarinpal balePayment createdAt updatedAt").lean();
   return orders.map((o) => ({
     orderNumber: o.orderNumber,
     status: STATUS_FA[o.status] || o.status,
@@ -116,6 +86,7 @@ async function userOrdersContext(user) {
     totalToman: o.total,
     items: (o.items || []).map((i) => `${i.name} × ${i.quantity}`),
     trackingSteps: (o.trackingSteps || []).map((t) => t.key),
+    currentLabel: (() => { try { return trackingView(o).currentLabel || ""; } catch (_) { return ""; } })(),
     createdAt: o.createdAt,
   }));
 }
@@ -153,14 +124,23 @@ async function handleAssistant(req, res) {
   if (!message) return res.status(400).json({ success: false, message: "پیام خالی است" });
   if (message.length > MAX_MESSAGE_LENGTH) return res.status(400).json({ success: false, message: "پیام بیش از حد طولانی است" });
 
-  let products = [];
-  try { products = await findRelevantProducts(message); } catch (error) { console.error("Assistant product lookup:", error.message); }
+  // دستیار قاعده‌محور: تشخیص نیت، پاسخ پشتیبانی از داده‌های واقعی سایت و جستجوی ساختارمند محصول (بدون هزینهٔ هوش مصنوعی).
+  const ruleDeps = {
+    findProducts: (filter, limit) => Product.find(filter).sort({ featured: -1, rating: -1, updatedAt: -1 }).limit(limit).lean(),
+    userOrders: (user) => userOrdersContext(user),
+    shippingMethods: () => loadShippingMethods(),
+    paymentMethods: async () => checkoutConfig.paymentMethods,
+    supportLink: async () => (await getSupportSettings()).baleUrl,
+  };
+  let rule;
+  try { rule = await ruleAssistant.respond(message, { user: req.user || null, deps: ruleDeps }); } catch (error) { console.error("Rule assistant:", error.message); rule = { intent: "unknown", confidence: "low", answer: fallbackAnswer([]), handoff: true, suggestions: [], rawProducts: [] }; }
+  const products = rule.rawProducts || [];
   const productContext = products.map(normalizeProduct);
+  const ruleReply = { success: true, answer: rule.answer, products: [], suggestions: rule.suggestions || [], aiEnabled: false, handoff: Boolean(rule.handoff), source: "rules", intent: rule.intent };
 
   const aiConfig = await getAiConfig();
-  if (!aiConfig.apiKey) {
-    return res.json({ success: true, answer: fallbackAnswer(products), products: productContext, aiEnabled: false, handoff: !products.length });
-  }
+  // بدون کلید هوش مصنوعی، یا سؤال‌های پشتیبانی/سفارش که ربات قاعده‌محور دقیق‌تر (و رایگان‌تر) جواب می‌دهد
+  if (!aiConfig.apiKey || (rule.confidence === "high" && rule.intent !== "product_search")) return res.json(ruleReply);
 
   try {
     const wantsOrders = req.user && SUPPORT_WORDS.test(message);
@@ -177,12 +157,12 @@ async function handleAssistant(req, res) {
       { role: "user", content: `${context}\n\nپیام کاربر:\n${message}` },
     ], aiConfig);
     const handoff = raw.includes(HANDOFF_MARK);
-    const answer = raw.split(HANDOFF_MARK).join("").trim() || fallbackAnswer(products);
+    const answer = raw.split(HANDOFF_MARK).join("").trim() || rule.answer;
     res.json({ success: true, answer, products: productContext, aiEnabled: true, handoff });
   } catch (error) {
     console.error("AI assistant error:", error.name === "AbortError" ? "timeout" : error.message);
     // خطای OpenAI نباید کاربر را بی‌جواب بگذارد.
-    res.json({ success: true, answer: fallbackAnswer(products), products: productContext, aiEnabled: false, handoff: true });
+    res.json(ruleReply);
   }
 }
 
