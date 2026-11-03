@@ -17,6 +17,7 @@ const analyticsRoutes = require("./routes/analytics");
 const { SitemapStream, streamToPromise } = require("sitemap");
 const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl } = require("./services/seo");
 const { authSessionScript } = require("./middleware/authSessionScript");
+const adminSession = require("./middleware/adminSession");
 
 const Product = require("./models/Product");
 
@@ -276,8 +277,14 @@ app.use("/api/analytics", analyticsRoutes);
 // Product SEO Pages
 app.use("/product", productPageRoutes);
 
-// Test Email (موقت — بعد از تایید کارکرد حذف شود)
-app.use("/api/test-email", testEmailRoutes);
+// Test Email: فقط برای ادمین واردشده (قبلاً بدون احراز هویت بود و هر کسی می‌توانست ایمیل بفرستد)
+app.use(
+  "/api/test-email",
+  express.json({ limit: "10kb" }),
+  adminSession,
+  (req, res, next) => (req.session && req.session.isAdmin ? next() : res.status(401).json({ success: false, message: "ابتدا وارد پنل ادمین شوید" })),
+  testEmailRoutes,
+);
 
 // =======================
 // Sitemap
