@@ -207,7 +207,7 @@ function applySeo(html, meta) {
 
   const tags = [];
   // آیکن سایت (favicon): گوگل برای نمایش کنار نام سایت در نتایج به لینک rel=icon با اندازهٔ مضرب ۴۸ نیاز دارد.
-  if (!/<link[^>]+rel=["'](?:shortcut )?icon["']/i.test(out)) tags.push(`<link rel="icon" type="image/png" sizes="192x192" href="/images/brand/logo-mark-192.png" />`, `<link rel="apple-touch-icon" href="/images/brand/logo-mark-192.png" />`);
+  if (!/<link[^>]+rel=["'](?:shortcut )?icon["']/i.test(out)) tags.push(`<link rel="icon" href="/favicon.ico" sizes="48x48 96x96 192x192" />`, `<link rel="icon" type="image/png" sizes="192x192" href="/images/brand/logo-mark-192.png" />`, `<link rel="apple-touch-icon" href="/images/brand/logo-mark-192.png" />`);
   if (hasOwn("title")) tags.push(`<title>${escapeHtml(meta.title)}</title>`);
   if (hasOwn("description")) tags.push(`<meta name="description" content="${escapeHtml(meta.description)}" />`);
   if (hasOwn("canonical")) tags.push(`<link rel="canonical" href="${escapeHtml(meta.canonical)}" />`);
