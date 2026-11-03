@@ -47,6 +47,17 @@
         .pl-ai-form button:hover { background:#1d4ed8; }
         .pl-ai-form button:active { background:#1e40af; }
         .pl-ai-form button:focus-visible { outline:2px solid #93c5fd; outline-offset:2px; }
+        .pl-ai-cards { display:flex; flex-direction:column; gap:8px; margin:0 0 10px; }
+        .pl-ai-card { display:flex; align-items:center; gap:12px; padding:9px; border:1px solid #dbeafe; border-radius:16px; background:#fff; color:#0f172a; text-decoration:none; box-shadow:0 2px 10px rgba(37,99,235,.07); transition:border-color .15s, box-shadow .15s, transform .15s; }
+        .pl-ai-card:hover, .pl-ai-card:focus-visible { border-color:#93c5fd; box-shadow:0 6px 18px rgba(37,99,235,.16); outline:none; transform:translateY(-1px); }
+        .pl-ai-card-img { flex:0 0 72px; width:72px; height:72px; border-radius:12px; background:#fff; border:1px solid #eef2f7; display:grid; place-items:center; overflow:hidden; }
+        .pl-ai-card-img img { width:100%; height:100%; object-fit:contain; padding:4px; box-sizing:border-box; mix-blend-mode:multiply; }
+        .pl-ai-card-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+        .pl-ai-card-name { font-size:12px; font-weight:700; line-height:1.7; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .pl-ai-card-price { display:flex; align-items:center; flex-wrap:wrap; gap:6px; font-size:13px; font-weight:800; color:#0f172a; }
+        .pl-ai-card-off { background:#2563eb; color:#fff; border-radius:8px; padding:1px 7px; font-size:10.5px; font-weight:800; }
+        .pl-ai-card-old { color:#94a3b8; font-size:10.5px; font-weight:500; text-decoration:line-through; }
+        .pl-ai-card-go { flex:0 0 auto; color:#2563eb; font-size:18px; line-height:1; }
 
         #plAssistantMenu {
           position: fixed; right: 22px; bottom: 158px; z-index: 1751; width: min(268px, calc(100vw - 32px));
@@ -125,6 +136,30 @@
       });
       messages.appendChild(btn); messages.scrollTop = messages.scrollHeight;
     };
+    // کارت محصول داخل چت: عکس، نام، قیمت (و تخفیف) و لینک مستقیم به صفحهٔ محصول؛ فقط آدرس‌های داخلی /product/… پذیرفته می‌شوند.
+    const fa = (n) => Number(n).toLocaleString("fa-IR");
+    const addCards = (cards) => {
+      const list = (Array.isArray(cards) ? cards : []).filter((c) => c && typeof c.url === "string" && c.url.indexOf("/product/") === 0 && c.name).slice(0, 3);
+      if (!list.length) return;
+      const wrap = add("div", { className: "pl-ai-cards" });
+      list.forEach((c) => {
+        const link = add("a", { className: "pl-ai-card", href: c.url });
+        const imgBox = add("span", { className: "pl-ai-card-img" });
+        const img = add("img", { alt: c.name, loading: "lazy", decoding: "async" });
+        img.onerror = () => { img.onerror = null; img.src = "/images/product-placeholder.svg"; };
+        img.src = typeof c.image === "string" && c.image ? c.image : "/images/product-placeholder.svg";
+        imgBox.appendChild(img);
+        const body = add("span", { className: "pl-ai-card-body" });
+        body.appendChild(add("span", { className: "pl-ai-card-name" }, c.name));
+        const price = add("span", { className: "pl-ai-card-price" });
+        if (c.discount > 0) { price.appendChild(add("span", { className: "pl-ai-card-off" }, fa(c.discount) + "٪")); if (c.originalPrice) price.appendChild(add("span", { className: "pl-ai-card-old" }, fa(c.originalPrice))); }
+        price.appendChild(document.createTextNode(c.price > 0 ? fa(c.price) + " تومان" : "تماس بگیرید"));
+        body.appendChild(price);
+        link.appendChild(imgBox); link.appendChild(body); link.appendChild(add("span", { className: "pl-ai-card-go", "aria-hidden": "true" }, "‹"));
+        wrap.appendChild(link);
+      });
+      messages.appendChild(wrap); messages.scrollTop = messages.scrollHeight;
+    };
     const addMessage = (text, kind) => { const el = add("div", { className: "pl-ai-msg " + kind }, text); messages.appendChild(el); messages.scrollTop = messages.scrollHeight; return el; };
     const closeMenu = () => { menu.classList.remove("open"); toggle.setAttribute("aria-expanded", String(panel.classList.contains("open"))); };
     const closePanel = () => { panel.classList.remove("open"); toggle.setAttribute("aria-expanded", "false"); };
@@ -162,9 +197,11 @@
         const response = await fetch("/api/ai/assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history }) });
         const data = await response.json(); pending.remove();
         if (!response.ok || !data.success) throw new Error(data.message || "خطا");
-        addMessage(data.answer, "bot"); remember("user", message); remember("assistant", data.answer);
+        const cards = Array.isArray(data.cards) ? data.cards : [];
+        // با کارت‌های محصول، متن کوتاه (intro) نشان داده می‌شود تا فهرست متنی و کارت‌ها تکراری نشوند.
+        addMessage(cards.length && data.intro ? data.intro : data.answer, "bot"); remember("user", message); remember("assistant", data.answer);
+        addCards(cards);
         if (data.handoff) offerHandoff();
-        if (data.products?.length) addMessage("محصولات مرتبط: " + data.products.slice(0, 3).map((p) => p.name).join("، "), "bot");
       } catch (error) { pending.textContent = error.message && error.message !== "خطا" ? error.message : "متأسفانه در حال حاضر امکان پاسخ‌گویی وجود ندارد. لطفاً دوباره تلاش کنید."; offerHandoff(); }
       input.disabled = false; input.focus();
     });

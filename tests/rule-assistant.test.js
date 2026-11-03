@@ -48,6 +48,14 @@ const deps = {
   assert.strictEqual(r.intent, "product_search");
   assert.deepStrictEqual(r.suggestions.map((s) => s.slug), ["a56"], "ناموجود، به‌زودی، تبلت و بالای بودجه حذف می‌شوند");
   assert.ok(/A56/.test(r.answer) && /تومان/.test(r.answer) && r.handoff === false);
+  // کارت محصول برای چت: لینک داخلی، قیمت نهایی، بدون عکس data: و متن کوتاه intro بدون فهرست
+  assert.strictEqual(r.cards.length, 1); assert.strictEqual(r.cards[0].url, "/product/a56"); assert.strictEqual(r.cards[0].price, 20000000);
+  assert.ok(r.intro && !/A56/.test(r.intro) && /روی محصول بزنید/.test(r.intro));
+  const withData = rule.toCard({ _id: "x", slug: "x", name: "n", price: 1000, mainImage: "data:image/png;base64,AAAA" });
+  assert.strictEqual(withData.image, "", "عکس data: در کارت نیست");
+  assert.strictEqual(rule.toCard({ _id: "a".repeat(24), slug: "s", name: "n", price: 1000, mainImage: "/api/products/image/" + "a".repeat(24) }).image, "/api/products/image/" + "a".repeat(24) + "?w=160");
+  assert.strictEqual(rule.toCard({ _id: "y", slug: "a b", name: "n", price: 1000, discount: 10 }).url, "/product/a%20b");
+  assert.strictEqual(rule.toCard({ _id: "y", slug: "s", name: "n", price: 1000, discount: 10 }).originalPrice, 1000);
   r = await rule.respond("گوشی سامسونگ تا ۶۰ میلیون", { deps });
   assert.ok(r.suggestions.some((s) => s.slug === "s25") && r.suggestions.find((s) => s.slug === "s25").price === 54e6, "قیمت نهایی با تخفیف ۱۰٪");
   r = await rule.respond("ارزان ترین گوشی سامسونگ", { deps });

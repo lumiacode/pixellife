@@ -152,6 +152,21 @@ function productLine(p, index) {
   return `${fa(index + 1)}. ${String(p.name).replace(/\s+/g, " ").trim()} — ${fa(price)} تومان${discount}${low}`;
 }
 
+// تصویر کارت: فقط آدرس‌های معمولی (data: نه، چون سنگین است)؛ عکس‌های ذخیره‌شدهٔ سایت با اندازهٔ کوچک.
+function cardImage(p) {
+  const raw = String(p.mainImage || (Array.isArray(p.images) && p.images[0]) || "").trim();
+  if (!raw || /^data:/i.test(raw)) return "";
+  if (/^\/api\/products\/image\/[a-f0-9]{24}$/i.test(raw)) return raw + "?w=160";
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("/")) return raw;
+  return "/" + raw.replace(/^\/?(?:public\/)?/, "");
+}
+// کارت محصول برای نمایش داخل چت (عکس، نام، قیمت نهایی، تخفیف، لینک)
+function toCard(p) {
+  const discount = Math.min(99, Math.max(0, Math.round(Number(p.discount) || 0)));
+  return { id: String(p._id), name: plain(p.name), brand: p.brand || "", price: finalPrice(p), originalPrice: discount ? Math.round(Number(p.price) || 0) : 0, discount, image: cardImage(p), url: `/product/${encodeURIComponent(p.slug || String(p._id))}` };
+}
+const plain = (v) => String(v == null ? "" : v).replace(/\s+/g, " ").trim();
+
 const toSuggestion = (p) => ({ id: String(p._id), name: p.name, brand: p.brand || "", price: finalPrice(p), slug: p.slug, url: `/product/${encodeURIComponent(p.slug || String(p._id))}` });
 
 async function searchProducts(message, deps) {
@@ -255,7 +270,7 @@ async function paymentMethodsAnswer(deps) {
  */
 async function respond(message, { user = null, deps = {} } = {}) {
   const detected = detectIntent(message);
-  const base = { intent: detected.intent, confidence: detected.confidence, suggestions: [], rawProducts: [] };
+  const base = { intent: detected.intent, confidence: detected.confidence, suggestions: [], rawProducts: [], cards: [] };
   try {
     switch (detected.intent) {
       case "order_status": { const r = await orderStatusAnswer(deps, user); return { ...base, ...r }; }
@@ -267,11 +282,13 @@ async function respond(message, { user = null, deps = {} } = {}) {
         const { parsed, results, relaxed, note } = await searchProducts(message, deps);
         base.rawProducts = results;
         base.suggestions = results.map(toSuggestion);
+        base.cards = results.slice(0, 3).map(toCard);
         if (!results.length) {
           return { ...base, answer: `برای «${describeCriteria(parsed) || "درخواستتان"}» محصول موجودی پیدا نشد. می‌توانید بودجه یا مدل را کمی تغییر دهید، یا از پشتیبان بخواهید موجود شدن را پیگیری کند.`, handoff: true };
         }
         const head = note || (relaxed ? `مدل دقیق پیدا نشد؛ نزدیک‌ترین گزینه‌های موجود${describeCriteria(parsed) ? ` برای ${describeCriteria(parsed)}` : ""}:` : `گزینه‌های موجود${describeCriteria(parsed) ? ` برای ${describeCriteria(parsed)}` : ""}:`);
-        return { ...base, answer: `${head}\n${results.map(productLine).join("\n")}\nبرای دیدن مشخصات و رنگ‌ها، محصول را در سایت باز کنید.`, handoff: false };
+        // answer: متن کامل (با فهرست)؛ intro: متن کوتاه برای وقتی که کارت‌های محصول زیرش نمایش داده می‌شوند.
+        return { ...base, answer: `${head}\n${results.map(productLine).join("\n")}\nبرای دیدن مشخصات و رنگ‌ها، محصول را در سایت باز کنید.`, intro: `${head}\nبرای دیدن مشخصات و رنگ‌ها، روی محصول بزنید.`, handoff: false };
       }
       case "empty": return { ...base, answer: "پیام خالی است. سؤالتان را بنویسید.", handoff: false };
       default: return { ...base, answer: STATIC_ANSWERS[detected.intent] || STATIC_ANSWERS.unknown, handoff: detected.intent === "unknown" };
@@ -281,4 +298,4 @@ async function respond(message, { user = null, deps = {} } = {}) {
   }
 }
 
-module.exports = { normalize, parseSearch, parseBudget, detectIntent, respond, finalPrice, STATUS_FA };
+module.exports = { toCard, normalize, parseSearch, parseBudget, detectIntent, respond, finalPrice, STATUS_FA };

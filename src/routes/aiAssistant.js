@@ -136,7 +136,7 @@ async function handleAssistant(req, res) {
   try { rule = await ruleAssistant.respond(message, { user: req.user || null, deps: ruleDeps }); } catch (error) { console.error("Rule assistant:", error.message); rule = { intent: "unknown", confidence: "low", answer: fallbackAnswer([]), handoff: true, suggestions: [], rawProducts: [] }; }
   const products = rule.rawProducts || [];
   const productContext = products.map(normalizeProduct);
-  const ruleReply = { success: true, answer: rule.answer, products: [], suggestions: rule.suggestions || [], aiEnabled: false, handoff: Boolean(rule.handoff), source: "rules", intent: rule.intent };
+  const ruleReply = { success: true, answer: rule.answer, intro: rule.intro || "", cards: rule.cards || [], products: [], suggestions: rule.suggestions || [], aiEnabled: false, handoff: Boolean(rule.handoff), source: "rules", intent: rule.intent };
 
   const aiConfig = await getAiConfig();
   // بدون کلید هوش مصنوعی، یا سؤال‌های پشتیبانی/سفارش که ربات قاعده‌محور دقیق‌تر (و رایگان‌تر) جواب می‌دهد
@@ -158,7 +158,7 @@ async function handleAssistant(req, res) {
     ], aiConfig);
     const handoff = raw.includes(HANDOFF_MARK);
     const answer = raw.split(HANDOFF_MARK).join("").trim() || rule.answer;
-    res.json({ success: true, answer, products: productContext, aiEnabled: true, handoff });
+    res.json({ success: true, answer, products: productContext, cards: products.slice(0, 3).map(ruleAssistant.toCard), aiEnabled: true, handoff });
   } catch (error) {
     console.error("AI assistant error:", error.name === "AbortError" ? "timeout" : error.message);
     // خطای OpenAI نباید کاربر را بی‌جواب بگذارد.
