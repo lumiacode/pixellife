@@ -656,7 +656,15 @@
         async function init() {
           if (!cartRequestItems().length) return showEmpty();
           try {
-            var loaded = await Promise.all([api("/api/checkout/config"), api("/api/addresses")]);
+            // موجودی کیف پول از همان ابتدا هم‌زمان دریافت می‌شود تا بعد از محاسبهٔ قیمت منتظرش نمانیم.
+            var walletPromise = api("/api/wallet").then(function (w) { return w.balance || 0; }, function () { return 0; });
+            // تنظیمات پرداخت را سبد خرید چند ثانیه پیش گرفته است؛ اگر تازه بود دوباره نمی‌گیریم.
+            var cachedConfig = null;
+            try {
+              var raw = JSON.parse(sessionStorage.getItem("pl_checkout_config") || "null");
+              if (raw && raw.c && raw.c.shippingMethods && Date.now() - raw.t < 120000) cachedConfig = raw.c;
+            } catch (_) {}
+            var loaded = await Promise.all([cachedConfig ? Promise.resolve(cachedConfig) : api("/api/checkout/config"), api("/api/addresses")]);
             config = loaded[0];
             addresses = loaded[1].data || [];
           } catch (error) {
@@ -689,7 +697,7 @@
             }
             return showError(error.message);
           }
-          try { walletBalance = (await api("/api/wallet")).balance || 0; } catch (_) { walletBalance = 0; }
+          walletBalance = await walletPromise;
           render();
         }
         init();
