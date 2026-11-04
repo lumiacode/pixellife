@@ -1291,6 +1291,8 @@
       }
 
       /* — کارت آیتم سبد خرید — */
+      .pl-spin { display:inline-block; animation: plSpin .8s linear infinite; }
+      @keyframes plSpin { to { transform: rotate(360deg); } }
       .cart-items-list {
         display: flex;
         flex-direction: column;
@@ -3693,6 +3695,7 @@
 
       let inventorySyncPromise = null;
       let lastInventorySyncAt = 0;
+      let lastInventoryOk = false;
 
       // اطلاعات همهٔ آیتم‌ها در هر بار ورود به سبد از سرور خوانده می‌شود؛
       // localStorage فقط انتخاب کاربر را نگه می‌دارد و مرجع موجودی نیست.
@@ -3813,6 +3816,7 @@
           }
 
           lastInventorySyncAt = Date.now();
+          lastInventoryOk = allVerified;
           saveCart();
           if (render) renderCartItems();
           updateCartBadge();
@@ -3995,6 +3999,7 @@
       fetch("/api/checkout/config")
         .then((r) => r.json())
         .then((c) => {
+          try { if (c && c.shippingMethods) sessionStorage.setItem("pl_checkout_config", JSON.stringify({ t: Date.now(), c })); } catch (_) {}
           const m = c && c.shippingMethods && c.shippingMethods[0];
           if (m) {
             shippingRule = { fee: Number(m.fee) || 0, freeThreshold: Number(m.freeThreshold) || 0 };
@@ -4256,9 +4261,14 @@
       /* ═══ دکمه تکمیل سفارش ═══ */
       document.getElementById("checkoutBtn").addEventListener("click", async () => {
         const button = document.getElementById("checkoutBtn");
+        const buttonHtml = button.innerHTML;
         button.disabled = true;
+        button.innerHTML = '<i class="ti ti-loader-2 pl-spin"></i> در حال انتقال...';
+        let leaving = false;
         try {
-          const inventoryVerified = await syncCartInventory();
+          // اگر موجودی همین چند ثانیه پیش با موفقیت بررسی شده، دوباره منتظر شبکه نمی‌مانیم
+          // (سرور هم در مرحلهٔ پرداخت موجودی را دوباره قطعی کنترل می‌کند).
+          const inventoryVerified = (lastInventoryOk && Date.now() - lastInventorySyncAt < 20000) ? true : await syncCartInventory();
           if (!inventoryVerified) {
             showToast("بررسی موجودی انجام نشد؛ اتصال اینترنت را بررسی و دوباره تلاش کنید");
             return;
@@ -4268,12 +4278,13 @@
             showToast("کالاهای سبد خرید در حال حاضر ناموجود هستند");
             return;
           }
+          leaving = true;
           window.location.href = "/checkout/shipping";
           return;
         } catch (error) {
           showToast(error.message || "ثبت سفارش ناموفق بود");
         } finally {
-          button.disabled = false;
+          if (!leaving) { button.disabled = false; button.innerHTML = buttonHtml; }
         }
       });
 
