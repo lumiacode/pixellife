@@ -8,7 +8,7 @@ html body .accessories-banner-slot:empty { display: none !important; }
 html body .categories-section { background: transparent !important; border: 0 !important; box-shadow: none !important; }
 html body .category-circle {
   width: 76px !important; height: 76px !important;
-  background: var(--pl-surface-muted, #f1f5f9) !important;
+  background: #fff !important; border: 1px solid #e5e9f0 !important;
   box-shadow: none !important; animation: none !important;
   transition: transform var(--pl-dur, .2s) var(--pl-ease, ease) !important;
 }

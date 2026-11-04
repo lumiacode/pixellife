@@ -6,7 +6,7 @@
 html body .product-title { font-size: 22px !important; font-weight: 800 !important; line-height: 1.55 !important; margin-bottom: 12px !important; }
 
 /* گالری: کاشی روشن؛ عکس‌های زمینه‌سفید در آن حل می‌شوند */
-html body .gallery-main { background: var(--pl-surface-muted, #f1f5f9) !important; border-radius: var(--pl-radius-lg, 16px) !important; }
+html body .gallery-main { background: #fff !important; border: 1px solid #e5e9f0 !important; border-radius: var(--pl-radius-lg, 16px) !important; }
 html body .gallery-track, html body .gallery-slide { background: transparent !important; }
 html body .gallery-slide img { mix-blend-mode: multiply; }
 html body .gallery-thumb { border-radius: var(--pl-radius-sm, 10px) !important; }
@@ -179,3 +179,9 @@ html body #productReviewSection.is-collapsed .review-section-img--collapsed { di
 
 /* مزایای خرید: بدون هیچ کادر، در همهٔ اندازه‌ها */
 html body #storeAdvantagesSection .advantage-card { border: 0 !important; background: transparent !important; }
+
+/* سفید محض: قاب گالری در موبایل با حاشیهٔ نازک به‌جای پر شدن خاکستری */
+@media (max-width: 768px) {
+  html body.mobile-product-flow-active .product-gallery { border: 1px solid #e5e9f0 !important; background: #fff !important; }
+  html body.mobile-product-flow-active .gallery-main { border: 0 !important; }
+}

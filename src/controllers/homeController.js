@@ -658,7 +658,7 @@ const ABOUT_SITE_PARAGRAPHS = (() => {
   }
 })();
 const ABOUT_SITE_STYLE = `<style id="pl-about-site-style">
-.pl-about-site{background:#f6f7f9;border-top:1px solid #e5e7eb;padding:22px 16px;direction:rtl}
+.pl-about-site{background:#fff;border-top:1px solid #e5e7eb;padding:22px 16px;direction:rtl}
 .pl-about-site__inner{max-width:1200px;margin:0 auto}
 .pl-about-site h2{margin:0 0 8px;font-size:15px;font-weight:800;color:#1e293b}
 .pl-about-site__text{position:relative;font-size:13px;line-height:2;color:#475569;max-height:6.2em;overflow:hidden;transition:max-height .3s ease}
