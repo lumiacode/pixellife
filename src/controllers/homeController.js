@@ -1086,6 +1086,12 @@ const homeController = {
     res.set("Expires", "0");
     sendViewWithEnamad(res, "checkout.html");
   },
+  checkoutResult: (req, res) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+    sendViewWithEnamad(res, "payment-result.html");
+  },
   iphone: (req, res) => sendViewWithEnamad(res, "iphone.html"),
   product: (req, res) => sendViewWithEnamad(res, "product.html"),
   samsung: (req, res) => sendViewWithEnamad(res, "samsung.html"),

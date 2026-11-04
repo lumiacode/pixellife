@@ -99,7 +99,7 @@ router.post("/pay", protect, async (req, res, next) => {
     }
     const { order: paid, balance } = await walletService.payOrder(order);
     await applyOrderStock(paid).catch((error) => console.error("applyOrderStock error:", error.message));
-    res.json({ success: true, balance, redirect: `/profile/orders/${encodeURIComponent(paid.orderNumber)}?payment=success` });
+    res.json({ success: true, balance, redirect: `/checkout/result?order=${encodeURIComponent(paid.orderNumber)}&status=success` });
   } catch (error) {
     if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
     next(error);

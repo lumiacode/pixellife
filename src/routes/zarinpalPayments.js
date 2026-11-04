@@ -57,11 +57,11 @@ router.get("/callback", async (req, res, next) => {
     const status = String(req.query.Status || "").toUpperCase();
     const order = await Order.findOne({ "zarinpal.authority": authority });
     if (!order) return res.status(404).send("سفارش پرداخت پیدا نشد");
-    if (order.paymentStatus === "paid") return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=success`);
+    if (order.paymentStatus === "paid") return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=success`);
     if (status !== "OK") {
       order.paymentStatus = "failed";
       await order.save();
-      return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=cancelled`);
+      return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=cancelled`);
     }
     const result = await axios.post(`${apiBase}/verify.json`, {
       merchant_id: env.zarinpalMerchantId,
@@ -73,7 +73,7 @@ router.get("/callback", async (req, res, next) => {
       order.paymentStatus = "failed";
       order.statusHistory.push({ status: order.status, note: `تأیید پرداخت زرین‌پال ناموفق بود: ${data?.message || "پاسخ نامعتبر"}` });
       await order.save();
-      return res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=failed`);
+      return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=failed`);
     }
     // اگر مبلغ از حساب کسر شده، حتی بعد از لغوِ مهلت هم پرداخت پذیرفته می‌شود.
     if (order.status === "cancelled") order.statusHistory.push({ status: "processing", note: "پرداخت بعد از پایان مهلت انجام شد و سفارش دوباره فعال شد" });
@@ -85,7 +85,7 @@ router.get("/callback", async (req, res, next) => {
     order.statusHistory.push({ status: "processing", note: `پرداخت زرین‌پال تأیید شد؛ کد رهگیری ${data.ref_id || ""}` });
     await order.save();
     await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
-    res.redirect(`/profile/orders/${encodeURIComponent(order.orderNumber)}?payment=success`);
+    res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=success`);
   } catch (error) { next(error); }
 });
 

@@ -98,7 +98,7 @@ const mkOrder = (total, extra = {}) => { const o = { _id: "o" + ++n, orderNumber
     assert.strictEqual(r.status, 200, JSON.stringify(r.json));
     assert.strictEqual(o1.paymentStatus, "paid"); assert.strictEqual(o1.status, "processing"); assert.strictEqual(o1.stockApplied, true);
     assert.strictEqual(wallets[0].balance, 400000);
-    assert.ok(r.json.redirect.includes("payment=success"));
+    assert.ok(r.json.redirect.includes("status=success") && r.json.redirect.startsWith("/checkout/result?order="));
     // موجودی کافی نیست: چیزی کم نمی‌شود
     const o2 = mkOrder(700000);
     r = await call("POST", "/pay", { orderId: o2._id });
