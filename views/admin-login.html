@@ -55,6 +55,17 @@
       #loginError {
         display: none;
       }
+      .pw-wrap { position: relative; }
+      .pw-wrap .form-control { padding-left: 48px; font-size: 16px; }
+      .pw-toggle {
+        position: absolute; left: 4px; top: 50%; transform: translateY(-50%);
+        width: 44px; height: 44px; border: 0; background: transparent; color: #64748b;
+        display: grid; place-items: center; border-radius: 10px; cursor: pointer;
+      }
+      .pw-toggle .pw-eye-off { display: none; }
+      .pw-toggle.is-shown .pw-eye { display: none; }
+      .pw-toggle.is-shown .pw-eye-off { display: block; }
+      .pw-toggle:hover, .pw-toggle:focus-visible { color: #2563eb; background: #eff6ff; outline: 0; }
     </style>
   </head>
   <body>
@@ -66,16 +77,36 @@
             برای ورود، رمز عبور ادمین را وارد کنید
           </p>
           <div class="alert alert-danger py-2" id="loginError"></div>
-          <form id="loginForm">
+          <form id="loginForm" autocomplete="on">
+            <!-- فیلد نام کاربری نامرئی: مرورگر/مدیر رمز برای ذخیره و پر کردن خودکار به آن نیاز دارد -->
+            <input
+              type="text"
+              name="username"
+              id="usernameInput"
+              value="admin"
+              autocomplete="username"
+              tabindex="-1"
+              aria-hidden="true"
+              readonly
+              style="position:absolute;opacity:0;height:0;width:0;border:0;padding:0;pointer-events:none"
+            />
             <div class="mb-3">
-              <label class="form-label">رمز عبور</label>
-              <input
-                type="password"
-                class="form-control"
-                id="passwordInput"
-                required
-                autofocus
-              />
+              <label class="form-label" for="passwordInput">رمز عبور</label>
+              <div class="pw-wrap">
+                <input
+                  type="password"
+                  name="password"
+                  class="form-control"
+                  id="passwordInput"
+                  autocomplete="current-password"
+                  required
+                  autofocus
+                />
+                <button type="button" class="pw-toggle" id="pwToggle" aria-label="نمایش رمز عبور" aria-pressed="false">
+                  <svg class="pw-eye" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="pw-eye-off" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a10.5 10.5 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                </button>
+              </div>
             </div>
             <button type="submit" class="btn btn-primary w-100" id="loginBtn">
               <i class="ti ti-login"></i> ورود
@@ -86,6 +117,18 @@
     </div>
 
     <script>
+      (function () {
+        var input = document.getElementById("passwordInput");
+        var btn = document.getElementById("pwToggle");
+        btn.addEventListener("click", function () {
+          var show = input.type === "password";
+          input.type = show ? "text" : "password";
+          btn.classList.toggle("is-shown", show);
+          btn.setAttribute("aria-pressed", String(show));
+          btn.setAttribute("aria-label", show ? "پنهان کردن رمز عبور" : "نمایش رمز عبور");
+          input.focus();
+        });
+      })();
       document
         .getElementById("loginForm")
         .addEventListener("submit", async (e) => {
@@ -107,6 +150,12 @@
             });
             const json = await res.json();
             if (!json.success) throw new Error(json.message || "خطا در ورود");
+            // ذخیرهٔ رمز در مرورگر (Chrome/Android) تا دفعهٔ بعد خودکار پر شود
+            try {
+              if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+                await navigator.credentials.store(new PasswordCredential({ id: "admin", name: "ادمین پیکسل‌لایف", password: document.getElementById("passwordInput").value }));
+              }
+            } catch (_) { /* ذخیره اختیاری است */ }
             window.location.href = "/admin/products";
           } catch (err) {
             errBox.textContent = err.message;
