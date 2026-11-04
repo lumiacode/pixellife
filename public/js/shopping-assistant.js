@@ -24,7 +24,7 @@
 
         #plAssistant {
           position: fixed; right: 22px; bottom: 158px; z-index: 1749;
-          width: min(360px, calc(100vw - 32px)); max-height: min(520px, calc(100vh - 190px));
+          width: min(360px, calc(100vw - 32px)); max-height: min(520px, calc(100vh - 190px)); max-height: min(520px, calc(100dvh - 190px));
           display: none; flex-direction: column; overflow: hidden;
           direction: rtl; background: #fff; border: 1px solid #cfe1fb; border-radius: 18px;
           box-shadow: 0 16px 38px rgba(59, 130, 246, .18);
@@ -83,7 +83,7 @@
           #plAssistantMenu { right: 16px; bottom: 148px; }
           #plAssistantToggle { right: 16px; bottom: 84px; width: 54px !important; height: 54px !important; }
           #plAssistantToggle svg { width: 37px; height: 37px; }
-          #plAssistant { right: 16px; bottom: 148px; max-height: min(500px, calc(100vh - 170px)); }
+          #plAssistant { right: 16px; bottom: 148px; max-height: min(500px, calc(100vh - 170px)); max-height: min(500px, calc(100dvh - 170px)); }
         }
       `;
       document.head.appendChild(style);

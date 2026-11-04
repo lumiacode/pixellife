@@ -10,7 +10,7 @@
 
   var style = document.createElement("style");
   style.textContent =
-    ".pl-sg{position:fixed;z-index:2000;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 14px 40px rgba(15,23,42,.18);overflow:hidden;direction:rtl;max-height:min(70vh,520px);overflow-y:auto}" +
+    ".pl-sg{position:fixed;z-index:2000;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 14px 40px rgba(15,23,42,.18);overflow:hidden;direction:rtl;max-height:min(70vh,520px); max-height:min(70dvh,520px);overflow-y:auto}" +
     ".pl-sg[hidden]{display:none}" +
     ".pl-sg-head{padding:10px 14px 4px;font-size:11.5px;font-weight:700;color:#94a3b8}" +
     ".pl-sg a{display:flex;align-items:center;gap:10px;padding:9px 14px;color:#0f172a;text-decoration:none}" +

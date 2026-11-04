@@ -279,7 +279,7 @@
   border-radius: 7px !important;
   background: #f8fbff !important;
   color: var(--blue) !important;
-  font-size: 10.5px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
   text-decoration: none !important;
 }
@@ -327,7 +327,7 @@
     width: 100% !important;
     max-width: 100% !important;
     flex-direction: column !important;
-    max-height: calc(100vh - var(--header-height, 69px)) !important;
+    max-height: calc(100vh - var(--header-height, 69px)) !important; max-height: calc(100dvh - var(--header-height, 69px)) !important;
     border-radius: 0 !important;
   }
   .megamenu-cats {

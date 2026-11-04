@@ -1,0 +1,23 @@
+/* هدف لمس حداقل ۴۴px روی موبایل/صفحهٔ لمسی (ظاهر تقریباً همان؛ فقط ناحیهٔ قابل‌لمس بزرگ‌تر).
+   فقط عنصرهایی که در اندازه‌گیری زیر ۴۰px بودند. برای خاموش‌کردن کل این فایل، تگ link آن را از injectHeaderAutohide (homeController.js) بردارید. */
+@media (max-width: 768px), (pointer: coarse) {
+  /* سبد کوچک هدر و کنترل تعداد */
+  html body .mini-qty-btn { width: 36px; height: 36px; font-size: 16px; }
+  html body .mini-qty-controls { gap: 8px; padding: 3px; }
+  html body .mini-remove-btn { min-width: 40px; min-height: 40px; }
+  html body .qty-btn { width: 44px; height: 44px; }
+  /* آیکن‌های هدر */
+  html body .h-btn { width: 44px; height: 44px; }
+  /* فلش‌های بنر: ظاهر همان ۳۲px، ناحیهٔ لمس ۴۸px */
+  html body .hero-nav-btn::after { content: ""; position: absolute; inset: -8px; }
+  /* فیلتر و مرتب‌سازی صفحه‌های دسته‌بندی */
+  html body .pl-sort-chip,
+  html body .pl-filter-reset,
+  html body .pl-filter-close,
+  html body .pl-mobile-filter-btn,
+  html body .pl-price-field { min-height: 44px; }
+  html body .pl-filter-close { min-width: 44px; }
+  /* پروفایل و ثبت موقعیت */
+  html body .p-sidebar-edit { min-width: 44px; min-height: 44px; }
+  html body .plloc-btn { min-height: 44px; }
+}

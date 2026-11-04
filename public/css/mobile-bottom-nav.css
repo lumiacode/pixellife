@@ -97,7 +97,7 @@
     gap: 3px;
     color: #64748b;
     font-family: inherit;
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 600;
     line-height: 1.25;
     text-decoration: none;
@@ -536,7 +536,7 @@
     border-radius: 8px;
     background: #f8fbff;
     color: #2563eb;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
     line-height: 1.25;
     text-align: center;
@@ -562,7 +562,7 @@
 
   .mobile-category-sheet__soon small {
     color: #94a3b8;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
   }
 
@@ -794,7 +794,7 @@
     align-items: center;
     justify-content: center;
     font-family: inherit;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1;
     letter-spacing: 0;

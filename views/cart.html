@@ -1205,7 +1205,7 @@
           width: 100%;
           max-width: 100%;
           flex-direction: column;
-          max-height: calc(100vh - 69px);
+          max-height: calc(100vh - 69px); max-height: calc(100dvh - 69px);
           border-radius: 0;
         }
         .megamenu-cats {
@@ -2331,7 +2331,7 @@
         display: block;
       }
       .slider-card-price small {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 500;
         color: var(--text-3);
       }
@@ -2374,7 +2374,7 @@
       .recent-brand { margin: 0 2px 10px; min-height: 18px; font-size: 12px; color: #8592a3; text-align: right; }
       .recent-foot { margin-top: auto; padding: 10px 2px 2px; border-top: 1px dashed #d9e1ec; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
       .recent-price { min-width: 0; min-height: 40px; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; font-size: 15px; font-weight: 800; color: var(--text-1); text-align: right; }
-      .recent-price small { font-size: 10.5px; font-weight: 500; color: var(--text-3); }
+      .recent-price small { font-size: 11px; font-weight: 500; color: var(--text-3); }
       .recent-old { min-height: 16px; font-size: 11px; font-weight: 500; color: var(--text-4); text-decoration: line-through; }
       .recent-out { min-height: 40px; display: flex; align-items: flex-end; font-size: 13px; font-weight: 700; color: #b91c1c; }
       .recent-card .pl-live-rating { display: none !important; }
@@ -2385,7 +2385,7 @@
       /* پنجرهٔ انتخاب گزینه */
       .combo-chooser { position: fixed; inset: 0; z-index: 10060; display: flex; align-items: flex-end; justify-content: center; }
       .combo-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .45); }
-      .combo-sheet { position: relative; width: min(440px, 100%); max-height: 78vh; overflow: auto; background: #fff; border-radius: 20px 20px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -12px 40px rgba(15, 23, 42, .2); direction: rtl; }
+      .combo-sheet { position: relative; width: min(440px, 100%); max-height: 78vh; max-height: 78dvh; overflow: auto; background: #fff; border-radius: 20px 20px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -12px 40px rgba(15, 23, 42, .2); direction: rtl; }
       .combo-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; font-size: 14px; line-height: 1.7; }
       .combo-close { flex: 0 0 auto; width: 32px; height: 32px; border: 0; border-radius: 10px; background: #f1f5f9; color: #475569; font-size: 20px; line-height: 1; cursor: pointer; }
       .combo-note { margin: 4px 0 12px; font-size: 12px; color: #64748b; }
@@ -2825,13 +2825,13 @@
           height: 80px;
         }
         .cart-item-brand {
-          font-size: 10.5px;
+          font-size: 11px;
         }
         .cart-item-name {
           font-size: 12.5px;
         }
         .cart-item-variant-tag {
-          font-size: 10.5px;
+          font-size: 11px;
           padding: 2px 8px;
         }
         .security-badges {
