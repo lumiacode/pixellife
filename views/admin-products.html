@@ -310,6 +310,10 @@
       .product-flag small { display:block; font-weight:400; color:#64748b; font-size:11px; }
       .product-flag:has(input:checked) { border-color:#2563eb; background:#eff6ff; }
       .product-flag--hot:has(input:checked) { border-color:#ef4444; background:#fef2f2; }
+      .product-flag__star { font-size:20px; color:#cbd5e1; flex:0 0 auto; transition:color .15s; }
+      .product-flag--featured:has(input:checked) { border-color:#f59e0b; background:#fffbeb; }
+      .product-flag--featured:has(input:checked) .product-flag__star { color:#f59e0b; }
+      .product-flag--featured:has(input:checked) .product-flag__star { -webkit-text-stroke:1.2px #f59e0b; text-shadow:0 0 0 #f59e0b; }
       .product-flag .form-check-input { margin:0; width:1.2em; height:1.2em; flex:0 0 auto; }
       .rv-images { margin-top:8px; }
       .rv-images > summary { cursor:pointer; color:#475569; font-size:13px; padding:4px 0; }
@@ -635,7 +639,7 @@
                 </div>
                 <div class="col-12">
                   <div class="product-flags">
-                    <label class="product-flag" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><span>محصول منتخب <small>صفحهٔ اصلی</small></span></label>
+                    <label class="product-flag product-flag--featured" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><i class="ti ti-star product-flag__star" aria-hidden="true"></i><span>محصول منتخب <small>صفحهٔ اصلی؛ ردیف خودش هم می‌ماند</small></span></label>
                     <label class="product-flag" for="fComingSoon"><input class="form-check-input" type="checkbox" id="fComingSoon" data-availability-dependent /><span>به‌زودی <small>نشان روی کارت</small></span></label>
                     <label class="product-flag product-flag--hot" for="fAmazingOffer"><input class="form-check-input" type="checkbox" id="fAmazingOffer" data-availability-dependent /><span>پیشنهاد شگفت‌انگیز <small>با زمان پایان</small></span></label>
                   </div>

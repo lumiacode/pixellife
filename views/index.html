@@ -4184,9 +4184,15 @@
         const grid = document.getElementById("featuredProductsGrid");
         try {
           const allProducts = await getHomeProducts();
+          const max = allProducts.length >= 16 ? 8 : 4; // کاتالوگ کوچک: سهم ردیف‌های دیگر حفظ شود
           let products = allProducts.filter((p) => p.featured);
-          if (products.length === 0) products = allProducts;
-          products = takeUnique(products, allProducts.length >= 16 ? 8 : 4); // کاتالوگ کوچک: سهم ردیف‌های دیگر حفظ شود
+          if (products.length) {
+            // محصول منتخب هم‌زمان در ردیف خودش هم می‌تواند باشد؛ منتخب‌ها با ردیف‌های ادمین «تکراری» حساب نمی‌شوند.
+            products = products.slice(0, max);
+            products.forEach((p) => homeShown.add(homeKey(p))); // ردیف‌های خودکارِ بعدی (پرفروش، تازه‌ها…) تکرارشان نکنند
+          } else {
+            products = takeUnique(allProducts, max);
+          }
 
           if (products.length === 0 && allProducts.length) { hideSectionOf(grid); return; }
           if (products.length === 0) {
