@@ -54,7 +54,8 @@
       .co-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; }
       .co-logo-mark { display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--blue); color: #fff; font-size: 18px; }
       .co-logo b { color: var(--blue-dark); font-weight: 800; }
-      .co-steps { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); }
+      .co-steps { display: none !important; }
+      .co-steps-old { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-3); }
       .co-step { display: inline-flex; align-items: center; gap: 6px; }
       .co-step i { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); font-style: normal; font-size: 11px; font-weight: 700; }
       .co-step.active { color: var(--blue-dark); font-weight: 700; }
@@ -173,6 +174,7 @@
         .co-logo span { display: none; }
       }
     </style>
+    <link rel="stylesheet" href="/css/checkout-steps.css?v=1" />
   </head>
   <body>
     <div class="co-wrap">
@@ -192,11 +194,14 @@
         </div>
       </header>
 
+      <div data-pl-steps></div>
+
       <div id="coRoot"><div class="co-skeleton"></div></div>
     </div>
 
     <div class="co-toast" id="coToast" role="status"></div>
 
+    <script src="/js/checkout-steps.js?v=1"></script>
     <script src="/auth-modal.js"></script>
     <script src="/js/location-policy.js?v=1"></script>
     <script src="/js/location-picker.js?v=3"></script>
