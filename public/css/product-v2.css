@@ -167,13 +167,15 @@ html body #productReviewSection.is-collapsed .review-section-img--collapsed { di
   /* مزایای خرید: یک نوار افقی ساده، بدون کادر و دایره */
   html body #storeAdvantagesSection .advantages-grid {
     display: flex !important; align-items: stretch !important; gap: 0 !important;
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4px 0;
+    padding: 4px 0;
   }
   html body #storeAdvantagesSection .advantage-card {
     flex: 1 1 0 !important; min-width: 0 !important; border: 0 !important; border-radius: 0 !important;
     background: transparent !important; padding: 14px 6px !important; gap: 8px !important;
   }
-  html body #storeAdvantagesSection .advantage-card + .advantage-card { border-right: 1px solid var(--border) !important; }
   html body #storeAdvantagesSection .advantage-ico { width: auto !important; height: auto !important; flex: 0 0 auto !important; background: transparent !important; font-size: 24px !important; }
   html body #storeAdvantagesSection .advantage-title { font-size: 11.5px !important; line-height: 1.7 !important; font-weight: 600 !important; }
 }
+
+/* مزایای خرید: بدون هیچ کادر، در همهٔ اندازه‌ها */
+html body #storeAdvantagesSection .advantage-card { border: 0 !important; background: transparent !important; }
