@@ -426,8 +426,17 @@
 
     sheet.querySelector(".mobile-category-sheet__close")?.addEventListener("click", closeCategorySheet);
     backdrop.addEventListener("click", closeCategorySheet);
-    sheet.addEventListener("click", (event) => {
-      if (event.target.closest("a")) closeCategorySheet();
+    // با لمس لینک، کشو انیمیشن بسته‌شدن جداگانه نمی‌گیرد؛ دو حرکت هم‌زمان (بسته‌شدن
+    // کشو + تغییر صفحه) باعث لرزش می‌شد. صفحهٔ بعد خودش را نشان می‌دهد.
+    // در برگشت با دکمهٔ Back (bfcache) کشو فوراً و بدون حرکت بسته می‌شود.
+    window.addEventListener("pageshow", () => {
+      window.clearTimeout(categorySheetCloseTimer);
+      sheet.classList.remove("is-open", "is-dragging", "is-mounted");
+      sheet.style.removeProperty("transform");
+      backdrop.classList.remove("is-open", "is-mounted");
+      categoryItem?.classList.remove("is-expanded");
+      categoryItem?.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("mobile-category-sheet-open");
     });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") closeCategorySheet();
