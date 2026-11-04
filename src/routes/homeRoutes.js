@@ -24,6 +24,7 @@ router.get("/login", homeController.login);
 router.get("/cart", homeController.cart);
 router.get("/checkout", (req, res) => res.redirect(302, "/checkout/shipping"));
 router.get(["/checkout/shipping", "/checkout/payment"], homeController.checkout);
+router.get("/checkout/result", homeController.checkoutResult);
 router.get("/mobile/apple", homeController.iphone);
 router.get("/iphone", homeController.iphone);
 router.get("/product", legacyProductHandler);

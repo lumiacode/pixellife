@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="light">
+  <head>
+    <!-- pl-tokens:off -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>پیکسل لایف | نتیجهٔ پرداخت</title>
+    <link rel="stylesheet" href="/css/tabler-icons.min.css?v=perf-2" />
+    <link rel="stylesheet" href="/css/checkout-steps.css?v=2" />
+    <style>
+      :root {
+        color-scheme: light;
+        --blue: #3b82f6; --blue-dark: #2563eb; --blue-light: #eff6ff;
+        --white: #ffffff; --bg: #ffffff; --border: #e5e9f0;
+        --text-1: #0f172a; --text-2: #334155; --text-3: #64748b; --text-4: #94a3b8;
+        --red: #ef4444; --green: #16a34a; --amber: #d97706;
+        --radius-sm: 10px; --radius: 16px;
+      }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: Vazirmatn, Tahoma, sans-serif; background: var(--bg); color: var(--text-1); font-size: 14px; line-height: 1.8; min-height: 100vh; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; cursor: pointer; }
+      .pr-wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+      @media (max-width: 768px) { .pr-wrap { padding-bottom: 96px; } }
+      .pr-head { display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+      .pr-logo { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; }
+      .pr-logo img { width: 36px; height: 36px; }
+      .pr-logo b { color: var(--blue-dark); }
+
+      .pr-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 20px 22px; text-align: center; }
+      .pr-icon { width: 96px; height: 96px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 50%; }
+      .pr-icon svg { width: 52px; height: 52px; fill: none; stroke: #fff; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      .pr-icon.ok { background: var(--green); box-shadow: 0 0 0 10px rgba(22, 163, 74, .12); animation: prPop .6s cubic-bezier(.34, 1.56, .64, 1) both, prRing 2.4s ease-out .6s infinite; }
+      .pr-icon.ok path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: prDraw .5s ease .35s forwards; }
+      .pr-icon.fail { background: var(--red); box-shadow: 0 0 0 10px rgba(239, 68, 68, .12); animation: prPop .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+      .pr-icon.warn { background: var(--amber); box-shadow: 0 0 0 10px rgba(217, 119, 6, .12); animation: prPop .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+      @keyframes prPop { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      @keyframes prDraw { to { stroke-dashoffset: 0; } }
+      @keyframes prRing { 0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, .35); } 70%, 100% { box-shadow: 0 0 0 22px rgba(22, 163, 74, 0); } }
+      .pr-title { font-size: 21px; font-weight: 800; margin-bottom: 6px; }
+      .pr-title.ok { color: var(--green); }
+      .pr-sub { color: var(--text-3); font-size: 14px; max-width: 460px; margin: 0 auto; }
+
+      .pr-sum { margin-top: 22px; text-align: right; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+      .pr-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; font-size: 13.5px; }
+      .pr-row + .pr-row { border-top: 1px solid #eef1f5; }
+      .pr-row span:first-child { color: var(--text-3); flex: none; }
+      .pr-row b { font-weight: 700; text-align: left; min-width: 0; overflow-wrap: anywhere; }
+      .pr-row.total b { color: var(--blue-dark); font-size: 17px; font-weight: 800; }
+      .pr-row .num { direction: ltr; unicode-bidi: plaintext; }
+      .pr-items { margin-top: 14px; text-align: right; border: 1px solid var(--border); border-radius: 14px; padding: 4px 16px; }
+      .pr-items h2 { font-size: 14px; font-weight: 800; padding: 12px 0 6px; }
+      .pr-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+      .pr-item + .pr-item { border-top: 1px solid #eef1f5; }
+      .pr-item img { width: 52px; height: 52px; object-fit: contain; border: 1px solid var(--border); border-radius: 10px; background: #fff; flex: none; }
+      .pr-item .t { min-width: 0; flex: 1; font-size: 13px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .pr-item .q { flex: none; font-size: 12px; color: var(--text-3); }
+
+      .pr-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+      .pr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border-radius: var(--radius-sm); border: 0; font-weight: 800; font-size: 15px; background: var(--blue); color: #fff; transition: background .2s; }
+      .pr-btn:hover { background: var(--blue-dark); }
+      .pr-btn.ghost { background: #fff; color: var(--blue-dark); border: 1.5px solid var(--blue); }
+      .pr-btn.ghost:hover { background: var(--blue-light); }
+      .pr-redirect { margin-top: 14px; font-size: 12.5px; color: var(--text-3); }
+      .pr-redirect button { background: none; border: 0; color: var(--blue-dark); font-weight: 700; padding: 6px 4px; min-height: 36px; }
+      .pr-bar { height: 4px; border-radius: 4px; background: #e5e9f0; overflow: hidden; margin: 8px auto 0; max-width: 260px; }
+      .pr-bar i { display: block; height: 100%; width: 100%; background: var(--blue); transform-origin: right center; animation: prBar linear forwards; }
+      @keyframes prBar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+      .pr-skeleton { height: 260px; border-radius: var(--radius); background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%); background-size: 200% 100%; animation: prSk 1.2s infinite; }
+      @keyframes prSk { to { background-position: -200% 0; } }
+      @media (min-width: 640px) { .pr-actions { flex-direction: row; } .pr-actions .pr-btn { flex: 1; } .pr-card { padding: 36px 32px 28px; } }
+      @media (prefers-reduced-motion: reduce) { .pr-icon, .pr-icon path, .pr-bar i { animation: none !important; } .pr-icon.ok path { stroke-dashoffset: 0; } }
+    </style>
+  </head>
+  <body>
+    <div class="pr-wrap">
+      <header class="pr-head">
+        <a class="pr-logo" href="/" aria-label="پیکسل لایف">
+          <img src="/images/brand/logo-mark-192.png" alt="" width="36" height="36" decoding="async" />
+          <span>پیکسل <b>لایف</b></span>
+        </a>
+      </header>
+
+      <div data-pl-steps data-current="done"></div>
+
+      <main id="prRoot" aria-live="polite"><div class="pr-skeleton"></div></main>
+    </div>
+
+    <script src="/js/checkout-steps.js?v=3"></script>
+    <script>
+      (function () {
+        "use strict";
+        var REDIRECT_SECONDS = 10;
+        var root = document.getElementById("prRoot");
+        var params = new URLSearchParams(location.search);
+        var orderRef = (params.get("order") || "").trim();
+        var claimed = (params.get("status") || "").toLowerCase();
+        var FA = "۰۱۲۳۴۵۶۷۸۹";
+        function fa(n) { return String(n).replace(/\d/g, function (d) { return FA[d]; }); }
+        function money(n) { return fa(Math.round(Number(n) || 0).toLocaleString("en-US")) + " تومان"; }
+        function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+        var METHODS = { online: "پرداخت اینترنتی (زرین‌پال)", wallet: "کیف پول پیکسل لایف", bale: "بله" };
+        var orderUrl = "/profile/orders/" + encodeURIComponent(orderRef);
+
+        function setSteps(done) {
+          // در حالت ناموفق، نوار روی «پرداخت» می‌ماند؛ در موفق، همهٔ مرحله‌ها کامل است.
+          var host = document.querySelector("[data-pl-steps]");
+          if (host && !done) { host.setAttribute("data-current", "payment"); host.innerHTML = ""; if (window.PLSteps) window.PLSteps.render(host); }
+        }
+        function row(label, value, cls) { return value ? '<div class="pr-row ' + (cls || "") + '"><span>' + label + "</span><b>" + value + "</b></div>" : ""; }
+
+        function showProblem(kind, title, text) {
+          var icon = kind === "warn" ? "ti-alert-triangle" : "ti-x";
+          root.innerHTML =
+            '<section class="pr-card"><div class="pr-icon ' + (kind === "warn" ? "warn" : "fail") + '"><i class="ti ' + icon + '" style="font-size:48px;color:#fff"></i></div>' +
+            '<h1 class="pr-title">' + esc(title) + '</h1><p class="pr-sub">' + esc(text) + "</p>" +
+            '<div class="pr-actions">' +
+            (orderRef ? '<a class="pr-btn" href="' + orderUrl + '"><i class="ti ti-receipt"></i> مشاهدهٔ سفارش و پرداخت دوباره</a>' : "") +
+            '<a class="pr-btn ghost" href="/cart"><i class="ti ti-shopping-cart"></i> بازگشت به سبد خرید</a></div></section>';
+        }
+
+        function showSuccess(order) {
+          // سبد خرید فقط بعد از تأیید پرداخت پاک می‌شود.
+          try {
+            var remaining = (JSON.parse(localStorage.getItem("digishop_cart")) || []).filter(function (item) { return item && item.available === false; });
+            localStorage.setItem("digishop_cart", JSON.stringify(remaining));
+            sessionStorage.removeItem("pl_checkout");
+            window.dispatchEvent(new Event("cartUpdated"));
+          } catch (_) {}
+          var a = order.shippingAddress || {};
+          var when = order.zarinpal && order.zarinpal.paidAt || order.updatedAt || order.createdAt;
+          var dateText = when ? new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(when)) : "";
+          var ref = order.zarinpal && order.zarinpal.refId ? fa(order.zarinpal.refId) : "";
+          var items = (order.items || []).map(function (it) {
+            return '<div class="pr-item"><img src="' + esc(it.image || "/images/product-placeholder.svg") + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'/images/product-placeholder.svg\'" /><div class="t">' + esc(it.name) + '</div><div class="q">' + fa(it.quantity) + " عدد</div></div>";
+          }).join("");
+          root.innerHTML =
+            '<section class="pr-card"><div class="pr-icon ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>' +
+            '<h1 class="pr-title ok">پرداخت با موفقیت انجام شد</h1>' +
+            '<p class="pr-sub">سفارش شما ثبت شد و در حال پردازش است. جزئیات و مراحل ارسال را در صفحهٔ سفارش می‌توانید دنبال کنید.</p>' +
+            '<div class="pr-sum">' +
+            row("شمارهٔ سفارش", '<span class="num">' + esc(order.orderNumber) + "</span>") +
+            row("مبلغ پرداخت‌شده", money(order.total), "total") +
+            row("روش پرداخت", esc(METHODS[order.paymentMethod] || "")) +
+            row("کد رهگیری درگاه", ref ? '<span class="num">' + ref + "</span>" : "") +
+            row("زمان پرداخت", esc(dateText)) +
+            row("تحویل‌گیرنده", esc(a.receiverName || "")) +
+            row("آدرس", esc([a.province, a.city, a.fullAddress].filter(Boolean).join("، "))) +
+            row("روش ارسال", esc(order.shippingMethod && order.shippingMethod.title || "")) +
+            "</div>" +
+            (items ? '<div class="pr-items"><h2>کالاهای سفارش</h2>' + items + "</div>" : "") +
+            '<div class="pr-actions"><a class="pr-btn" id="prView" href="' + orderUrl + '"><i class="ti ti-receipt"></i> مشاهدهٔ سفارش من</a><a class="pr-btn ghost" href="/"><i class="ti ti-home"></i> ادامهٔ خرید</a></div>' +
+            '<div class="pr-redirect" id="prRedirect"><div>انتقال خودکار به صفحهٔ سفارش تا <b id="prSec">' + fa(REDIRECT_SECONDS) + '</b> ثانیهٔ دیگر · <button type="button" id="prStop">لغو انتقال</button></div><div class="pr-bar"><i style="animation-duration:' + REDIRECT_SECONDS + 's"></i></div></div></section>';
+          var left = REDIRECT_SECONDS;
+          var timer = setInterval(function () {
+            left -= 1;
+            var el = document.getElementById("prSec");
+            if (el) el.textContent = fa(Math.max(0, left));
+            if (left <= 0) { clearInterval(timer); location.href = orderUrl; }
+          }, 1000);
+          document.getElementById("prStop").addEventListener("click", function () {
+            clearInterval(timer);
+            var box = document.getElementById("prRedirect");
+            if (box) box.remove();
+          });
+        }
+
+        async function init() {
+          if (!orderRef) return showProblem("warn", "سفارشی مشخص نشده است", "برای دیدن وضعیت سفارش‌هایتان به بخش «سفارش‌های من» بروید.");
+          var order = null;
+          try {
+            var res = await fetch("/api/orders/" + encodeURIComponent(orderRef), { credentials: "include", cache: "no-store" });
+            if (res.status === 401 || res.status === 403) {
+              return showProblem("warn", "برای دیدن نتیجه وارد حساب شوید", "با همان شمارهٔ موبایلی که سفارش را ثبت کرده‌اید وارد شوید؛ سفارش شما محفوظ است.");
+            }
+            var data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.message || "سفارش پیدا نشد");
+            order = data.order;
+          } catch (error) {
+            return showProblem("warn", "دریافت اطلاعات سفارش ناموفق بود", (error && error.message) || "اتصال را بررسی کنید و صفحه را دوباره باز کنید.");
+          }
+          // نتیجه را فقط از وضعیت واقعی سفارش در سرور می‌خوانیم، نه از آدرس صفحه.
+          if (order.paymentStatus === "paid") return showSuccess(order);
+          setSteps(false);
+          if (claimed === "cancelled") return showProblem("warn", "پرداخت انجام نشد", "پرداخت لغو شد. سفارش تا ۱۰ دقیقه بعد از ثبت «در انتظار پرداخت» می‌ماند و می‌توانید دوباره پرداخت کنید.");
+          if (claimed === "success") return showProblem("warn", "پرداخت هنوز تأیید نشده است", "اگر مبلغی از حساب شما کسر شده، تا چند دقیقه دیگر وضعیت سفارش به‌روز می‌شود. صفحهٔ سفارش را بررسی کنید.");
+          return showProblem("fail", "پرداخت ناموفق بود", "اگر مبلغی کسر شده، تا ۷۲ ساعت به حساب شما برمی‌گردد. تا ۱۰ دقیقه بعد از ثبت سفارش می‌توانید دوباره پرداخت کنید.");
+        }
+        init();
+      })();
+    </script>
+  </body>
+</html>

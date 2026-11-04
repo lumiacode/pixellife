@@ -253,7 +253,7 @@ async function call(base, method, url, body) {
   /* ۱۰) بازگشت از درگاه: تأیید با همان مبلغ و تغییر وضعیت سفارش */
   const callback = await call(base, "GET", "/api/payments/zarinpal/callback?Authority=A00000000000000000000000000000001&Status=OK");
   assert.strictEqual(callback.status, 302);
-  assert.ok(callback.location.includes("?payment=success") && callback.location.startsWith("/profile/orders/"));
+  assert.ok(callback.location.includes("&status=success") && callback.location.startsWith("/checkout/result?order="));
   const verifyCall = zarinpalCalls.find((c) => c.url.endsWith("/verify.json"));
   assert.strictEqual(verifyCall.body.amount, order.total * 10);
   assert.strictEqual(order.paymentStatus, "paid");
@@ -278,7 +278,7 @@ async function call(base, method, url, body) {
     const pay = await call(base, "POST", "/api/payments/zarinpal/request", { orderId: String(orderId) });
     const authority = pay.json.authority;
     const back = await call(base, "GET", "/api/payments/zarinpal/callback?Authority=" + authority + "&Status=OK");
-    assert.ok(back.location.includes("?payment=success") && back.location.startsWith("/profile/orders/"), back.location);
+    assert.ok(back.location.includes("&status=success") && back.location.startsWith("/checkout/result?order="), back.location);
   };
   await payOrder([{ productId: "phone-x", quantity: 1 }]);
   assert.strictEqual(products[1].stock, 0);
