@@ -369,9 +369,9 @@ const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=9"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=23" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=24" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=23"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=24"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
@@ -680,6 +680,7 @@ html.pl-hdr-hidden .desktop-purchase-card{top:16px!important}
 html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-hidden body.mobile-product-flow-active .mobile-product-section-nav{top:0!important}
 .desktop-purchase-card,body.mobile-product-flow-active .product-gallery,body.mobile-product-flow-active .mobile-product-section-nav{transition:top .28s ease}
 @media (max-width:768px){html,body{overflow-x:clip!important}}
+@media (max-width:768px){html.pl-hdr-hidden .mobile-bottom-nav{transform:translate3d(0,calc(100% + env(safe-area-inset-bottom)),0);pointer-events:none}}
 @media (prefers-reduced-motion:reduce){.header,.navbar{transition:none}}
 </style>`;
 
