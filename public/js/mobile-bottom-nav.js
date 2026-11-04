@@ -56,6 +56,13 @@
   let scrollTicking = false;
 
   const showBottomNav = () => nav.classList.remove("is-scroll-hidden");
+  // وقتی header-autohide فعال است، وضعیت مخفی/نمایان نوار پایین از html.pl-hdr-hidden می‌آید؛
+  // کلاس is-scroll-hidden را هم هم‌زمان نگه می‌داریم تا نوارهای وابسته (سبد خرید، پرداخت) با نوار پایین پایین بروند.
+  const syncHiddenClass = () => {
+    if (!document.documentElement.hasAttribute("data-pl-autohide")) return;
+    nav.classList.toggle("is-scroll-hidden", document.documentElement.classList.contains("pl-hdr-hidden"));
+  };
+  new MutationObserver(syncHiddenClass).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   const setBottomNavVisibilityFromScroll = () => {
     scrollTicking = false;
     // اگر نوار بالا (header-autohide) فعال است، همان وضعیت را برای هر دو نوار به کار می‌برد.
