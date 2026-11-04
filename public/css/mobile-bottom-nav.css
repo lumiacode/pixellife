@@ -800,3 +800,11 @@
 /* تیتر گروه به‌صورت لینک با فلش، مثل مگامنوی دسکتاپ */
 .mobile-category-sheet__group-title { display: flex; align-items: center; gap: 6px; text-decoration: none; border-right-color: var(--blue, #2563eb) !important; }
 .mobile-category-sheet__group-title svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }
+
+/* نشانهٔ فعال نوار پایین: بدون دایره/بیضی پشت آیکن؛ فقط آیکن و نوشته آبی می‌شوند. */
+@media (max-width: 768px) {
+  .mobile-bottom-nav__item::after,
+  .mobile-bottom-nav__item.is-active::after,
+  .mobile-bottom-nav__item.is-expanded::after { display: none !important; content: none !important; }
+  .mobile-bottom-nav__item.is-active, .mobile-bottom-nav__item.is-expanded { background: transparent !important; }
+}
