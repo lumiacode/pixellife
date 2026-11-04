@@ -58,6 +58,8 @@
   const showBottomNav = () => nav.classList.remove("is-scroll-hidden");
   const setBottomNavVisibilityFromScroll = () => {
     scrollTicking = false;
+    // اگر نوار بالا (header-autohide) فعال است، همان وضعیت را برای هر دو نوار به کار می‌برد.
+    if (document.documentElement.hasAttribute("data-pl-autohide")) { lastScrollY = Math.max(0, window.scrollY || 0); return; }
     const currentY = Math.max(0, window.scrollY || window.pageYOffset || 0);
     const delta = currentY - lastScrollY;
 
