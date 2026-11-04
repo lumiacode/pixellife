@@ -114,7 +114,7 @@
       .pl-search:focus-within { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
       .pl-table thead th { position:sticky; top:0; background:#f1f5f9; color:#475569; font-size:12px; font-weight:700; white-space:nowrap; padding:11px 14px; border-bottom:1px solid #e2e8f0; }
       .pl-table td { padding:12px 14px; vertical-align:middle; border-color:#eef2f7; }
-      .pl-table tbody tr:hover { background:#f8fbff; }
+      @media (hover:hover) { .pl-table tbody tr:hover { background:#f8fbff; } }
       .pl-prod { display:flex; align-items:center; gap:12px; min-width:260px; }
       .pl-prod .prod-thumb, .pl-prod .no-product-image { width:56px; height:56px; flex:0 0 56px; border-radius:10px; }
       .pl-prod-name { font-size:13.5px; font-weight:700; color:#0f172a; line-height:1.7; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
@@ -127,7 +127,10 @@
       .pl-stock::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
       .pl-stock.ok { background:#dcfce7; color:#15803d; } .pl-stock.low { background:#fef3c7; color:#b45309; } .pl-stock.out { background:#fee2e2; color:#b91c1c; }
       .pl-star { width:34px; height:34px; border:1px solid #e2e8f0; border-radius:9px; background:#fff; color:#94a3b8; display:inline-grid; place-items:center; cursor:pointer; font-size:17px; }
+      .pl-star__icon { fill:none; stroke:currentColor; stroke-width:1.8; stroke-linejoin:round; stroke-linecap:round; transition:fill .15s, stroke .15s, transform .15s; }
       .pl-star.on { color:#f59e0b; border-color:#fcd34d; background:#fffbeb; }
+      .pl-star.on .pl-star__icon { fill:#f59e0b; stroke:#f59e0b; }
+      .pl-star:active .pl-star__icon { transform:scale(.88); }
       .pl-actions { display:inline-flex; gap:6px; }
       .pl-act { width:34px; height:34px; border:1px solid #e2e8f0; border-radius:9px; background:#fff; color:#475569; display:inline-grid; place-items:center; font-size:16px; text-decoration:none; cursor:pointer; }
       .pl-act:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
@@ -310,10 +313,9 @@
       .product-flag small { display:block; font-weight:400; color:#64748b; font-size:11px; }
       .product-flag:has(input:checked) { border-color:#2563eb; background:#eff6ff; }
       .product-flag--hot:has(input:checked) { border-color:#ef4444; background:#fef2f2; }
-      .product-flag__star { font-size:20px; color:#cbd5e1; flex:0 0 auto; transition:color .15s; }
+      .product-flag__star { fill:none; stroke:#cbd5e1; stroke-width:1.8; stroke-linejoin:round; flex:0 0 auto; transition:fill .15s, stroke .15s; }
       .product-flag--featured:has(input:checked) { border-color:#f59e0b; background:#fffbeb; }
-      .product-flag--featured:has(input:checked) .product-flag__star { color:#f59e0b; }
-      .product-flag--featured:has(input:checked) .product-flag__star { -webkit-text-stroke:1.2px #f59e0b; text-shadow:0 0 0 #f59e0b; }
+      .product-flag--featured:has(input:checked) .product-flag__star { fill:#f59e0b; stroke:#f59e0b; }
       .product-flag .form-check-input { margin:0; width:1.2em; height:1.2em; flex:0 0 auto; }
       .rv-images { margin-top:8px; }
       .rv-images > summary { cursor:pointer; color:#475569; font-size:13px; padding:4px 0; }
@@ -639,7 +641,7 @@
                 </div>
                 <div class="col-12">
                   <div class="product-flags">
-                    <label class="product-flag product-flag--featured" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><i class="ti ti-star product-flag__star" aria-hidden="true"></i><span>محصول منتخب <small>صفحهٔ اصلی؛ ردیف خودش هم می‌ماند</small></span></label>
+                    <label class="product-flag product-flag--featured" for="fFeatured"><input class="form-check-input" type="checkbox" id="fFeatured" data-availability-dependent /><svg class="product-flag__star" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 17.75l-6.17 3.24 1.18-6.88-5-4.87 6.9-1L12 2l3.09 6.26 6.9 1-5 4.87 1.18 6.88z"/></svg><span>محصول منتخب <small>صفحهٔ اصلی؛ ردیف خودش هم می‌ماند</small></span></label>
                     <label class="product-flag" for="fComingSoon"><input class="form-check-input" type="checkbox" id="fComingSoon" data-availability-dependent /><span>به‌زودی <small>نشان روی کارت</small></span></label>
                     <label class="product-flag product-flag--hot" for="fAmazingOffer"><input class="form-check-input" type="checkbox" id="fAmazingOffer" data-availability-dependent /><span>پیشنهاد شگفت‌انگیز <small>با زمان پایان</small></span></label>
                   </div>
@@ -1425,7 +1427,7 @@
             <td><div class="pl-prod">${imageCell}<div><div class="pl-prod-name">${esc(p.name)}${p.comingSoon ? '<span class="pl-chip soon">به‌زودی</span>' : ""}${p.amazingOffer ? '<span class="pl-chip amazing">شگفت‌انگیز</span>' : ""}</div><div class="pl-prod-meta">${meta}</div></div></div></td>
             <td class="pl-price">${priceCell}</td>
             <td><span class="pl-stock ${level}">${stockText}</span></td>
-            <td class="text-center"><button type="button" class="pl-star${p.featured ? " on" : ""}" data-action="feature" title="${p.featured ? "حذف از منتخب" : "افزودن به منتخب"}" aria-pressed="${p.featured ? "true" : "false"}"><i class="ti ${p.featured ? "ti-star-filled" : "ti-star"}"></i></button></td>
+            <td class="text-center"><button type="button" class="pl-star${p.featured ? " on" : ""}" data-action="feature" title="${p.featured ? "حذف از منتخب" : "افزودن به منتخب"}" aria-pressed="${p.featured ? "true" : "false"}"><svg class="pl-star__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 17.75l-6.17 3.24 1.18-6.88-5-4.87 6.9-1L12 2l3.09 6.26 6.9 1-5 4.87 1.18 6.88z"/></svg></button></td>
             <td class="text-center"><div class="pl-actions">
               <button type="button" class="pl-act" data-action="edit" title="ویرایش"><i class="ti ti-pencil"></i></button>
               <a class="pl-act" href="${esc(href)}" target="_blank" rel="noopener" title="مشاهده در سایت"><i class="ti ti-external-link"></i></a>
