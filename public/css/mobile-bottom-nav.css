@@ -735,7 +735,7 @@
   }
   .mobile-category-sheet__rail-item { min-height: 88px; }
   .mobile-category-sheet__rail-item .mobile-category-sheet__icon-image,
-  .mobile-category-sheet__rail-item > svg { width: 34px; height: 34px; flex: 0 0 34px; }
+  .mobile-category-sheet__rail-item > svg { width: 40px; height: 40px; flex: 0 0 40px; }
   .mobile-category-sheet__rail-item > * { pointer-events: none; }
   .mobile-category-sheet__link { min-height: 52px; }
   .mobile-category-sheet__brand-links a { min-height: 40px; display: inline-flex; align-items: center; }
