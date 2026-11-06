@@ -101,4 +101,19 @@ function trackingView(order) {
   return { steps, completed, total: steps.length, percent, currentLabel, cancelled, returned, paid };
 }
 
-module.exports = { TRACKING_STEPS, ADMIN_STEP_KEYS, normalizeStepKeys, applyTrackingSteps, syncStepsWithStatus, trackingView, statusForSteps };
+// کد رهگیری پستی: ارقام فارسی/عربی به لاتین، حذف فاصله، فقط حرف و عدد و خط تیره (۶ تا ۴۰ نویسه). رشتهٔ خالی یعنی پاک‌کردن.
+function normalizeShipmentCode(value) {
+  const code = String(value == null ? "" : value)
+    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/\s+/g, "");
+  if (!code) return "";
+  if (!/^[A-Za-z0-9-]{6,40}$/.test(code)) {
+    const error = new Error("کد رهگیری باید ۶ تا ۴۰ حرف انگلیسی یا عدد باشد");
+    error.statusCode = 400;
+    throw error;
+  }
+  return code.toUpperCase();
+}
+
+module.exports = { normalizeShipmentCode, TRACKING_STEPS, ADMIN_STEP_KEYS, normalizeStepKeys, applyTrackingSteps, syncStepsWithStatus, trackingView, statusForSteps };
