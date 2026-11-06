@@ -584,7 +584,7 @@ const SHARED_MINICART_STYLE = (() => {
   }
 })();
 
-const SHARED_MINICART_PAGES = new Set(["samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "profile.html", "amazing.html", "search.html"]);
+const SHARED_MINICART_PAGES = new Set(["samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "profile.html", "amazing.html", "search.html", "contact.html"]);
 
 function injectSharedMiniCart(html, fileName) {
   if (!html || !SHARED_MINICART_STYLE || !SHARED_MINICART_PAGES.has(fileName) || !html.includes('class="cart-wrap"') || html.includes("shared-minicart.js")) return html;
