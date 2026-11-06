@@ -12,3 +12,7 @@ html body .mini-cart-btn-checkout {
 html body .mini-cart-btn-checkout .ti { font-size: 15px; }
 html body .mini-cart-btn-checkout:hover { background: #1d4ed8 !important; opacity: 1 !important; }
 html body .mini-cart-btn-checkout:active { background: #1e40af !important; }
+
+/* شمارندهٔ سبد خرید (هدر دسکتاپ و نوار پایین موبایل): آبی به‌جای قرمز. */
+html body .cart-badge,
+html body .mobile-bottom-nav__badge { background: #2563eb !important; color: #fff !important; box-shadow: 0 1px 3px rgba(37, 99, 235, .35) !important; }
