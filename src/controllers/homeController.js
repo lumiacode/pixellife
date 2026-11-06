@@ -1,6 +1,21 @@
 const path = require("path");
 const fs = require("fs");
 const ContactMessage = require("../models/ContactMessage");
+
+// محدودیت ساده و درون‌حافظه‌ای فرم تماس: هر IP حداکثر ۵ پیام در ۱۰ دقیقه (برای جلوگیری از اسپم).
+const CONTACT_WINDOW_MS = 10 * 60 * 1000;
+const CONTACT_MAX = 5;
+const contactHits = new Map();
+function contactLimiter(req) {
+  const key = String(req.ip || (req.socket && req.socket.remoteAddress) || "unknown");
+  const now = Date.now();
+  const hits = (contactHits.get(key) || []).filter((t) => now - t < CONTACT_WINDOW_MS);
+  if (hits.length >= CONTACT_MAX) { contactHits.set(key, hits); return true; }
+  hits.push(now);
+  contactHits.set(key, hits);
+  if (contactHits.size > 5000) { for (const [k2, v] of contactHits) if (!v.some((t) => now - t < CONTACT_WINDOW_MS)) contactHits.delete(k2); }
+  return false;
+}
 const Product = require("../models/Product");
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
@@ -524,7 +539,7 @@ const SHARED_FOOTER_HTML = (() => {
     return "";
   }
 })();
-const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html", "amazing.html", "search.html"]);
+const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html", "amazing.html", "search.html", "contact.html"]);
 const FOOTER_PATTERN = /<footer\b[^>]*class="[^"]*\bfooter\b[^"]*"[^>]*>[\s\S]*?<\/footer>/i;
 
 // ظاهر تیرهٔ فوتر (public/css/footer-v2.css) و بخش اختیاری پشتیبانی (views/partials/footer-support.html).
@@ -1026,14 +1041,30 @@ const homeController = {
   contact: (req, res) => sendViewWithEnamad(res, "contact.html"),
   terms: (req, res) => sendViewWithEnamad(res, "terms.html"),
   submitContact: async (req, res) => {
-    const { name, phone, email, subject, message } = req.body || {};
+    const body = req.body || {};
+    // ربات‌ها فیلد پنهان «website» را پر می‌کنند؛ جواب موفق می‌دهیم ولی چیزی ذخیره نمی‌کنیم.
+    if (String(body.website || "").trim()) return res.status(201).json({ success: true, message: "پیام شما با موفقیت ثبت شد.", data: {} });
 
-    if (!name || !phone || !subject || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "لطفا همه فیلدهای ضروری را تکمیل کنید.",
-      });
+    if (contactLimiter(req)) {
+      return res.status(429).json({ success: false, message: "تعداد ارسال‌ها زیاد بوده است؛ چند دقیقه بعد دوباره تلاش کنید." });
     }
+
+    const toLatin = (v) => String(v == null ? "" : v).replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+    const name = String(body.name || "").trim().replace(/\s+/g, " ");
+    const phone = toLatin(body.phone).replace(/[\s-]/g, "");
+    const email = String(body.email || "").trim();
+    const subject = String(body.subject || "").trim();
+    const message = String(body.message || "").trim();
+    const orderNumber = String(body.orderNumber || "").trim();
+
+    const fail = (text) => res.status(400).json({ success: false, message: text });
+    if (!name || !phone || !subject || !message) return fail("لطفا همه فیلدهای ضروری را تکمیل کنید.");
+    if (name.length < 2 || name.length > 80) return fail("نام باید بین ۲ تا ۸۰ حرف باشد.");
+    if (!/^09\d{9}$/.test(phone) && !/^0\d{10}$/.test(phone)) return fail("شمارهٔ تماس معتبر نیست.");
+    if (email && (email.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))) return fail("ایمیل معتبر نیست.");
+    if (subject.length > 100) return fail("موضوع بیش از حد طولانی است.");
+    if (message.length < 10 || message.length > 1500) return fail("پیام باید بین ۱۰ تا ۱۵۰۰ حرف باشد.");
+    if (orderNumber && !/^[A-Za-z0-9-]{4,40}$/.test(orderNumber)) return fail("شمارهٔ سفارش معتبر نیست.");
 
     try {
       const savedMessage = await ContactMessage.create({
@@ -1041,6 +1072,7 @@ const homeController = {
         phone,
         email: email || null,
         subject,
+        orderNumber,
         message,
       });
 

@@ -22,6 +22,11 @@ const contactMessageSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    orderNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     message: {
       type: String,
       required: true,

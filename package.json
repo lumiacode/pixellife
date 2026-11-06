@@ -32,7 +32,8 @@
     "test:location-picker": "node tests/location-picker.test.js",
     "test:product-images": "node tests/product-images.test.js",
     "test:traffic-patterns": "node tests/traffic-patterns.test.js",
-    "prestart": "npm run test:product-page-contract"
+    "prestart": "npm run test:product-page-contract",
+    "test:contact-form": "node tests/contact-form.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",
