@@ -708,7 +708,7 @@ const SMOOTH_SCROLL_STYLE = `<style id="pl-smooth-scroll-style">html.lenis,html.
 
 function injectHeaderAutohide(html) {
   if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
-  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n${SMOOTH_SCROLL_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n</head>`);
+  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n${SMOOTH_SCROLL_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=1" />\n</head>`);
   return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n<script src="/js/vendor/lenis.min.js" defer></script>\n<script src="/js/smooth-scroll.js" defer></script>\n</body>') : html;
 }
 
