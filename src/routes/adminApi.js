@@ -8,7 +8,7 @@ const Order = require("../models/Order");
 const Wallet = require("../models/Wallet");
 const WalletTransaction = require("../models/WalletTransaction");
 const walletService = require("../services/wallet");
-const { applyTrackingSteps, syncStepsWithStatus, trackingView } = require("../services/orderTracking");
+const { applyTrackingSteps, syncStepsWithStatus, trackingView, normalizeShipmentCode } = require("../services/orderTracking");
 const Review = require("../models/review");
 const { refreshProductReviewStats, refreshAllProductReviewStats } = require("../services/reviewStats");
 const mongoose = require("mongoose");
@@ -1159,7 +1159,14 @@ router.patch("/orders/:id/tracking", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    // اعتبارسنجی قبل از هر تغییر: کد نامعتبر نباید نیمه‌کاره ذخیره شود.
+    const hasCode = Object.prototype.hasOwnProperty.call(req.body || {}, "trackingCode");
+    const code = hasCode ? normalizeShipmentCode(req.body.trackingCode) : null;
     applyTrackingSteps(order, req.body.steps);
+    if (hasCode) {
+      order.shipment = { trackingCode: code, carrier: "پست", updatedAt: code ? new Date() : null };
+      order.markModified("shipment");
+    }
     await order.save();
     res.json({ success: true, order: { ...(order.toObject ? order.toObject() : order), tracking: trackingView(order) } });
   } catch (error) { res.status(error.statusCode || 500).json({ success: false, message: error.message }); }

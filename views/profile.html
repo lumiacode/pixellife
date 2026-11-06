@@ -598,6 +598,12 @@
       .od-section .od-label { color: var(--text-3); margin-inline-end: 6px; }
       .od-address { flex-basis: 100%; }
       .od-shipment { margin: 16px; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+      .od-post { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 10px 0 0; padding: 12px 14px; border: 1px solid #bfdbfe; background: #f8fbff; }
+      .od-post .od-label { display: block; font-size: 12px; color: #64748b; }
+      .od-post b { font-size: 15px; letter-spacing: .5px; word-break: break-all; }
+      .od-post-actions { display: flex; gap: 8px; margin-inline-start: auto; }
+      .od-post-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1px solid #2563eb; background: #fff; color: #2563eb; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; }
+      .od-post-btn:active { background: #eff6ff; }
       .od-ship-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; font-weight: 700; color: var(--text-1); font-size: 14px; }
       .od-pill { padding: 3px 10px; border-radius: 6px; background: var(--blue); color: #fff; font-size: 12px; }
       .od-progress { margin: 18px 0 8px; }
@@ -1529,6 +1535,14 @@
       function isUnpaid(order) {
         return order.paymentStatus !== "paid" && order.status === "awaiting_payment";
       }
+      document.addEventListener("click", (event) => {
+        const btn = event.target.closest && event.target.closest("[data-copy-code]");
+        if (!btn) return;
+        const code = btn.getAttribute("data-copy-code");
+        const done = () => { const old = btn.innerHTML; btn.innerHTML = '<i class="ti ti-check"></i> کپی شد'; setTimeout(() => { btn.innerHTML = old; }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => {});
+        else { const t = document.createElement("textarea"); t.value = code; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); done(); } catch (_) {} t.remove(); }
+      });
       function showPaymentBanner() {
         const banner = document.getElementById("orderBanner");
         const params = new URLSearchParams(window.location.search);
@@ -1575,6 +1589,7 @@
           <div class="od-section"><span><span class="od-label">مبلغ کل</span><b>${money(order.total)}</b></span><span><span class="od-label">هزینه ارسال</span><b>${Number(order.deliveryFee) ? money(order.deliveryFee) : "رایگان"}</b></span>${Number(order.discount) ? `<span><span class="od-label">تخفیف${order.discountCode ? " (" + escapeHtml(order.discountCode) + ")" : ""}</span><b>${money(order.discount)}</b></span>` : ""}<span><span class="od-label">${methodText}</span><b>${paymentStatusText[order.paymentStatus] || "در انتظار پرداخت"}</b></span></div>
           <div class="od-shipment">
             <div class="od-ship-head"><span>مرسوله ۱ از ۱</span>${order.shippingMethod && order.shippingMethod.title ? `<span class="od-pill">${escapeHtml(order.shippingMethod.title)}</span>` : ""}</div>
+            ${order.shipment && order.shipment.trackingCode ? `<div class="od-post"><div><span class="od-label">کد رهگیری مرسوله (${escapeHtml(order.shipment.carrier || "پست")})</span><b dir="ltr">${escapeHtml(order.shipment.trackingCode)}</b></div><div class="od-post-actions"><button type="button" class="od-post-btn" data-copy-code="${escapeHtml(order.shipment.trackingCode)}"><i class="ti ti-copy"></i> کپی کد</button><a class="od-post-btn" href="https://tracking.post.ir/" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i> رهگیری در سایت پست</a></div></div>` : ""}
             <div class="od-progress">
               <div class="od-progress-label ${labelClass}">${escapeHtml(t.currentLabel || orderStatusText[order.status] || "")}</div>
               <div class="od-bar ${(t.cancelled || t.returned) ? "cancelled" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${(t.cancelled || t.returned) ? 100 : t.percent}"><span data-percent="${(t.cancelled || t.returned) ? 100 : t.percent}"></span></div>

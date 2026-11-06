@@ -31,6 +31,12 @@ const orderSchema = new mongoose.Schema(
     status: { type: String, enum: ["awaiting_payment", "processing", "shipped", "delivered", "cancelled", "returned"], default: "awaiting_payment", index: true },
     statusHistory: [{ _id: false, status: String, note: String, changedAt: { type: Date, default: Date.now } }],
     // مرحله‌های روند ارسال که ادمین تیک زده است (به ترتیب: confirmed، packed، shipped، delivered)
+    // کد رهگیری مرسوله‌ای که اداره پست (یا شرکت حمل) برای همین سفارش می‌دهد؛ ادمین بعد از ارسال وارد می‌کند.
+    shipment: {
+      trackingCode: { type: String, default: "" },
+      carrier: { type: String, default: "پست" },
+      updatedAt: { type: Date, default: null },
+    },
     trackingSteps: [{ _id: false, key: { type: String, required: true }, at: { type: Date, default: Date.now } }],
     balePayment: {
       payload: { type: String, default: "", index: true },

@@ -11,6 +11,12 @@ assert.deepStrictEqual(tracking.normalizeStepKeys(["shipped"]), [], "بدون م
 assert.deepStrictEqual(tracking.normalizeStepKeys(["confirmed", "shipped"]), ["confirmed"]);
 assert.deepStrictEqual(tracking.normalizeStepKeys("x"), []);
 
+// ── کد رهگیری پستی ──
+assert.strictEqual(tracking.normalizeShipmentCode(" ۲۴۵۰۱۲۳۴۵۶۷۸۹ "), "2450123456789");
+assert.strictEqual(tracking.normalizeShipmentCode(""), "");
+assert.strictEqual(tracking.normalizeShipmentCode("ab-123456"), "AB-123456");
+for (const bad of ["12", "ab!cdef", "x".repeat(50)]) assert.throws(() => tracking.normalizeShipmentCode(bad), (e) => e.statusCode === 400);
+
 let o = mkOrder();
 let view = tracking.trackingView(o);
 assert.strictEqual(view.completed, 1); assert.strictEqual(view.percent, 20);
