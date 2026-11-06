@@ -7,3 +7,14 @@ html body .xiaomitab-card:not(:hover),
 html body .prod-card:not(:hover),
 html body .console-card:not(:hover),
 html body .am-card:not(:hover) { border-color: #cbd5e1 !important; }
+
+/* گوشه‌های کارت محصول: تیز و مستطیلی (بدون گردی) */
+html body .product-card,
+html body .iphone-card,
+html body .samsung-card,
+html body .xiaomi-card,
+html body .xiaomitab-card,
+html body .prod-card,
+html body .console-card,
+html body .am-card,
+html body .amazing-card { border-radius: 0 !important; }
