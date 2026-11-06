@@ -706,7 +706,7 @@ function injectProfileGate(html) {
 
 function injectHeaderAutohide(html) {
   if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
-  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n</head>`);
+  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n<link rel="stylesheet" href="/css/mini-cart-btn.css?v=1" />\n</head>`);
   return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n</body>') : html;
 }
 

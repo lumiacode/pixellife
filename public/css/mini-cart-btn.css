@@ -1,0 +1,14 @@
+/* دکمهٔ «مشاهده سبد و تسویه حساب» در سبد کوچک هدر: آبی تم و کوچک‌تر (قبلاً قرمز و بلندتر). */
+html body .mini-cart-btn-checkout {
+  height: 36px !important;
+  background: #2563eb !important;
+  color: #fff !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  gap: 5px !important;
+  opacity: 1 !important;
+  transition: background .2s !important;
+}
+html body .mini-cart-btn-checkout .ti { font-size: 15px; }
+html body .mini-cart-btn-checkout:hover { background: #1d4ed8 !important; opacity: 1 !important; }
+html body .mini-cart-btn-checkout:active { background: #1e40af !important; }
