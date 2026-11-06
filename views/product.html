@@ -3813,20 +3813,23 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        min-height: 42px;
-        margin: 0 0 10px;
-        padding: 8px 14px;
-        border-radius: 12px;
+        min-height: 34px;
+        margin: 0 0 8px;
+        padding: 5px 12px;
+        border-radius: 10px;
         background: linear-gradient(90deg, #2563eb, #1e3a8a);
         color: #fff;
         box-sizing: border-box;
       }
-      .amazing-strip-title { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 800; line-height: 1.4; }
-      .amazing-strip-title i { font-size: 18px; color: #fde68a; }
+      .amazing-strip-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; line-height: 1.4; white-space: nowrap; }
+      .amazing-strip-title i { font-size: 16px; color: #fde68a; }
       .amazing-timer { display: inline-flex; align-items: center; gap: 3px; direction: ltr; }
-      .amazing-timer b { min-width: 30px; padding: 4px 6px; border-radius: 7px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: 14px; font-weight: 800; text-align: center; line-height: 1.3; }
+      .amazing-timer b { min-width: 26px; padding: 2px 5px; border-radius: 6px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: 12.5px; font-weight: 800; text-align: center; line-height: 1.4; }
       .amazing-timer i { color: rgba(255,255,255,.85); font-style: normal; font-weight: 800; }
-      .amazing-save { margin: 0 0 12px; padding: 0; border: 0; background: transparent; color: #15803d; font-size: 14px; font-weight: 800; line-height: 1.8; }
+      .amazing-save { margin: 0 0 10px; padding: 0; border: 0; background: transparent; color: #15803d; font-size: 13px; font-weight: 800; line-height: 1.7; }
+      /* دسکتاپ: نوار شگفت‌انگیز بالای کارت خرید است (تا عنوان محصول پایین نیاید و زیر کارت نرود)؛ موبایل: بالای بخش اطلاعات */
+      @media (min-width: 769px) { .product-info-col > .mobile-amazing-ribbon, .product-info-col > .amazing-save { display: none !important; } .desktop-purchase-card .mobile-amazing-ribbon { margin-bottom: 8px; } .desktop-purchase-card .amazing-save { text-align: center; margin-bottom: 12px; } }
+      @media (max-width: 768px) { .desktop-purchase-card .mobile-amazing-ribbon, .desktop-purchase-card .amazing-save { display: none !important; } }
       .amazing-save[hidden] { display: none; }
       @media (max-width: 768px) {
         body.mobile-product-flow-active .product-info-col.is-amazing-offer {
@@ -6471,6 +6474,9 @@
           const wishlist = getWishlist();
           isWished = wishlist.includes(productId);
           const isAmazingActive = !!(product.amazingOffer && (!product.amazingOfferEndsAt || new Date(product.amazingOfferEndsAt) > new Date()));
+          const amazingBlockHtml = isAmazingActive
+            ? `<div class="mobile-amazing-ribbon"><span class="amazing-strip-title"><i class="ti ti-bolt"></i>شگفت‌انگیز پیکسل‌لایف</span>${product.amazingOfferEndsAt ? '<span class="amazing-timer" dir="ltr" aria-label="زمان باقی‌مانده"><b data-u="h">--</b><i>:</i><b data-u="m">--</b><i>:</i><b data-u="s">--</b></span>' : ""}</div><div class="amazing-save" hidden></div>`
+            : "";
           const discountPct =
             product.oldPrice && product.price
               ? Math.round(100 - (product.price / product.oldPrice) * 100)
@@ -6563,7 +6569,7 @@
               </div>
             </div>
             <div class="product-info-col${isAmazingActive ? " is-amazing-offer" : ""}" data-intro-title="${escapeCartText(product.introTitle || "معرفی کالا")}">
-              ${isAmazingActive ? `<div class="mobile-amazing-ribbon"><span class="amazing-strip-title"><i class="ti ti-bolt"></i>شگفت‌انگیز پیکسل‌لایف</span>${product.amazingOfferEndsAt ? '<span class="amazing-timer" id="amazingCountdown" dir="ltr" aria-label="زمان باقی‌مانده"><b data-u="h">--</b><i>:</i><b data-u="m">--</b><i>:</i><b data-u="s">--</b></span>' : ""}</div><div class="amazing-save" id="amazingSave" hidden></div>` : ""}
+              ${amazingBlockHtml}
               <div class="product-brand-row">
                 <div class="product-brand-badge">${product.brandLogo === "SAMSUNG_LOGO_SVG" ? SAMSUNG_LOGO_SVG : product.brandLogo === "XIAOMI_LOGO_SVG" ? XIAOMI_LOGO_SVG : product.brandLogo === "REDMI_LOGO_SVG" ? REDMI_LOGO_SVG : product.brandLogo === "APPLE_LOGO_SVG" ? APPLE_LOGO_SVG : ""}<span>${product.brand || ""}</span></div>
               </div>
@@ -6679,7 +6685,7 @@
               ${product.outOfStock
                 ? `<div class="desktop-purchase-unavailable-note">این کالا فعلاً موجود نیست، اما می‌توانید زنگوله را بزنید تا به محض موجود شدن، به شما خبر دهیم.</div>
                    <button class="btn-notify" id="desktopNotifyBtn"><i class="ti ti-bell"></i> موجود شد خبرم کنید</button>`
-                : `<div class="desktop-purchase-product">
+                : `${amazingBlockHtml}<div class="desktop-purchase-product">
                     <div class="desktop-purchase-image">${productImageHtml(product, 0, "thumb")}</div>
                     <div>
                       <div class="desktop-purchase-name" id="desktopPurchaseName">${product.name}</div>
@@ -7441,26 +7447,27 @@
             (expanded) => productReviewSection.classList.toggle("review-expanded", expanded),
           );
 
-          const amazingTimer = document.getElementById("amazingCountdown");
-          if (amazingTimer && product.amazingOfferEndsAt) {
+          const amazingTimers = Array.from(document.querySelectorAll(".amazing-timer"));
+          if (amazingTimers.length && product.amazingOfferEndsAt) {
             const faDigits = (n) => String(n).padStart(2, "0").replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[d]);
             const updateAmazingTimer = () => {
               const remaining = new Date(product.amazingOfferEndsAt).getTime() - Date.now();
               if (remaining <= 0) { document.querySelectorAll(".mobile-amazing-ribbon,.amazing-save").forEach((el) => el.remove()); document.querySelector(".product-info-col")?.classList.remove("is-amazing-offer"); clearInterval(amazingInterval); return; }
               const v = { h: Math.floor(remaining / 3600000), m: Math.floor((remaining % 3600000) / 60000), s: Math.floor((remaining % 60000) / 1000) };
-              amazingTimer.querySelectorAll("b").forEach((b) => { b.textContent = faDigits(v[b.dataset.u]); });
+              amazingTimers.forEach((t) => t.querySelectorAll("b").forEach((b) => { b.textContent = faDigits(v[b.dataset.u]); }));
             };
             const amazingInterval = setInterval(updateAmazingTimer, 1000);
             updateAmazingTimer();
           }
-          const amazingSave = document.getElementById("amazingSave");
+          const amazingSaves = Array.from(document.querySelectorAll(".amazing-save"));
           const savePriceRow = document.querySelector(".product-info-col > .product-price-row");
-          if (amazingSave && savePriceRow) {
+          if (amazingSaves.length && savePriceRow) {
             const toNum = (t) => parseInt(String(t || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, ""), 10) || 0;
             const updateSave = () => {
               const cur = toNum(savePriceRow.querySelector(".price-value")?.firstChild?.textContent || savePriceRow.querySelector(".price-value")?.textContent);
               const old = toNum(savePriceRow.querySelector(".price-old")?.textContent);
-              if (old > cur && cur > 0) { amazingSave.textContent = (old - cur).toLocaleString("fa-IR") + " تومان سود شما از خرید"; amazingSave.hidden = false; } else { amazingSave.hidden = true; }
+              const show = old > cur && cur > 0;
+              amazingSaves.forEach((el) => { if (show) { el.textContent = (old - cur).toLocaleString("fa-IR") + " تومان سود شما از خرید"; el.hidden = false; } else { el.hidden = true; } });
             };
             updateSave();
             new MutationObserver(updateSave).observe(savePriceRow, { childList: true, subtree: true, characterData: true });
