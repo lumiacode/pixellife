@@ -4,452 +4,459 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تماس با ما | پیکسل لایف</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="description" content="با پشتیبانی پیکسل لایف تماس بگیرید: ارسال پیام برای پیگیری سفارش، مشاوره خرید و پشتیبانی محصولات دیجیتال." />
+    <link rel="stylesheet" href="/css/local-fonts.css?v=1" />
+    <link rel="stylesheet" href="/css/tabler-icons.min.css?v=perf-2" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"ContactPage","name":"تماس با ما | پیکسل لایف","url":"https://pixellife.ir/contact","mainEntity":{"@type":"Organization","name":"پیکسل لایف","url":"https://pixellife.ir","email":"info@pixellife.ir","contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"info@pixellife.ir","availableLanguage":"fa"}}}</script>
     <style>
       :root {
-        --bg: #ffffff;
-        --card: #ffffff;
-        --text: #0f172a;
-        --muted: #64748b;
-        --line: #e2e8f0;
-        --brand: #2563eb;
-        --brand-soft: #eff6ff;
-        --shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
-        --radius: 20px;
+        --blue: #3b82f6; --blue-dark: #2563eb; --blue-light: #eff6ff; --blue-mid: #dbeafe;
+        --white: #ffffff; --bg: #ffffff; --border: #e5e9f0; --line: #cbd5e1;
+        --text-1: #0f172a; --text-2: #334155; --text-3: #64748b; --text-4: #94a3b8;
+        --red: #dc2626; --green: #16a34a;
+        --radius-sm: 8px; --radius: 12px; --radius-lg: 16px;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04); --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      * {
-        box-sizing: border-box;
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--bg); color: var(--text-1); font-family: Vazirmatn, Tahoma, sans-serif; line-height: 1.8; }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font-family: inherit; }
+
+      .ct-page { max-width: 1100px; margin: 0 auto; padding: 18px 16px 40px; }
+      .ct-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); margin-bottom: 18px; }
+      .ct-crumb a:hover { color: var(--blue-dark); }
+      .ct-crumb .ti { font-size: 13px; }
+      .ct-crumb [aria-current] { color: var(--text-1); font-weight: 700; }
+      .ct-head { margin-bottom: 22px; }
+      .ct-head h1 { margin: 0 0 6px; font-size: 26px; font-weight: 800; line-height: 1.5; }
+      .ct-head p { margin: 0; color: var(--text-3); font-size: 14.5px; max-width: 640px; }
+
+      .ct-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+      .ct-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 20px; }
+      .ct-card h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; }
+      .ct-card .ct-sub { margin: 0 0 18px; color: var(--text-3); font-size: 13.5px; }
+
+      .ct-form { display: grid; gap: 16px; }
+      .ct-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .ct-field label { display: block; margin-bottom: 6px; font-size: 13.5px; font-weight: 700; color: var(--text-2); }
+      .ct-field label .req { color: var(--red); margin-inline-start: 3px; }
+      .ct-field label .opt { color: var(--text-4); font-weight: 500; font-size: 12px; margin-inline-start: 6px; }
+      .ct-input, .ct-select, .ct-textarea { width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; color: var(--text-1); font-size: 16px; transition: border-color .2s, box-shadow .2s; }
+      .ct-textarea { min-height: 150px; resize: vertical; line-height: 1.9; }
+      .ct-select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: left 14px center; padding-inline-end: 14px; padding-left: 38px; }
+      .ct-input::placeholder, .ct-textarea::placeholder { color: var(--text-4); }
+      .ct-input:focus, .ct-select:focus, .ct-textarea:focus { outline: 0; border-color: var(--blue-dark); box-shadow: 0 0 0 3px rgba(37, 99, 235, .15); }
+      .ct-input[aria-invalid="true"], .ct-select[aria-invalid="true"], .ct-textarea[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220, 38, 38, .10); }
+      .ct-hint { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
+      .ct-error { margin: 6px 0 0; font-size: 12.5px; color: var(--red); font-weight: 600; min-height: 0; }
+      .ct-error:empty { display: none; }
+      .ct-count { float: left; font-size: 12px; color: var(--text-4); }
+      .ct-trap { position: absolute; inset-inline-start: -9999px; width: 1px; height: 1px; overflow: hidden; }
+      .ct-privacy { margin: 0; font-size: 12px; color: var(--text-3); }
+      .ct-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; border: 0; border-radius: var(--radius-sm); background: var(--blue-dark); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: background .2s; }
+      .ct-submit:hover { background: #1d4ed8; }
+      .ct-submit:disabled { opacity: .65; cursor: wait; }
+      .ct-alert { display: none; padding: 12px 14px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 600; }
+      .ct-alert.show { display: block; }
+
+      .ct-success { display: none; text-align: center; padding: 18px 6px 8px; }
+      .ct-success.show { display: block; }
+      .ct-success-ico { width: 84px; height: 84px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; box-shadow: 0 0 0 9px rgba(22, 163, 74, .12); }
+      .ct-success h2 { font-size: 20px; margin: 0 0 6px; }
+      .ct-success p { margin: 0 auto 6px; max-width: 420px; color: var(--text-3); font-size: 14px; }
+      .ct-ref { display: inline-block; margin: 8px 0 14px; padding: 6px 14px; border: 1px dashed var(--line); border-radius: var(--radius-sm); font-size: 13.5px; color: var(--text-2); }
+      .ct-ref b { direction: ltr; unicode-bidi: plaintext; letter-spacing: 1px; }
+      .ct-success-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+      .ct-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; border: 1.5px solid var(--blue-dark); color: var(--blue-dark); background: #fff; cursor: pointer; }
+      .ct-btn.primary { background: var(--blue-dark); color: #fff; }
+
+      .ct-aside { display: grid; gap: 14px; }
+      .ct-info { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+      a.ct-info:hover { border-color: var(--blue-dark); }
+      .ct-info-ico { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--blue-light); color: var(--blue-dark); }
+      .ct-info b { display: block; font-size: 14px; line-height: 1.6; }
+      .ct-info small { display: block; font-size: 13px; color: var(--text-3); line-height: 1.7; word-break: break-word; }
+      .ct-info small.ltr { direction: ltr; text-align: right; unicode-bidi: plaintext; }
+      .ct-info[hidden] { display: none; }
+      .ct-help { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+      .ct-help h2 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+      .ct-help a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 2px; border-top: 1px solid #eef1f5; font-size: 14px; color: var(--text-2); }
+      .ct-help a:first-of-type { border-top: 0; }
+      .ct-help a:hover { color: var(--blue-dark); }
+      .ct-help a .ti { font-size: 14px; color: var(--text-4); }
+
+      @media (min-width: 640px) {
+        .ct-row { grid-template-columns: 1fr 1fr; }
+        .ct-success-actions { flex-direction: row; justify-content: center; }
       }
-      body {
-        margin: 0;
-        font-family: Vazirmatn, Tahoma, sans-serif;
-        background:
-          radial-gradient(
-            circle at top right,
-            rgba(37, 99, 235, 0.14),
-            transparent 30%
-          ),
-          radial-gradient(
-            circle at bottom left,
-            rgba(14, 165, 233, 0.12),
-            transparent 28%
-          ),
-          var(--bg);
-        color: var(--text);
+      @media (min-width: 900px) {
+        .ct-page { padding-top: 26px; }
+        .ct-head h1 { font-size: 30px; }
+        .ct-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; }
+        .ct-card { padding: 28px 28px 26px; }
+        .ct-submit { width: auto; min-width: 200px; }
       }
-      a {
-        color: inherit;
-        text-decoration: none;
+      @media (max-width: 768px) {
+        .ct-page { padding-bottom: 110px; }
       }
-      .wrap {
-        min-height: 100vh;
-        padding: 32px 18px;
-      }
-      .shell {
-        max-width: 1100px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 1.05fr 0.95fr;
-        gap: 20px;
-        align-items: stretch;
-      }
-      .hero,
-      .panel {
-        background: rgba(255, 255, 255, 0.82);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        box-shadow: var(--shadow);
-        border-radius: var(--radius);
-      }
-      .hero {
-        padding: 36px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 28px;
-        position: relative;
-        overflow: hidden;
-      }
-      .hero::after {
-        content: "";
-        position: absolute;
-        inset: auto -80px -80px auto;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        background: linear-gradient(
-          135deg,
-          rgba(37, 99, 235, 0.18),
-          rgba(14, 165, 233, 0.06)
-        );
-        pointer-events: none;
-      }
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        width: fit-content;
-        padding: 10px 14px;
-        background: var(--brand-soft);
-        color: var(--brand);
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 14px;
-      }
-      .brand-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--brand);
-        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
-      }
-      h1 {
-        margin: 0;
-        font-size: clamp(34px, 4vw, 54px);
-        line-height: 1.1;
-      }
-      .lead {
-        margin: 18px 0 0;
-        color: var(--muted);
-        font-size: 16px;
-        line-height: 1.9;
-        max-width: 52ch;
-      }
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .stat {
-        padding: 16px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.7);
-      }
-      .stat strong {
-        display: block;
-        font-size: 20px;
-        margin-bottom: 4px;
-      }
-      .stat span {
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .links {
-        display: grid;
-        gap: 12px;
-      }
-      .link-card {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 16px 18px;
-        border-radius: 16px;
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.76);
-      }
-      .link-ico {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        background: var(--brand-soft);
-        color: var(--brand);
-        font-size: 20px;
-        flex-shrink: 0;
-      }
-      .link-card strong {
-        display: block;
-        margin-bottom: 2px;
-      }
-      .link-card small {
-        color: var(--muted);
-      }
-      .panel {
-        padding: 30px;
-      }
-      .panel h2 {
-        margin: 0 0 10px;
-        font-size: 24px;
-      }
-      .panel p {
-        margin: 0 0 22px;
-        color: var(--muted);
-        line-height: 1.8;
-      }
-      form {
-        display: grid;
-        gap: 14px;
-      }
-      label {
-        display: block;
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 8px;
-      }
-      input,
-      textarea {
-        width: 100%;
-        border: 1.5px solid var(--line);
-        border-radius: 14px;
-        padding: 14px 16px;
-        font: inherit;
-        background: #fff;
-        outline: none;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-      }
-      input:focus,
-      textarea:focus {
-        border-color: var(--brand);
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-      }
-      textarea {
-        min-height: 160px;
-        resize: vertical;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 52px;
-        border: none;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        color: #fff;
-        font: inherit;
-        font-weight: 800;
-        cursor: pointer;
-        margin-top: 4px;
-      }
-      .note {
-        margin-top: 14px;
-        font-size: 13px;
-        color: var(--muted);
-        line-height: 1.8;
-      }
-      .feedback {
-        display: none;
-        margin-top: 14px;
-        padding: 14px 16px;
-        border-radius: 14px;
-        font-size: 14px;
-        line-height: 1.7;
-        border: 1px solid transparent;
-      }
-      .feedback.is-success {
-        display: block;
-        background: #ecfdf5;
-        color: #047857;
-        border-color: #a7f3d0;
-      }
-      .feedback.is-error {
-        display: block;
-        background: #fef2f2;
-        color: #b91c1c;
-        border-color: #fecaca;
-      }
-      .btn[disabled] {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-      @media (max-width: 900px) {
-        .shell {
-          grid-template-columns: 1fr;
-        }
-      }
-      @media (max-width: 640px) {
-        .wrap {
-          padding: 14px;
-        }
-        .hero,
-        .panel {
-          padding: 22px;
-          border-radius: 18px;
-        }
-        .stats,
-        .row {
-          grid-template-columns: 1fr;
-        }
-      }
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
     </style>
+    <link rel="stylesheet" href="/css/site-header.css?v=1" />
+    <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
   </head>
   <body>
-    <main class="wrap">
-      <section class="shell">
-        <div class="hero">
-          <div>
-            <div class="brand">
-              <span class="brand-dot"></span>پشتیبانی پیکسل لایف
+    <header class="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <div class="logo-mark brand-logo-mark" style="background:transparent!important;box-shadow:none!important"><img src="/images/brand/logo-mark-192.png" alt="" width="38" height="38" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block"></div>
+          <div class="logo-text">پیکسل <span>لایف</span></div>
+        </a>
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="جستجو"
+            id="searchInput"
+          />
+          <button class="search-btn"><i class="ti ti-search"></i> جستجو</button>
+        </div>
+        <div class="header-actions">
+          <button class="h-btn" aria-label="اعلان‌ها">
+            <i class="ti ti-bell"></i>
+          </button>
+          <button
+            class="btn-auth-pill"
+            id="authPillBtn"
+            onclick="openLoginModal()"
+          >
+            <i class="ti ti-login"></i>
+            <span class="pill-text">ورود | ثبت‌نام</span>
+          </button>
+          <div class="profile-wrapper">
+            <div
+              class="profile-trigger"
+              id="profileTrigger"
+              role="button"
+              tabindex="0"
+            >
+              <div class="profile-avatar" id="profileAvatar"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+              <span class="profile-trigger-name" id="profileName">کاربر</span>
+              <i class="ti ti-chevron-down profile-chevron"></i>
             </div>
-            <h1>
-              هر سوالی درباره خرید، سفارش یا خدمات داشتید، اینجا کنارتان هستیم.
-            </h1>
-            <p class="lead">
-              برای پیگیری سفارش، هماهنگی درباره محصولات، یا هر سوال فنی و عمومی،
-              بهترین راه این است که از فرم همین صفحه پیام بگذارید یا مستقیم با
-              راه‌های ارتباطی زیر تماس بگیرید.
-            </p>
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="pdrop-header">
+                <div class="pdrop-avatar" id="pdropAvatar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+                <div>
+                  <div class="pdrop-info-name" id="pdropName">کاربر</div>
+                  <div class="pdrop-info-mobile" id="pdropMobile"></div>
+                </div>
+              </div>
+              <div class="pdrop-menu">
+                <a href="/profile/orders" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-shopping-bag"></i>
+                  </div>
+                  <span>سفارش‌های من</span></a
+                >
+                <a href="/profile/wishlist" class="pdrop-item"
+                  ><div class="pdrop-item-ico"><i class="ti ti-heart"></i></div>
+                  <span>علاقه‌مندی‌ها</span></a
+                >
+                <a href="/profile/addresses" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-map-pin"></i>
+                  </div>
+                  <span>آدرس‌های من</span></a
+                >
+                <a href="/profile/wallet" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-wallet"></i>
+                  </div>
+                  <span>کیف پول</span></a
+                >
+                <a href="/contact" class="pdrop-item"
+                  ><div class="pdrop-item-ico">
+                    <i class="ti ti-headset"></i>
+                  </div>
+                  <span>پشتیبانی</span></a
+                >
+                <div class="pdrop-divider"></div>
+                <button class="pdrop-item logout" id="headerLogoutBtn">
+                  <div class="pdrop-item-ico"><i class="ti ti-logout"></i></div>
+                  <span>خروج از حساب</span>
+                </button>
+              </div>
+            </div>
           </div>
-
-          <div class="stats">
-            <div class="stat">
-              <strong>24/7</strong>
-              <span>دسترسی به فرم تماس</span>
-            </div>
-            <div class="stat">
-              <strong>سریع</strong>
-              <span>پاسخ‌گویی در کوتاه‌ترین زمان</span>
-            </div>
-            <div class="stat">
-              <strong>مطمئن</strong>
-              <span>پیگیری شفاف درخواست‌ها</span>
-            </div>
-          </div>
-
-          <div class="links">
-            <a class="link-card" href="mailto:info@pixellife.ir">
-              <span class="link-ico">✉</span>
-              <span>
-                <strong>ایمیل</strong>
-                <small>info@pixellife.ir</small>
-              </span>
+          <div class="cart-wrap">
+            <a href="/cart" class="h-btn" aria-label="سبد خرید">
+              <img src="/images/cart-icon.png?v=1" alt="" aria-hidden="true" style="width:22px;height:22px;object-fit:contain;display:block" />
             </a>
-            <a class="link-card" href="tel:+982100000000">
-              <span class="link-ico">☎</span>
-              <span>
-                <strong>تلفن</strong>
-                <small>021-00000000</small>
-              </span>
-            </a>
+            <span class="cart-badge" id="cartCount" style="display: none"
+              >0</span
+            >
+
+            <!-- پنجره بازشونده سبد خرید -->
+            <div class="cart-dropdown" id="cartDropdown">
+              <div id="miniCartItems">
+                <!-- آیتم‌ها با جاوااسکریپت لود می‌شوند -->
+              </div>
+              <div
+                class="mini-cart-footer"
+                id="miniCartFooter"
+                style="display: none"
+              >
+                <div class="mini-cart-total">
+                  <span>مجموع:</span>
+                  <span id="miniCartTotalPrice">۰ تومان</span>
+                </div>
+                <a href="/cart" class="mini-cart-btn-checkout">
+                  <i class="ti ti-check"></i> مشاهده سبد و تسویه حساب
+                </a>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    </header>
 
-        <div class="panel">
-          <h2>فرم تماس</h2>
-          <p>
-            پیام خود را بفرستید تا تیم پشتیبانی بررسی کند و با شما ارتباط بگیرد.
-          </p>
-          <form id="contactForm">
-            <div class="row">
-              <div>
-                <label for="name">نام و نام خانوادگی</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="مثلاً علی رضایی"
-                  required
-                />
-              </div>
-              <div>
-                <label for="phone">شماره تماس</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="0912..."
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label for="email">ایمیل</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-              />
-            </div>
-            <div>
-              <label for="subject">موضوع</label>
-              <input
-                id="subject"
-                name="subject"
-                type="text"
-                placeholder="مثلاً پیگیری سفارش"
-                required
-              />
-            </div>
-            <div>
-              <label for="message">پیام</label>
-              <textarea
-                id="message"
-                name="message"
-                placeholder="متن پیام خود را بنویسید..."
-                required
-              ></textarea>
-            </div>
-            <button class="btn" id="submitBtn" type="submit">ارسال پیام</button>
-          </form>
-          <div class="feedback" id="formFeedback" aria-live="polite"></div>
-          <div class="note">
-            این صفحه فعلاً ساده و سبک نگه داشته شده تا بدون مصرف اضافه، با
-            routeهای فعلی سایت هماهنگ شود.
+    <!-- ═══ NAVBAR ═══ -->
+    <nav class="navbar">
+      <div class="navbar-inner">
+        <div class="nav-cats-wrap">
+          <button class="nav-cats" id="catsToggle">
+            <i class="ti ti-menu-2"></i> همه دسته‌بندی‌ها
+            <i class="ti ti-chevron-down"></i>
+          </button>
+          <div class="megamenu-panel" id="megamenuPanel">
+            <div class="megamenu-cats" id="megamenuCats"></div>
+            <div class="megamenu-content" id="megamenuContent"></div>
           </div>
         </div>
-      </section>
+        <a href="/" class="nav-link"><i class="ti ti-home"></i> خانه</a>
+        <a href="/new" class="nav-link"
+          ><i class="ti ti-sparkles"></i> تازه‌ها</a
+        >
+        <a href="/bestsellers" class="nav-link"
+          ><i class="ti ti-trending-up"></i> پرفروش‌ترین</a
+        >
+        <a href="/brands" class="nav-link"
+          ><i class="ti ti-building-store"></i> برندها</a
+        >
+        <a href="/blog" class="nav-link"><i class="ti ti-article"></i> مجله</a>
+      </div>
+    </nav>
+
+    <main class="ct-page" id="main">
+      <nav class="ct-crumb" aria-label="مسیر صفحه">
+        <a href="/" aria-label="خانه"><i class="ti ti-home"></i></a>
+        <i class="ti ti-chevron-left" aria-hidden="true"></i>
+        <span aria-current="page">تماس با ما</span>
+      </nav>
+
+      <div class="ct-head">
+        <h1>تماس با ما</h1>
+        <p>سوال یا مشکلی دارید؟ پیامتان را بنویسید تا تیم پشتیبانی پیکسل لایف بررسی کند و با شما در تماس باشد.</p>
+      </div>
+
+      <div class="ct-grid">
+        <section class="ct-card" aria-labelledby="ctFormTitle">
+          <div id="ctFormWrap">
+            <h2 id="ctFormTitle">ارسال پیام</h2>
+            <p class="ct-sub">فیلدهای دارای <span style="color:var(--red)">*</span> ضروری هستند.</p>
+            <div class="ct-alert" id="ctAlert" role="alert"></div>
+            <form class="ct-form" id="ctForm" novalidate autocomplete="on">
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ctName">نام و نام خانوادگی<span class="req" aria-hidden="true">*</span></label>
+                  <input class="ct-input" id="ctName" name="name" type="text" autocomplete="name" maxlength="80" placeholder="مثلاً علی رضایی" required aria-describedby="ctNameErr" />
+                  <p class="ct-error" id="ctNameErr"></p>
+                </div>
+                <div class="ct-field">
+                  <label for="ctPhone">شماره موبایل<span class="req" aria-hidden="true">*</span></label>
+                  <input class="ct-input" id="ctPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="14" placeholder="09123456789" style="text-align:right" required aria-describedby="ctPhoneErr ctPhoneHint" />
+                  <p class="ct-hint" id="ctPhoneHint">برای پاسخ‌گویی با همین شماره تماس می‌گیریم.</p>
+                  <p class="ct-error" id="ctPhoneErr"></p>
+                </div>
+              </div>
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ctSubject">موضوع<span class="req" aria-hidden="true">*</span></label>
+                  <select class="ct-select" id="ctSubject" name="subject" required aria-describedby="ctSubjectErr">
+                    <option value="">انتخاب کنید</option>
+                    <option>پیگیری سفارش</option>
+                    <option>مشاوره خرید</option>
+                    <option>مشکل در پرداخت</option>
+                    <option>گارانتی و مرجوعی</option>
+                    <option>پیشنهاد یا انتقاد</option>
+                    <option>سایر</option>
+                  </select>
+                  <p class="ct-error" id="ctSubjectErr"></p>
+                </div>
+                <div class="ct-field">
+                  <label for="ctEmail">ایمیل<span class="opt">(اختیاری)</span></label>
+                  <input class="ct-input" id="ctEmail" name="email" type="email" inputmode="email" autocomplete="email" dir="ltr" maxlength="120" placeholder="name@example.com" style="text-align:right" aria-describedby="ctEmailErr" />
+                  <p class="ct-error" id="ctEmailErr"></p>
+                </div>
+              </div>
+              <div class="ct-field" id="ctOrderField" hidden>
+                <label for="ctOrder">شمارهٔ سفارش<span class="opt">(اختیاری)</span></label>
+                <input class="ct-input" id="ctOrder" name="orderNumber" type="text" dir="ltr" autocomplete="off" maxlength="40" placeholder="PL-..." style="text-align:right" aria-describedby="ctOrderErr" />
+                <p class="ct-error" id="ctOrderErr"></p>
+              </div>
+              <div class="ct-field">
+                <label for="ctMessage">پیام<span class="req" aria-hidden="true">*</span><span class="ct-count" id="ctCount" aria-hidden="true">۰ / ۱۵۰۰</span></label>
+                <textarea class="ct-textarea" id="ctMessage" name="message" maxlength="1500" placeholder="توضیح دهید چه کمکی از ما می‌خواهید..." required aria-describedby="ctMessageErr"></textarea>
+                <p class="ct-error" id="ctMessageErr"></p>
+              </div>
+              <div class="ct-trap" aria-hidden="true"><label>وب‌سایت<input type="text" name="website" id="ctWebsite" tabindex="-1" autocomplete="off" /></label></div>
+              <button class="ct-submit" id="ctSubmit" type="submit"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="20" height="20"><path d="M20.5 3.5L10 14M20.5 3.5l-6.5 17-3.3-6.7L4 10.5z"/></svg> <span id="ctSubmitText">ارسال پیام</span></button>
+              <p class="ct-privacy">اطلاعات شما فقط برای پاسخ به همین پیام استفاده می‌شود.</p>
+            </form>
+          </div>
+          <div class="ct-success" id="ctSuccess" role="status" tabindex="-1">
+            <div class="ct-success-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="46" height="46"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+            <h2>پیام شما ثبت شد</h2>
+            <p>تیم پشتیبانی پیام را بررسی می‌کند و از طریق شمارهٔ تماسی که وارد کردید با شما در ارتباط خواهد بود.</p>
+            <div class="ct-ref" id="ctRefBox" hidden>کد پیگیری پیام: <b id="ctRef"></b></div>
+            <div class="ct-success-actions">
+              <a class="ct-btn primary" href="/">بازگشت به فروشگاه</a>
+              <a class="ct-btn" href="/profile/orders">پیگیری سفارش‌ها</a>
+              <button class="ct-btn" type="button" id="ctAnother">ارسال پیام جدید</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="ct-aside" aria-label="راه‌های ارتباطی">
+          <a class="ct-info" id="ctBale" href="#" target="_blank" rel="noopener noreferrer" hidden>
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v10H12l-4.5 3.5v-3.5H4z"/><path d="M8 9.5h8M8 12h5"/></svg></span>
+            <span><b>گفتگوی آنلاین در بله</b><small>پاسخ سریع‌تر برای سوالات ساده</small></span>
+          </a>
+          <a class="ct-info" href="mailto:info@pixellife.ir">
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg></span>
+            <span><b>ایمیل</b><small class="ltr">info@pixellife.ir</small></span>
+          </a>
+          <a class="ct-info" id="ctPhoneCard" href="#" hidden>
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 4.7 4.7L15 12l4 1.5v3a2 2 0 0 1-2 2A13 13 0 0 1 4.5 6a2 2 0 0 1 2-2z"/></svg></span>
+            <span><b>تلفن پشتیبانی</b><small class="ltr" id="ctPhoneText"></small></span>
+          </a>
+          <div class="ct-info" id="ctHoursCard" hidden>
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
+            <span><b>ساعت پاسخ‌گویی</b><small id="ctHoursText"></small></span>
+          </div>
+          <div class="ct-info" id="ctAddressCard" hidden>
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s6-5.2 6-10a6 6 0 0 0-12 0c0 4.8 6 10 6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
+            <span><b>آدرس</b><small id="ctAddressText"></small></span>
+          </div>
+          <a class="ct-info" href="https://www.instagram.com/pixellife.ir/" target="_blank" rel="noopener noreferrer">
+            <span class="ct-info-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.3" r=".6" fill="currentColor"/></svg></span>
+            <span><b>اینستاگرام</b><small class="ltr">@pixellife.ir</small></span>
+          </a>
+          <div class="ct-help">
+            <h2>پیوندهای مفید</h2>
+            <a href="/profile/orders"><span>پیگیری وضعیت سفارش</span><i class="ti ti-chevron-left" aria-hidden="true"></i></a>
+            <a href="/terms"><span>قوانین و مقررات</span><i class="ti ti-chevron-left" aria-hidden="true"></i></a>
+          </div>
+        </aside>
+      </div>
     </main>
+
+    <footer class="footer"></footer>
+
+    <link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=28" />
+    <script src="/js/site-header.js"></script>
+    <script src="/js/shared-category-nav.js?v=9" defer></script>
+    <script src="/js/mobile-bottom-nav.js?v=28" defer></script>
     <script>
-      const form = document.getElementById("contactForm");
-      const feedback = document.getElementById("formFeedback");
-      const submitBtn = document.getElementById("submitBtn");
+      (() => {
+        "use strict";
+        // اطلاعات تماسی که ثبت شود نمایش داده می‌شود؛ خالی یعنی آن کارت دیده نمی‌شود (چیزی از خودمان نمی‌سازیم).
+        const CONTACT = { phone: "", phoneHref: "", hours: "", address: "" };
 
-      const showFeedback = (message, type) => {
-        feedback.className = `feedback is-${type}`;
-        feedback.textContent = message;
-      };
+        const $ = (id) => document.getElementById(id);
+        const form = $("ctForm");
+        const alertBox = $("ctAlert");
+        const submitBtn = $("ctSubmit");
+        const submitText = $("ctSubmitText");
+        const FA = "۰۱۲۳۴۵۶۷۸۹";
+        const fa = (n) => String(n).replace(/\d/g, (d) => FA[d]);
+        const toLatin = (v) => String(v || "").replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+        // کارت‌های اختیاری اطلاعات تماس
+        if (CONTACT.phone) { const a = $("ctPhoneCard"); a.hidden = false; a.href = CONTACT.phoneHref || "tel:" + toLatin(CONTACT.phone).replace(/[^0-9+]/g, ""); $("ctPhoneText").textContent = CONTACT.phone; }
+        if (CONTACT.hours) { $("ctHoursCard").hidden = false; $("ctHoursText").textContent = CONTACT.hours; }
+        if (CONTACT.address) { $("ctAddressCard").hidden = false; $("ctAddressText").textContent = CONTACT.address; }
+        // لینک گفتگوی بله (ادمین از پنل تنظیم می‌کند؛ خالی یعنی دکمه دیده نشود)
+        fetch("/api/ai/support-link").then((r) => r.json()).then((d) => {
+          if (d && typeof d.baleUrl === "string" && /^https:\/\//.test(d.baleUrl)) { const a = $("ctBale"); a.href = d.baleUrl; a.hidden = false; }
+        }).catch(() => {});
 
-        feedback.className = "feedback";
-        feedback.textContent = "";
-        submitBtn.disabled = true;
-        submitBtn.textContent = "در حال ارسال...";
+        // فیلد شمارهٔ سفارش فقط وقتی موضوع مربوط به سفارش/پرداخت/گارانتی باشد
+        const orderSubjects = ["پیگیری سفارش", "مشکل در پرداخت", "گارانتی و مرجوعی"];
+        $("ctSubject").addEventListener("change", (e) => { $("ctOrderField").hidden = !orderSubjects.includes(e.target.value); });
 
-        try {
-          const formData = new FormData(form);
-          const payload = Object.fromEntries(formData.entries());
+        // شمارندهٔ نویسه
+        $("ctMessage").addEventListener("input", (e) => { $("ctCount").textContent = fa(e.target.value.length) + " / " + fa(1500); });
+        // ارقام فارسی شماره تماس به لاتین
+        $("ctPhone").addEventListener("blur", (e) => { e.target.value = toLatin(e.target.value).replace(/\s+/g, ""); });
 
-          const response = await fetch("/api/contact", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok || !data.success) {
-            showFeedback(
-              data.message || "ارسال پیام ناموفق بود. دوباره تلاش کنید.",
-              "error",
-            );
-            return;
-          }
-
-          form.reset();
-          showFeedback(data.message || "پیام شما با موفقیت ثبت شد.", "success");
-        } catch (error) {
-          showFeedback("خطا در ارتباط با سرور. دوباره تلاش کنید.", "error");
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "ارسال پیام";
+        const rules = {
+          ctName: (v) => (v.trim().length < 2 ? "نام را وارد کنید (حداقل ۲ حرف)" : ""),
+          ctPhone: (v) => { const p = toLatin(v).replace(/[\s-]/g, ""); if (!p) return "شمارهٔ موبایل را وارد کنید"; return /^09\d{9}$/.test(p) || /^0\d{10}$/.test(p) ? "" : "شمارهٔ معتبر وارد کنید؛ مثلاً 09123456789"; },
+          ctSubject: (v) => (v ? "" : "موضوع پیام را انتخاب کنید"),
+          ctEmail: (v) => (!v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "ایمیل معتبر نیست؛ مثلاً name@example.com"),
+          ctOrder: (v) => (!v.trim() || /^[A-Za-z0-9-]{4,40}$/.test(v.trim()) ? "" : "شمارهٔ سفارش را به انگلیسی و بدون فاصله وارد کنید"),
+          ctMessage: (v) => (v.trim().length < 10 ? "پیام را کامل‌تر بنویسید (حداقل ۱۰ حرف)" : ""),
+        };
+        function setError(id, msg) {
+          const el = $(id); const err = $(id + "Err");
+          err.textContent = msg; el.setAttribute("aria-invalid", msg ? "true" : "false");
+          return !msg;
         }
-      });
+        function validate(id) { return setError(id, rules[id]($(id).value)); }
+        Object.keys(rules).forEach((id) => {
+          $(id).addEventListener("blur", () => validate(id));
+          $(id).addEventListener("input", () => { if ($(id).getAttribute("aria-invalid") === "true") validate(id); });
+        });
+
+        function showAlert(msg) { alertBox.textContent = msg; alertBox.classList.add("show"); alertBox.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          alertBox.classList.remove("show");
+          let firstBad = null;
+          Object.keys(rules).forEach((id) => { if (id === "ctOrder" && $("ctOrderField").hidden) return; if (!validate(id) && !firstBad) firstBad = id; });
+          if (firstBad) { $(firstBad).focus(); return; }
+
+          submitBtn.disabled = true; submitText.textContent = "در حال ارسال...";
+          try {
+            const payload = {
+              name: $("ctName").value.trim(),
+              phone: toLatin($("ctPhone").value).replace(/[\s-]/g, ""),
+              email: $("ctEmail").value.trim(),
+              subject: $("ctSubject").value,
+              orderNumber: $("ctOrderField").hidden ? "" : $("ctOrder").value.trim(),
+              message: $("ctMessage").value.trim(),
+              website: $("ctWebsite").value,
+            };
+            const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            let data = {}; try { data = await res.json(); } catch (_) {}
+            if (res.status === 429) return showAlert(data.message || "تعداد ارسال‌ها زیاد بوده است؛ کمی بعد دوباره تلاش کنید.");
+            if (!res.ok || !data.success) return showAlert(data.message || "ارسال پیام ناموفق بود. اتصال را بررسی و دوباره تلاش کنید.");
+            const id = data.data && data.data.id ? String(data.data.id).slice(-6).toUpperCase() : "";
+            if (id) { $("ctRef").textContent = id; $("ctRefBox").hidden = false; } else { $("ctRefBox").hidden = true; }
+            form.reset(); $("ctCount").textContent = fa(0) + " / " + fa(1500); $("ctOrderField").hidden = true;
+            $("ctFormWrap").hidden = true;
+            const ok = $("ctSuccess"); ok.classList.add("show"); ok.focus(); ok.scrollIntoView({ block: "start", behavior: "smooth" });
+          } catch (_) {
+            showAlert("خطا در ارتباط با سرور. اتصال را بررسی و دوباره تلاش کنید.");
+          } finally {
+            submitBtn.disabled = false; submitText.textContent = "ارسال پیام";
+          }
+        });
+        $("ctAnother").addEventListener("click", () => { $("ctSuccess").classList.remove("show"); $("ctFormWrap").hidden = false; $("ctName").focus(); });
+      })();
     </script>
   </body>
 </html>
