@@ -703,13 +703,11 @@ function injectProfileGate(html) {
   return html.replace("</body>", '<script src="/js/profile-gate.js" defer></script>\n</body>');
 }
 
-// اسکرول نرم دسکتاپ (Lenis؛ public/js/smooth-scroll.js). فقط CSS ضروری خود کتابخانه + دو اسکریپت؛ منطق فعال/غیرفعال‌شدن داخل smooth-scroll.js است.
-const SMOOTH_SCROLL_STYLE = `<style id="pl-smooth-scroll-style">html.lenis,html.lenis body{height:auto}.lenis:not(.lenis-autoToggle).lenis-stopped{overflow:clip}.lenis [data-lenis-prevent],.lenis [data-lenis-prevent-wheel],.lenis [data-lenis-prevent-touch],.lenis [data-lenis-prevent-vertical],.lenis [data-lenis-prevent-horizontal]{overscroll-behavior:contain}.lenis.lenis-smooth iframe{pointer-events:none}</style>`;
 
 function injectHeaderAutohide(html) {
   if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
-  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n${SMOOTH_SCROLL_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n</head>`);
-  return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n<script src="/js/vendor/lenis.min.js" defer></script>\n<script src="/js/smooth-scroll.js" defer></script>\n</body>') : html;
+  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n</head>`);
+  return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n</body>') : html;
 }
 
 function injectAboutSite(html) {

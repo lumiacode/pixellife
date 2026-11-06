@@ -31,7 +31,7 @@
     ticking = false;
     var y = window.scrollY;
     if (y < 0) y = 0;
-    if (y <= TOP_ZONE || busy()) { set(false); lastY = y; dir = 0; dist = 0; return; }
+    if (y <= TOP_ZONE) { set(false); lastY = y; dir = 0; dist = 0; return; }
     var d = y - lastY;
     lastY = y;
     // جهش نوار آدرس مرورگر/تغییر اندازه، حرکت واقعی انگشت نیست
@@ -39,7 +39,8 @@
     var nd = d > 0 ? 1 : -1;
     if (nd !== dir) { dir = nd; dist = 0; }
     dist += Math.abs(d);
-    if (dir === 1 && dist >= HIDE_AFTER) { set(true); dist = 0; }
+    // busy() (جست‌وجوی DOM) فقط وقتی لازم است که بخواهیم نوار را پنهان کنیم، نه در هر فریم اسکرول
+    if (dir === 1 && dist >= HIDE_AFTER) { if (busy()) { set(false); } else { set(true); } dist = 0; }
     else if (dir === -1 && dist >= SHOW_AFTER) { set(false); dist = 0; }
   }
   window.addEventListener("scroll", function () {
