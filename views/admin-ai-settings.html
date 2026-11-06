@@ -51,4 +51,4 @@ $('testBtn').addEventListener('click',function(){say('در حال آزمایش�
  api('/admin/api/settings/ai/test',{method:'POST'}).then(function(j){$('testBtn').disabled=false;say(j.message||(j.success?'اتصال برقرار است':'آزمایش ناموفق بود'),j.success?'ok':'err')})});
 $('logoutBtn').onclick=function(){fetch('/admin/logout',{method:'POST'}).finally(function(){location.href='/admin/login'})};
 })();
-</script><script src="/js/admin-sidebar.js?v=18" defer></script></body></html>
+</script><script src="/js/admin-sidebar.js?v=19" defer></script></body></html>

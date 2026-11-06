@@ -95,6 +95,10 @@ router.get("/support", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-support.html"));
 });
 
+router.get("/contact-messages", requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, "../../views/admin-contact-messages.html"));
+});
+
 router.get("/reviews", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-reviews.html"));
 });

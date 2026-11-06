@@ -160,6 +160,7 @@
     '<section class="admin-nav-group' + (shippingOpen ? " open" : "") + '" data-title="روش ارسال"><button type="button" class="admin-nav-toggle" aria-expanded="' + shippingOpen + '"><span><i class="ti ti-truck-delivery"></i><span class="adm-label">روش ارسال</span></span><i class="ti ti-chevron-down admin-chevron"></i><span class="adm-tip">روش ارسال</span></button><ul class="admin-submenu">' + shippingLinks + '</ul></section>' +
     item("/admin/home-sections", "ti-layout-grid", "محصولات صفحهٔ اصلی") +
     item("/admin/support", "ti-headset", "پشتیبانی در بله") +
+    item("/admin/contact-messages", "ti-inbox", "پیام‌های مشتریان") +
     item("/admin/reviews", "ti-message-star", "مدیریت نظرات") +
     '<div class="admin-nav-divider">ابزارها</div>' +
     item("/admin/ai", "ti-key", "هوش مصنوعی (OpenAI)") +
@@ -180,6 +181,19 @@
   }
   aside.innerHTML = sidebar;
   aside.className = "app-sidebar admin-unified-sidebar";
+
+  // تعداد پیام‌های خوانده‌نشدهٔ مشتریان روی گزینهٔ «پیام‌های مشتریان»
+  fetch("/admin/api/contact-messages/unread-count", { credentials: "same-origin" })
+    .then((r) => r.json())
+    .then((d) => {
+      const link = aside.querySelector('a[href="/admin/contact-messages"]');
+      if (!link || !d || !d.success || !(d.count > 0)) return;
+      const badge = document.createElement("span");
+      badge.className = "adm-badge show";
+      badge.textContent = d.count > 99 ? "99+" : String(d.count);
+      link.appendChild(badge);
+    })
+    .catch(() => {});
 
   // ─── موبایل: کشوی کناری ───
   const mobileToggle = document.createElement("button");

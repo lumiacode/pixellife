@@ -10,6 +10,7 @@ const WalletTransaction = require("../models/WalletTransaction");
 const walletService = require("../services/wallet");
 const { applyTrackingSteps, syncStepsWithStatus, trackingView, normalizeShipmentCode } = require("../services/orderTracking");
 const Review = require("../models/review");
+const ContactMessage = require("../models/ContactMessage");
 const { refreshProductReviewStats, refreshAllProductReviewStats } = require("../services/reviewStats");
 const mongoose = require("mongoose");
 const { toGregorian, isValidJalaaliDate } = require("jalaali-js");
@@ -1053,6 +1054,57 @@ router.patch("/users/:id/status", async (req, res) => {
 
 // مدیریت کدهای تخفیف (requireAdmin بالاتر روی کل router اعمال شده است)
 router.use("/discounts", require("./adminDiscounts"));
+
+// ── صندوق پیام‌های تماس (فرم «تماس با ما» و درخواست پشتیبانی از چت هوشمند) ──
+const CONTACT_STATUSES = ["new", "read", "replied"];
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+router.get("/contact-messages/unread-count", async (req, res) => {
+  try {
+    res.json({ success: true, count: await ContactMessage.countDocuments({ status: "new" }) });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+router.get("/contact-messages", async (req, res) => {
+  try {
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(5, Number.parseInt(req.query.limit, 10) || 20));
+    const filter = {};
+    if (CONTACT_STATUSES.includes(req.query.status)) filter.status = req.query.status;
+    const q = String(req.query.search || "").trim().slice(0, 60);
+    if (q) {
+      const rx = { $regex: escapeRegex(q), $options: "i" };
+      filter.$or = [{ name: rx }, { phone: rx }, { email: rx }, { subject: rx }, { orderNumber: rx }, { message: rx }];
+    }
+    const [total, counts, messages] = await Promise.all([
+      ContactMessage.countDocuments(filter),
+      ContactMessage.aggregate([{ $group: { _id: "$status", n: { $sum: 1 } } }]),
+      ContactMessage.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+    ]);
+    const byStatus = { new: 0, read: 0, replied: 0 };
+    counts.forEach((row) => { if (row._id in byStatus) byStatus[row._id] = row.n; });
+    res.json({ success: true, messages, counts: byStatus, pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) } });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+router.patch("/contact-messages/:id", async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, message: "شناسه نامعتبر است" });
+    if (!CONTACT_STATUSES.includes(req.body && req.body.status)) return res.status(400).json({ success: false, message: "وضعیت نامعتبر است" });
+    const message = await ContactMessage.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true }).lean();
+    if (!message) return res.status(404).json({ success: false, message: "پیام پیدا نشد" });
+    res.json({ success: true, message });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+router.delete("/contact-messages/:id", async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, message: "شناسه نامعتبر است" });
+    const removed = await ContactMessage.findByIdAndDelete(req.params.id).lean();
+    if (!removed) return res.status(404).json({ success: false, message: "پیام پیدا نشد" });
+    res.json({ success: true });
+  } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
 
 router.get("/orders", async (req, res) => {
   try {
