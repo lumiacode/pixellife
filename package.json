@@ -33,7 +33,8 @@
     "test:product-images": "node tests/product-images.test.js",
     "test:traffic-patterns": "node tests/traffic-patterns.test.js",
     "prestart": "npm run test:product-page-contract",
-    "test:contact-form": "node tests/contact-form.test.js"
+    "test:contact-form": "node tests/contact-form.test.js",
+    "test:contact-admin": "node tests/contact-admin.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",
