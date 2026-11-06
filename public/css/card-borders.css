@@ -1,0 +1,9 @@
+/* حاشیهٔ کارت‌های محصول: یک پله تیره‌تر تا روی پس‌زمینهٔ سفید محض واضح باشد (رنگ آبی‌خاکستری، نه مشکی). */
+html body .product-card:not(:hover),
+html body .iphone-card:not(:hover),
+html body .samsung-card:not(:hover),
+html body .xiaomi-card:not(:hover),
+html body .xiaomitab-card:not(:hover),
+html body .prod-card:not(:hover),
+html body .console-card:not(:hover),
+html body .am-card:not(:hover) { border-color: #cbd5e1 !important; }
