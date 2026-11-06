@@ -1,14 +1,14 @@
-/* حاشیهٔ کارت‌های محصول: یک پله تیره‌تر تا روی پس‌زمینهٔ سفید محض واضح باشد (رنگ آبی‌خاکستری، نه مشکی). */
-html body .product-card:not(:hover),
-html body .iphone-card:not(:hover),
-html body .samsung-card:not(:hover),
-html body .xiaomi-card:not(:hover),
-html body .xiaomitab-card:not(:hover),
-html body .prod-card:not(:hover),
-html body .console-card:not(:hover),
-html body .am-card:not(:hover) { border-color: #cbd5e1 !important; }
+/* کارت‌های محصول: مستطیلی با گوشهٔ تیز، چسبیده به هم با یک خط مشترک بین دو کارت، و کاملاً بدون حرکت
+   (نه برآمده‌شدن، نه سایه، نه بزرگ‌شدن عکس هنگام موس یا لمس). رنگ خط: آبی‌خاکستری یک پله تیره‌تر. */
+html body .product-grid,
+html body .iphone-grid,
+html body .samsung-grid,
+html body .xiaomi-grid,
+html body .xiaomitab-grid,
+html body .prod-grid,
+html body .console-grid,
+html body .am-grid { gap: 0 !important; }
 
-/* گوشه‌های کارت محصول: تیز و مستطیلی (بدون گردی) */
 html body .product-card,
 html body .iphone-card,
 html body .samsung-card,
@@ -16,5 +16,33 @@ html body .xiaomi-card,
 html body .xiaomitab-card,
 html body .prod-card,
 html body .console-card,
-html body .am-card,
-html body .amazing-card { border-radius: 0 !important; }
+html body .am-card {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0 !important;
+  margin-inline-end: -1px !important;
+  margin-bottom: -1px !important;
+  box-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+html body .product-card:hover, html body .product-card:active,
+html body .iphone-card:hover, html body .iphone-card:active,
+html body .samsung-card:hover, html body .samsung-card:active,
+html body .xiaomi-card:hover, html body .xiaomi-card:active,
+html body .xiaomitab-card:hover, html body .xiaomitab-card:active,
+html body .prod-card:hover, html body .prod-card:active,
+html body .console-card:hover, html body .console-card:active,
+html body .am-card:hover, html body .am-card:active {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: #cbd5e1 !important;
+  background-color: #fff !important;
+}
+html body .product-card:hover img, html body .product-card:active img,
+html body .iphone-card:hover img, html body .iphone-card:hover svg, html body .iphone-card:active img,
+html body .samsung-card:hover img, html body .xiaomi-card:hover img, html body .xiaomitab-card:hover img,
+html body .prod-card:hover img, html body .console-card:hover img, html body .am-card:hover img { transform: none !important; }
+
+/* کارت‌های شگفت‌انگیز صفحهٔ اصلی (روی نوار تیره): فقط تیز و بی‌حرکت */
+html body .amazing-card { border-radius: 0 !important; transition: none !important; }
+html body .amazing-card:hover, html body .amazing-card:active { transform: none !important; }
