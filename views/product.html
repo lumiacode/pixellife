@@ -3826,7 +3826,7 @@
       .amazing-timer { display: inline-flex; align-items: center; gap: 3px; direction: ltr; }
       .amazing-timer b { min-width: 30px; padding: 4px 6px; border-radius: 7px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: 14px; font-weight: 800; text-align: center; line-height: 1.3; }
       .amazing-timer i { color: rgba(255,255,255,.85); font-style: normal; font-weight: 800; }
-      .amazing-save { margin: 0 0 12px; padding: 7px 12px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-size: 13px; font-weight: 700; }
+      .amazing-save { margin: 0 0 12px; padding: 0; border: 0; background: transparent; color: #15803d; font-size: 14px; font-weight: 800; line-height: 1.8; }
       .amazing-save[hidden] { display: none; }
       @media (max-width: 768px) {
         body.mobile-product-flow-active .product-info-col.is-amazing-offer {
@@ -7460,7 +7460,7 @@
             const updateSave = () => {
               const cur = toNum(savePriceRow.querySelector(".price-value")?.firstChild?.textContent || savePriceRow.querySelector(".price-value")?.textContent);
               const old = toNum(savePriceRow.querySelector(".price-old")?.textContent);
-              if (old > cur && cur > 0) { amazingSave.textContent = (old - cur).toLocaleString("fa-IR") + " تومان صرفه‌جویی شما"; amazingSave.hidden = false; } else { amazingSave.hidden = true; }
+              if (old > cur && cur > 0) { amazingSave.textContent = (old - cur).toLocaleString("fa-IR") + " تومان سود شما از خرید"; amazingSave.hidden = false; } else { amazingSave.hidden = true; }
             };
             updateSave();
             new MutationObserver(updateSave).observe(savePriceRow, { childList: true, subtree: true, characterData: true });
