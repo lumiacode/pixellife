@@ -54,6 +54,7 @@
   let scrollDirection = 0;
   let scrollDistance = 0;
   let scrollTicking = false;
+  let ignoreScrollUntil = 0;
 
   const showBottomNav = () => nav.classList.remove("is-scroll-hidden");
   // وقتی header-autohide فعال است، وضعیت مخفی/نمایان نوار پایین از html.pl-hdr-hidden می‌آید؛
@@ -72,7 +73,7 @@
 
     if (
       document.body.classList.contains("mobile-category-sheet-open") ||
-      currentY <= 12
+      currentY <= 90
     ) {
       showBottomNav();
       scrollDistance = 0;
@@ -82,7 +83,9 @@
     }
 
     // تغییرات خیلی جزئی (مثل bounce یا تغییر ارتفاع chrome مرورگر) هیچ اثری ندارند.
-    if (Math.abs(delta) < 2) return;
+    // آستانه‌ها (۹۰ / ۲۸ / ۱۴ پیکسل و نادیده‌گرفتن جهش نوار آدرس) همان‌هایی‌اند که نوار بالا (header-autohide)
+    // استفاده می‌کند؛ تا در صفحه‌های بدون نوار بالا (قوانین، دسته‌بندی‌ها، پرداخت) هم رفتار دقیقاً یکی باشد.
+    if (Math.abs(delta) < 2 || Date.now() < ignoreScrollUntil) { lastScrollY = currentY; return; }
 
     const direction = delta > 0 ? 1 : -1;
     if (direction !== scrollDirection) {
@@ -91,10 +94,10 @@
     }
     scrollDistance += Math.abs(delta);
 
-    if (direction === 1 && currentY > 56 && scrollDistance >= 16) {
+    if (direction === 1 && scrollDistance >= 28) {
       nav.classList.add("is-scroll-hidden");
       scrollDistance = 0;
-    } else if (direction === -1 && scrollDistance >= 8) {
+    } else if (direction === -1 && scrollDistance >= 14) {
       showBottomNav();
       scrollDistance = 0;
     }
@@ -112,7 +115,7 @@
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) showBottomNav();
   });
-  window.addEventListener("resize", showBottomNav);
+  window.addEventListener("resize", () => { ignoreScrollUntil = Date.now() + 200; showBottomNav(); });
 
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
   const isCategoryPath = ["/categories", "/mobiles", "/iphone", "/samsung", "/xiaomi", "/accessories", "/accessories/chargers", "/accessories/apple", "/accessories/samsung", "/accessories/xiaomi", "/ipad", "/tablets", "/samsungtab", "/xiaomitab", "/console", "/headphones", "/smartwatches"].includes(path);
