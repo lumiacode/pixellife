@@ -2,6 +2,8 @@
 (function () {
   if (window.__plHeaderAutohide) return;
   window.__plHeaderAutohide = true;
+  // صفحه‌هایی مثل سبد خرید که مثل صفحهٔ پرداخت «هدر ثابت و بدون پنهان‌شدن» می‌خواهند: data-no-autohide روی <html>
+  if (document.documentElement.hasAttribute("data-no-autohide")) return;
   var header = document.querySelector(".header");
   if (!header) return;
   var root = document.documentElement;
