@@ -831,20 +831,20 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
 @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
   .mobile-bottom-nav__icon .nav-g, .mobile-bottom-nav__icon .nav-g * { transform-box: fill-box; transform-origin: center; }
   .mobile-bottom-nav__icon .nav-g { transform-origin: 50% 100%; }
-  @keyframes plNavHop { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-5px) scale(1.1); } 55% { transform: translateY(0) scale(.94, 1.04); } 78% { transform: translateY(-1.5px) scale(1.02); } 100% { transform: none; } }
+  @keyframes plNavHop { 0% { transform: translateY(0); } 40% { transform: translateY(-3px); } 100% { transform: none; } }
   @keyframes plNavDraw { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; } 100% { stroke-dasharray: 1; stroke-dashoffset: 0; } }
-  @keyframes plNavPop { 0% { transform: scale(1); } 35% { transform: scale(.45); } 70% { transform: scale(1.22); } 100% { transform: scale(1); } }
-  @keyframes plNavRoll { 0% { transform: translateX(5px) rotate(4deg); } 45% { transform: translateX(-2px) rotate(-3deg); } 100% { transform: none; } }
-  @keyframes plNavHead { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-3.5px) scale(1.14); } 65% { transform: translateY(1px) scale(.95); } 100% { transform: none; } }
-  .pl-anim[data-nav="home"] .nav-g { animation: plNavHop .55s cubic-bezier(.3, 1.3, .5, 1); }
-  .pl-anim[data-nav="home"] .nav-draw { animation: plNavDraw .5s ease-out .08s both; }
-  .pl-anim[data-nav="categories"] .nav-pop { animation: plNavPop .5s cubic-bezier(.3, 1.3, .5, 1) both; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(2) { animation-delay: .06s; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(4) { animation-delay: .12s; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(3) { animation-delay: .18s; }
-  .pl-anim[data-nav="cart"] .nav-g { animation: plNavRoll .5s cubic-bezier(.3, 1.2, .5, 1); }
-  .pl-anim[data-nav="cart"] .nav-pop { animation: plNavPop .45s ease-out .1s both; }
-  .pl-anim[data-nav="cart"] .nav-pop:nth-of-type(2) { animation-delay: .18s; }
-  .pl-anim[data-nav="account"] .nav-head { animation: plNavHead .5s cubic-bezier(.3, 1.3, .5, 1); }
-  .pl-anim[data-nav="account"] .nav-draw { animation: plNavDraw .5s ease-out .1s both; }
+  @keyframes plNavPop { 0% { transform: scale(1); } 40% { transform: scale(.72); } 100% { transform: scale(1); } }
+  @keyframes plNavRoll { 0% { transform: translateX(3px); } 100% { transform: none; } }
+  @keyframes plNavHead { 0% { transform: translateY(0); } 40% { transform: translateY(-2px); } 100% { transform: none; } }
+  .pl-anim[data-nav="home"] .nav-g { animation: plNavHop .26s ease-out; }
+  .pl-anim[data-nav="home"] .nav-draw { animation: plNavDraw .26s ease-out both; }
+  .pl-anim[data-nav="categories"] .nav-pop { animation: plNavPop .26s ease-out both; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(2) { animation-delay: .03s; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(4) { animation-delay: .06s; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(3) { animation-delay: .09s; }
+  .pl-anim[data-nav="cart"] .nav-g { animation: plNavRoll .24s ease-out; }
+  .pl-anim[data-nav="cart"] .nav-pop { animation: plNavPop .24s ease-out both; }
+  .pl-anim[data-nav="cart"] .nav-pop:nth-of-type(2) { animation-delay: .04s; }
+  .pl-anim[data-nav="account"] .nav-head { animation: plNavHead .26s ease-out; }
+  .pl-anim[data-nav="account"] .nav-draw { animation: plNavDraw .26s ease-out both; }
 }

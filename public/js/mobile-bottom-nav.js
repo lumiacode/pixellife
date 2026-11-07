@@ -133,7 +133,7 @@
     else item.removeAttribute("aria-current");
   });
 
-  // انیمیشن کوتاه و مخصوص هر آیکن (شبیه نوار پایین بایننس) هنگام لمس؛ کلاس pl-anim فقط حدود نیم ثانیه می‌ماند.
+  // انیمیشن کوتاه و مخصوص هر آیکن (شبیه نوار پایین بایننس) هنگام لمس؛ کلاس pl-anim فقط کسری از ثانیه می‌ماند.
   // قبل از handlerهای سبد خرید ثبت می‌شود (آن‌ها در مرحلهٔ capture انتشار را می‌بُرند).
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const playNavAnim = (item) => {
@@ -142,7 +142,7 @@
     void item.offsetWidth;
     item.classList.add("pl-anim");
     window.clearTimeout(item._plAnimTimer);
-    item._plAnimTimer = window.setTimeout(() => item.classList.remove("pl-anim"), 700);
+    item._plAnimTimer = window.setTimeout(() => item.classList.remove("pl-anim"), 450);
   };
   nav.querySelectorAll(".mobile-bottom-nav__item").forEach((item) => {
     item.addEventListener("pointerdown", () => playNavAnim(item), { capture: true, passive: true });
