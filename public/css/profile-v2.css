@@ -8,7 +8,7 @@ html body .addr-card.order-clickable {
   transition: box-shadow var(--pl-dur, .2s) var(--pl-ease, ease), border-color var(--pl-dur, .2s) var(--pl-ease, ease) !important;
 }
 html body .addr-card.order-clickable:hover { border-color: transparent !important; box-shadow: var(--pl-shadow, 0 4px 20px rgba(15,23,42,.08)) !important; }
-html body .order-thumbs img { width: 56px !important; height: 56px !important; background: var(--pl-surface-muted, #f1f5f9) !important; border: 0 !important; border-radius: var(--pl-radius, 12px) !important; mix-blend-mode: multiply; }
+html body .order-thumbs img { width: 56px !important; height: 56px !important; background: #fff !important; border: 1px solid #e5e9f0 !important; border-radius: var(--pl-radius, 12px) !important; mix-blend-mode: multiply; }
 html body .order-thumbs .more { width: 56px !important; height: 56px !important; border-radius: var(--pl-radius, 12px) !important; }
 html body .order-total { font-size: 16px !important; }
 
@@ -22,4 +22,4 @@ html body .addr-badge.badge-cancelled { background: #fdecec !important; color: #
 /* جزئیات سفارش */
 html body .order-detail { border-radius: var(--pl-radius-lg, 16px) !important; }
 html body .order-detail-item { border-radius: var(--pl-radius, 12px) !important; }
-html body .order-product img { background: var(--pl-surface-muted, #f1f5f9) !important; border-radius: var(--pl-radius, 12px) !important; mix-blend-mode: multiply; }
+html body .order-product img { background: #fff !important; border: 1px solid #e5e9f0 !important; border-radius: var(--pl-radius, 12px) !important; mix-blend-mode: multiply; }
