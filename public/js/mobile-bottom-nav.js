@@ -142,7 +142,7 @@
     void item.offsetWidth;
     item.classList.add("pl-anim");
     window.clearTimeout(item._plAnimTimer);
-    item._plAnimTimer = window.setTimeout(() => item.classList.remove("pl-anim"), 450);
+    item._plAnimTimer = window.setTimeout(() => item.classList.remove("pl-anim"), 700);
   };
   nav.querySelectorAll(".mobile-bottom-nav__item").forEach((item) => {
     item.addEventListener("pointerdown", () => playNavAnim(item), { capture: true, passive: true });

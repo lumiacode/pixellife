@@ -830,21 +830,27 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
    روی گروه داخلی آیکن اجرا می‌شود تا با حالت فعال (جابه‌جایی و بزرگ‌نمایی خود svg) تداخل نکند. */
 @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
   .mobile-bottom-nav__icon .nav-g, .mobile-bottom-nav__icon .nav-g * { transform-box: fill-box; transform-origin: center; }
+  .mobile-bottom-nav__icon { overflow: visible; }
   .mobile-bottom-nav__icon .nav-g { transform-origin: 50% 100%; }
-  @keyframes plNavHop { 0% { transform: translateY(0); } 40% { transform: translateY(-3px); } 100% { transform: none; } }
-  @keyframes plNavDraw { 0% { stroke-dasharray: 1; stroke-dashoffset: 1; } 100% { stroke-dasharray: 1; stroke-dashoffset: 0; } }
-  @keyframes plNavPop { 0% { transform: scale(1); } 40% { transform: scale(.72); } 100% { transform: scale(1); } }
-  @keyframes plNavRoll { 0% { transform: translateX(3px); } 100% { transform: none; } }
-  @keyframes plNavHead { 0% { transform: translateY(0); } 40% { transform: translateY(-2px); } 100% { transform: none; } }
-  .pl-anim[data-nav="home"] .nav-g { animation: plNavHop .26s ease-out; }
-  .pl-anim[data-nav="home"] .nav-draw { animation: plNavDraw .26s ease-out both; }
-  .pl-anim[data-nav="categories"] .nav-pop { animation: plNavPop .26s ease-out both; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(2) { animation-delay: .03s; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(4) { animation-delay: .06s; }
-  .pl-anim[data-nav="categories"] .nav-pop:nth-child(3) { animation-delay: .09s; }
-  .pl-anim[data-nav="cart"] .nav-g { animation: plNavRoll .24s ease-out; }
-  .pl-anim[data-nav="cart"] .nav-pop { animation: plNavPop .24s ease-out both; }
-  .pl-anim[data-nav="cart"] .nav-pop:nth-of-type(2) { animation-delay: .04s; }
-  .pl-anim[data-nav="account"] .nav-head { animation: plNavHead .26s ease-out; }
-  .pl-anim[data-nav="account"] .nav-draw { animation: plNavDraw .26s ease-out both; }
+  /* همهٔ قطعه‌ها در تمام فریم‌ها دیده می‌شوند (بدون ناپدید شدن و دوباره کشیده‌شدن)؛ حرکت‌ها فنری‌اند: فشردن، جهش، فرود. */
+  .mobile-bottom-nav__icon .nav-draw { transform-origin: 50% 100%; }
+  @keyframes plNavHop { 0% { transform: none; } 32% { transform: translateY(-4px) scale(.97, 1.05); } 66% { transform: translateY(0) scale(1.05, .93); } 100% { transform: none; } }
+  @keyframes plNavDoor { 0% { transform: scale(1, .55); } 55% { transform: scale(1, 1.12); } 100% { transform: none; } }
+  @keyframes plNavPop { 0% { transform: scale(1); } 30% { transform: scale(.58); } 66% { transform: scale(1.14); } 100% { transform: scale(1); } }
+  @keyframes plNavDrive { 0% { transform: translateX(-6px) rotate(-6deg); } 45% { transform: translateX(1.5px) rotate(2deg); } 75% { transform: translateX(-.5px) rotate(-.6deg); } 100% { transform: none; } }
+  @keyframes plNavWheel { 0% { transform: none; } 30% { transform: translateY(-1.8px); } 62% { transform: translateY(.7px); } 100% { transform: none; } }
+  @keyframes plNavHead { 0% { transform: none; } 35% { transform: translateY(-3px) scale(1.1); } 70% { transform: translateY(.5px) scale(.97); } 100% { transform: none; } }
+  @keyframes plNavBody { 0% { transform: scale(1, .8); } 55% { transform: scale(1, 1.07); } 100% { transform: none; } }
+  .pl-anim .nav-g, .pl-anim .nav-g * { animation-timing-function: cubic-bezier(.3, 0, .2, 1); animation-fill-mode: both; }
+  .pl-anim[data-nav="home"] .nav-g { animation: plNavHop .42s; }
+  .pl-anim[data-nav="home"] .nav-draw { animation: plNavDoor .42s .08s; }
+  .pl-anim[data-nav="categories"] .nav-pop { animation: plNavPop .42s; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(2) { animation-delay: .04s; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(4) { animation-delay: .08s; }
+  .pl-anim[data-nav="categories"] .nav-pop:nth-child(3) { animation-delay: .12s; }
+  .pl-anim[data-nav="cart"] .nav-g { animation: plNavDrive .46s; transform-origin: 50% 100%; }
+  .pl-anim[data-nav="cart"] .nav-pop { animation: plNavWheel .42s .1s; }
+  .pl-anim[data-nav="cart"] .nav-pop:nth-of-type(2) { animation-delay: .15s; }
+  .pl-anim[data-nav="account"] .nav-head { animation: plNavHead .42s; }
+  .pl-anim[data-nav="account"] .nav-draw { animation: plNavBody .42s .05s; }
 }
