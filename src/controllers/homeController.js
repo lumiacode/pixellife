@@ -539,7 +539,7 @@ const SHARED_FOOTER_HTML = (() => {
     return "";
   }
 })();
-const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html", "amazing.html", "search.html", "contact.html"]);
+const SHARED_FOOTER_PAGES = new Set(["index.html", "iphone.html", "samsung.html", "samsungtab.html", "xiaomi.html", "xiaomitab.html", "ipad.html", "console.html", "cart.html", "profile.html", "amazing.html", "search.html", "contact.html", "checkout.html"]);
 const FOOTER_PATTERN = /<footer\b[^>]*class="[^"]*\bfooter\b[^"]*"[^>]*>[\s\S]*?<\/footer>/i;
 
 // ظاهر تیرهٔ فوتر (public/css/footer-v2.css) و بخش اختیاری پشتیبانی (views/partials/footer-support.html).
