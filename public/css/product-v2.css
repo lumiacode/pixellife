@@ -50,9 +50,7 @@ html body .quick-spec-label { font-size: 11px !important; }
 html body .quick-spec-value { font-size: 12px !important; }
 html body .quick-specs-grid { gap: 6px !important; margin-bottom: 8px !important; }
 html body .btn-more-specs { height: 38px !important; font-size: 12.5px !important; }
-@media (max-width: 768px) {
-  html body .quick-spec-item:last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
-}
+/* آخرین کادرِ مشخصات سریع کشیده نمی‌شود؛ همیشه هم‌اندازهٔ بقیه (عرض یک ستون) می‌ماند. */
 
 /* ۳) فاصلهٔ بخش‌ها و اندازهٔ تیترها */
 html body .section-block { padding: 22px 24px !important; margin-top: 14px !important; }
