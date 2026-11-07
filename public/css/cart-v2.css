@@ -126,3 +126,11 @@ html body .cart-item-remove .ti { color: inherit; }
 /* سبد خرید مثل صفحهٔ پرداخت: هدر و منوی بالا ثابت نیستند؛ با صفحه می‌روند و فقط با برگشتن به بالای صفحه دیده می‌شوند. */
 html body .header, html body .navbar { position: static !important; top: auto !important; transform: none !important; }
 html body .cart-summary-col { top: 16px !important; }
+
+/* سبد خرید: «خلاصه سفارش» (ریز مبلغ‌ها) حذف شد. فقط مبلغ نهایی و دکمهٔ ثبت سفارش می‌ماند (دسکتاپ)؛
+   در موبایل نوار پایین همین دو را دارد، پس کادر کلاً مخفی است. ریز مبلغ در صفحهٔ آخر (پرداخت) نمایش داده می‌شود. */
+html body .cart-summary .summary-title,
+html body .cart-summary .summary-row,
+html body .cart-summary .summary-divider,
+html body .cart-summary .summary-savings { display: none !important; }
+@media (max-width: 768px) { html body .cart-summary-col { display: none !important; } }
