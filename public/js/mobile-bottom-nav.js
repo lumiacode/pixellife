@@ -24,20 +24,20 @@
       `
         <nav class="mobile-bottom-nav" aria-label="ناوبری اصلی موبایل">
           <a class="mobile-bottom-nav__item" data-nav="home" href="/" aria-label="خانه">
-            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-6h6v6"/></svg>
+            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><g class="nav-g"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path class="nav-draw" pathLength="1" d="M9 21v-6h6v6"/></g></svg>
             <span>خانه</span>
           </a>
           <button class="mobile-bottom-nav__item" data-nav="categories" type="button" aria-label="دسته‌بندی‌ها" aria-expanded="false">
-            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
+            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><g class="nav-g"><rect class="nav-pop" x="4" y="4" width="6" height="6" rx="1"/><rect class="nav-pop" x="14" y="4" width="6" height="6" rx="1"/><rect class="nav-pop" x="4" y="14" width="6" height="6" rx="1"/><rect class="nav-pop" x="14" y="14" width="6" height="6" rx="1"/></g></svg>
             <span>دسته‌بندی‌ها</span>
           </button>
           <a class="mobile-bottom-nav__item" data-nav="cart" href="/cart" aria-label="سبد خرید">
-            <svg class="mobile-bottom-nav__icon mobile-bottom-nav__cart-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M3 4h2l2.4 11h11l1.8-8H6.2"/></svg>
+            <svg class="mobile-bottom-nav__icon mobile-bottom-nav__cart-svg" viewBox="0 0 24 24" aria-hidden="true"><g class="nav-g"><circle class="nav-pop" cx="9" cy="19" r="1.6"/><circle class="nav-pop" cx="17" cy="19" r="1.6"/><path d="M3 4h2l2.4 11h11l1.8-8H6.2"/></g></svg>
             <span class="mobile-bottom-nav__badge" data-mobile-cart-count>0</span>
             <span>سبد خرید</span>
           </a>
           <a class="mobile-bottom-nav__item" data-nav="account" href="/profile" aria-label="حساب کاربری">
-            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4 3.2-6 8-6s7.3 2 8 6"/></svg>
+            <svg class="mobile-bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true"><g class="nav-g"><circle class="nav-head" cx="12" cy="8" r="4"/><path class="nav-draw" pathLength="1" d="M4 21c.7-4 3.2-6 8-6s7.3 2 8 6"/></g></svg>
             <span>حساب کاربری</span>
           </a>
         </nav>
@@ -131,6 +131,29 @@
     item.classList.toggle("is-active", active);
     if (active) item.setAttribute("aria-current", "page");
     else item.removeAttribute("aria-current");
+  });
+
+  // انیمیشن کوتاه و مخصوص هر آیکن (شبیه نوار پایین بایننس) هنگام لمس؛ کلاس pl-anim فقط حدود نیم ثانیه می‌ماند.
+  // قبل از handlerهای سبد خرید ثبت می‌شود (آن‌ها در مرحلهٔ capture انتشار را می‌بُرند).
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const playNavAnim = (item) => {
+    if (!item || reduceMotion.matches) return;
+    item.classList.remove("pl-anim");
+    void item.offsetWidth;
+    item.classList.add("pl-anim");
+    window.clearTimeout(item._plAnimTimer);
+    item._plAnimTimer = window.setTimeout(() => item.classList.remove("pl-anim"), 700);
+  };
+  nav.querySelectorAll(".mobile-bottom-nav__item").forEach((item) => {
+    item.addEventListener("pointerdown", () => playNavAnim(item), { capture: true, passive: true });
+  });
+  // آیکن صفحهٔ فعلی هم بعد از باز شدن صفحه یک‌بار حرکت می‌کند.
+  window.setTimeout(() => playNavAnim(nav.querySelector(".mobile-bottom-nav__item.is-active")), 350);
+  // لمس «خانه» وقتی همین‌جا در صفحهٔ اصلی هستیم، صفحه را دوباره بارگذاری نمی‌کند؛ نرم به بالا می‌رود تا انیمیشن دیده شود.
+  nav.querySelector('[data-nav="home"]')?.addEventListener("click", (event) => {
+    if (path !== "/") return;
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" });
   });
 
   const accountItem = nav.querySelector('[data-nav="account"]');
