@@ -383,11 +383,17 @@ router.get("/home-sections", async (req, res) => {
   }
 });
 
+// نسخهٔ سبک برای سبد خرید (?lite=1): فقط فیلدهای لازم برای قیمت و موجودی، بدون محاسبهٔ امتیاز نظرات؛
+// یک پرس‌وجوی کمتر و پاسخ کوچک‌تر، یعنی سریع‌تر و با احتمال خطای کمتر.
+const LITE_FIELDS = "name brand slug legacyId price discount stock availability variants images mainImage";
+const isLite = (req) => String(req.query.lite || "") === "1";
+
 router.get("/id/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).lean();
+    const lite = isLite(req);
+    const product = await (lite ? Product.findById(req.params.id).select(LITE_FIELDS) : Product.findById(req.params.id)).lean();
     if (!product) return res.status(404).json({ success: false, message: "محصول پیدا نشد" });
-    res.json({ success: true, product: (await withApprovedReviewStats([serializeProduct(product)]))[0] });
+    res.json({ success: true, product: lite ? serializeProduct(product) : (await withApprovedReviewStats([serializeProduct(product)]))[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -399,9 +405,11 @@ router.get("/:slug", async (req, res) => {
     const alternatives = [{ slug: requestedSlug }, { legacyId: requestedSlug }];
     if (requestedSlug === "iphone-17") alternatives.push({ name: { $regex: "^iPhone\\s*17$", $options: "i" } });
 
-    const product = await Product.findOne({ $or: alternatives }).sort({ updatedAt: -1 }).lean();
+    const lite = isLite(req);
+    const query = Product.findOne({ $or: alternatives }).sort({ updatedAt: -1 });
+    const product = await (lite ? query.select(LITE_FIELDS) : query).lean();
     if (!product) return res.status(404).json({ success: false, message: "محصول پیدا نشد" });
-    res.json({ success: true, product: (await withApprovedReviewStats([serializeProduct(product)]))[0] });
+    res.json({ success: true, product: lite ? serializeProduct(product) : (await withApprovedReviewStats([serializeProduct(product)]))[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

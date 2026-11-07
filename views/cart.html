@@ -3717,16 +3717,27 @@
                 ? "/api/products/id/" + encodeURIComponent(id)
                 : "/api/products/" + encodeURIComponent(id);
               productRequests.set(id, (async () => {
-                const response = await fetch(url, {
-                  cache: "no-store",
-                  headers: { "Cache-Control": "no-cache" },
-                });
-                if (response.status === 404) return { status: "missing", product: null };
-                const data = await response.json();
-                if (!response.ok || !data.success || !data.product) {
-                  throw new Error(data.message || "دریافت موجودی ناموفق بود");
+                // خطای گذرا (قطعی کوتاه شبکه، ری‌استارت سرور، کندی دیتابیس) نباید کالا را «ناموجود» نشان دهد:
+                // تا ۳ بار با مهلت ۸ ثانیه و فاصلهٔ فزاینده تلاش می‌کنیم؛ فقط ۴۰۴ واقعی یعنی «حذف‌شده».
+                let lastError = null;
+                for (let attempt = 0; attempt < 3; attempt += 1) {
+                  const controller = new AbortController();
+                  const timer = setTimeout(() => controller.abort(), 8000);
+                  try {
+                    const response = await fetch(url + "?lite=1", { cache: "no-store", signal: controller.signal });
+                    clearTimeout(timer);
+                    if (response.status === 404) return { status: "missing", product: null };
+                    const data = await response.json();
+                    if (!response.ok || !data.success || !data.product) throw new Error("HTTP " + response.status + " " + (data.message || ""));
+                    return { status: "ok", product: data.product };
+                  } catch (error) {
+                    clearTimeout(timer);
+                    lastError = error;
+                    if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+                  }
                 }
-                return { status: "ok", product: data.product };
+                console.warn("[cart] inventory check failed for", id, lastError && lastError.message);
+                throw lastError;
               })());
             }
             return productRequests.get(id);
@@ -3787,11 +3798,14 @@
                 item.quantity = Math.min(quantity, item.stock);
                 item.qty = item.quantity;
               }
-            } catch (_) {
-              // در خطای شبکه خرید با موجودی قدیمی مجاز نیست؛ پس وضعیت موقتاً تأییدنشده است.
+            } catch (error) {
+              // بعد از چند بار تلاش هم پاسخی نیامد: کالا را «ناموجود» نمی‌کنیم (قبلاً available=false در مرورگر
+              // ذخیره می‌شد و کالا تا یک همگام‌سازی موفق ناموجود می‌ماند). آخرین موجودی معلوم می‌ماند و سرور
+              // در مرحلهٔ ثبت سفارش موجودی را قطعی کنترل می‌کند.
+              console.warn("[cart] inventory unverified:", item.id, error && error.message);
               allVerified = false;
-              item.available = false;
               item.inventoryStatus = "unverified";
+              if (item.available === undefined || item.available === null) item.available = true;
             }
           }));
 
@@ -3820,6 +3834,10 @@
 
           lastInventorySyncAt = Date.now();
           lastInventoryOk = allVerified;
+          if (!allVerified && !syncCartInventory._retried) {
+            syncCartInventory._retried = true;
+            setTimeout(() => { syncCartInventory({ render: true }).finally(() => { syncCartInventory._retried = false; }); }, 6000);
+          }
           saveCart();
           if (render) renderCartItems();
           updateCartBadge();
@@ -3929,10 +3947,10 @@
           let stockClass = "in-stock";
           let stockText = hasStock ? `موجود در انبار (${toPersian(item.stock)} عدد)` : "در حال بررسی موجودی";
           let stockIcon = hasStock ? "ti-circle-check" : "ti-refresh";
-          if (item.inventoryStatus === "unverified") {
-            stockClass = "out-of-stock";
-            stockText = "امکان بررسی موجودی نیست؛ دوباره تلاش کنید";
-            stockIcon = "ti-alert-circle";
+          if (item.inventoryStatus === "unverified" && item.available) {
+            stockClass = "low-stock";
+            stockText = "موجودی هنگام ثبت سفارش دوباره بررسی می‌شود";
+            stockIcon = "ti-info-circle";
           } else if (!item.available) {
             stockClass = "out-of-stock";
             stockText = "ناموجود";
@@ -4270,11 +4288,9 @@
         try {
           // اگر موجودی همین چند ثانیه پیش با موفقیت بررسی شده، دوباره منتظر شبکه نمی‌مانیم
           // (سرور هم در مرحلهٔ پرداخت موجودی را دوباره قطعی کنترل می‌کند).
-          const inventoryVerified = (lastInventoryOk && Date.now() - lastInventorySyncAt < 20000) ? true : await syncCartInventory();
-          if (!inventoryVerified) {
-            showToast("بررسی موجودی انجام نشد؛ اتصال اینترنت را بررسی و دوباره تلاش کنید");
-            return;
-          }
+          if (!(lastInventoryOk && Date.now() - lastInventorySyncAt < 20000)) await syncCartInventory();
+          // اگر فقط «تأییدنشده» (خطای گذرای شبکه) بود، ادامه می‌دهیم: صفحهٔ پرداخت/سرور موجودی را قطعی کنترل می‌کند
+          // و کالای ناموجود را با پیام روشن حذف می‌کند.
           const availableItems = cartData.filter((i) => i.available);
           if (availableItems.length === 0) {
             showToast("کالاهای سبد خرید در حال حاضر ناموجود هستند");
