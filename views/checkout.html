@@ -62,7 +62,7 @@
       .co-step.active i, .co-step.done i { background: var(--blue); border-color: var(--blue); color: #fff; }
       .co-step-sep { width: 20px; height: 1px; background: var(--border); }
 
-      .co-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
+      .co-layout { display: grid; grid-template-columns: minmax(0, 1fr) 352px; gap: 18px; align-items: start; }
       .co-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
       .co-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
       .co-card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; font-weight: 800; margin-bottom: 14px; }
@@ -167,7 +167,7 @@
       .co-sum-row.total { border-bottom: 0; padding-top: 16px; font-weight: 800; color: var(--text-1); font-size: 15px; }
       .co-sum-row.total b { font-size: 16px; }
       .co-strike { display: block; text-align: left; font-size: 12px; font-weight: 500; color: var(--text-4); text-decoration: line-through; text-decoration-thickness: 1px; }
-      .co-summary .co-btn { margin-top: 12px; }
+      .co-summary .co-btn { margin-top: 12px; height: 50px; padding: 0 22px; border-radius: 8px; font-size: 15px; } /* هم‌اندازهٔ دکمهٔ سبد خرید (دسکتاپ ۵۰) */
       .co-toman { font-size: 11px; font-weight: 500; color: var(--text-3); margin-right: 3px; }
 
       .co-mobile-bar { display: none; }
@@ -193,10 +193,10 @@
         body:has(.co-mobile-bar) #plAssistantToggle { bottom: calc(150px + env(safe-area-inset-bottom)) !important; }
         body:has(.co-mobile-bar) #plAssistant { bottom: calc(214px + env(safe-area-inset-bottom)) !important; }
         .co-toast { bottom: calc(214px + env(safe-area-inset-bottom)); } /* بالاتر از دکمهٔ آبی پشتیبانی تا روی هم نیفتند */
-        .co-mobile-total small { display: block; color: var(--text-3); font-size: 12px; line-height: 1.4; }
-        .co-mobile-total b { font-size: 16px; }
-        .co-mobile-bar .co-btn { flex: 1; max-width: 220px; }
-        .co-mobile-bar--btn-only .co-btn { max-width: none; }
+        /* اندازهٔ نوار پایین و دکمهٔ آبی دقیقاً مثل صفحهٔ سبد خرید (ارتفاع ۴۶، فونت ۱۴، گوشهٔ ۸، مبلغ آبی ۱۶) */
+        .co-mobile-total small { display: block; color: var(--text-3); font-size: 11px; line-height: 1.4; }
+        .co-mobile-total b { font-size: 16px; font-weight: 800; color: var(--blue); direction: ltr; }
+        .co-mobile-bar .co-btn { flex: 0 0 auto; min-width: 145px; height: 46px; padding: 0 28px; border-radius: 8px; font-size: 14px; }
         .co-steps { display: none; }
       }
       @media (max-width: 560px) {
