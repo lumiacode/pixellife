@@ -70,6 +70,9 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // خلاصهٔ پذیرش قوانین؛ مدرک کامل (IP، متن، اثر انگشت) در مدل TermsAcceptance است.
+    termsAcceptedAt: { type: Date, default: null },
+    termsVersion: { type: String, default: "" },
   },
   { timestamps: true },
 );
