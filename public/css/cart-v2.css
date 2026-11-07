@@ -122,3 +122,7 @@ html body .cart-item-remove .ti { color: inherit; }
   html body .cart-item-prices { width: 100%; }
   html body .cart-item-controls { padding-top: 2px; }
 }
+
+/* سبد خرید مثل صفحهٔ پرداخت: هدر و منوی بالا ثابت نیستند؛ با صفحه می‌روند و فقط با برگشتن به بالای صفحه دیده می‌شوند. */
+html body .header, html body .navbar { position: static !important; top: auto !important; transform: none !important; }
+html body .cart-summary-col { top: 16px !important; }
