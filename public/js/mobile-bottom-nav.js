@@ -3,8 +3,8 @@
   if (!isMobileViewport) return;
 
   // Samsung Internet و مرورگرهای سازگار، نوار رابط مرورگر را از theme-color می‌خوانند.
-  // آن را با نوار ثابت پایین فروشگاه یک‌رنگ نگه می‌داریم.
-  const browserChromeColor = "#1b1b1b";
+  // رنگ آبی برند سایت (هم‌رنگ پنل ادمین)، تا نوار مرورگر و کادر تب آبی شود.
+  const browserChromeColor = "#2563eb";
   let themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (!themeColorMeta) {
     themeColorMeta = document.createElement("meta");
