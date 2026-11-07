@@ -24,7 +24,10 @@ html body .mobile-bottom-nav__badge {
   align-items: center !important; justify-content: center !important;
   font-family: inherit !important; font-size: 12px !important; font-weight: 800 !important;
   line-height: 1 !important; letter-spacing: 0 !important; white-space: nowrap !important; text-align: center !important;
-  font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate;
+  font-variant-numeric: normal; direction: ltr; unicode-bidi: isolate;
 }
 html body .cart-badge { top: -5px !important; left: -7px !important; }
+/* عدد دقیقاً وسط دایره: رقم‌ها در فونت کمی بالاتر از وسط خط می‌نشینند؛ اندازه‌گیری پیکسلی (۱٫۲ پیکسل لاتین، ۱ پیکسل فارسی) با padding-top جبران شد */
+html body .cart-badge { padding-top: 2.5px !important; }
+html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
 @media (max-width: 768px) { html body .mobile-bottom-nav__badge { top: 3px !important; } }
