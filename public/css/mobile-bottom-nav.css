@@ -813,12 +813,13 @@
    (پرداخت، قوانین، دسته‌بندی‌ها). تک‌رقمی دایرهٔ ۲۰×۲۰، دورقمی کپسول، عدد وسط. */
 html body .mobile-bottom-nav__badge {
   box-sizing: border-box !important;
-  min-width: 20px !important; width: auto !important; height: 20px !important; padding: 0 4px !important;
-  border: 2px solid #fff !important; border-radius: 999px !important;
-  background: #2563eb !important; color: #fff !important; box-shadow: 0 1px 3px rgba(37, 99, 235, .35) !important;
+  /* مثل نشان آیکن برنامه در اندروید: دایرهٔ پر و بزرگ، بدون حلقهٔ سفید، عدد درشت و بولد وسط آن */
+  min-width: 22px !important; width: auto !important; height: 22px !important; padding: 0 6px !important;
+  border: 0 !important; border-radius: 999px !important;
+  background: #2563eb !important; color: #fff !important; box-shadow: 0 1px 4px rgba(15, 23, 42, .28) !important;
   align-items: center !important; justify-content: center !important;
-  font-family: inherit !important; font-size: 11.5px !important; font-weight: 800 !important;
+  font-family: inherit !important; font-size: 14px !important; font-weight: 800 !important;
   line-height: 1 !important; letter-spacing: 0 !important; white-space: nowrap !important; text-align: center !important;
   font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate;
 }
-@media (max-width: 768px) { html body .mobile-bottom-nav__badge { top: 3px !important; } }
+@media (max-width: 768px) { html body .mobile-bottom-nav__badge { top: 0 !important; } }
