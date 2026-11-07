@@ -4224,13 +4224,12 @@
         const id = escapeHtml(String(p._id));
         homeCardProducts.set(String(p._id), p);
         const out = isProductOut(p) || p.comingSoon;
-        const cart = out ? "" : `<span class="pc-cart" role="button" tabindex="0" data-id="${id}" aria-label="افزودن به سبد خرید"><i class="ti ti-shopping-cart-plus"></i></span>`;
         return `
           <a href="/product/${slug}" class="product-card">
             <span class="pc-media"><img src="${img}" data-fallback="${fallbackImg}" alt="${name}" loading="lazy" decoding="async" onerror="if(this.dataset.fallback && this.src !== new URL(this.dataset.fallback, location.origin).href){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.onerror=null;this.src='/images/product-placeholder.svg';}"></span>
-            <h3>${name}</h3>
             <div class="pc-brand">${escapeHtml(p.brand || "")}</div>
-            <div class="pc-foot">${p.comingSoon ? '<div class="product-price"><span class="product-price-soon"><i class="ti ti-clock" aria-hidden="true"></i> به‌زودی</span></div>' : productPriceMarkup(p)}${cart}</div>
+            <h3>${name}</h3>
+            <div class="pc-foot">${p.comingSoon ? '<div class="product-price"><span class="product-price-soon"><i class="ti ti-clock" aria-hidden="true"></i> به‌زودی</span></div>' : productPriceMarkup(p)}</div>
           </a>`;
       }
 
