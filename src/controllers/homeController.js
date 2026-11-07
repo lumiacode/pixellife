@@ -457,7 +457,7 @@ function injectBehaviorTracker(html) {
 
 // دستیار خرید در تمام صفحه‌های عمومی فروشگاه درج می‌شود. صفحهٔ محصول از قبل
 // این اسکریپت را دارد؛ شرط زیر از درج دوبارهٔ آن جلوگیری می‌کند.
-const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=20" defer></script>';
+const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=21" defer></script>';
 function injectShoppingAssistant(html) {
   if (!html || html.includes("/js/shopping-assistant.js")) return html;
   return html.includes("</body>")
@@ -692,6 +692,8 @@ html.pl-hdr-hidden .header{transform:translateY(-100%);box-shadow:none}
 html.pl-hdr-hidden .navbar{transform:translateY(calc(-1 * var(--pl-hide-y,120px)));pointer-events:none}
 html.pl-hdr-hidden .header{pointer-events:none}
 html.pl-hdr-hidden .desktop-purchase-card{top:16px!important}
+.cart-summary-col,.am-filters{transition:top .28s ease}
+html.pl-hdr-hidden .cart-summary-col,html.pl-hdr-hidden .am-filters{top:16px!important}
 html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-hidden body.mobile-product-flow-active .mobile-product-section-nav{top:0!important}
 .desktop-purchase-card,body.mobile-product-flow-active .product-gallery,body.mobile-product-flow-active .mobile-product-section-nav{transition:top .28s ease}
 @media (max-width:768px){html,body{overflow-x:clip!important}}

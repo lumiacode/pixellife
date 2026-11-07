@@ -16,6 +16,18 @@
           appearance: none;
           transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
         }
+        /* با ورود به هر صفحه، دکمه یک‌بار تکان کوچک و سریع می‌خورد (صفحهٔ جدید = بارگذاری تازه، پس همیشه یک‌بار) */
+        @media (prefers-reduced-motion: no-preference) {
+          #plAssistantToggle { animation: plAssistNudge .6s ease-in-out .7s 1 both; }
+        }
+        @keyframes plAssistNudge {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          18% { transform: translateY(-5px) rotate(-9deg); }
+          36% { transform: translateY(0) rotate(7deg); }
+          54% { transform: translateY(-3px) rotate(-5deg); }
+          72% { transform: translateY(0) rotate(3deg); }
+          88% { transform: rotate(-1.5deg); }
+        }
         #plAssistantToggle:hover { transform: translateY(-2px) !important; box-shadow: 0 12px 28px rgba(37, 99, 235, .45) !important; }
         #plAssistantToggle:active { transform: scale(.96) !important; }
         #plAssistantToggle:focus-visible { outline: 3px solid rgba(37, 99, 235, .35) !important; outline-offset: 3px; }
