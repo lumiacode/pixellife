@@ -384,9 +384,9 @@ const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=9"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=37" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=38" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=38"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=39"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
