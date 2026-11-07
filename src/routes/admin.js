@@ -67,6 +67,17 @@ router.get("/customers", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-customers.html"));
 });
 
+// مدرک پذیرش قوانین هر مشتری (صفحهٔ چاپ‌پذیر)
+router.get("/users/:id/terms-evidence", requireAdmin, async (req, res) => {
+  try {
+    const result = await require("../services/termsEvidencePage").render(req.params.id);
+    res.status(result.status).type("html").send(result.html);
+  } catch (error) {
+    console.error("Terms evidence error:", error.message);
+    res.status(500).type("text").send("خطا در دریافت مدرک");
+  }
+});
+
 router.get("/wallets", requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-wallets.html"));
 });

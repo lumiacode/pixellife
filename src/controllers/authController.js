@@ -3,6 +3,7 @@ const OTP = require("../models/OTP");
 const tokenService = require("../services/tokenService");
 const otpService = require("../services/otpService");
 const ApiError = require("../utils/ApiError");
+const termsConsent = require("../services/termsConsent");
 const Address = require("../models/Address");
 const { profileStatus, publicUser } = require("../services/profileStatus");
 
@@ -87,6 +88,8 @@ exports.sendOtp = async (req, res, next) => {
     if (channel === "email")
       return next(new ApiError(400, "ورود با ایمیل هنوز فعال نیست"));
     if (type === "forgot") return next(new ApiError(400, "نوع کد تأیید نامعتبر است"));
+    // ثبت‌نام (شمارهٔ جدید) بدون تأیید قوانین پیامکی ارسال نمی‌کند.
+    if (type === "register") termsConsent.assertAccepted(req.body);
 
     // حساب کاربر جدید فقط بعد از تأیید کد ساخته می‌شود (در verifyLoginOtp)؛ ارسال کد رکوردی نمی‌سازد.
 
@@ -110,6 +113,10 @@ exports.verifyLoginOtp = async (req, res, next) => {
     const { code } = req.body;
     const identifier = normalizeIdentifier(req.body.identifier);
 
+    // ثبت‌نام کاربر جدید بدون تأیید قوانین ممکن نیست؛ قبل از مصرف‌شدن کد بررسی می‌شود تا کد هدر نرود.
+    const existingBeforeVerify = await findUserByIdentifier(identifier);
+    if (!existingBeforeVerify) termsConsent.assertAccepted(req.body);
+
     // تأیید کد OTP (register یا login). خطای «تلاش زیاد» مستقیم به کاربر برمی‌گردد.
     let verified = false;
     let lastError = null;
@@ -132,6 +139,14 @@ exports.verifyLoginOtp = async (req, res, next) => {
     if (!user) {
       const isMobile = /^09\d{9}$/.test(identifier);
       user = await User.create(isMobile ? { mobile: identifier } : { email: identifier });
+      // مدرک پذیرش قوانین (زمان، IP، مرورگر، متن و اثر انگشت قوانین) برای همین ثبت‌نام
+      try {
+        await termsConsent.record({ user, req });
+      } catch (recordError) {
+        // حساب بدون مدرک پذیرش نباید بماند؛ کاربر می‌تواند دوباره کد بگیرد.
+        await User.deleteOne({ _id: user._id }).catch(() => {});
+        throw recordError;
+      }
     }
     if (!user.isActive) {
       return next(new ApiError(403, "حساب کاربری شما غیرفعال شده است"));
@@ -312,6 +327,7 @@ exports.resendOtp = async (req, res, next) => {
       return next(new ApiError(400, "ورود با ایمیل هنوز فعال نیست"));
 
     // برای register/login کاربر ممکن است هنوز ساخته نشده باشد (ساخت بعد از تأیید کد).
+    if (type === "register") termsConsent.assertAccepted(req.body);
 
     // برای نوع forgot: کاربر باید وجود داشته باشد
     if (type === "forgot") {
