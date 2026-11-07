@@ -183,6 +183,7 @@
         .co-mobile-total small { display: block; color: var(--text-3); font-size: 12px; line-height: 1.4; }
         .co-mobile-total b { font-size: 16px; }
         .co-mobile-bar .co-btn { flex: 1; max-width: 220px; }
+        .co-mobile-bar--btn-only .co-btn { max-width: none; }
         .co-steps { display: none; }
       }
       @media (max-width: 560px) {
@@ -380,14 +381,16 @@
           ) : "";
           return (
             '<aside class="co-summary" id="coSummary">' + breakdown +
-            '<div class="co-sum-row total"><span>مبلغ قابل پرداخت</span><b>' + (full && p.savings > 0 ? '<span class="co-strike">' + money(fullPrice) + "</span>" : "") + toman(p.total) + "</b></div>" +
+            // مرحلهٔ آدرس: مبلغ قابل پرداخت نمایش داده نمی‌شود (فقط در صفحهٔ آخر)
+            (full ? '<div class="co-sum-row total"><span>مبلغ قابل پرداخت</span><b>' + (p.savings > 0 ? '<span class="co-strike">' + money(fullPrice) + "</span>" : "") + toman(p.total) + "</b></div>" : "") +
             '<button type="button" class="co-btn block" data-primary>' + esc(buttonLabel) + "</button>" +
             "</aside>"
           );
         }
-        function mobileBar(buttonLabel) {
+        function mobileBar(buttonLabel, showTotal) {
           return (
-            '<div class="co-mobile-bar"><div class="co-mobile-total"><small>مبلغ قابل پرداخت</small><b>' + toman(quote.pricing.total) + "</b></div>" +
+            '<div class="co-mobile-bar' + (showTotal ? "" : " co-mobile-bar--btn-only") + '">' +
+            (showTotal ? '<div class="co-mobile-total"><small>مبلغ قابل پرداخت</small><b>' + toman(quote.pricing.total) + "</b></div>" : "") +
             '<button type="button" class="co-btn" data-primary>' + esc(buttonLabel) + "</button></div>"
           );
         }
@@ -456,7 +459,7 @@
           document.getElementById("coStep1").classList.add("active");
           var label = "ثبت سفارش";
           root.innerHTML =
-            '<div class="co-layout"><div class="co-main">' + addressCard() + shippingMethodCard() + shipmentCard() + "</div>" + summaryCard(label, false) + "</div>" + mobileBar(label);
+            '<div class="co-layout"><div class="co-main">' + addressCard() + shippingMethodCard() + shipmentCard() + "</div>" + summaryCard(label, false) + "</div>" + mobileBar(label, false);
         }
 
         /* ───────── مرحله ۲: پرداخت ───────── */
@@ -528,7 +531,7 @@
           document.getElementById("coStep2").classList.add("active");
           var label = "پرداخت";
           root.innerHTML =
-            '<div class="co-layout"><div class="co-main">' + orderDetailsCard() + orderItemsCard() + paymentMethodCard() + couponCard() + "</div>" + summaryCard(label, true) + "</div>" + mobileBar(label);
+            '<div class="co-layout"><div class="co-main">' + orderDetailsCard() + orderItemsCard() + paymentMethodCard() + couponCard() + "</div>" + summaryCard(label, true) + "</div>" + mobileBar(label, true);
         }
 
         /* ───────── اکشن‌ها ───────── */
