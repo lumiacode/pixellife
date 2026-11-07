@@ -1,4 +1,5 @@
 const { body, validationResult } = require("express-validator");
+const { faOnly } = require("../utils/persianText");
 const ApiError = require("../utils/ApiError");
 
 const toEnglishDigits = (value) =>
@@ -33,19 +34,28 @@ const receiverMobileValidation = () =>
     .matches(/^09\d{9}$/)
     .withMessage("شماره موبایل گیرنده معتبر نیست");
 
+// نام گیرنده و عنوان آدرس (اختیاری): اگر آمد فقط فارسی
+const personTextValidation = () => [
+  body("receiverName").optional({ checkFalsy: true }).trim().custom(faOnly).withMessage("نام گیرنده را فقط با حروف فارسی وارد کنید"),
+  body("title").optional({ checkFalsy: true }).trim().custom(faOnly).withMessage("عنوان آدرس را فقط با حروف فارسی وارد کنید"),
+];
+
 // ایجاد آدرس: فیلدهای اصلی الزامی هستند
 exports.createAddressValidator = [
-  body("province").trim().notEmpty().withMessage("استان الزامی است"),
-  body("city").trim().notEmpty().withMessage("شهر الزامی است"),
+  body("province").trim().notEmpty().withMessage("استان الزامی است").custom(faOnly).withMessage("استان را فقط با حروف فارسی وارد کنید"),
+  body("city").trim().notEmpty().withMessage("شهر الزامی است").custom(faOnly).withMessage("شهر را فقط با حروف فارسی وارد کنید"),
   body("fullAddress")
     .trim()
     .notEmpty()
     .withMessage("آدرس کامل الزامی است")
     .isLength({ min: 10 })
-    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
+    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد")
+    .custom(faOnly)
+    .withMessage("آدرس را فقط با حروف فارسی وارد کنید"),
   postalCodeValidation(true),
   ...locationValidation(),
   receiverMobileValidation(),
+  ...personTextValidation(),
 ];
 
 // ویرایش آدرس: فیلدها اختیاری هستند، اما در صورت ارسال باید معتبر باشند
@@ -54,20 +64,27 @@ exports.updateAddressValidator = [
     .optional({ checkFalsy: true })
     .trim()
     .notEmpty()
-    .withMessage("استان نامعتبر است"),
+    .withMessage("استان نامعتبر است")
+    .custom(faOnly)
+    .withMessage("استان را فقط با حروف فارسی وارد کنید"),
   body("city")
     .optional({ checkFalsy: true })
     .trim()
     .notEmpty()
-    .withMessage("شهر نامعتبر است"),
+    .withMessage("شهر نامعتبر است")
+    .custom(faOnly)
+    .withMessage("شهر را فقط با حروف فارسی وارد کنید"),
   body("fullAddress")
     .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 10 })
-    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
+    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد")
+    .custom(faOnly)
+    .withMessage("آدرس را فقط با حروف فارسی وارد کنید"),
   postalCodeValidation(false),
   ...locationValidation(),
   receiverMobileValidation(),
+  ...personTextValidation(),
 ];
 
 exports.validate = (req, res, next) => {
