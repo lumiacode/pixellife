@@ -46,7 +46,6 @@
       ".pla-links{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px}",
       ".pla-link{border:0;background:transparent;color:#2563eb;font:700 13px Vazirmatn,Tahoma,sans-serif;cursor:pointer;padding:6px 10px;border-radius:10px}.pla-link:hover{background:#eff6ff}.pla-link[disabled]{color:#94a3b8;cursor:default;background:transparent}",
       ".pla-muted{color:#64748b;font-size:12.5px}",
-      ".pla-consent{display:flex;gap:10px;align-items:flex-start;margin:6px 0 4px;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:13px;line-height:1.9;color:#334155;cursor:pointer}.pla-consent input{flex:0 0 20px;width:20px;height:20px;margin-top:5px;accent-color:#2563eb}.pla-consent a{color:#2563eb;font-weight:700;text-decoration:none}.pla-btn:disabled{opacity:.5;cursor:not-allowed}" +
       ".pla-terms{margin:16px 0 0;text-align:center;font-size:11.5px;line-height:1.9;color:#94a3b8}.pla-terms a{color:#2563eb;font-weight:700;text-decoration:none}",
       ".pla-ok{width:76px;height:76px;margin:6px auto 16px;border-radius:50%;background:#ecfdf5;display:grid;place-items:center}.pla-ok svg{width:40px;height:40px;stroke:#16a34a;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;animation:plAuthTick .5s .1s ease-out both}",
       ".pla-step{animation:plAuthPop .2s ease-out}",
@@ -179,30 +178,6 @@
     $("#plaGo").addEventListener("click", submitPhone);
   }
 
-  var CONSENT_TEXT = "قوانین و مقررات پیکسل‌لایف (شامل شرایط ارسال، لغو و مرجوعی، گارانتی و حریم خصوصی) را خوانده‌ام و می‌پذیرم.";
-  function stepConsent(message) {
-    render(
-      '<h2 class="pla-title" id="plaTitle">ثبت‌نام در پیکسل‌لایف</h2>' +
-      '<p class="pla-sub">این شمارهٔ <b>' + esc(state.identifier) + '</b> هنوز ثبت‌نام نکرده است. برای ادامه، قوانین سایت را بپذیرید.</p>' +
-      '<label class="pla-consent"><input type="checkbox" id="plaTerms"><span>' + esc(CONSENT_TEXT) + ' <a href="/terms" target="_blank" rel="noopener">مشاهدهٔ قوانین</a></span></label>' +
-      '<div class="pla-err" role="alert">' + esc(message || "") + "</div>" +
-      '<button type="button" class="pla-btn" id="plaConsentGo" disabled>ادامه و دریافت کد تأیید</button>' +
-      '<div class="pla-links"><button type="button" class="pla-link" id="plaEdit">ویرایش شماره</button></div>',
-      "#plaTerms"
-    );
-    var box = $("#plaTerms"), go = $("#plaConsentGo");
-    box.addEventListener("change", function () { go.disabled = !box.checked; showError(""); });
-    $("#plaEdit").addEventListener("click", function () { stepPhone(); });
-    go.addEventListener("click", function () {
-      if (state.busy || !box.checked) return;
-      state.termsAccepted = true;
-      setBusy(go, true);
-      api("/api/auth/send-otp", { identifier: state.identifier, type: "register", termsAccepted: true })
-        .then(function () { setBusy(go, false); stepOtp(); })
-        .catch(function (err) { setBusy(go, false); state.termsAccepted = false; showError(err.message); });
-    });
-  }
-
   function submitPhone() {
     if (state.busy) return;
     var input = $("#plaId"), btn = $("#plaGo");
@@ -221,9 +196,6 @@
         return showError("ورود با ایمیل فعال نیست؛ با شمارهٔ موبایل وارد شوید", input);
       }
       state.mode = state.info.exists ? "login" : "register";
-      state.termsAccepted = false;
-      // کاربر جدید: قبل از ارسال کد باید قوانین را صریحاً تأیید کند (مدرک آن در سرور ذخیره می‌شود).
-      if (state.mode === "register") { setBusy(btn, false); return stepConsent(); }
       return api("/api/auth/send-otp", { identifier: id, type: state.mode }).then(function () { setBusy(btn, false); stepOtp(); });
     }).catch(function (err) { setBusy(btn, false); showError(err.message, input); });
   }
@@ -277,7 +249,7 @@
     var btn = $("#plaResend");
     if (state.busy) return;
     setBusy(btn, true);
-    var call = kind === "forgot" ? api("/api/auth/forgot-password", { identifier: state.identifier }) : api("/api/auth/resend-otp", { identifier: state.identifier, type: state.mode, termsAccepted: state.mode === "register" ? state.termsAccepted === true : undefined });
+    var call = kind === "forgot" ? api("/api/auth/forgot-password", { identifier: state.identifier }) : api("/api/auth/resend-otp", { identifier: state.identifier, type: state.mode });
     call.then(function () { setBusy(btn, false); startTimer(OTP_SECONDS); showError(""); var i = $("#plaCode"); if (i) { i.value = ""; i.focus(); startWebOtp(i); } })
       .catch(function (err) { setBusy(btn, false); showError(err.message); });
   }
@@ -288,7 +260,7 @@
     var code = toLatin(input.value).trim();
     if (!/^\d{5}$/.test(code)) return showError("کد باید ۵ رقم باشد", input);
     setBusy(btn, true);
-    api("/api/auth/verify-login-otp", { identifier: state.identifier, code: code, termsAccepted: state.mode === "register" ? state.termsAccepted === true : undefined })
+    api("/api/auth/verify-login-otp", { identifier: state.identifier, code: code })
       .then(function (resp) { clearInterval(state.timer); setBusy(btn, false); onLoggedIn(resp.user, resp.token, resp.needsProfile); })
       .catch(function (err) { setBusy(btn, false); input.value = ""; showError(err.message, input); input.focus(); });
   }

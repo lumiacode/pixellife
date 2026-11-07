@@ -35,8 +35,7 @@
     "prestart": "npm run test:product-page-contract",
     "test:contact-form": "node tests/contact-form.test.js",
     "test:contact-admin": "node tests/contact-admin.test.js",
-    "test:persian-only": "node tests/persian-only.test.js",
-    "test:terms-consent": "node tests/terms-consent.test.js"
+    "test:persian-only": "node tests/persian-only.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",

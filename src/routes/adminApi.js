@@ -1014,7 +1014,7 @@ router.get("/users", async (req, res) => {
     const [total, users] = await Promise.all([
       User.countDocuments(filter),
       User.find(filter)
-        .select("firstName lastName mobile email nationalCode birthDate isVerified isActive lastLogin createdAt termsAcceptedAt")
+        .select("firstName lastName mobile email nationalCode birthDate isVerified isActive lastLogin createdAt")
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)

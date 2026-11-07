@@ -39,8 +39,6 @@ stub("../src/models/Address", {
 });
 stub("../src/models/OTP", OTP);
 stub("../src/models/User", User);
-// ثبت‌نام جدید نیاز به تیک قوانین دارد؛ منطق آن در tests/terms-consent.test.js بررسی می‌شود.
-stub("../src/services/termsConsent", { assertAccepted() {}, record: async () => {} });
 stub("../src/services/smsService", { sendOTP: async () => {} });
 stub("../src/services/tokenService", { generateToken: () => "token" });
 stub("../src/config/env", { otpLength: 5, otpExpiryMinutes: 2 });

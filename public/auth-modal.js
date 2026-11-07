@@ -150,10 +150,6 @@
     }
     .shared-auth-back:hover { color: #2563eb; }
 
-    .shared-auth-consent { display: flex; gap: 10px; align-items: flex-start; margin: 10px 0 0; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13px; line-height: 1.9; color: #334155; cursor: pointer; }
-    .shared-auth-consent[hidden] { display: none; }
-    .shared-auth-consent input { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 5px; accent-color: #2563eb; }
-    .shared-auth-consent a { color: #2563eb; font-weight: 700; text-decoration: none; }
     .shared-auth-terms { margin: 14px 0 0; font-size: 12px; line-height: 1.9; color: #64748b; text-align: center; }
     .shared-auth-terms a { color: #2563eb; text-decoration: underline; }
     .shared-auth-resend {
@@ -261,7 +257,6 @@
 
   let currentIdentifier = "";
   let currentType = "login"; // login یا register
-  let currentTermsAccepted = false; // کاربر جدید باید قوانین را با تیک تأیید کند
   let timerInterval = null;
   let resendSeconds = 120;
 
@@ -381,7 +376,6 @@
           maxlength="13"
           required
         />
-        <label id="sharedAuthConsent" class="shared-auth-consent" hidden><input type="checkbox" id="sharedAuthConsentBox"><span>قوانین و مقررات پیکسل‌لایف (شامل شرایط ارسال، لغو و مرجوعی، گارانتی و حریم خصوصی) را خوانده‌ام و می‌پذیرم. <a href="/terms" target="_blank" rel="noopener">مشاهدهٔ قوانین</a></span></label>
         <div id="sharedAuthError" class="shared-auth-error"></div>
         <button type="submit" id="sharedAuthSubmit">دریافت کد تأیید</button>
         <p class="shared-auth-terms">با ورود یا ثبت‌نام، <a href="/terms" target="_blank" rel="noopener">قوانین و مقررات</a> سایت را می‌پذیرید.</p>
@@ -620,24 +614,9 @@
         currentType = "login";
       }
 
-      // کاربر جدید: ارسال کد فقط بعد از تیک‌زدن قوانین.
-      currentTermsAccepted = false;
-      if (currentType === "register") {
-        const row = document.getElementById("sharedAuthConsent");
-        const box = document.getElementById("sharedAuthConsentBox");
-        if (row) row.hidden = false;
-        if (!box || !box.checked) {
-          showError("برای ثبت‌نام، قوانین و مقررات را مطالعه و با تیک‌زدن تأیید کنید.");
-          setLoading(button, false, "دریافت کد تأیید");
-          return;
-        }
-        currentTermsAccepted = true;
-      }
-
       await apiRequest("/api/auth/send-otp", {
         identifier: currentIdentifier,
         type: currentType,
-        termsAccepted: currentType === "register" ? currentTermsAccepted : undefined,
       });
 
       showOtpStep();
@@ -670,7 +649,6 @@
       const result = await apiRequest("/api/auth/verify-login-otp", {
         identifier: currentIdentifier,
         code,
-        termsAccepted: currentType === "register" ? currentTermsAccepted : undefined,
       });
 
       if (result.token) {
@@ -720,7 +698,6 @@
       await apiRequest("/api/auth/resend-otp", {
         identifier: currentIdentifier,
         type: currentType,
-        termsAccepted: currentType === "register" ? currentTermsAccepted : undefined,
       });
 
       startTimer();
