@@ -37,6 +37,9 @@
     ".pl-sg-recent a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}" +
     ".pl-sg-del{flex:0 0 auto;width:36px;height:36px;margin-inline-end:6px;border:0;border-radius:50%;background:none;color:#94a3b8;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}" +
     ".pl-sg-del:hover,.pl-sg-del:focus-visible{background:#f1f5f9;color:#dc2626}" +
+    ".pl-sg-pop{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px 14px}" +
+    ".pl-sg a.pl-sg-chip{display:inline-flex;padding:7px 14px;border:1px solid #e2e8f0;border-radius:999px;background:#fff;font-size:13px;font-weight:600;color:#334155}" +
+    ".pl-sg a.pl-sg-chip:hover,.pl-sg a.pl-sg-chip.is-active{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}" +
     ".pl-sg a:focus-visible,.pl-sg button:focus-visible{outline:2px solid #2563eb;outline-offset:-2px}";
   document.head.appendChild(style);
 
@@ -93,15 +96,52 @@
   }
   function hide() { panel.hidden = true; active = -1; input.setAttribute("aria-expanded", "false"); }
   function show() { panel.hidden = false; input.setAttribute("aria-expanded", "true"); }
+  /* پرجستجوها: از خود فهرست کالاهای سایت ساخته می‌شود تا هر چیپ حتماً نتیجه داشته باشد (بدون فهرست دستی و فرضی). */
+  var POPULAR_MAX = 8, popular = null, popularLoading = false;
+  var POPULAR_WORDS = [
+    { term: "آیفون", match: /آیفون|ایفون|iphone/i }, { term: "سامسونگ", match: /سامسونگ|samsung/i }, { term: "شیائومی", match: /شیائومی|xiaomi/i },
+    { term: "آیپد", match: /آیپد|ایپد|ipad/i }, { term: "ایرپاد", match: /ایرپاد|airpods?/i }, { term: "ساعت هوشمند", match: /ساعت هوشمند|smart ?watch|اپل واچ/i },
+    { term: "شارژر", match: /شارژر|charger/i }, { term: "پاوربانک", match: /پاوربانک|power ?bank/i }, { term: "هندزفری", match: /هندزفری|هدفون|handsfree|headphone/i },
+    { term: "کابل", match: /کابل|cable/i }, { term: "قاب", match: /قاب|کاور|case/i }, { term: "گلس", match: /گلس|محافظ صفحه/i },
+    { term: "تبلت", match: /تبلت|tablet/i }, { term: "کنسول", match: /کنسول|پلی ?استیشن|playstation|ps5|xbox/i }
+  ];
+  function ensurePopular() {
+    if (popular !== null || popularLoading) return;
+    popularLoading = true;
+    fetch("/api/products?limit=40")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var list = data && data.success && Array.isArray(data.products) ? data.products : [];
+        var texts = list.map(function (p) { return [p.name, p.brand, p.category].join(" "); });
+        popular = POPULAR_WORDS.map(function (w) { return { term: w.term, n: texts.filter(function (t) { return w.match.test(t); }).length }; })
+          .filter(function (w) { return w.n > 0; })
+          .sort(function (a, b) { return b.n - a.n; })
+          .slice(0, POPULAR_MAX).map(function (w) { return w.term; });
+        popularLoading = false;
+        if (!panel.hidden || document.activeElement === input) { if (input.value.trim().length < 2) renderRecents(input.value.trim()); }
+      })
+      .catch(function () { popular = []; popularLoading = false; });
+  }
   function renderRecents(q) {
     var key = (q || "").toLowerCase();
     var list = readRecents().filter(function (t) { return !key || t.toLowerCase().indexOf(key) !== -1; });
-    if (!list.length) { hide(); return false; }
-    panel.innerHTML = '<div class="pl-sg-headrow"><span class="pl-sg-head">جستجوهای اخیر</span><button type="button" class="pl-sg-clear" data-clear>پاک کردن همه</button></div>' +
-      list.map(function (t) {
-        return '<div class="pl-sg-recent" role="presentation"><a href="/search.html?q=' + encodeURIComponent(t) + '" data-recent="' + esc(t) + '"><i class="ti ti-history" aria-hidden="true"></i><span>' + esc(t) + '</span></a>' +
-          '<button type="button" class="pl-sg-del" data-del="' + esc(t) + '" aria-label="حذف «' + esc(t) + '» از جستجوهای اخیر"><i class="ti ti-x" aria-hidden="true"></i></button></div>';
-      }).join("");
+    var pops = !key && popular ? popular : [];
+    if (popular === null) ensurePopular();
+    if (!list.length && !pops.length) { hide(); return false; }
+    var html = "";
+    if (list.length) {
+      html += '<div class="pl-sg-headrow"><span class="pl-sg-head">جستجوهای اخیر</span><button type="button" class="pl-sg-clear" data-clear>پاک کردن همه</button></div>' +
+        list.map(function (t) {
+          return '<div class="pl-sg-recent" role="presentation"><a href="/search.html?q=' + encodeURIComponent(t) + '" data-recent="' + esc(t) + '"><i class="ti ti-history" aria-hidden="true"></i><span>' + esc(t) + '</span></a>' +
+            '<button type="button" class="pl-sg-del" data-del="' + esc(t) + '" aria-label="حذف «' + esc(t) + '» از جستجوهای اخیر"><i class="ti ti-x" aria-hidden="true"></i></button></div>';
+        }).join("");
+    }
+    if (pops.length) {
+      html += '<div class="pl-sg-head">پرجستجوها</div><div class="pl-sg-pop">' + pops.map(function (t) {
+        return '<a class="pl-sg-chip" href="/search.html?q=' + encodeURIComponent(t) + '" data-pop="' + esc(t) + '">' + esc(t) + "</a>";
+      }).join("") + "</div>";
+    }
+    panel.innerHTML = html;
     place();
     show();
     active = -1;
@@ -207,8 +247,8 @@
     }
     var all = event.target.closest(".pl-sg-all, .pl-sg-item, .pl-sg-cat");
     if (all) addRecent(input.value);
-    var rec = event.target.closest("[data-recent]");
-    if (rec) addRecent(rec.getAttribute("data-recent"));
+    var rec = event.target.closest("[data-recent],[data-pop]");
+    if (rec) addRecent(rec.getAttribute("data-recent") || rec.getAttribute("data-pop"));
   });
   // ثبت جستجو قبل از رفتن به صفحهٔ نتایج (Enter یا دکمهٔ جستجو)؛ مرحلهٔ capture تا قبل از ریدایرکت اجرا شود
   input.addEventListener("keydown", function (event) { if (event.key === "Enter" && active < 0) addRecent(input.value); }, true);

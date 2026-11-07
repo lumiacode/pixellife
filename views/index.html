@@ -2545,6 +2545,13 @@
         .home-trust-item strong { font-size: 12px; }
         .home-trust-item small { font-size: 11px; }
       }
+
+      /* اخیراً دیده‌اید + فیلتر سریع */
+      .home-clear-btn { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-3); cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+      .home-clear-btn:hover { color: var(--blue-dark, #2563eb); background: var(--blue-light, #eff6ff); }
+      .home-chips[hidden] { display: none; }
+      .home-chips button[aria-pressed="true"] { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); color: #fff; }
+      .home-chip-empty { flex: 1 0 100%; padding: 28px 12px; text-align: center; font-size: 13px; color: var(--text-3); }
     </style>
 </head>
   <body>
@@ -2958,6 +2965,15 @@
       <!-- ═══ کدهای جدید را دقیقاً اینجا کپی کنید ═══ -->
 
       <!-- ═══ PIXELLIFE AMAZING OFFERS ═══ -->
+      <!-- ═══ اخیراً دیده‌اید: از تاریخچهٔ همین مرورگر؛ اگر چیزی دیده نشده باشد نمایش داده نمی‌شود ═══ -->
+      <section class="product-section home-rail-section" id="recentHomeSection" aria-labelledby="recentHomeTitle" hidden>
+        <div class="section-header">
+          <h2 id="recentHomeTitle">اخیراً دیده‌اید</h2>
+          <button type="button" class="home-clear-btn" id="recentHomeClear">پاک کردن</button>
+        </div>
+        <div class="product-grid home-rail" id="recentHomeGrid"></div>
+      </section>
+
       <section class="amazing-offers" id="amazingOffers" aria-labelledby="amazingTitle" hidden>
         <div class="amazing-offers-inner">
           <div class="amazing-offers-brand">
@@ -2981,6 +2997,7 @@
         <div class="section-header">
           <h2>محصولات منتخب</h2>
         </div>
+        <div class="home-chips" id="featuredChips" role="group" aria-label="فیلتر سریع محصولات" hidden></div>
 
         <div class="product-grid home-rail" id="featuredProductsGrid" aria-busy="true">
           <div class="home-skeleton-grid" aria-hidden="true"><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div><div class="home-skeleton-card"><span class="sk-img"></span><span class="sk-line"></span><span class="sk-line sk-short"></span><span class="sk-price"></span></div></div>
@@ -4432,6 +4449,82 @@
           });
         } catch (err) { /* اختیاری */ }
       }
+
+
+      /* ══ اخیراً دیده‌اید ══
+         شناسهٔ کالاهای دیده‌شده را صفحهٔ محصول در localStorage نگه می‌دارد (digishop_recently_viewed).
+         اول از همان فهرست ۴۰تایی صفحهٔ اصلی پیدا می‌شوند؛ مابقی تک‌به‌تک گرفته می‌شوند. «دیده‌شده»های صفحه را تغییر نمی‌دهد. */
+      async function loadRecentHome() {
+        const section = document.getElementById("recentHomeSection");
+        if (!section) return;
+        let ids = [];
+        try {
+          const saved = JSON.parse(localStorage.getItem("digishop_recently_viewed") || "[]");
+          ids = Array.isArray(saved) ? [...new Set(saved.map((v) => String(v || "").trim()).filter(Boolean))].slice(0, 12) : [];
+        } catch (_) {}
+        if (!ids.length) return;
+        try {
+          const all = await getHomeProducts().catch(() => []);
+          const resolved = await Promise.all(ids.map(async (id) => {
+            const hit = all.find((p) => String(p._id) === id || String(p.slug) === id);
+            if (hit) return hit;
+            try {
+              const res = await fetch(/^[a-f0-9]{24}$/i.test(id) ? "/api/products/id/" + id : "/api/products/" + encodeURIComponent(id), { cache: "no-store" });
+              if (!res.ok) return null;
+              const data = await res.json();
+              return data.success && data.product ? data.product : null;
+            } catch (_) { return null; }
+          }));
+          const seen = new Set();
+          const items = resolved.filter(Boolean).filter((p) => { const k = String(p._id); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 10);
+          if (!items.length) return;
+          fillRail("recentHomeSection", "recentHomeGrid", items);
+        } catch (_) { /* بخش اختیاری است */ }
+      }
+      document.getElementById("recentHomeClear")?.addEventListener("click", () => {
+        try { localStorage.removeItem("digishop_recently_viewed"); } catch (_) {}
+        document.getElementById("recentHomeGrid").innerHTML = "";
+        document.getElementById("recentHomeSection").hidden = true;
+      });
+      loadRecentHome();
+
+      /* ══ فیلتر سریع «محصولات منتخب» ══
+         چیپ‌ها با هم ترکیب می‌شوند (و). بدون چیپ فعال، همان ردیف منتخب‌ها دست‌نخورده می‌ماند؛
+         با چیپ فعال، از کل فهرست ۴۰تایی صفحه (نه فقط منتخب‌ها) تا ۱۲ کالا نشان داده می‌شود. */
+      (function setupFeaturedChips() {
+        const chips = document.getElementById("featuredChips");
+        const grid = document.getElementById("featuredProductsGrid");
+        if (!chips || !grid) return;
+        const defs = [
+          { key: "stock", label: "فقط موجود", test: (p) => !p.comingSoon && isInStock(p) },
+          { key: "sale", label: "تخفیف‌دار", test: (p) => !p.comingSoon && isInStock(p) && productPriceInfo(p).discount > 0 },
+          { key: "u5", label: "زیر ۵ میلیون", test: (p) => !p.comingSoon && isInStock(p) && finalPrice(p) > 0 && finalPrice(p) < 5000000 },
+        ];
+        const active = new Set();
+        let original = null;
+        chips.innerHTML = defs.map((d) => '<button type="button" data-k="' + d.key + '" aria-pressed="false">' + d.label + "</button>").join("");
+        const apply = async () => {
+          chips.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", active.has(b.dataset.k) ? "true" : "false"));
+          if (original === null) original = grid.innerHTML;
+          if (!active.size) { grid.innerHTML = original; grid.scrollLeft = 0; return; }
+          const tests = defs.filter((d) => active.has(d.key));
+          let list = [];
+          try { list = (await getHomeProducts()).filter((p) => tests.every((d) => d.test(p))); } catch (_) {}
+          if (!active.size) return; // کاربر در همین فاصله چیپ‌ها را خاموش کرده
+          grid.innerHTML = list.length ? list.slice(0, 12).map(homeCardMarkup).join("") : '<p class="home-chip-empty">محصولی با این فیلتر پیدا نشد.</p>';
+          grid.scrollLeft = 0;
+        };
+        chips.addEventListener("click", (event) => {
+          const button = event.target.closest("button[data-k]");
+          if (!button) return;
+          if (active.has(button.dataset.k)) active.delete(button.dataset.k); else active.add(button.dataset.k);
+          apply();
+        });
+        // چیپ‌ها وقتی نشان داده می‌شوند که ردیف منتخب‌ها آمده باشد (تا روی اسکلت بارگذاری فیلتر نشود)
+        const reveal = () => { if (original === null && !grid.querySelector(".home-skeleton-grid") && grid.querySelector(".product-card")) chips.hidden = false; };
+        new MutationObserver(reveal).observe(grid, { childList: true });
+        reveal();
+      })();
 
       [loadAmazingOffers, loadHomeSections, loadFeaturedProducts, loadBestsellersRail, loadBudgetRail, loadNewRail, loadMobileAccessories].forEach(enqueueHomeRow);
 
