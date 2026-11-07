@@ -615,9 +615,12 @@ function injectPageStyle(html, fileName) {
   return html.includes("</head>") ? html.replace("</head>", `${tag}\n</head>`) : html;
 }
 
+// رفرش (F5 / کشیدن به پایین): صفحه از بالا شروع شود، نه از جایی که کاربر قبلاً بود.
+// فقط برای «reload»؛ دکمهٔ برگشت مرورگر و لینک‌های #... رفتار عادی را نگه می‌دارند.
+const SCROLL_TOP_ON_RELOAD = '<script id="pl-scroll-top">(function(){try{var n=performance.getEntriesByType("navigation")[0];if(!n||n.type!=="reload"||location.hash)return;if("scrollRestoration"in history)history.scrollRestoration="manual";window.scrollTo(0,0);window.addEventListener("load",function(){window.scrollTo(0,0);setTimeout(function(){history.scrollRestoration="auto"},0)})}catch(e){}})();</script>';
 function injectDesignTokens(html) {
   if (!html || !DESIGN_TOKENS_STYLE || html.includes('id="pl-design-tokens"') || html.includes("pl-tokens:off")) return html;
-  return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n</head>`) : html;
+  return html.includes("</head>") ? html.replace("</head>", `${DESIGN_TOKENS_STYLE}\n${html.includes('id="pl-scroll-top"') ? "" : SCROLL_TOP_ON_RELOAD}\n</head>`) : html;
 }
 
 function injectEnamadBadges(html) {
