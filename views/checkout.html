@@ -80,7 +80,19 @@
       .co-choice-title { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .co-choice-text { color: var(--text-2); margin-top: 2px; }
       .co-choice-meta { color: var(--text-3); font-size: 12.5px; margin-top: 4px; display: flex; gap: 14px; flex-wrap: wrap; }
-      .co-choice.disabled { opacity: .6; cursor: not-allowed; }
+      .co-choice.disabled { cursor: default; }
+      /* کیف پول با موجودی ناکافی: خود کادر کم‌رنگ نمی‌شود؛ فقط عنوان و رادیو غیرفعال‌اند و پیام و دکمهٔ شارژ کاملاً واضح‌اند */
+      .co-choice.is-locked { display: block; cursor: default; background: var(--white); border-color: var(--border); }
+      .co-choice.is-locked:hover { border-color: var(--border); }
+      .co-choice.is-locked .co-lock-head { display: flex; align-items: center; gap: 12px; }
+      .co-choice.is-locked .co-choice-title { color: var(--text-3); }
+      .co-choice.is-locked .co-radio { border-color: #d5dbe5; background: #f1f5f9; }
+      .co-wallet-balance { margin: 6px 32px 0 0; color: var(--text-3); font-size: 13px; }
+      .co-wallet-balance b { color: var(--text-2); font-weight: 700; }
+      .co-wallet-notice { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 13px; line-height: 1.9; }
+      .co-wallet-notice i { font-size: 18px; flex: none; margin-top: 2px; }
+      .co-wallet-charge { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 46px; margin-top: 12px; border-radius: var(--radius-sm); background: var(--blue-dark); color: #fff !important; font-weight: 800; font-size: 14px; text-decoration: none; }
+      .co-wallet-charge:active { background: #1d4ed8; }
       .co-badge { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--blue-light); color: var(--blue-dark); }
       .co-choice-price { font-weight: 800; white-space: nowrap; }
       .co-choice-price.free { color: var(--green); }
@@ -166,7 +178,7 @@
       .co-skeleton { height: 160px; border-radius: var(--radius); background: linear-gradient(90deg, var(--white) 25%, var(--border) 50%, var(--white) 75%); background-size: 200% 100%; animation: co-shimmer 1.3s infinite; }
       @keyframes co-shimmer { to { background-position: -200% 0; } }
 
-      .co-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-1); color: var(--white); padding: 11px 20px; border-radius: 99px; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: calc(100vw - 32px); }
+      .co-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-1); color: var(--white); width: max-content; padding: 12px 18px; border-radius: 14px; font-weight: 600; font-size: 13.5px; line-height: 1.9; text-align: right; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: calc(100vw - 32px); }
       .co-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
       @media (max-width: 900px) {
@@ -179,7 +191,7 @@
         body:has(.mobile-bottom-nav.is-scroll-hidden) .co-mobile-bar { transform: translate3d(0, calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)), 0); }
         body:has(.co-mobile-bar) #plAssistantToggle { bottom: calc(150px + env(safe-area-inset-bottom)) !important; }
         body:has(.co-mobile-bar) #plAssistant { bottom: calc(214px + env(safe-area-inset-bottom)) !important; }
-        .co-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+        .co-toast { bottom: calc(214px + env(safe-area-inset-bottom)); } /* بالاتر از دکمهٔ آبی پشتیبانی تا روی هم نیفتند */
         .co-mobile-total small { display: block; color: var(--text-3); font-size: 12px; line-height: 1.4; }
         .co-mobile-total b { font-size: 16px; }
         .co-mobile-bar .co-btn { flex: 1; max-width: 220px; }
@@ -472,13 +484,21 @@
             var isWallet = m.id === "wallet";
             var enough = !isWallet || walletBalance >= total;
             var selected = state.paymentMethod ? state.paymentMethod === m.id : i === 0;
-            var text = isWallet
-              ? "موجودی شما: " + money(walletBalance) + " تومان" + (enough ? "" : " — برای این سفارش کافی نیست")
-              : m.description;
+            if (isWallet && !enough) {
+              var shortage = Math.max(0, total - walletBalance);
+              return (
+                '<div class="co-choice is-locked" data-payment="' + esc(m.id) + '" aria-disabled="true">' +
+                '<div class="co-lock-head"><span class="co-radio"></span><span class="co-choice-title"><i class="ti ti-wallet"></i> ' + esc(m.title) + "</span></div>" +
+                '<div class="co-wallet-balance">موجودی شما: <b>' + toman(walletBalance) + "</b></div>" +
+                '<div class="co-wallet-notice"><i class="ti ti-alert-circle" aria-hidden="true"></i><span>موجودی کیف پول برای این سفارش کافی نیست. برای پرداخت با کیف پول حداقل <b>' + toman(shortage) + "</b> دیگر شارژ کنید.</span></div>" +
+                '<a class="co-wallet-charge" href="/profile/wallet"><i class="ti ti-wallet"></i> شارژ کیف پول</a></div>'
+              );
+            }
+            var text = isWallet ? "موجودی شما: " + money(walletBalance) + " تومان" : m.description;
             return (
-              '<button type="button" class="co-choice' + (selected ? " selected" : "") + (enough ? "" : " disabled") + '" data-payment="' + esc(m.id) + '"' + (enough ? "" : ' aria-disabled="true"') + ">" +
+              '<button type="button" class="co-choice' + (selected ? " selected" : "") + '" data-payment="' + esc(m.id) + '">' +
               '<span class="co-radio"></span><span class="co-choice-body"><span class="co-choice-title"><i class="ti ' + (isWallet ? "ti-wallet" : "ti-credit-card") + '"></i> ' + esc(m.title) + "</span>" +
-              '<span class="co-choice-text">' + esc(text) + (isWallet && !enough ? ' <a href="/profile/wallet" style="color:var(--blue);font-weight:700;text-decoration:underline">شارژ کیف پول</a>' : "") + "</span></span></button>"
+              '<span class="co-choice-text">' + esc(text) + "</span></span></button>"
             );
           }).join("");
           return '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-wallet"></i> روش پرداخت</span></div>' + rows + "</section>";
@@ -674,7 +694,7 @@
           }
           var pay = target.closest("[data-payment]");
           if (pay) {
-            if (pay.classList.contains("disabled")) { toast("موجودی کیف پول برای این سفارش کافی نیست؛ ابتدا کیف پول را شارژ کنید"); return; }
+            if (pay.classList.contains("is-locked")) { if (!target.closest("a")) toast("ابتدا کیف پول را شارژ کنید یا پرداخت اینترنتی را انتخاب کنید"); return; }
             state.paymentMethod = pay.dataset.payment; saveState(); return render();
           }
           if (target.closest("#coAddAddress")) {
