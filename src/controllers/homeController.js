@@ -384,9 +384,9 @@ const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=9"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=33" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=35" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=33"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=35"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
@@ -723,7 +723,7 @@ function injectProfileGate(html) {
 
 function injectHeaderAutohide(html) {
   if (!html || html.includes("header-autohide.js") || !/<header\b[^>]*class=["'][^"']*\bheader\b/i.test(html)) return html;
-  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n<link rel="stylesheet" href="/css/mini-cart-btn.css?v=8" />\n</head>`);
+  if (html.includes("</head>")) html = html.replace("</head>", `${HEADER_AUTOHIDE_STYLE}\n<link rel="stylesheet" href="/css/mobile-touch.css" />\n<link rel="stylesheet" href="/css/card-borders.css?v=3" />\n<link rel="stylesheet" href="/css/mini-cart-btn.css?v=10" />\n</head>`);
   return html.includes("</body>") ? html.replace("</body>", '<script src="/js/header-autohide.js" defer></script>\n</body>') : html;
 }
 
