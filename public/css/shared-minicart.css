@@ -1,5 +1,5 @@
 .cart-wrap{position: relative;}
-.cart-badge{position: absolute; top: 2px; left: 2px; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none;}
+.cart-badge{position: absolute; top: 2px; left: 2px; background: #2563eb; color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none;}
 .cart-dropdown{position: absolute; top: calc(100% + 10px); left: 0; width: 340px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; padding: 16px;}
 .cart-wrap:hover .cart-dropdown, .cart-wrap.open .cart-dropdown{opacity: 1; visibility: visible; transform: translateY(0);}
 .mini-cart-item{display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border);}
