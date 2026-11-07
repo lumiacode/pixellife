@@ -808,3 +808,17 @@
   .mobile-bottom-nav__item.is-expanded::after { display: none !important; content: none !important; }
   .mobile-bottom-nav__item.is-active, .mobile-bottom-nav__item.is-expanded { background: transparent !important; }
 }
+
+/* شمارندهٔ سبد (نوار پایین موبایل): آبی و استاندارد در همهٔ صفحه‌ها، حتی صفحه‌هایی که هدر سایت ندارند
+   (پرداخت، قوانین، دسته‌بندی‌ها). تک‌رقمی دایرهٔ ۲۰×۲۰، دورقمی کپسول، عدد وسط. */
+html body .mobile-bottom-nav__badge {
+  box-sizing: border-box !important;
+  min-width: 20px !important; width: auto !important; height: 20px !important; padding: 0 4px !important;
+  border: 2px solid #fff !important; border-radius: 999px !important;
+  background: #2563eb !important; color: #fff !important; box-shadow: 0 1px 3px rgba(37, 99, 235, .35) !important;
+  align-items: center !important; justify-content: center !important;
+  font-family: inherit !important; font-size: 11.5px !important; font-weight: 800 !important;
+  line-height: 1 !important; letter-spacing: 0 !important; white-space: nowrap !important; text-align: center !important;
+  font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate;
+}
+@media (max-width: 768px) { html body .mobile-bottom-nav__badge { top: 3px !important; } }
