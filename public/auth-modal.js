@@ -421,6 +421,7 @@
         <button type="button" id="sharedAuthBack" class="shared-auth-back">
           ← تغییر شماره موبایل
         </button>
+        <p class="shared-auth-terms">با وارد کردن این کد، <a href="/terms" target="_blank" rel="noopener">قوانین و مقررات</a> این سایت را پذیرفته‌اید.</p>
       </form>
     `;
 

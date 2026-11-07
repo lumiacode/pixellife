@@ -210,7 +210,8 @@
       '<button type="button" class="pla-btn" id="plaVerify">' + (forgot ? "ادامه" : "تأیید و ورود") + "</button>" +
       '<div class="pla-links"><span class="pla-muted" id="plaTimer"></span><button type="button" class="pla-link" id="plaResend" hidden>ارسال مجدد کد</button>' +
       (!forgot && state.info && state.info.hasPassword ? '<button type="button" class="pla-link" id="plaToPw">ورود با رمز عبور</button>' : "") +
-      '<button type="button" class="pla-link" id="plaEdit">ویرایش شماره</button></div>',
+      '<button type="button" class="pla-link" id="plaEdit">ویرایش شماره</button></div>' +
+      (forgot ? "" : '<p class="pla-terms">با وارد کردن این کد، <a href="/terms" target="_blank" rel="noopener">قوانین و مقررات</a> این سایت را پذیرفته‌اید.</p>'),
       "#plaCode"
     );
     var input = $("#plaCode");
