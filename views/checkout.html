@@ -114,6 +114,24 @@
       .co-product-qty { position: absolute; top: 6px; right: 6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: var(--text-1); color: var(--white); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
       .co-product-name { margin-top: 6px; font-size: 12px; line-height: 1.6; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
       .co-product-variant { font-size: 11.5px; color: var(--text-3); }
+      /* صفحهٔ آخر: فهرست کامل کالاها با قیمت */
+      .co-order-items { display: flex; flex-direction: column; }
+      .co-order-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+      .co-order-item + .co-order-item { border-top: 1px solid var(--border); }
+      .co-order-item .co-product-img { width: 72px; height: 72px; flex: none; }
+      .co-order-item .co-product-qty { top: 4px; right: 4px; }
+      .co-oi-info { flex: 1; min-width: 0; }
+      .co-oi-name { font-size: 13.5px; font-weight: 700; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .co-oi-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--text-3); margin-top: 2px; }
+      .co-oi-meta span { display: inline-flex; align-items: center; gap: 4px; }
+      .co-oi-price { flex: none; text-align: left; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 12px; color: var(--text-3); }
+      .co-oi-price .old { text-decoration: line-through; color: var(--text-4); }
+      .co-oi-price b { color: var(--text-1); font-size: 14px; font-weight: 800; }
+      .co-detail-grid { display: grid; grid-template-columns: 1fr; gap: 10px 20px; margin-bottom: 4px; }
+      .co-detail { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+      .co-detail > span:first-child { font-size: 12px; color: var(--text-3); }
+      .co-detail b { font-weight: 700; color: var(--text-1); line-height: 1.8; }
+      @media (min-width: 640px) { .co-detail-grid { grid-template-columns: 1fr 1fr; } .co-detail.full { grid-column: 1 / -1; } }
       .co-eta { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--amber-bg); color: var(--text-2); font-weight: 600; }
       .co-eta i { font-size: 20px; color: #d97706; }
       .co-shipment-total { margin-top: 12px; color: var(--text-2); }
@@ -348,18 +366,21 @@
             "</section>"
           );
         }
-        function summaryCard(buttonLabel) {
+        // full=true فقط در صفحهٔ آخر (پرداخت): ریز کامل مبلغ؛ در مرحلهٔ آدرس فقط مبلغ نهایی و دکمه.
+        function summaryCard(buttonLabel, full) {
           var p = quote.pricing;
           var percent = p.originalSubtotal > 0 ? Math.round((p.savings / p.originalSubtotal) * 100) : 0;
           var fullPrice = p.originalSubtotal + p.shipping;
-          return (
-            '<aside class="co-summary" id="coSummary">' +
+          var breakdown = full ? (
             '<div class="co-sum-row"><span>قیمت کالاها (' + fa(p.itemsCount) + ")</span><b>" + toman(p.originalSubtotal) + "</b></div>" +
             '<div class="co-sum-row"><span>هزینه ارسال</span><b>' + (p.shipping === 0 ? '<span style="color:var(--green)">رایگان</span>' : toman(p.shipping)) + "</b></div>" +
             (p.productDiscount > 0 ? '<div class="co-sum-row muted"><span><i class="ti ti-discount-2"></i> تخفیف کالاها</span><b>' + toman(p.productDiscount) + "</b></div>" : "") +
             (p.codeDiscount > 0 ? '<div class="co-sum-row muted"><span><i class="ti ti-ticket"></i> کد تخفیف</span><b>' + toman(p.codeDiscount) + "</b></div>" : "") +
-            (p.savings > 0 ? '<div class="co-sum-row profit"><span>سود شما از خرید</span><b>' + toman(p.savings) + (percent ? " (" + fa(percent) + "٪)" : "") + "</b></div>" : "") +
-            '<div class="co-sum-row total"><span>مبلغ قابل پرداخت</span><b>' + (p.savings > 0 ? '<span class="co-strike">' + money(fullPrice) + "</span>" : "") + toman(p.total) + "</b></div>" +
+            (p.savings > 0 ? '<div class="co-sum-row profit"><span>سود شما از خرید</span><b>' + toman(p.savings) + (percent ? " (" + fa(percent) + "٪)" : "") + "</b></div>" : "")
+          ) : "";
+          return (
+            '<aside class="co-summary" id="coSummary">' + breakdown +
+            '<div class="co-sum-row total"><span>مبلغ قابل پرداخت</span><b>' + (full && p.savings > 0 ? '<span class="co-strike">' + money(fullPrice) + "</span>" : "") + toman(p.total) + "</b></div>" +
             '<button type="button" class="co-btn block" data-primary>' + esc(buttonLabel) + "</button>" +
             "</aside>"
           );
@@ -435,7 +456,7 @@
           document.getElementById("coStep1").classList.add("active");
           var label = "ثبت سفارش";
           root.innerHTML =
-            '<div class="co-layout"><div class="co-main">' + addressCard() + shippingMethodCard() + shipmentCard() + "</div>" + summaryCard(label) + "</div>" + mobileBar(label);
+            '<div class="co-layout"><div class="co-main">' + addressCard() + shippingMethodCard() + shipmentCard() + "</div>" + summaryCard(label, false) + "</div>" + mobileBar(label);
         }
 
         /* ───────── مرحله ۲: پرداخت ───────── */
@@ -468,15 +489,36 @@
             '<div class="co-msg error" id="coCouponMsg"' + (quote.discountError ? "" : " hidden") + ">" + esc(quote.discountError) + "</div></section>"
           );
         }
-        function orderSummaryCard() {
+        // صفحهٔ آخر: همهٔ جزئیات سفارش یک‌جا (گیرنده، آدرس، ارسال، کالاها با قیمت، و پایین‌تر ریز مبلغ)
+        function orderDetailsCard() {
           var a = selectedAddress();
+          var detail = function (label, value, full) { return value ? '<div class="co-detail' + (full ? " full" : "") + '"><span>' + label + "</span><b>" + value + "</b></div>" : ""; };
           return (
-            '<section class="co-card"><div class="co-card-title"><span><i class="ti ti-receipt"></i> خلاصه سفارش</span><a class="co-link-btn" href="/checkout/shipping">ویرایش</a></div>' +
-            (a ? '<div class="co-choice-text" style="margin-bottom:6px"><i class="ti ti-map-pin"></i> ' + esc(addressText(a)) + "</div>" +
-              '<div class="co-choice-meta" style="margin-bottom:14px">' +
-              (a.receiverName ? "<span><i class=\"ti ti-user\"></i> " + esc(a.receiverName) + "</span>" : "") +
-              (a.receiverMobile ? "<span><i class=\"ti ti-phone\"></i> " + fa(esc(a.receiverMobile)) + "</span>" : "") + "</div>" : "") +
-            "</section>"
+            '<section class="co-card" id="coOrderDetails"><div class="co-card-title"><span><i class="ti ti-receipt"></i> جزئیات سفارش</span><a class="co-link-btn" href="/checkout/shipping">ویرایش آدرس و ارسال</a></div>' +
+            '<div class="co-detail-grid">' +
+            (a ? detail("تحویل‌گیرنده", esc(a.receiverName || "")) + detail("شمارهٔ موبایل", a.receiverMobile ? '<span dir="ltr">' + fa(esc(a.receiverMobile)) + "</span>" : "") +
+              detail("آدرس تحویل", esc(addressText(a)), true) + detail("کد پستی", a.postalCode ? '<span dir="ltr">' + fa(esc(a.postalCode)) + "</span>" : "") : "") +
+            detail("روش ارسال", esc(quote.shippingMethod.title)) + detail("زمان تحویل", esc(quote.shippingMethod.eta)) +
+            "</div></section>"
+          );
+        }
+        function orderItemsCard() {
+          var rows = quote.items.map(function (item) {
+            var line = item.price * item.quantity;
+            var meta = [item.color && '<span><i class="ti ti-palette"></i> ' + esc(item.color) + "</span>", item.storage && "<span>" + esc(item.storage) + "</span>", item.warranty && '<span><i class="ti ti-shield-check"></i> ' + esc(item.warranty) + "</span>"].filter(Boolean).join("");
+            var oldLine = item.originalPrice > item.price ? '<span class="old">' + money(item.originalPrice * item.quantity) + "</span>" : "";
+            return (
+              '<div class="co-order-item"><div class="co-product-img"><img src="' + esc(item.image || FALLBACK_IMG) + '" alt="" onerror="this.onerror=null;this.src=\'' + FALLBACK_IMG + '\'">' +
+              '<span class="co-product-qty">' + fa(item.quantity) + "</span></div>" +
+              '<div class="co-oi-info"><div class="co-oi-name">' + esc(item.name) + "</div>" +
+              '<div class="co-oi-meta">' + (item.brand ? "<span>" + esc(item.brand) + "</span>" : "") + meta + "<span>" + fa(item.quantity) + " × " + money(item.price) + "</span></div></div>" +
+              '<div class="co-oi-price">' + oldLine + "<b>" + toman(line) + "</b></div></div>"
+            );
+          }).join("");
+          return (
+            '<section class="co-card" id="coOrderItems"><div class="co-card-title"><span><i class="ti ti-package"></i> کالاهای سفارش</span><small>' + fa(quote.pricing.itemsCount) + " کالا</small></div>" +
+            '<div class="co-order-items">' + rows + "</div>" +
+            '<div class="co-eta" style="margin-top:10px"><i class="ti ti-clock-hour-4"></i><span>' + esc(quote.shippingMethod.eta) + "</span></div></section>"
           );
         }
         function renderPayment() {
@@ -486,7 +528,7 @@
           document.getElementById("coStep2").classList.add("active");
           var label = "پرداخت";
           root.innerHTML =
-            '<div class="co-layout"><div class="co-main">' + paymentMethodCard() + couponCard() + orderSummaryCard() + shipmentCard() + "</div>" + summaryCard(label) + "</div>" + mobileBar(label);
+            '<div class="co-layout"><div class="co-main">' + orderDetailsCard() + orderItemsCard() + paymentMethodCard() + couponCard() + "</div>" + summaryCard(label, true) + "</div>" + mobileBar(label);
         }
 
         /* ───────── اکشن‌ها ───────── */
