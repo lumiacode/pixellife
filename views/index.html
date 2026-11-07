@@ -2965,15 +2965,6 @@
       <!-- ═══ کدهای جدید را دقیقاً اینجا کپی کنید ═══ -->
 
       <!-- ═══ PIXELLIFE AMAZING OFFERS ═══ -->
-      <!-- ═══ اخیراً دیده‌اید: از تاریخچهٔ همین مرورگر؛ اگر چیزی دیده نشده باشد نمایش داده نمی‌شود ═══ -->
-      <section class="product-section home-rail-section" id="recentHomeSection" aria-labelledby="recentHomeTitle" hidden>
-        <div class="section-header">
-          <h2 id="recentHomeTitle">اخیراً دیده‌اید</h2>
-          <button type="button" class="home-clear-btn" id="recentHomeClear">پاک کردن</button>
-        </div>
-        <div class="product-grid home-rail" id="recentHomeGrid"></div>
-      </section>
-
       <section class="amazing-offers" id="amazingOffers" aria-labelledby="amazingTitle" hidden>
         <div class="amazing-offers-inner">
           <div class="amazing-offers-brand">
@@ -3067,6 +3058,15 @@
             <img src="/images/brand-nokia.png" alt="Nokia" loading="lazy" decoding="async" />
           </a>
         </div>
+      </section>
+
+      <!-- ═══ اخیراً دیده‌اید: از تاریخچهٔ همین مرورگر؛ همیشه آخرین ردیف صفحه (پایین‌تر از هر بخشی که ادمین اضافه کند)؛ اگر چیزی دیده نشده باشد نمایش داده نمی‌شود ═══ -->
+      <section class="product-section home-rail-section" id="recentHomeSection" aria-labelledby="recentHomeTitle" hidden>
+        <div class="section-header">
+          <h2 id="recentHomeTitle">اخیراً دیده‌اید</h2>
+          <button type="button" class="home-clear-btn" id="recentHomeClear">پاک کردن</button>
+        </div>
+        <div class="product-grid home-rail" id="recentHomeGrid"></div>
       </section>
 
       <!-- ═══ پایان کدهای جدید ═══ -->
@@ -4479,6 +4479,7 @@
           const items = resolved.filter(Boolean).filter((p) => { const k = String(p._id); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 10);
           if (!items.length) return;
           fillRail("recentHomeSection", "recentHomeGrid", items);
+          section.parentElement.appendChild(section); // بخش‌هایی که بعداً اضافه شوند هم نباید بعد از این ردیف بیایند
         } catch (_) { /* بخش اختیاری است */ }
       }
       document.getElementById("recentHomeClear")?.addEventListener("click", () => {
