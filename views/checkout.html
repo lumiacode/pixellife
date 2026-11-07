@@ -186,7 +186,8 @@
         .co-summary { position: static; }
         .co-summary .co-btn { display: none; }
         .co-summary.is-compact { display: none; } /* مرحلهٔ آدرس در موبایل: مبلغ و دکمه در نوار پایین است؛ کادر آخر صفحه نمی‌آید */
-        .co-wrap { padding-bottom: 110px; }
+        .co-wrap { padding-bottom: 24px; }
+        body:has(.co-mobile-bar) { padding-bottom: calc(150px + env(safe-area-inset-bottom)); } /* نوار پرداخت ثابت روی انتهای فوتر نیفتد */
         .co-mobile-bar { display: flex; position: fixed; inset: auto 0 0 0; z-index: 40; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 16px; background: var(--white); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(15, 23, 42, .1); }
         .co-mobile-bar { bottom: calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)); inset: auto 0 calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)) 0 !important; transition: transform 240ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
         body:has(.mobile-bottom-nav.is-scroll-hidden) .co-mobile-bar { transform: translate3d(0, calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)), 0); }
@@ -773,6 +774,7 @@
         init();
       })();
     </script>
+    <footer class="footer"></footer>
       <script src="/js/persian-input.js?v=1"></script>
   </body>
 </html>
