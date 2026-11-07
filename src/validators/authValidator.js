@@ -1,5 +1,6 @@
 const { body, validationResult } = require("express-validator");
 const ApiError = require("../utils/ApiError");
+const { faOnly } = require("../utils/persianText");
 
 const MOBILE_REGEX = /^(\+98|0098|0)?9[0-9]{9}$/;
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
@@ -70,7 +71,9 @@ const firstNameValidation = () =>
     .notEmpty()
     .withMessage("نام الزامی است")
     .isLength({ min: 2, max: 50 })
-    .withMessage("نام باید بین ۲ تا ۵۰ کاراکتر باشد");
+    .withMessage("نام باید بین ۲ تا ۵۰ کاراکتر باشد")
+    .custom(faOnly)
+    .withMessage("نام را فقط با حروف فارسی وارد کنید");
 
 const lastNameValidation = () =>
   body("lastName")
@@ -78,7 +81,9 @@ const lastNameValidation = () =>
     .notEmpty()
     .withMessage("نام خانوادگی الزامی است")
     .isLength({ min: 2, max: 50 })
-    .withMessage("نام خانوادگی باید بین ۲ تا ۵۰ کاراکتر باشد");
+    .withMessage("نام خانوادگی باید بین ۲ تا ۵۰ کاراکتر باشد")
+    .custom(faOnly)
+    .withMessage("نام خانوادگی را فقط با حروف فارسی وارد کنید");
 
 // --- Validators برای هر Endpoint ---
 
@@ -115,15 +120,17 @@ exports.completeProfileValidator = [
   firstNameValidation(),
   lastNameValidation(),
   body("address").optional({ nullable: true }).isObject().withMessage("آدرس معتبر نیست"),
-  body("address.province").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("استان الزامی است"),
-  body("address.city").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("شهر الزامی است"),
+  body("address.province").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("استان الزامی است").custom(faOnly).withMessage("استان را فقط با حروف فارسی وارد کنید"),
+  body("address.city").if(body("address").exists({ checkNull: true })).trim().notEmpty().withMessage("شهر الزامی است").custom(faOnly).withMessage("شهر را فقط با حروف فارسی وارد کنید"),
   body("address.fullAddress")
     .if(body("address").exists({ checkNull: true }))
     .trim()
     .notEmpty()
     .withMessage("آدرس کامل الزامی است")
     .isLength({ min: 10 })
-    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد"),
+    .withMessage("آدرس کامل باید حداقل ۱۰ کاراکتر باشد")
+    .custom(faOnly)
+    .withMessage("آدرس را فقط با حروف فارسی وارد کنید"),
   body("address.postalCode")
     .if(body("address").exists({ checkNull: true }))
     .customSanitizer(toEnglishDigits)
