@@ -32,6 +32,14 @@ for (const link of accessoriesGroup.links) {
   menuPaths.push(...link.children.map((c) => c.href));
 }
 assert.deepStrictEqual(menuPaths.sort(), catalog.allPaths().sort());
+// بخش جدای «شارژر و کابل موبایل» حذف شده (شارژر هر برند، یکی از زیرمجموعه‌هایش است)
+assert.ok(!JSON.stringify(window.PLCategories).includes("شارژر و کابل موبایل"));
+assert.ok(!accessoriesGroup.groups);
+// لمس نام برند زیرمجموعه‌ها را باز می‌کند (دسکتاپ و موبایل) و «همه» اول می‌آید
+for (const file of ["public/js/shared-category-nav.js", "public/js/mobile-bottom-nav.js"]) {
+  const src = read(file);
+  assert.ok(src.includes("data-brand-toggle") && src.includes("aria-expanded") && /label: ['"]همه['"], href: link\.href/.test(src), file);
+}
 // منوی دسکتاپ و کشوی موبایل زیرمجموعه‌ها را نمایش می‌دهند
 assert.ok(/link\.children/.test(read("public/js/shared-category-nav.js")) && /megamenu-child-link/.test(read("public/js/shared-category-nav.js")));
 assert.ok(/link\.children/.test(read("public/js/mobile-bottom-nav.js")));

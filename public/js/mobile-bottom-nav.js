@@ -288,11 +288,19 @@
     const catIcon = (category, size) => category.image ? `<img class="mobile-category-sheet__icon-image" src="${category.image}" alt="" ${size ? `width="${size}" height="${size}"` : ""}>` : "";
     // ردیف لینک: فقط عنوان و فلش؛ زیرمجموعه‌ها (مثلاً برندها) به‌صورت چیپ‌های هم‌رنگ زیرش
     const linkMarkup = (link) => {
-      const parent = `<a class="mobile-category-sheet__link" href="${link.href}"><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</a>`;
       const children = Array.isArray(link.children) ? link.children : [];
-      if (!children.length) return parent;
-      return `<section class="mobile-category-sheet__group">${parent}<div class="mobile-category-sheet__brand-links" aria-label="برندهای ${link.label}">${children.map((child) => `<a class="mobile-category-sheet__brand-link" href="${child.href}">${child.label}</a>`).join("")}</div></section>`;
+      if (!children.length) return `<a class="mobile-category-sheet__link" href="${link.href}"><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</a>`;
+      // برند دارای زیرمجموعه: با لمس نام برند چیپ‌ها باز می‌شوند («همه» اول، بعد قاب/گلس/شارژر/کیف)؛ دوباره لمس = بسته‌شدن
+      const chips = [{ label: "همه", href: link.href }, ...children];
+      return `<section class="mobile-category-sheet__group"><button type="button" class="mobile-category-sheet__link mobile-category-sheet__link--toggle" aria-expanded="false" data-brand-toggle><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</button><div class="mobile-category-sheet__brand-links" aria-label="زیرمجموعه‌های ${link.label}" hidden>${chips.map((child) => `<a class="mobile-category-sheet__brand-link" href="${child.href}">${child.label}</a>`).join("")}</div></section>`;
     };
+    categoryContent.addEventListener("click", (event) => {
+      const toggle = event.target.closest("[data-brand-toggle]");
+      if (!toggle) return;
+      const open = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.parentElement.querySelector(".mobile-category-sheet__brand-links").hidden = !open;
+    });
 
     const renderCategory = (id) => {
       const category = categories.find((item) => item.id === id) || categories[0];

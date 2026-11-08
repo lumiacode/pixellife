@@ -860,3 +860,13 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
   .mobile-category-sheet__brand-links:has(> :nth-child(4)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .mobile-category-sheet__brand-links a { justify-content: center; }
 }
+
+/* لمس نام برند: چیپ‌های زیرمجموعه باز می‌شود (hidden باید روی grid هم اثر کند) */
+@media (max-width: 768px) {
+  .mobile-category-sheet__brand-links[hidden] { display: none; }
+  button.mobile-category-sheet__link--toggle { width: 100%; background: none; border-top: 0; border-inline: 0; font-family: inherit; text-align: right; cursor: pointer; }
+  .mobile-category-sheet__link--toggle svg { transition: transform .2s ease; }
+  .mobile-category-sheet__link--toggle[aria-expanded="true"] svg { transform: rotate(-90deg); }
+  .mobile-category-sheet__brand-links:has(> :nth-child(5)) { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+  .mobile-category-sheet__brand-links:has(> :nth-child(5)) .mobile-category-sheet__brand-link { padding-inline: 2px; font-size: 11.5px; }
+}

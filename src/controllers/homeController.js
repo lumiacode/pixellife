@@ -379,14 +379,14 @@ const PROFILE_DROPDOWN_LAYER_FIX = `
 </style>`;
 
 const SHARED_CATEGORY_HEAD = `
-<link rel="stylesheet" href="/css/shared-category-nav.css?v=9" />`;
+<link rel="stylesheet" href="/css/shared-category-nav.css?v=10" />`;
 const SHARED_CATEGORY_SCRIPT = `
-<script src="/js/shared-category-nav.js?v=10"></script>`;
+<script src="/js/shared-category-nav.js?v=11"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=39" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=40" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
-<script src="/js/mobile-bottom-nav.js?v=39"></script>`;
+<script src="/js/mobile-bottom-nav.js?v=40"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
 <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=1" />`;
 const MOBILE_PRODUCT_DETAILS_SCRIPT = `
@@ -710,7 +710,7 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 function injectCategoryData(html) {
   if (!html || html.includes("category-data.js") || !html.includes("</head>")) return html;
   if (!html.includes("nav-cats-wrap") && !html.includes('class="header"') && !html.includes("mobile-bottom-nav")) return html;
-  return html.replace("</head>", '<script src="/js/category-data.js?v=6"></script>\n</head>');
+  return html.replace("</head>", '<script src="/js/category-data.js?v=7"></script>\n</head>');
 }
 
 function injectSearchSuggest(html) {

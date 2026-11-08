@@ -85,7 +85,7 @@
             <div class="megamenu-block">
               ${block.href ? `<a class="megamenu-group-title" href="${block.href}"><span>${block.title}</span><i class="ti ti-chevron-left"></i></a>` : `<h3 class="megamenu-group-title"><span>${block.title}</span></h3>`}
               ${(block.links || []).length ? `<div class="megamenu-group-links">${dropAll(block.links).map((link) => Array.isArray(link.children) && link.children.length
-                ? `<div class="megamenu-nested"><a href="${link.href}" class="megamenu-link">${link.label}</a><div class="megamenu-child-links">${link.children.map((child) => `<a href="${child.href}" class="megamenu-child-link">${child.label}</a>`).join('')}</div></div>`
+                ? `<div class="megamenu-nested"><button type="button" class="megamenu-link megamenu-toggle" aria-expanded="false" data-brand-toggle><span>${link.label}</span><i class="ti ti-chevron-down megamenu-toggle-ico"></i></button><div class="megamenu-child-links" hidden>${[{ label: 'همه', href: link.href }, ...link.children].map((child) => `<a href="${child.href}" class="megamenu-child-link">${child.label}</a>`).join('')}</div></div>`
                 : `<a href="${link.href}" class="megamenu-link">${link.label}</a>`).join('')}</div>` : ''}
             </div>`).join('')}
           </section>`).join('')}</div>`
@@ -117,7 +117,24 @@
     toggle.classList.add('active');
   }
 
+  // با لمس/کلیک نام برند، زیرمجموعه‌هایش (همه، قاب، گلس، شارژر، کیف) باز و بسته می‌شود.
+  content.addEventListener('click', (event) => {
+    const toggleBtn = event.target.closest('[data-brand-toggle]');
+    if (!toggleBtn) return;
+    event.preventDefault();
+    const open = toggleBtn.getAttribute('aria-expanded') !== 'true';
+    toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggleBtn.parentElement.querySelector('.megamenu-child-links').hidden = !open;
+  });
+  function collapseBrandToggles() {
+    content.querySelectorAll('[data-brand-toggle][aria-expanded="true"]').forEach((btn) => {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.parentElement.querySelector('.megamenu-child-links').hidden = true;
+    });
+  }
+
   function closeMegamenu() {
+    collapseBrandToggles();
     isOpen = false;
     clearActiveCat();
     panel.classList.remove('open');
