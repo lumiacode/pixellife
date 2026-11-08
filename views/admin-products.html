@@ -559,6 +559,35 @@
             <div class="modal-body">
               <input type="hidden" id="productId" />
               <div class="row g-3">
+                <div class="col-12" id="aiDraftPanel">
+                  <section class="product-form-section" aria-labelledby="aiDraftHeading">
+                    <h6 class="product-form-section__heading" id="aiDraftHeading">
+                      <i class="ti ti-sparkles"></i>
+                      دستیار هوشمند
+                      <small>مشخصات فنی و بررسی تخصصی را از اینترنت جمع می‌کند و فرم را پر می‌کند؛ پیش از ذخیره می‌توانید همه‌چیز را ویرایش کنید</small>
+                    </h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="aiNotes">دستور یا توضیح اضافه <small class="text-secondary">(اختیاری)</small></label>
+                        <textarea class="form-control" id="aiNotes" rows="4" maxlength="1200" placeholder="مثلاً: نسخهٔ جهانی، ۲۵۶ گیگابایت، لحن رسمی"></textarea>
+                        <div class="form-hint">نام و برند را در کادرهای پایین بنویسید. قیمت، تخفیف، موجودی و گارانتی را هوش مصنوعی پر نمی‌کند.</div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label" for="aiReviewProps">پارامترهای بررسی تخصصی <small class="text-secondary">(هر خط یک بخش)</small></label>
+                        <textarea class="form-control" id="aiReviewProps" rows="4" placeholder="نمایشگر&#10;عملکرد&#10;دوربین&#10;باتری"></textarea>
+                        <div class="form-hint">برای هر خط یک بخش بررسی با همین عنوان ساخته می‌شود؛ فهرست در همین مرورگر ذخیره می‌ماند.</div>
+                      </div>
+                      <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="aiUseWeb" checked /><label class="form-check-label" for="aiUseWeb">جست‌وجو در اینترنت</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="aiWantSpecs" checked /><label class="form-check-label" for="aiWantSpecs">مشخصات فنی</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" id="aiWantReview" checked /><label class="form-check-label" for="aiWantReview">بررسی تخصصی</label></div>
+                        <button type="button" class="btn btn-primary ms-auto" id="aiDraftBtn"><i class="ti ti-wand"></i> تکمیل با هوش مصنوعی</button>
+                      </div>
+                      <div class="col-12" id="aiDraftStatus" role="status" aria-live="polite" hidden></div>
+                      <div class="col-12" id="aiDraftResult" hidden></div>
+                    </div>
+                  </section>
+                </div>
                 <div class="col-12">
                   <section class="product-form-section" aria-labelledby="initialProductInfoHeading">
                     <h6 class="product-form-section__heading" id="initialProductInfoHeading">
@@ -2084,6 +2113,77 @@
         if (heading) heading.textContent = "محصولات دستهٔ " + categoryLabels[categoryFilter];
       }
       loadProducts();
+    
+      /* ══ دستیار هوشمند: پر کردن فرم از اینترنت ══ نتیجه فقط پیشنهاد است؛ ذخیره با دکمهٔ معمول فرم انجام می‌شود. */
+      (function setupAiDraft() {
+        const $ = (id) => document.getElementById(id);
+        const KEY = "pl_ai_review_props";
+        const DEFAULT_PROPS = "نمایشگر\nعملکرد\nدوربین\nباتری\nارزش خرید";
+        try { $("aiReviewProps").value = localStorage.getItem(KEY) || DEFAULT_PROPS; } catch (_) { $("aiReviewProps").value = DEFAULT_PROPS; }
+        // resetForm() فرم را خالی می‌کند؛ فهرست پارامترهای ذخیره‌شده بعد از هر بازنشانی برمی‌گردد.
+        $("productForm").addEventListener("reset", () => setTimeout(() => { try { $("aiReviewProps").value = localStorage.getItem(KEY) || DEFAULT_PROPS; } catch (_) { $("aiReviewProps").value = DEFAULT_PROPS; } }, 0));
+        $("aiReviewProps").addEventListener("input", () => { try { localStorage.setItem(KEY, $("aiReviewProps").value); } catch (_) {} });
+        const status = (html, kind) => { const el = $("aiDraftStatus"); el.hidden = !html; el.innerHTML = html ? `<div class="alert alert-${kind || "info"} py-2 mb-0">${html}</div>` : ""; };
+        const api = (url, options) => fetch(url, { credentials: "same-origin", ...options }).then((r) => r.json().catch(() => ({ success: false, message: "پاسخ نامعتبر از سرور" })));
+        const filled = (id) => String($(id).value || "").trim().length > 0;
+
+        function applyDraft(d) {
+          const targets = [];
+          if (d.description && filled("fDescription")) targets.push("توضیحات");
+          if (d.specGroups.length && document.querySelectorAll("[data-technical-spec-group]").length) targets.push("مشخصات فنی");
+          if (d.reviewSections.length && [...document.querySelectorAll("[data-review-content]")].some((el) => el.value.trim())) targets.push("بررسی تخصصی");
+          if ((d.pros.length || d.cons.length || d.verdict) && (filled("fReviewPros") || filled("fReviewCons") || filled("fReviewVerdict"))) targets.push("نقاط قوت/ضعف و جمع‌بندی");
+          const overwrite = targets.length ? confirm("این بخش‌ها از قبل پر هستند: " + targets.join("، ") + "\nجایگزین شوند؟ (با «لغو»، فقط بخش‌های خالی پر می‌شوند)") : true;
+          const canSet = (name) => overwrite || !targets.includes(name);
+          if (d.brand && !filled("fBrand")) $("fBrand").value = d.brand;
+          if (d.category && !filled("fCategory")) setCategoryValue(d.category);
+          if (d.description && canSet("توضیحات")) { $("fDescription").value = d.description; if (d.introTitle) $("fIntroTitle").value = d.introTitle; }
+          if (d.specGroups.length && canSet("مشخصات فنی")) { $("fShowSpecs").checked = true; renderTechnicalSpecsEditor(d.specGroups); if (typeof syncSpecsField === "function") syncSpecsField(); }
+          if (d.reviewSections.length && canSet("بررسی تخصصی")) renderReviewSections(d.reviewSections.map((s) => ({ enabled: true, title: s.title, content: s.content, images: [], imageSizes: [] })));
+          if ((d.pros.length || d.cons.length || d.verdict) && canSet("نقاط قوت/ضعف و جمع‌بندی")) {
+            $("fReviewPros").value = d.pros.join("\n"); $("fReviewCons").value = d.cons.join("\n"); $("fReviewVerdict").value = d.verdict || "";
+            $("fReviewVerdictScore").value = d.verdictScore == null ? "" : d.verdictScore;
+          }
+          if (d.reviewSections.length || d.pros.length || d.verdict) { $("fShowReview").checked = true; }
+          if (d.compatibleModels.length && !filled("fCompatibleModels")) $("fCompatibleModels").value = d.compatibleModels.join("\n");
+          if (typeof syncReviewEditorState === "function") syncReviewEditorState();
+        }
+
+        function showResult(result) {
+          const d = result.draft, parts = [];
+          parts.push(`<div class="alert alert-warning py-2 mb-2"><b>پیش از ذخیره بررسی کنید:</b> این اطلاعات را هوش مصنوعی از منابع اینترنتی جمع کرده و ممکن است اشتباه یا ناقص باشد. قیمت، موجودی و گارانتی را خودتان وارد کنید.</div>`);
+          if (d.unverified.length) parts.push(`<div class="mb-2"><b>مواردی که مطمئن نبود (خالی گذاشته یا با احتیاط نوشته شد):</b><ul class="mb-0">${d.unverified.map((u) => `<li>${escapeText(u)}</li>`).join("")}</ul></div>`);
+          if (d.missingReviewProperties && d.missingReviewProperties.length) parts.push(`<div class="mb-2 text-danger">برای این پارامترها بخشی ساخته نشد: ${d.missingReviewProperties.map(escapeText).join("، ")}</div>`);
+          parts.push(result.webSearch ? (result.sources.length ? `<div><b>منابع جست‌وجو:</b><ul class="mb-0">${result.sources.map((s) => `<li><a href="${escapeText(s.url)}" target="_blank" rel="noopener noreferrer nofollow">${escapeText(s.title)}</a></li>`).join("")}</ul></div>` : `<div class="text-danger">جست‌وجوی وب انجام شد ولی منبعی ثبت نشد؛ مشخصات را حتماً خودتان تطبیق دهید.</div>`) : `<div class="text-secondary">بدون جست‌وجوی اینترنت؛ فقط از دانش مدل استفاده شد و ممکن است قدیمی باشد.</div>`);
+          $("aiDraftResult").innerHTML = parts.join(""); $("aiDraftResult").hidden = false;
+        }
+
+        $("aiDraftBtn").addEventListener("click", async () => {
+          const name = $("fName").value.trim();
+          if (!name) { status("اول نام دقیق محصول را در کادر «نام محصول» بنویسید.", "warning"); $("fName").focus(); return; }
+          const btn = $("aiDraftBtn");
+          btn.disabled = true; $("aiDraftResult").hidden = true;
+          status('<span class="spinner-border spinner-border-sm me-2"></span>در حال جست‌وجو و جمع‌آوری اطلاعات… (تا چند دقیقه ممکن است طول بکشد؛ این صفحه را نبندید)');
+          try {
+            const started = await api("/admin/api/ai/product-draft", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+              name, brand: $("fBrand").value.trim(), category: $("fCategory").value.trim(), notes: $("aiNotes").value,
+              reviewProperties: $("aiReviewProps").value, useWeb: $("aiUseWeb").checked, wantSpecs: $("aiWantSpecs").checked, wantReview: $("aiWantReview").checked,
+            }) });
+            if (!started.success) throw new Error(started.message || "شروع نشد");
+            const deadline = Date.now() + 6 * 60 * 1000;
+            for (;;) {
+              await new Promise((r) => setTimeout(r, 3000));
+              const job = await api("/admin/api/ai/product-draft/" + encodeURIComponent(started.jobId));
+              if (!job.success) throw new Error(job.message || "پیگیری نشد");
+              if (job.status === "done") { applyDraft(job.result.draft); showResult(job.result); status("فرم با اطلاعات پیشنهادی پر شد. همه‌چیز را بررسی و در صورت نیاز ویرایش کنید، بعد ذخیره کنید.", "success"); break; }
+              if (job.status === "error") throw new Error(job.message || "ناموفق بود");
+              if (Date.now() > deadline) throw new Error("مهلت انتظار تمام شد؛ دوباره تلاش کنید");
+            }
+          } catch (error) {
+            status(escapeText(error.message || "خطای ناشناخته"), "danger");
+          } finally { btn.disabled = false; }
+        });
+      })();
     </script>
   <script src="/js/admin-sidebar.js?v=19" defer></script>
   <script src="/js/history-safe-anchors.js?v=1"></script></body>
