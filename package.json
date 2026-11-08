@@ -36,7 +36,8 @@
     "test:contact-form": "node tests/contact-form.test.js",
     "test:contact-admin": "node tests/contact-admin.test.js",
     "test:persian-only": "node tests/persian-only.test.js",
-    "test:accessory-subcategories": "node tests/accessory-subcategories.test.js"
+    "test:accessory-subcategories": "node tests/accessory-subcategories.test.js",
+    "test:compatible-models": "node tests/compatible-models.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",

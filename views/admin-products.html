@@ -604,6 +604,11 @@
                   <input type="text" class="form-control mt-2" id="fCategory" placeholder="نام دسته را بنویسید" hidden />
                   <div class="form-hint">دسته را از فهرست انتخاب کنید تا محصول در صفحهٔ دستهٔ خودش بیاید.</div>
                 </div>
+                <div class="col-12" id="fCompatibleRow">
+                  <label class="form-label" for="fCompatibleModels">مدل‌های سازگار <small class="text-secondary">(اختیاری؛ برای قاب، گلس، شارژر و کیف)</small></label>
+                  <textarea class="form-control" id="fCompatibleModels" rows="3" placeholder="هر مدل در یک خط، مثلاً&#10;آیفون ۱۵ پرو&#10;آیفون ۱۵ پرو مکس"></textarea>
+                  <div class="form-hint">مشتری در صفحهٔ دسته با فیلتر «سازگار با» فقط محصولات مناسب مدل گوشی خودش را می‌بیند. نام مدل‌ها را در همهٔ محصولات یکسان بنویسید (مثلاً همیشه «آیفون ۱۵ پرو»)؛ هر نوشتار دیگر یک گزینهٔ جدا می‌شود.</div>
+                </div>
                     </div>
                   </section>
                 </div>
@@ -1626,6 +1631,7 @@
         document.getElementById("fStorages").value = formatList(p.storages);
         syncStoragePresetsFromField();
         document.getElementById("fWarranties").value = formatList(p.warranties);
+        document.getElementById("fCompatibleModels").value = formatList(p.compatibleModels);
         document.getElementById("fVariants").value = formatVariants(p.variants);
         syncStorageFields();
         syncWarrantyField();
@@ -2036,6 +2042,7 @@
           fd.append("hideColorsWhenOutOfStock", document.getElementById("fHideColorsWhenOutOfStock").checked);
           fd.append("storages", hasStorage ? document.getElementById("fStorages").value : "");
           fd.append("warranties", hasWarranty ? document.getElementById("fWarranties").value : "");
+          fd.append("compatibleModels", document.getElementById("fCompatibleModels").value);
           fd.append("variants", hasStorage ? document.getElementById("fVariants").value : "");
           fd.append("mainImage", document.getElementById("fMainImage").value);
           fd.append("removeImages", JSON.stringify(removedImages));

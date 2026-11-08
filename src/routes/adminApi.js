@@ -26,6 +26,22 @@ const { getShippingMethods, saveShippingMethod } = require("../services/shipping
 const { getSupportSettings, saveSupportSettings } = require("../services/supportSettings");
 const { getAiConfig, getAiPublicView, saveAiSettings, testAiConnection } = require("../services/aiSettings");
 
+// مدل‌های سازگار: هر خط یا هر «،» یک مدل؛ تکراری‌ها (بدون توجه به حروف) حذف و تعداد/طول محدود می‌شود.
+function parseCompatibleModels(value) {
+  if (value === undefined) return undefined;
+  const seen = new Set();
+  const out = [];
+  for (const raw of String(value || "").split(/\r?\n|،|,/)) {
+    const item = raw.replace(/\s+/g, " ").trim().slice(0, 60);
+    const key = item.toLowerCase();
+    if (!item || seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+    if (out.length >= 60) break;
+  }
+  return out;
+}
+
 function parseList(value) {
   if (value === undefined) return undefined;
   return String(value || "")
@@ -722,6 +738,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       colors,
       hideColorsWhenOutOfStock,
       storages,
+      compatibleModels,
       hasStorage,
       warranties,
       hasWarranty,
@@ -800,6 +817,7 @@ router.post("/products", upload.fields([{ name: "images", maxCount: 5 }, { name:
       colors: parseColors(colors) || [],
       hideColorsWhenOutOfStock: parseEnabled(hideColorsWhenOutOfStock),
       storages: storageEnabled ? parseList(storages) || [] : [],
+      compatibleModels: parseCompatibleModels(compatibleModels) || [],
       hasStorage: storageEnabled,
       showReview: parseEnabled(showReview, false),
       reviewSections: parseReviewSections(reviewSections, uploadedReviewImages),
@@ -846,6 +864,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
       colors,
       hideColorsWhenOutOfStock,
       storages,
+      compatibleModels,
       hasStorage,
       warranties,
       hasWarranty,
@@ -899,6 +918,7 @@ router.put("/products/:id", upload.fields([{ name: "images", maxCount: 5 }, { na
     if (hideColorsWhenOutOfStock !== undefined) product.hideColorsWhenOutOfStock = parseEnabled(hideColorsWhenOutOfStock);
     if (hasStorage !== undefined) product.hasStorage = parseEnabled(hasStorage);
     if (storages !== undefined && product.hasStorage !== false) product.storages = parseList(storages);
+    if (compatibleModels !== undefined) product.compatibleModels = parseCompatibleModels(compatibleModels);
     if (hasWarranty !== undefined) product.hasWarranty = parseEnabled(hasWarranty);
     if (warranties !== undefined && product.hasWarranty !== false) product.warranties = parseList(warranties);
     if (variants !== undefined && product.hasStorage !== false) {

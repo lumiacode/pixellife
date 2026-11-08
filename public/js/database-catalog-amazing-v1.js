@@ -358,7 +358,7 @@
     document.addEventListener("keydown", (event) => { if (event.key === "Escape") setPanelOpen(false); });
 
     let allProducts = [];
-    const selected = { brands: new Set(), colors: new Set(), storages: new Set(), inStock: false, sale: false, min: "", max: "", sort: "newest" };
+    const selected = { brands: new Set(), colors: new Set(), storages: new Set(), models: new Set(), inStock: false, sale: false, min: "", max: "", sort: "newest" };
     const option = (kind, value, extra = "") => `<label class="pl-filter-option">${extra}<input type="checkbox" data-filter-kind="${kind}" value="${escapeHtml(value)}"><span>${escapeHtml(value)}</span></label>`;
     const detail = (title, content, open = false) => `<details class="pl-filter-section"${open ? " open" : ""}><summary>${title}</summary><div class="pl-filter-options">${content}</div></details>`;
 
@@ -455,8 +455,9 @@
       const storages = uniqueValues(allProducts, (p) => [...(p.storages || []), ...(p.variants || []).map((v) => v?.storage)]).sort();
       // «تخفیف‌دار» فقط وقتی نشان داده می‌شود که حداقل یک کالای این صفحه تخفیف داشته باشد.
       panel.querySelector("[data-filter-sale-row]").hidden = !allProducts.some((p) => !isOutOfStock(p) && priceInfo(p).percent > 0);
+      const models = uniqueValues(allProducts, (p) => p.compatibleModels).sort((a, b) => a.localeCompare(b, "fa"));
       const dynamic = panel.querySelector("[data-filter-dynamic]");
-      dynamic.innerHTML = (brands.length > 1 ? detail("برند", brands.map((v) => option("brands", v)).join(""), true) : "") +
+      dynamic.innerHTML = (models.length ? detail("سازگار با", models.map((v) => option("models", v)).join(""), true) : "") + (brands.length > 1 ? detail("برند", brands.map((v) => option("brands", v)).join(""), true) : "") +
         (colors.length ? detail("رنگ", colors.map((v) => option("colors", v, `<span class="pl-filter-color" style="background:${escapeHtml(colorHex.get(v) || "#e2e8f0")}"></span>`)).join("")) : "") +
         (storages.length ? detail("حافظه", storages.map((v) => option("storages", v)).join("")) : "");
     }
@@ -471,7 +472,8 @@
         (!selected.max || productPrice <= normalizeNumber(selected.max)) &&
         (!selected.brands.size || selected.brands.has(String(product.brand || "").trim())) &&
         (!selected.colors.size || productColors.some((v) => selected.colors.has(v))) &&
-        (!selected.storages.size || productStorages.some((v) => selected.storages.has(v)));
+        (!selected.storages.size || productStorages.some((v) => selected.storages.has(v))) &&
+        (!selected.models.size || (product.compatibleModels || []).some((v) => selected.models.has(String(v).trim())));
     }
     function render() {
       const products = allProducts.filter(matches).sort((a, b) => {
@@ -493,6 +495,7 @@
       selected.brands.forEach((v) => chips.push({ kind: "brands", value: v, label: v }));
       selected.colors.forEach((v) => chips.push({ kind: "colors", value: v, label: v }));
       selected.storages.forEach((v) => chips.push({ kind: "storages", value: v, label: v }));
+      selected.models.forEach((v) => chips.push({ kind: "models", value: v, label: "سازگار با " + v }));
       if (selected.inStock) chips.push({ kind: "inStock", label: "فقط موجود" });
       if (selected.sale) chips.push({ kind: "sale", label: "فقط تخفیف‌دار" });
       if (selected.min) chips.push({ kind: "min", label: "از " + normalizeNumber(selected.min).toLocaleString("fa-IR") });
@@ -536,7 +539,7 @@
     });
     results.querySelector(".pl-catalog-sort").addEventListener("change", (event) => { selected.sort = event.target.value; render(); });
     panel.querySelector(".pl-filter-reset").addEventListener("click", () => {
-      selected.brands.clear(); selected.colors.clear(); selected.storages.clear(); selected.inStock = false; selected.sale = false; selected.min = ""; selected.max = "";
+      selected.brands.clear(); selected.colors.clear(); selected.storages.clear(); selected.models.clear(); selected.inStock = false; selected.sale = false; selected.min = ""; selected.max = "";
       panel.querySelectorAll("input").forEach((input) => { input.checked = false; if (input.type !== "checkbox") input.value = ""; });
       render();
     });
