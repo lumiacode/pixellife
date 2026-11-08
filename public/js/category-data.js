@@ -96,7 +96,8 @@ window.PLCategories = [
         ]
       }
     ],
-    "image": "/images/categories/menu-mobile.svg?v=2"
+    "image": "/images/categories/menu-v3-mobile.svg",
+    "imageActive": "/images/categories/menu-v3-mobile-active.svg"
   },
   {
     "id": "tablet",
@@ -125,7 +126,8 @@ window.PLCategories = [
         ]
       }
     ],
-    "image": "/images/categories/menu-tablet.svg?v=2"
+    "image": "/images/categories/menu-v3-tablet.svg",
+    "imageActive": "/images/categories/menu-v3-tablet-active.svg"
   },
   {
     "id": "headphone",
@@ -150,7 +152,8 @@ window.PLCategories = [
         ]
       }
     ],
-    "image": "/images/categories/menu-headphone.svg?v=2"
+    "image": "/images/categories/menu-v3-headphone.svg",
+    "imageActive": "/images/categories/menu-v3-headphone-active.svg"
   },
   {
     "id": "watch",
@@ -175,7 +178,8 @@ window.PLCategories = [
         ]
       }
     ],
-    "image": "/images/categories/menu-watch.svg?v=2"
+    "image": "/images/categories/menu-v3-watch.svg",
+    "imageActive": "/images/categories/menu-v3-watch-active.svg"
   },
   {
     "id": "console",
@@ -193,6 +197,7 @@ window.PLCategories = [
         "image": "/images/categories/logo-xbox.png"
       }
     ],
-    "image": "/images/categories/menu-console.svg?v=2"
+    "image": "/images/categories/menu-v3-console.svg",
+    "imageActive": "/images/categories/menu-v3-console-active.svg"
   }
 ];

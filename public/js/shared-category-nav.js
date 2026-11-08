@@ -49,15 +49,27 @@
     });
   }
 
+  // آیکن هر دسته دو نسخه دارد: خاکستری (عادی) و آبی (دستهٔ فعال)
+  function paintCatIcons(activeId) {
+    cats.querySelectorAll('.megamenu-cat-btn').forEach((btn) => {
+      const data = categoriesData.find((c) => c.id === btn.dataset.cat);
+      const img = btn.querySelector('img');
+      if (data && img) img.setAttribute('src', btn.dataset.cat === activeId && data.imageActive ? data.imageActive : data.image);
+    });
+  }
+  categoriesData.forEach((c) => { if (c.imageActive) new Image().src = c.imageActive; });
+
   function activateCat(catId) {
     cats.querySelectorAll('.megamenu-cat-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.cat === catId);
     });
+    paintCatIcons(catId);
     showCatPanel(catId);
   }
 
   function clearActiveCat() {
     cats.querySelectorAll('.megamenu-cat-btn.active').forEach((btn) => btn.classList.remove('active'));
+    paintCatIcons("");
     content.querySelectorAll('.megamenu-content-panel.active').forEach((panel) => panel.classList.remove('active'));
   }
 
