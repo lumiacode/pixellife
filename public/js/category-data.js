@@ -93,12 +93,6 @@ window.PLCategories = [
               }
             ]
           }
-        ],
-        "groups": [
-          {
-            "title": "شارژر و کابل موبایل",
-            "href": "/accessories/chargers"
-          }
         ]
       }
     ],
