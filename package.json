@@ -37,7 +37,8 @@
     "test:contact-admin": "node tests/contact-admin.test.js",
     "test:persian-only": "node tests/persian-only.test.js",
     "test:accessory-subcategories": "node tests/accessory-subcategories.test.js",
-    "test:compatible-models": "node tests/compatible-models.test.js"
+    "test:compatible-models": "node tests/compatible-models.test.js",
+    "test:ai-product-draft": "node tests/ai-product-draft.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",

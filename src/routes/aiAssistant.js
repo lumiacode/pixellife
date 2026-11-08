@@ -8,7 +8,7 @@ const tokenService = require("../services/tokenService");
 const aiLimiter = require("../middleware/aiLimiter");
 const SUPPORT_KNOWLEDGE = require("../config/supportKnowledge");
 const { getSupportSettings } = require("../services/supportSettings");
-const { getAiConfig } = require("../services/aiSettings");
+const { getAiConfig, getOpenAiBaseUrl } = require("../services/aiSettings");
 const ruleAssistant = require("../services/ruleAssistant");
 const { trackingView } = require("../services/orderTracking");
 const { loadShippingMethods } = require("../services/shippingSettings");
@@ -104,7 +104,7 @@ async function callOpenAI(messages, config) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(getOpenAiBaseUrl() + "/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.apiKey}` },

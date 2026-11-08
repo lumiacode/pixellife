@@ -52,6 +52,17 @@ async function readStored() {
   } catch (_) { return {}; }
 }
 
+// آدرس پایهٔ API: پیش‌فرض api.openai.com؛ با OPENAI_BASE_URL می‌توان همهٔ درخواست‌ها را از یک دروازه/رله عبور داد
+// (فقط https، بدون مسیر اضافه). مقدار نامعتبر نادیده گرفته می‌شود.
+function getOpenAiBaseUrl() {
+  const raw = String(process.env.OPENAI_BASE_URL || "").trim().replace(/\/+$/, "");
+  try {
+    const url = new URL(raw);
+    if (url.protocol === "https:" && !url.username && !url.password) return url.origin + url.pathname.replace(/\/+$/, "");
+  } catch (_) {}
+  return "https://api.openai.com";
+}
+
 // مقدار نهایی برای استفاده در درخواست‌ها: { apiKey, model, source }
 async function getAiConfig() {
   if (cache.value && cache.expires > Date.now()) return cache.value;
@@ -103,7 +114,7 @@ async function testAiConnection() {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
-    const response = await fetch("https://api.openai.com/v1/models?limit=1", { headers: { Authorization: `Bearer ${apiKey}` }, signal: controller.signal });
+    const response = await fetch(getOpenAiBaseUrl() + "/v1/models?limit=1", { headers: { Authorization: `Bearer ${apiKey}` }, signal: controller.signal });
     if (response.status === 401) throw new ApiError(400, "OpenAI کلید را نپذیرفت (۴۰۱)؛ کلید را دوباره بررسی کنید");
     if (response.status === 429) throw new ApiError(400, "کلید معتبر است ولی سهمیه یا اعتبار حساب OpenAI تمام شده (۴۲۹)");
     if (!response.ok) throw new ApiError(502, `پاسخ نامنتظر از OpenAI (HTTP ${response.status})`);
@@ -116,4 +127,4 @@ async function testAiConnection() {
   }
 }
 
-module.exports = { DEFAULT_MODEL, getAiConfig, getAiPublicView, saveAiSettings, testAiConnection, resetAiCache, encrypt, decrypt, mask };
+module.exports = { getOpenAiBaseUrl, DEFAULT_MODEL, getAiConfig, getAiPublicView, saveAiSettings, testAiConnection, resetAiCache, encrypt, decrypt, mask };

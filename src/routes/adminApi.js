@@ -24,7 +24,7 @@ const { removeProductImage, saveProductImage } = require("../utils/productImages
 const { clearProductCaches } = require("../services/cacheBus");
 const { getShippingMethods, saveShippingMethod } = require("../services/shippingSettings");
 const { getSupportSettings, saveSupportSettings } = require("../services/supportSettings");
-const { getAiConfig, getAiPublicView, saveAiSettings, testAiConnection } = require("../services/aiSettings");
+const { getAiConfig, getAiPublicView, saveAiSettings, testAiConnection, getOpenAiBaseUrl } = require("../services/aiSettings");
 
 // مدل‌های سازگار: هر خط یا هر «،» یک مدل؛ تکراری‌ها (بدون توجه به حروف) حذف و تعداد/طول محدود می‌شود.
 function parseCompatibleModels(value) {
@@ -644,7 +644,7 @@ router.post("/analytics/behavior/insights", async (req, res) => {
     ].join("\n");
 
     const response = await axios.post(
-      "https://api.openai.com/v1/responses",
+      getOpenAiBaseUrl() + "/v1/responses",
       {
         model: process.env.OPENAI_ANALYTICS_MODEL || process.env.OPENAI_MODEL || "gpt-5.6-terra",
         input: prompt,

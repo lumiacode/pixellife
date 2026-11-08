@@ -3,7 +3,7 @@ const axios=require("axios");
 const Product=require("../models/Product");
 const requireAdmin=require("../middleware/adminAuth");
 const adminSession=require("../middleware/adminSession");
-const { getAiConfig } = require("../services/aiSettings");
+const { getAiConfig, getOpenAiBaseUrl } = require("../services/aiSettings");
 const router=express.Router();
 router.use(express.json({limit:"80kb"}));router.use(adminSession);router.use(requireAdmin);
 const allowed=["description","specs","seoTitle","seoDescription","instagramCaption"];
@@ -14,9 +14,27 @@ router.post("/products/suggest",async(req,res)=>{try{
  const product=await Product.findById(req.body.productId).lean();if(!product)return res.status(404).json({success:false,message:"محصول پیدا نشد"});
  const instruction=String(req.body.request||"").trim().slice(0,1200);if(!instruction)return res.status(400).json({success:false,message:"درخواست را بنویسید"});
  const prompt=`شما دستیار محتوای فروشگاه PixelLife هستید. فقط بر اساس اطلاعات داده‌شده و بدون ساختن مشخصات فنی نامطمئن پاسخ بده. درخواست مدیر: ${instruction}\nمحصول: ${JSON.stringify({name:product.name,brand:product.brand,category:product.category,price:product.price,description:product.description,specs:product.specs})}\nپاسخ فقط یک JSON معتبر باشد، با کلیدهای description,specs,seoTitle,seoDescription,instagramCaption. فقط کلیدهایی را که درخواست کرده‌ای پر کن.`;
- const response=await axios.post("https://api.openai.com/v1/responses",{model:process.env.OPENAI_ADMIN_MODEL||"gpt-5.6",input:prompt},{headers:{Authorization:`Bearer ${aiConfig.apiKey}`,"Content-Type":"application/json"},timeout:60000});
+ const response=await axios.post(getOpenAiBaseUrl()+"/v1/responses",{model:process.env.OPENAI_ADMIN_MODEL||"gpt-5.6",input:prompt},{headers:{Authorization:`Bearer ${aiConfig.apiKey}`,"Content-Type":"application/json"},timeout:60000});
  const text=response.data.output_text||"";let suggestions;try{suggestions=JSON.parse(text.replace(/^\`\`\`json\s*|\s*\`\`\`$/g,"").trim())}catch(_){return res.status(502).json({success:false,message:"پاسخ هوش مصنوعی ساختار قابل‌اعمال ندارد",raw:text})}
  res.json({success:true,suggestions:Object.fromEntries(Object.entries(suggestions).filter(([k,v])=>allowed.includes(k)&&typeof v==="string"))});
 }catch(e){res.status(e.response?.status||500).json({success:false,message:e.response?.data?.error?.message||e.message})}});
 router.patch("/products/:id/apply",async(req,res)=>{try{const changes=Object.fromEntries(Object.entries(req.body?.changes||{}).filter(([k,v])=>allowed.includes(k)&&typeof v==="string"));if(!Object.keys(changes).length)return res.status(400).json({success:false,message:"تغییر قابل اعمالی انتخاب نشده است"});const product=await Product.findByIdAndUpdate(req.params.id,{$set:changes},{new:true});if(!product)return res.status(404).json({success:false,message:"محصول پیدا نشد"});res.json({success:true,product});}catch(e){res.status(500).json({success:false,message:e.message})}});
+
+// ── پیش‌نویس کامل محصول (مشخصات فنی + بررسی تخصصی) با جست‌وجوی وب؛ فقط پیشنهاد برای پر کردن فرم است ──
+const aiProductDraft = require("../services/aiProductDraft");
+const ownerKey = (req) => req.sessionID || req.ip;
+router.post("/product-draft", (req, res) => {
+  try {
+    const { id } = aiProductDraft.startJob(req.body, ownerKey(req));
+    res.status(202).json({ success: true, jobId: id });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
+  }
+});
+router.get("/product-draft/:id", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  const job = aiProductDraft.getJob(req.params.id, ownerKey(req));
+  if (!job) return res.status(404).json({ success: false, message: "این درخواست پیدا نشد یا منقضی شده است" });
+  res.json({ success: true, ...job });
+});
 module.exports=router;
