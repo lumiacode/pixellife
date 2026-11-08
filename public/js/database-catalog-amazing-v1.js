@@ -25,6 +25,14 @@
     "/console": { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", category: "کنسول بازی", noFallback: true },
   };
 
+  // زیرمجموعهٔ لوازم جانبی هر برند: /accessories/<apple|samsung|xiaomi>/<case|glass|charger|bag>
+  // (همان نگاشت src/config/accessoryCatalog.js؛ تست tests/accessory-subcategories.test.js یکسان‌بودنشان را بررسی می‌کند)
+  const accessoryBrands = { apple: "اپل", samsung: "سامسونگ", xiaomi: "شیائومی" };
+  const accessoryTypes = { case: "قاب و کاور", glass: "گلس و محافظ صفحه", charger: "کابل، شارژر و آداپتور", bag: "کیف و جلد" };
+  Object.keys(accessoryBrands).forEach((brandKey) => Object.keys(accessoryTypes).forEach((typeKey) => {
+    configs["/accessories/" + brandKey + "/" + typeKey] = { grid: ".iphone-grid", card: "iphone-card", name: "iphone-card-name", image: "iphone-card-image", body: "iphone-card-body", desc: "iphone-card-desc", brand: accessoryBrands[brandKey], category: accessoryTypes[typeKey], title: accessoryTypes[typeKey] + " " + accessoryBrands[brandKey], noFallback: true };
+  }));
+
   const config = configs[path];
   if (!config) return;
   if (config.title) document.title = config.title + " | پیکسل لایف";

@@ -6407,6 +6407,9 @@
             if (/کنسول|پلی.?استیشن|play\s*station|console|ps[45]/.test(normalizedCategory)) {
               return { route: "/console", label: "کنسول بازی", type: "console" };
             }
+            if (/قاب|کاور|گلس|محافظ صفحه|کیف و جلد/.test(normalizedCategory)) {
+              return { route: "/accessories", label: product.category || "لوازم جانبی موبایل", type: "accessories" };
+            }
             if (/کابل|شارژر|آداپتور|charger|adapter|cable/.test(normalizedCategory)) {
               return { route: "/accessories/chargers", label: "کابل، شارژر و آداپتور", type: "accessories" };
             }
