@@ -54,6 +54,23 @@ const CATALOG = {
   "/accessories/chargers": { category: "کابل، شارژر و آداپتور" }, "/accessories/apple": { brand: "اپل", category: "لوازم جانبی موبایل" },
   "/accessories/samsung": { brand: "سامسونگ", category: "لوازم جانبی موبایل" }, "/accessories/xiaomi": { brand: "شیائومی", category: "لوازم جانبی موبایل" },
 };
+// زیرمجموعهٔ لوازم جانبی هر برند (قاب، گلس، شارژر، کیف): متا و فیلتر کاتالوگ از src/config/accessoryCatalog.js ساخته می‌شود.
+{
+  const accessoryCatalog = require("../config/accessoryCatalog");
+  for (const brandKey of Object.keys(accessoryCatalog.ACCESSORY_BRANDS)) {
+    for (const typeKey of Object.keys(accessoryCatalog.ACCESSORY_TYPES)) {
+      const info = accessoryCatalog.resolve(brandKey, typeKey);
+      const route = `/accessories/${brandKey}/${typeKey}`;
+      PAGES[route] = {
+        name: `${info.title} ${info.brand}`,
+        parent: `/accessories/${brandKey}`,
+        title: `خرید ${info.title} ${info.brand} | اورجینال | پیکسل لایف`,
+        description: `خرید ${info.title} موبایل ${info.brand} با ضمانت اصالت، قیمت مناسب و ارسال سریع از پیکسل لایف.`,
+      };
+      CATALOG[route] = { brand: info.brand, category: info.category };
+    }
+  }
+}
 const CATALOG_TTL_MS = 5 * 60 * 1000;
 const catalogCache = new Map();
 // پیش‌فرض: همان API عمومی سایت را از داخل سرور صدا می‌زند تا لیست دقیقاً با چیزی که کاربر می‌بیند یکی باشد.

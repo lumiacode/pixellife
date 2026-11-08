@@ -381,10 +381,10 @@ const PROFILE_DROPDOWN_LAYER_FIX = `
 const SHARED_CATEGORY_HEAD = `
 <link rel="stylesheet" href="/css/shared-category-nav.css?v=9" />`;
 const SHARED_CATEGORY_SCRIPT = `
-<script src="/js/shared-category-nav.js?v=9"></script>`;
+<script src="/js/shared-category-nav.js?v=10"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=38" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=39" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
 <script src="/js/mobile-bottom-nav.js?v=39"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
@@ -710,7 +710,7 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 function injectCategoryData(html) {
   if (!html || html.includes("category-data.js") || !html.includes("</head>")) return html;
   if (!html.includes("nav-cats-wrap") && !html.includes('class="header"') && !html.includes("mobile-bottom-nav")) return html;
-  return html.replace("</head>", '<script src="/js/category-data.js?v=5"></script>\n</head>');
+  return html.replace("</head>", '<script src="/js/category-data.js?v=6"></script>\n</head>');
 }
 
 function injectSearchSuggest(html) {
@@ -801,7 +801,7 @@ function injectDatabaseCatalog(html) {
 
   // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
   // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
-  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=12"></script>';
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=13"></script>';
   if (html.includes("/js/database-catalog-amazing-v1.js")) {
     return html.replace(
       /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,
@@ -955,17 +955,18 @@ async function sendSpecialCatalogView(res, options) {
   }
 }
 
-function sendAccessoryBrandView(res, brand) {
+function sendAccessoryBrandView(res, brand, typeInfo) {
   const filePath = path.join(__dirname, "../../views/iphone.html");
   const brandName = String(brand || "").trim();
+  const cacheKey = typeInfo ? `accessory:${brandName}:${typeInfo.typeKey}` : `accessory:${brandName}`;
 
   try {
     res.set("Cache-Control", "no-cache, max-age=0, must-revalidate");
-    if (IS_PRODUCTION && viewCache.has(`accessory:${brandName}`)) {
-      return res.type("html").send(viewCache.get(`accessory:${brandName}`));
+    if (IS_PRODUCTION && viewCache.has(cacheKey)) {
+      return res.type("html").send(viewCache.get(cacheKey));
     }
     let html = readView(filePath);
-    const pageTitle = `لوازم جانبی ${brandName}`;
+    const pageTitle = typeInfo ? `${typeInfo.title} ${brandName}` : `لوازم جانبی ${brandName}`;
 
     // کارت‌های نمونهٔ آیفون فقط برای طراحی اولیهٔ قالب هستند. در صفحهٔ لوازم
     // جانبی نباید حتی برای یک لحظه نمایش داده شوند.
@@ -988,28 +989,30 @@ function sendAccessoryBrandView(res, brand) {
       )
       .replace(
         /<div class="iphone-page-subtitle">[\s\S]*?<\/div>/,
-        `<div class="iphone-page-subtitle">جدیدترین لوازم جانبی موبایل ${brandName}</div>`,
+        `<div class="iphone-page-subtitle">${typeInfo ? `جدیدترین ${typeInfo.title} موبایل ${brandName}` : `جدیدترین لوازم جانبی موبایل ${brandName}`}</div>`,
       )
       .replace(
         /<svg width="32" height="32" viewBox="0 0 24 24" fill="none">[\s\S]*?<\/svg>\s*<div>/,
-        '<i class="ti ti-headphones" style="font-size:32px;color:var(--text-2)"></i><div>',
+        `<i class="ti ${typeInfo ? typeInfo.icon : "ti-headphones"}" style="font-size:32px;color:var(--text-2)"></i><div>`,
       )
       .replace(
         "/js/database-catalog.js?v=20261024-slug-urls-1-sized",
-        "/js/database-catalog.js?v=20261024-slug-urls-2-sized",
+        "/js/database-catalog.js?v=20261024-slug-urls-3-sized",
       );
     html = injectDesignTokens(injectEnamad(injectSharedMiniCart(injectSharedFooter(html, "iphone.html"), "iphone.html")));
     html = injectSharedCategoryNav(html);
     html = injectMobileBottomNav(html);
     html = injectHistorySafeAnchors(html);
     html = injectAssetRevision(injectPageLoader(injectShoppingAssistant(injectHideSeeAll(injectDatabaseCatalog(html)))));
-    if (IS_PRODUCTION) viewCache.set(`accessory:${brandName}`, html);
+    if (IS_PRODUCTION) viewCache.set(cacheKey, html);
     res.type("html").send(html);
   } catch (error) {
     console.error(`Accessory view render error (${brandName}):`, error);
     res.status(500).send("خطا در بارگذاری صفحه");
   }
 }
+
+const accessoryCatalog = require("../config/accessoryCatalog");
 
 const homeController = {
   index: (req, res) => {
@@ -1150,6 +1153,11 @@ const homeController = {
   accessoriesApple: (req, res) => sendAccessoryBrandView(res, "اپل"),
   accessoriesSamsung: (req, res) => sendAccessoryBrandView(res, "سامسونگ"),
   accessoriesXiaomi: (req, res) => sendAccessoryBrandView(res, "شیائومی"),
+  accessoriesBrandType: (req, res, next) => {
+    const info = accessoryCatalog.resolve(req.params.brand, req.params.type);
+    if (!info) return next();
+    return sendAccessoryBrandView(res, info.brand, info);
+  },
   samsungtab: (req, res) => sendViewWithEnamad(res, "samsungtab.html"),
   ipad: (req, res) => sendViewWithEnamad(res, "ipad.html"),
   tablets: (req, res) =>

@@ -29,15 +29,69 @@ window.PLCategories = [
         "links": [
           {
             "label": "اپل",
-            "href": "/accessories/apple"
+            "href": "/accessories/apple",
+            "children": [
+              {
+                "label": "قاب",
+                "href": "/accessories/apple/case"
+              },
+              {
+                "label": "گلس",
+                "href": "/accessories/apple/glass"
+              },
+              {
+                "label": "شارژر",
+                "href": "/accessories/apple/charger"
+              },
+              {
+                "label": "کیف",
+                "href": "/accessories/apple/bag"
+              }
+            ]
           },
           {
             "label": "سامسونگ",
-            "href": "/accessories/samsung"
+            "href": "/accessories/samsung",
+            "children": [
+              {
+                "label": "قاب",
+                "href": "/accessories/samsung/case"
+              },
+              {
+                "label": "گلس",
+                "href": "/accessories/samsung/glass"
+              },
+              {
+                "label": "شارژر",
+                "href": "/accessories/samsung/charger"
+              },
+              {
+                "label": "کیف",
+                "href": "/accessories/samsung/bag"
+              }
+            ]
           },
           {
             "label": "شیائومی",
-            "href": "/accessories/xiaomi"
+            "href": "/accessories/xiaomi",
+            "children": [
+              {
+                "label": "قاب",
+                "href": "/accessories/xiaomi/case"
+              },
+              {
+                "label": "گلس",
+                "href": "/accessories/xiaomi/glass"
+              },
+              {
+                "label": "شارژر",
+                "href": "/accessories/xiaomi/charger"
+              },
+              {
+                "label": "کیف",
+                "href": "/accessories/xiaomi/bag"
+              }
+            ]
           }
         ],
         "groups": [

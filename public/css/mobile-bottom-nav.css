@@ -854,3 +854,9 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
   .pl-anim[data-nav="account"] .nav-head { animation: plNavHead .42s; }
   .pl-anim[data-nav="account"] .nav-draw { animation: plNavBody .42s .05s; }
 }
+
+/* زیرمجموعهٔ لوازم جانبی هر برند (قاب، گلس، شارژر، کیف): چهار چیپ هم‌اندازه در یک ردیف */
+@media (max-width: 768px) {
+  .mobile-category-sheet__brand-links:has(> :nth-child(4)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mobile-category-sheet__brand-links a { justify-content: center; }
+}

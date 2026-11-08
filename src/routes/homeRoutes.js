@@ -37,6 +37,8 @@ router.get("/accessories/chargers", homeController.accessoriesChargers);
 router.get("/accessories/apple", homeController.accessoriesApple);
 router.get("/accessories/samsung", homeController.accessoriesSamsung);
 router.get("/accessories/xiaomi", homeController.accessoriesXiaomi);
+// زیرمجموعهٔ لوازم جانبی هر برند: قاب، گلس، شارژر، کیف (src/config/accessoryCatalog.js)
+router.get("/accessories/:brand/:type", homeController.accessoriesBrandType);
 router.get("/ipad", homeController.ipad);
 router.get("/tablets", homeController.tablets);
 router.get("/samsungtab", homeController.samsungtab);
