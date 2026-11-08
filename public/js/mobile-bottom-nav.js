@@ -290,16 +290,19 @@
     const linkMarkup = (link) => {
       const children = Array.isArray(link.children) ? link.children : [];
       if (!children.length) return `<a class="mobile-category-sheet__link" href="${link.href}"><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</a>`;
-      // برند دارای زیرمجموعه: با لمس نام برند چیپ‌ها باز می‌شوند («همه» اول، بعد قاب/گلس/شارژر/کیف)؛ دوباره لمس = بسته‌شدن
-      const chips = [{ label: "همه", href: link.href }, ...children];
-      return `<section class="mobile-category-sheet__group"><button type="button" class="mobile-category-sheet__link mobile-category-sheet__link--toggle" aria-expanded="false" data-brand-toggle><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</button><div class="mobile-category-sheet__brand-links" aria-label="زیرمجموعه‌های ${link.label}" hidden>${chips.map((child) => `<a class="mobile-category-sheet__brand-link" href="${child.href}">${child.label}</a>`).join("")}</div></section>`;
+      // برند دارای زیرمجموعه: با لمس نام برند منوی کشویی باز می‌شود («همه» اول، بعد قاب/گلس/شارژر/کیف)؛ دوباره لمس = بسته‌شدن
+      const items = [{ label: "همه", href: link.href }, ...children];
+      return `<section class="mobile-category-sheet__group"><button type="button" class="mobile-category-sheet__link mobile-category-sheet__link--toggle" aria-expanded="false" data-brand-toggle><span class="mobile-category-sheet__link-main"><span>${link.label}</span></span>${chevron}</button><div class="mobile-category-sheet__sub" data-sub><div class="mobile-category-sheet__sub-inner"><div class="mobile-category-sheet__sub-list" role="list" aria-label="زیرمجموعه‌های ${link.label}">${items.map((child) => `<a class="mobile-category-sheet__sub-link" role="listitem" href="${child.href}"><span>${child.label}</span>${chevron}</a>`).join("")}</div></div></div></section>`;
     };
     categoryContent.addEventListener("click", (event) => {
       const toggle = event.target.closest("[data-brand-toggle]");
       if (!toggle) return;
       const open = toggle.getAttribute("aria-expanded") !== "true";
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.parentElement.querySelector(".mobile-category-sheet__brand-links").hidden = !open;
+      const sub = toggle.parentElement.querySelector("[data-sub]");
+      sub.classList.toggle("is-open", open);
+      // لیست بازشده اگر پایین کادر بیفتد، بعد از پایان حرکت به دید می‌آید
+      if (open) window.setTimeout(() => sub.scrollIntoView({ block: "nearest", behavior: "smooth" }), 280);
     });
 
     const renderCategory = (id) => {

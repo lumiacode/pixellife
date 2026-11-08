@@ -592,8 +592,15 @@ html body .search-bar input::placeholder { color: #9a9a9a !important; opacity: 1
 .profile-trigger.open .profile-chevron { transform: rotate(180deg); }
 .profile-trigger:focus-visible { outline: 2px solid rgba(15, 23, 42, .35); outline-offset: 2px; }
 
-/* مگامنو: لمس نام برند، زیرمجموعه‌ها را باز می‌کند */
-.megamenu-child-links[hidden] { display: none !important; }
+/* مگامنو: کلیک روی نام برند، منوی کشویی زیرمجموعه‌ها را نرم باز می‌کند */
 button.megamenu-link.megamenu-toggle { width: 100%; font-family: inherit; cursor: pointer; text-align: right; }
-.megamenu-group .megamenu-link.megamenu-toggle i.megamenu-toggle-ico { display: inline-block !important; font-size: 12px !important; transition: transform .2s ease; }
+.megamenu-group .megamenu-link.megamenu-toggle i.megamenu-toggle-ico { display: inline-block !important; font-size: 12px !important; transition: transform .22s ease; }
 .megamenu-toggle[aria-expanded="true"] .megamenu-toggle-ico { transform: rotate(180deg); }
+.megamenu-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s ease; }
+.megamenu-sub.is-open { grid-template-rows: 1fr; }
+.megamenu-sub-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s linear .26s; }
+.megamenu-sub.is-open .megamenu-sub-inner { visibility: visible; transition-delay: 0s; }
+.megamenu-sub-list { display: grid; margin: 2px 12px 8px 0; border-right: 2px solid var(--border, #e5e9f0); }
+a.megamenu-sub-link { display: block; padding: 6px 12px; color: #5b6573; font-size: 12.5px; text-decoration: none; border-radius: 6px; }
+a.megamenu-sub-link:hover { background: var(--blue-light, #eff6ff); color: var(--blue, #2563eb); }
+@media (prefers-reduced-motion: reduce) { .megamenu-sub, .megamenu-toggle-ico { transition: none; } }
