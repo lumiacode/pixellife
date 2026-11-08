@@ -285,7 +285,14 @@
       categoryContent.innerHTML = markup;
       categoryContent.classList.add("is-changing");
     };
-    const catIcon = (category, size) => category.image ? `<img class="mobile-category-sheet__icon-image" src="${category.image}" alt="" ${size ? `width="${size}" height="${size}"` : ""}>` : "";
+    // آیکن هر دسته دو نسخه دارد: خاکستری (عادی) و آبی (دستهٔ فعال)؛ تصویر با تغییر وضعیت عوض می‌شود.
+    const catIconSrc = (category, active) => (active && category.imageActive ? category.imageActive : category.image);
+    const catIcon = (category, size, active) => category.image ? `<img class="mobile-category-sheet__icon-image" src="${catIconSrc(category, active)}" alt="" ${size ? `width="${size}" height="${size}"` : ""}>` : "";
+    const paintRailIcons = (activeId) => rail.querySelectorAll(".mobile-category-sheet__rail-item").forEach((item) => {
+      const c = categories.find((x) => x.id === item.dataset.category), img = item.querySelector("img");
+      if (c && img) img.setAttribute("src", catIconSrc(c, item.dataset.category === activeId));
+    });
+    categories.forEach((c) => { if (c.imageActive) new Image().src = c.imageActive; });
     // ردیف لینک: فقط عنوان و فلش؛ زیرمجموعه‌ها (مثلاً برندها) به‌صورت چیپ‌های هم‌رنگ زیرش
     const linkMarkup = (link) => {
       const children = Array.isArray(link.children) ? link.children : [];
@@ -311,6 +318,7 @@
       rail.querySelectorAll(".mobile-category-sheet__rail-item").forEach((item) => {
         item.classList.toggle("is-active", item.dataset.category === category.id);
       });
+      paintRailIcons(category.id);
       const allHref = categoryHref[category.id] || "";
       const groups = Array.isArray(category.groups) ? category.groups : [];
       const body = Array.isArray(category.logoLinks) && category.logoLinks.length
@@ -325,7 +333,7 @@
             return title + links.map(linkMarkup).join("");
           }).join("")).join("");
       renderContent(`
-        <div class="mobile-category-sheet__content-head">${catIcon(category)}<span>${category.name}</span></div>
+        <div class="mobile-category-sheet__content-head">${catIcon(category, undefined, true)}<span>${category.name}</span></div>
         ${allHref ? `<a class="mobile-category-sheet__all-link" href="${allHref}">همه محصولات ${category.name}${chevron}</a>` : ""}
         ${body}`);
     };
@@ -378,6 +386,7 @@
         return;
       }
       rail.querySelectorAll(".mobile-category-sheet__rail-item").forEach((item) => item.classList.remove("is-active"));
+      paintRailIcons("");
       const localHits = matchCategories(normalized);
       if (normalized.length < 2) {
         paintSearch(query.trim(), localHits, []);
