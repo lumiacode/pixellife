@@ -855,18 +855,19 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
   .pl-anim[data-nav="account"] .nav-draw { animation: plNavBody .42s .05s; }
 }
 
-/* زیرمجموعهٔ لوازم جانبی هر برند (قاب، گلس، شارژر، کیف): چهار چیپ هم‌اندازه در یک ردیف */
+/* لمس نام برند: منوی کشویی زیرمجموعه‌ها (همه، قاب، گلس، شارژر، کیف) نرم باز و بسته می‌شود */
 @media (max-width: 768px) {
-  .mobile-category-sheet__brand-links:has(> :nth-child(4)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .mobile-category-sheet__brand-links a { justify-content: center; }
-}
-
-/* لمس نام برند: چیپ‌های زیرمجموعه باز می‌شود (hidden باید روی grid هم اثر کند) */
-@media (max-width: 768px) {
-  .mobile-category-sheet__brand-links[hidden] { display: none; }
   button.mobile-category-sheet__link--toggle { width: 100%; background: none; border-top: 0; border-inline: 0; font-family: inherit; text-align: right; cursor: pointer; }
-  .mobile-category-sheet__link--toggle svg { transition: transform .2s ease; }
+  .mobile-category-sheet__link--toggle svg { transition: transform .22s ease; }
   .mobile-category-sheet__link--toggle[aria-expanded="true"] svg { transform: rotate(-90deg); }
-  .mobile-category-sheet__brand-links:has(> :nth-child(5)) { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
-  .mobile-category-sheet__brand-links:has(> :nth-child(5)) .mobile-category-sheet__brand-link { padding-inline: 2px; font-size: 11.5px; }
+  .mobile-category-sheet__sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s ease; }
+  .mobile-category-sheet__sub.is-open { grid-template-rows: 1fr; }
+  .mobile-category-sheet__sub-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s linear .26s; }
+  .mobile-category-sheet__sub.is-open .mobile-category-sheet__sub-inner { visibility: visible; transition-delay: 0s; }
+  .mobile-category-sheet__sub-list { margin: 2px 0 10px; padding: 4px 0; border-radius: 12px; background: #f8fafc; }
+  .mobile-category-sheet__sub-link { display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 8px 14px; color: #334155; font-size: 13.5px; font-weight: 600; text-decoration: none; }
+  .mobile-category-sheet__sub-link + .mobile-category-sheet__sub-link { border-top: 1px solid #eef2f7; }
+  .mobile-category-sheet__sub-link:active { background: #eff6ff; color: #2563eb; }
+  .mobile-category-sheet__sub-link svg { width: 16px; height: 16px; stroke: #94a3b8; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 }
+@media (prefers-reduced-motion: reduce) { .mobile-category-sheet__sub, .mobile-category-sheet__link--toggle svg { transition: none; } }

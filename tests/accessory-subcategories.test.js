@@ -41,7 +41,7 @@ for (const file of ["public/js/shared-category-nav.js", "public/js/mobile-bottom
   assert.ok(src.includes("data-brand-toggle") && src.includes("aria-expanded") && /label: ['"]همه['"], href: link\.href/.test(src), file);
 }
 // منوی دسکتاپ و کشوی موبایل زیرمجموعه‌ها را نمایش می‌دهند
-assert.ok(/link\.children/.test(read("public/js/shared-category-nav.js")) && /megamenu-child-link/.test(read("public/js/shared-category-nav.js")));
+assert.ok(/link\.children/.test(read("public/js/shared-category-nav.js")) && /megamenu-sub-link/.test(read("public/js/shared-category-nav.js")));
 assert.ok(/link\.children/.test(read("public/js/mobile-bottom-nav.js")));
 
 // ۳) مسیرها در سرور
