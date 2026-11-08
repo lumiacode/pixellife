@@ -51,6 +51,10 @@ const scriptTypes = grab("accessoryTypes");
 for (const b of BRANDS) assert.strictEqual(scriptBrands[b], catalog.ACCESSORY_BRANDS[b].fa);
 for (const t of TYPES) assert.strictEqual(scriptTypes[t], catalog.ACCESSORY_TYPES[t].category);
 
+// ۴-ب) پنل فیلتر: لینک «دسته‌بندی/برند» و کلید «تخفیف‌دار»؛ تخفیف از percent خوانده می‌شود (نه فیلد ناموجود)
+assert.ok(/function navMarkup\(\)/.test(script) && /pl-nav-chip/.test(script) && /\/accessories\/\(apple\|samsung\|xiaomi\)/.test(script));
+assert.ok(/data-filter-sale/.test(script) && /priceInfo\(product\)\.percent > 0/.test(script) && !/priceInfo\([a-z]+\)\.discount/.test(script));
+
 // ۵) فیلتر API: هر زیردسته فقط نام‌های خودش را می‌پذیرد و همهٔ آن‌ها زیر «لوازم جانبی موبایل» می‌آیند
 process.env.MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1/none";
 const { categoryPattern } = require("../src/routes/products");
