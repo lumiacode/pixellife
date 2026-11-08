@@ -208,6 +208,10 @@
       html body .pl-active-chip i{font-size:14px}
       html body .pl-active-clear{border:0;background:none;color:var(--pl-text-3,#64748b);font:600 13px Vazirmatn,Tahoma,sans-serif;text-decoration:underline;cursor:pointer;padding:5px 6px}
       html body .pl-filter-apply{display:none}
+      html body .pl-nav-chip{display:inline-flex;align-items:center;padding:6px 14px;border:1px solid var(--pl-line,#e2e8f0);border-radius:999px;background:var(--pl-surface,#fff);color:var(--pl-text-2,#334155);font:600 13px Vazirmatn,Tahoma,sans-serif;text-decoration:none;cursor:pointer}
+      html body .pl-nav-chip:hover{border-color:var(--pl-blue,#3b82f6);color:var(--pl-blue-strong,#2563eb)}
+      html body .pl-nav-chip.is-current{background:var(--pl-blue-soft,#eff6ff);border-color:var(--pl-blue,#3b82f6);color:var(--pl-blue-strong,#2563eb);font-weight:800;pointer-events:none}
+      html body .pl-filter-stock[hidden]{display:none}
       html body #toast{pointer-events:none!important}
       @media(max-width:800px){
         html body .pl-filter-panel{display:flex;flex-direction:column;border-radius:0!important}
@@ -354,12 +358,39 @@
     document.addEventListener("keydown", (event) => { if (event.key === "Escape") setPanelOpen(false); });
 
     let allProducts = [];
-    const selected = { brands: new Set(), colors: new Set(), storages: new Set(), inStock: false, min: "", max: "", sort: "newest" };
+    const selected = { brands: new Set(), colors: new Set(), storages: new Set(), inStock: false, sale: false, min: "", max: "", sort: "newest" };
     const option = (kind, value, extra = "") => `<label class="pl-filter-option">${extra}<input type="checkbox" data-filter-kind="${kind}" value="${escapeHtml(value)}"><span>${escapeHtml(value)}</span></label>`;
     const detail = (title, content, open = false) => `<details class="pl-filter-section"${open ? " open" : ""}><summary>${title}</summary><div class="pl-filter-options">${content}</div></details>`;
 
+    // «برند» و «دسته‌بندی»: لینک به صفحهٔ همان بخش برای برند/نوع دیگر؛ چون هر صفحه فقط کالاهای خودش را دارد،
+    // این لینک‌ها به کاربر اجازه می‌دهند بدون برگشتن به منو برند یا دستهٔ دیگر را انتخاب کند.
+    function navMarkup() {
+      const chip = (label, href, current) => `<a class="pl-nav-chip${current ? " is-current" : ""}" href="${href}"${current ? ' aria-current="page"' : ""}>${escapeHtml(label)}</a>`;
+      const section = (title, chips) => (chips.length > 1 ? detail(title, chips.join(""), true) : "");
+      const short = { case: "قاب", glass: "گلس", charger: "شارژر", bag: "کیف" };
+      let m = path.match(/^\/accessories\/(apple|samsung|xiaomi)(?:\/(case|glass|charger|bag))?$/);
+      if (m) {
+        const [, brandKey, typeKey] = m;
+        const types = [chip("همه", "/accessories/" + brandKey, !typeKey), ...Object.keys(accessoryTypes).map((t) => chip(short[t], "/accessories/" + brandKey + "/" + t, typeKey === t))];
+        const brands = Object.keys(accessoryBrands).map((b) => chip(accessoryBrands[b], "/accessories/" + b + (typeKey ? "/" + typeKey : ""), b === brandKey));
+        return section("دسته‌بندی", types) + section("برند", brands);
+      }
+      if (path === "/accessories") {
+        return section("برند", Object.keys(accessoryBrands).map((b) => chip(accessoryBrands[b], "/accessories/" + b, false)));
+      }
+      const families = [
+        { all: "/mobiles", items: [["اپل", "/iphone"], ["سامسونگ", "/samsung"], ["شیائومی", "/xiaomi"]] },
+        { all: "/tablets", items: [["اپل", "/ipad"], ["سامسونگ", "/samsungtab"], ["شیائومی", "/xiaomitab"]] },
+      ];
+      const family = families.find((f) => f.items.some((item) => item[1] === path) || f.all === path);
+      if (family) return section("برند", [chip("همه", family.all, path === family.all), ...family.items.map(([label, href]) => chip(label, href, path === href))]);
+      return "";
+    }
+
     panel.innerHTML = `<div class="pl-filter-head"><span>فیلترها</span><div class="pl-filter-head-actions"><button type="button" class="pl-filter-reset">حذف فیلترها</button><button type="button" class="pl-filter-close" aria-label="بستن فیلترها" title="بستن"><i class="ti ti-x"></i></button></div></div>
+      ${navMarkup()}
       <label class="pl-filter-stock"><span>فقط کالاهای موجود</span><input type="checkbox" data-filter-stock></label>
+      <label class="pl-filter-stock" data-filter-sale-row hidden><span>فقط کالاهای تخفیف‌دار</span><input type="checkbox" data-filter-sale></label>
       ${detail("بازه قیمت", `<div class="pl-price-fields"><input class="pl-price-field" inputmode="numeric" data-filter-min placeholder="از (تومان)"><input class="pl-price-field" inputmode="numeric" data-filter-max placeholder="تا (تومان)"></div>`, true)}
       <div data-filter-dynamic></div>`;
     panel.querySelector(".pl-filter-close").addEventListener("click", () => setPanelOpen(false));
@@ -422,6 +453,8 @@
       const colorHex = new Map();
       allProducts.forEach((p) => (p.colors || []).forEach((c) => { if (c?.name && c?.hex) colorHex.set(c.name, c.hex); }));
       const storages = uniqueValues(allProducts, (p) => [...(p.storages || []), ...(p.variants || []).map((v) => v?.storage)]).sort();
+      // «تخفیف‌دار» فقط وقتی نشان داده می‌شود که حداقل یک کالای این صفحه تخفیف داشته باشد.
+      panel.querySelector("[data-filter-sale-row]").hidden = !allProducts.some((p) => !isOutOfStock(p) && priceInfo(p).percent > 0);
       const dynamic = panel.querySelector("[data-filter-dynamic]");
       dynamic.innerHTML = (brands.length > 1 ? detail("برند", brands.map((v) => option("brands", v)).join(""), true) : "") +
         (colors.length ? detail("رنگ", colors.map((v) => option("colors", v, `<span class="pl-filter-color" style="background:${escapeHtml(colorHex.get(v) || "#e2e8f0")}"></span>`)).join("")) : "") +
@@ -433,6 +466,7 @@
       const stock = Math.max(0, Number(product.stock) || 0);
       const productPrice = priceInfo(product).final;
       return (!selected.inStock || (!isOutOfStock(product) && stock > 0)) &&
+        (!selected.sale || (!isOutOfStock(product) && priceInfo(product).percent > 0)) &&
         (!selected.min || productPrice >= normalizeNumber(selected.min)) &&
         (!selected.max || productPrice <= normalizeNumber(selected.max)) &&
         (!selected.brands.size || selected.brands.has(String(product.brand || "").trim())) &&
@@ -460,6 +494,7 @@
       selected.colors.forEach((v) => chips.push({ kind: "colors", value: v, label: v }));
       selected.storages.forEach((v) => chips.push({ kind: "storages", value: v, label: v }));
       if (selected.inStock) chips.push({ kind: "inStock", label: "فقط موجود" });
+      if (selected.sale) chips.push({ kind: "sale", label: "فقط تخفیف‌دار" });
       if (selected.min) chips.push({ kind: "min", label: "از " + normalizeNumber(selected.min).toLocaleString("fa-IR") });
       if (selected.max) chips.push({ kind: "max", label: "تا " + normalizeNumber(selected.max).toLocaleString("fa-IR") });
       activeFilters.hidden = !chips.length;
@@ -479,6 +514,7 @@
       if (!chip) return;
       const { kind, value } = chip.dataset;
       if (kind === "inStock") { selected.inStock = false; panel.querySelector("[data-filter-stock]").checked = false; }
+      else if (kind === "sale") { selected.sale = false; panel.querySelector("[data-filter-sale]").checked = false; }
       else if (kind === "min" || kind === "max") { selected[kind] = ""; panel.querySelector(kind === "min" ? "[data-filter-min]" : "[data-filter-max]").value = ""; }
       else {
         selected[kind].delete(value);
@@ -489,6 +525,7 @@
     panel.addEventListener("change", (event) => {
       const input = event.target;
       if (input.matches("[data-filter-stock]")) selected.inStock = input.checked;
+      if (input.matches("[data-filter-sale]")) selected.sale = input.checked;
       if (input.matches("[data-filter-kind]")) selected[input.dataset.filterKind][input.checked ? "add" : "delete"](input.value);
       render();
     });
@@ -499,7 +536,7 @@
     });
     results.querySelector(".pl-catalog-sort").addEventListener("change", (event) => { selected.sort = event.target.value; render(); });
     panel.querySelector(".pl-filter-reset").addEventListener("click", () => {
-      selected.brands.clear(); selected.colors.clear(); selected.storages.clear(); selected.inStock = false; selected.min = ""; selected.max = "";
+      selected.brands.clear(); selected.colors.clear(); selected.storages.clear(); selected.inStock = false; selected.sale = false; selected.min = ""; selected.max = "";
       panel.querySelectorAll("input").forEach((input) => { input.checked = false; if (input.type !== "checkbox") input.value = ""; });
       render();
     });
