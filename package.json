@@ -39,7 +39,8 @@
     "test:accessory-subcategories": "node tests/accessory-subcategories.test.js",
     "test:compatible-models": "node tests/compatible-models.test.js",
     "test:ai-product-draft": "node tests/ai-product-draft.test.js",
-    "test:category-icons": "node tests/category-icons.test.js"
+    "test:category-icons": "node tests/category-icons.test.js",
+    "test:backup-script": "node tests/backup-script.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",
