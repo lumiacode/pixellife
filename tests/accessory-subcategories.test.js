@@ -52,7 +52,7 @@ for (const b of BRANDS) assert.strictEqual(scriptBrands[b], catalog.ACCESSORY_BR
 for (const t of TYPES) assert.strictEqual(scriptTypes[t], catalog.ACCESSORY_TYPES[t].category);
 
 // ۴-ب) پنل فیلتر: لینک «دسته‌بندی/برند» و کلید «تخفیف‌دار»؛ تخفیف از percent خوانده می‌شود (نه فیلد ناموجود)
-assert.ok(/function navMarkup\(\)/.test(script) && /pl-nav-chip/.test(script) && /\/accessories\/\(apple\|samsung\|xiaomi\)/.test(script));
+assert.ok(/function navMarkup\(\)/.test(script) && /pl-nav-chip/.test(script) && script.includes("(apple|samsung|xiaomi)(?:"));
 assert.ok(/data-filter-sale/.test(script) && /priceInfo\(product\)\.percent > 0/.test(script) && !/priceInfo\([a-z]+\)\.discount/.test(script));
 
 // ۵) فیلتر API: هر زیردسته فقط نام‌های خودش را می‌پذیرد و همهٔ آن‌ها زیر «لوازم جانبی موبایل» می‌آیند
