@@ -52,7 +52,7 @@ router.use(async (req, res, next) => {
 const PRODUCT_CARD_FIELDS = [
   "name", "slug", "legacyId", "brand", "category", "price", "discount",
   "featured", "availability", "amazingOffer", "amazingOfferEndsAt", "images", "mainImage", "colors", "variants",
-  "storages", "hasStorage", "rating", "reviewCount", "comingSoon", "stock",
+  "storages", "compatibleModels", "hasStorage", "rating", "reviewCount", "comingSoon", "stock",
   "createdAt", "updatedAt",
 ].join(" ");
 

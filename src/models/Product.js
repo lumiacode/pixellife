@@ -127,6 +127,8 @@ const productSchema = new mongoose.Schema(
       },
     ],
     storages: [{ type: String }],
+    // مدل‌های سازگار (برای قاب، گلس، شارژر و کیف): مثلاً «آیفون ۱۵ پرو». در فیلتر «سازگار با» صفحهٔ دسته نمایش داده می‌شود.
+    compatibleModels: [{ type: String, trim: true }],
     // لوازم جانبی و کالاهای بدون ظرفیت انتخابی، نباید گزینهٔ حافظه در صفحهٔ محصول داشته باشند.
     hasStorage: { type: Boolean, default: true },
     warranties: [{ type: String }],
