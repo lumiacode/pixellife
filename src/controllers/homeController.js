@@ -41,7 +41,33 @@ const ASSET_REVISION = process.env.ASSET_REVISION || (() => {
   }
 })();
 
+// فایل‌های CSS کوچک (زیر ۴ کیلوبایت) به‌جای درخواست جداگانه داخل خود صفحه گذاشته می‌شوند: هر کدام یک درخواستِ مسدودکنندهٔ رندر کمتر.
+// فایل‌های بزرگ‌تر جدا می‌مانند تا مرورگر کش‌شان کند. ترتیب قواعد عوض نمی‌شود (همان‌جای تگ link قرار می‌گیرند).
+const INLINE_CSS_MAX_BYTES = 4096;
+const inlineCssCache = new Map();
+function inlineSmallCss(name) {
+  if (IS_PRODUCTION && inlineCssCache.has(name)) return inlineCssCache.get(name);
+  let css = null;
+  try {
+    const file = path.join(__dirname, "../../public/css", name);
+    if (/^[\w.-]+\.css$/.test(name) && fs.statSync(file).size <= INLINE_CSS_MAX_BYTES) {
+      const raw = fs.readFileSync(file, "utf8");
+      // مسیر نسبی یا @import داخل فایل با درون‌خطی‌شدن خراب می‌شود؛ چنین فایلی جدا می‌ماند.
+      if (!/@import|url\(\s*(?!["']?(?:\/|data:|https?:))/i.test(raw) && !raw.includes("</style")) css = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ").trim();
+    }
+  } catch (_) { css = null; }
+  inlineCssCache.set(name, css);
+  return css;
+}
+// فونت فارسی اصلی از همان ابتدا دانلود می‌شود (نه بعد از خوانده‌شدن CSS)، تا متن زودتر با فونت نهایی دیده شود.
+const FONT_PRELOAD = '<link rel="preload" as="font" type="font/woff2" href="/fonts/vazirmatn-arabic.woff2" crossorigin />';
+
 function injectAssetRevision(html) {
+  html = html.replace(/<link\b(?=[^>]*\brel=["']stylesheet["'])(?![^>]*\bmedia=)[^>]*\bhref=["']\/css\/([\w.-]+\.css)(?:\?[^"']*)?["'][^>]*>/gi, (tag, name) => {
+    const css = inlineSmallCss(name);
+    return css ? `<style data-inlined="${name}">${css}</style>` : tag;
+  });
+  if (!html.includes("vazirmatn-arabic.woff2\" crossorigin") && /Vazirmatn/.test(html) && html.includes("<head>")) html = html.replace("<head>", "<head>\n" + FONT_PRELOAD);
   return html.replace(
     /((?:src|href)=["']\/(?:css|js)\/[^"']+)(["'])/gi,
     (match, url, quote) => {
@@ -287,7 +313,7 @@ const ENAMAD_HTML = `
   class="ftrust-ecunion"
   title="مجوز اتحادیه کشوری کسب‌وکارهای مجازی"
 >
-  <img src="/images/trust/ecunion-logo.png" alt="مجوز اتحادیه کشوری کسب‌وکارهای مجازی" width="82" height="52" loading="lazy" decoding="async" />
+  <img src="/images/trust/ecunion-logo.webp" alt="مجوز اتحادیه کشوری کسب‌وکارهای مجازی" width="82" height="52" loading="lazy" decoding="async" />
 </span>
 ${ZARINPAL_BADGE_HTML}`;
 
@@ -396,7 +422,11 @@ const HISTORY_SAFE_ANCHORS_SCRIPT = `
 const BEHAVIOR_TRACKER_SCRIPT = `
 <script src="/js/behavior-tracker.js?v=2" defer></script>`;
 const CATALOG_NO_FLASH_HEAD = `
-<style id="database-catalog-no-flash">.grid,.iphone-grid,.samsung-grid,.xiaomi-grid,.prod-grid,.xiaomitab-grid,.console-grid{visibility:hidden}</style>`;
+<style id="database-catalog-no-flash">.grid,.iphone-grid,.samsung-grid,.xiaomi-grid,.prod-grid,.xiaomitab-grid,.console-grid{visibility:hidden}
+/* تا رسیدن محصولات، جای فهرست رزرو می‌شود تا فوتر بعد از بارگذاری به پایین نپرد (CLS) */
+:is(.grid,.iphone-grid,.samsung-grid,.xiaomi-grid,.prod-grid,.xiaomitab-grid,.console-grid):is(:not([data-database-catalog]),[data-database-catalog="loading"]){min-height:110vh}
+/* بعد از بارگذاری هم ناحیهٔ فهرست دست‌کم به ارتفاع صفحه می‌ماند تا در دسته‌های کم‌محصول، فوتر یک‌باره به داخل صفحه نپرد */
+.pl-catalog-layout{min-height:100vh}</style>`;
 const HIDE_SEE_ALL_HEAD = `
 <style id="hide-see-all-links">
   a.see-all-btn,
@@ -707,10 +737,20 @@ html.pl-hdr-hidden body.mobile-product-flow-active .product-gallery,html.pl-hdr-
 // تکمیل پروفایل اجباری (نام، نام خانوادگی، آدرس) پیش از خرید: public/js/profile-gate.js
 // پیشنهاد جستجو هنگام تایپ در نوار جستجوی هدر: public/js/search-suggest.js
 // داده‌های مشترک دسته‌بندی‌ها (مگامنوی دسکتاپ + کشوی موبایل): public/js/category-data.js، باید پیش از اسکریپت‌های دسته‌بندی بیاید.
+let categoryDataInline = null;
+function categoryDataTag() {
+  if (IS_PRODUCTION && categoryDataInline) return categoryDataInline;
+  try {
+    const js = fs.readFileSync(path.join(__dirname, "../../public/js/category-data.js"), "utf8").replace(/^\s*\/\*[\s\S]*?\*\/\s*/, "").replace(/\n\s+/g, "");
+    categoryDataInline = js.includes("</script") ? '<script src="/js/category-data.js?v=8"></script>' : `<script id="pl-category-data">${js}</script>`;
+  } catch (_) { categoryDataInline = '<script src="/js/category-data.js?v=8"></script>'; }
+  return categoryDataInline;
+}
 function injectCategoryData(html) {
-  if (!html || html.includes("category-data.js") || !html.includes("</head>")) return html;
+  if (!html || html.includes("category-data.js") || html.includes('id="pl-category-data"') || !html.includes("</head>")) return html;
   if (!html.includes("nav-cats-wrap") && !html.includes('class="header"') && !html.includes("mobile-bottom-nav")) return html;
-  return html.replace("</head>", '<script src="/js/category-data.js?v=8"></script>\n</head>');
+  // دادهٔ دسته‌ها کوچک است و اسکریپت‌های منو بلافاصله به آن نیاز دارند؛ داخل صفحه گذاشته می‌شود تا یک درخواستِ مسدودکنندهٔ رندر حذف شود.
+  return html.replace("</head>", `${categoryDataTag()}\n</head>`);
 }
 
 function injectSearchSuggest(html) {
@@ -801,7 +841,7 @@ function injectDatabaseCatalog(html) {
 
   // نسخهٔ اسکریپت را همیشه یکسان‌سازی می‌کنیم تا HTML قدیمیِ قالب یا کش
   // مرورگر نتواند فایل کاتالوگ قبلی را دوباره اجرا کند.
-  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=15"></script>';
+  const catalogScript = '<script src="/js/database-catalog-amazing-v1.js?v=16"></script>';
   if (html.includes("/js/database-catalog-amazing-v1.js")) {
     return html.replace(
       /<script[^>]+src=["']\/js\/database-catalog-amazing-v1\.js(?:\?[^"']*)?["'][^>]*><\/script>/i,

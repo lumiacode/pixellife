@@ -7,8 +7,8 @@
     <title>PixelLife | فروشگاه اینترنتی محصولات دیجیتال</title>
     <meta name="description" content="PixelLife، فروشگاه اینترنتی محصولات دیجیتال؛ خرید موبایل، تبلت، کنسول و لوازم جانبی با بررسی تخصصی و ارسال مطمئن." />
     <link rel="canonical" href="https://pixellife.ir/" />
-    <link rel="preload" as="image" href="/images/iphone-duo-hero-mobile.jpg" media="(max-width: 768px)" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/iphone-duo-hero-desktop.jpg" media="(min-width: 769px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/iphone-duo-hero-mobile.webp" media="(max-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/iphone-duo-hero-desktop.webp" media="(min-width: 769px)" fetchpriority="high" />
     <meta property="og:title" content="PixelLife | فروشگاه اینترنتی محصولات دیجیتال" />
     <meta property="og:description" content="خرید و بررسی محصولات دیجیتال در PixelLife" />
     <meta property="og:url" content="https://pixellife.ir/" />
@@ -2550,6 +2550,8 @@
       .home-clear-btn { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-3); cursor: pointer; padding: 6px 10px; border-radius: 8px; }
       .home-clear-btn:hover { color: var(--blue-dark, #2563eb); background: var(--blue-light, #eff6ff); }
       .home-chips[hidden] { display: none; }
+      /* ردیف فیلتر سریع از ابتدا جایش رزرو است (فقط نادیدنی)، تا با رسیدن محصولات ردیف پایین نپرد */
+      #featuredChips[hidden] { display: flex; visibility: hidden; }
       .home-chips button[aria-pressed="true"] { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); color: #fff; }
       .home-chip-empty { flex: 1 0 100%; padding: 28px 12px; text-align: center; font-size: 13px; color: var(--text-3); }
     </style>
@@ -2894,8 +2896,8 @@
             <!-- اسلاید اول: آیفون Duo -->
             <a class="hero-slide iphone-duo-hero" href="/mobiles" aria-label="مشاهده محصولات آیفون Duo">
               <picture>
-                <source media="(max-width: 768px)" srcset="/images/iphone-duo-hero-mobile.jpg" />
-                <img src="/images/iphone-duo-hero-desktop.jpg" alt="آیفون Duo؛ نسل تازه‌ای از تجربهٔ اپل" fetchpriority="high" decoding="async">
+                <source media="(max-width: 768px)" srcset="/images/iphone-duo-hero-mobile.webp" />
+                <img src="/images/iphone-duo-hero-desktop.webp" alt="آیفون Duo؛ نسل تازه‌ای از تجربهٔ اپل" fetchpriority="high" decoding="async">
               </picture>
               <span class="iphone-duo-copy">
                 <strong>iPhone Duo</strong>
@@ -3055,7 +3057,7 @@
             <img src="/images/brand-samsung.png?v=2" alt="Samsung" loading="lazy" decoding="async" />
           </a>
           <a class="home-brand-card" href="#">
-            <img src="/images/brand-nokia.png" alt="Nokia" loading="lazy" decoding="async" />
+            <img src="/images/brand-nokia.webp" alt="Nokia" loading="lazy" decoding="async" />
           </a>
         </div>
       </section>
@@ -3164,7 +3166,7 @@
             title="مجوز اتحادیه کشوری کسب‌وکارهای مجازی"
           >
             <img
-              src="/images/trust/ecunion-logo.png"
+              src="/images/trust/ecunion-logo.webp"
               alt="مجوز اتحادیه کشوری کسب‌وکارهای مجازی"
               loading="lazy"
               decoding="async"
@@ -3932,7 +3934,10 @@
         heroItems.forEach((item, i) => {
           let rel = (((i - currentSlide) % heroItemCount) + heroItemCount) % heroItemCount;
           if (rel > heroItemCount - 3) rel -= heroItemCount;
-          item.style.order = String(rel);
+          // جای هر اسلاید فقط با transform عوض می‌شود (نه با order): تغییر order چیدمان را جابه‌جا می‌کرد و مرورگر
+          // هر بار اسلاید خودکار را «جابه‌جایی چیدمان» (CLS) حساب می‌کرد. اسلات دیداری = rel + 2، اسلات واقعی در DOM = i.
+          item.style.order = "0";
+          item.style.transform = "translateX(calc((100% + var(--hero-gap, 0px)) * " + (rel + 2 - i) + "))";
         });
       }
       function heroJump(transform) {
@@ -3942,8 +3947,12 @@
         void heroTrack.offsetWidth;
         heroTrack.style.transition = "";
       }
+      // چیدمان اولیه بدون انیمیشن: ترتیب اسلایدها و جابه‌جایی جبرانی هم‌زمان اعمال می‌شوند تا بنر هنگام بارگذاری تکان نخورد (CLS).
+      heroTrack.style.transition = "none";
       if (heroItemCount > 1) heroTrack.classList.add("hero-ready");
       layoutHero();
+      void heroTrack.offsetWidth;
+      heroTrack.style.transition = "";
 
       const dotIndex = (index = currentSlide) => ((index % heroSlideCount) + heroSlideCount) % heroSlideCount;
       function updateDots(activeIndex = currentSlide) {

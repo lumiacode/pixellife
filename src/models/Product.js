@@ -174,4 +174,6 @@ productSchema.pre("validate", function () {
 });
 productSchema.index({ category: 1, featured: -1, createdAt: -1 });
 productSchema.index({ category: 1, price: 1 });
+// صفحهٔ اصلی و «تازه‌ها» همهٔ محصولات را بر اساس تاریخ می‌خوانند (بدون فیلتر دسته)؛ بدون این ایندکس، مرتب‌سازی در حافظه انجام می‌شود.
+productSchema.index({ createdAt: -1 });
 module.exports = mongoose.model("Product", productSchema);
