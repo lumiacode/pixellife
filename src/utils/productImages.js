@@ -118,7 +118,12 @@ function streamProductImage(idValue, res, options = {}) {
   const stream = bucket().openDownloadStream(new ObjectId(idValue));
   stream.on("file", (file) => {
     res.set("Cache-Control", "public, max-age=31536000, immutable");
-    res.type(file.contentType || "application/octet-stream");
+    // فایل‌های قدیمی ممکن است SVG یا نوع دیگری باشند: هیچ اسکریپتی از داخل فایلِ آپلودشده اجرا نشود،
+    // و هر نوعی جز تصویرهای شناخته‌شده به‌صورت دانلود (نه نمایش در مرورگر) داده شود.
+    res.set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+    const type = String(file.contentType || "").toLowerCase();
+    if (!/^image\/(jpeg|png|webp|gif|avif|svg\+xml)$/.test(type)) { res.set("Content-Disposition", "attachment"); res.type("application/octet-stream"); return; }
+    res.type(type);
   });
   stream.on("error", () => {
     if (!res.headersSent) res.status(404).end();
