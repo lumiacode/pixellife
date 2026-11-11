@@ -43,4 +43,13 @@ assert.ok(fs.readFileSync(require("path").join(__dirname, "../src/services/walle
 // تغییر وضعیت به لغو/مرجوع در پنل ادمین (که بازگشت خودکار پول به کیف پول را می‌زند) بدون تأیید انجام نمی‌شود
 const adminOrders = fs.readFileSync(require("path").join(__dirname, "../views/admin-orders.html"), "utf8");
 assert.ok(adminOrders.includes("s.value==='cancelled'||s.value==='returned'") && adminOrders.includes("خودکار به کیف پول مشتری برمی‌گردد"));
+// سفارشِ برگشت‌خورده به کیف پول دوباره تحویل/ارسال نمی‌شود (باگی که هم کالا هم پول را به مشتری می‌داد)
+const wallet = require("../src/services/wallet");
+const refunded = { walletRefunded: true, status: "cancelled" };
+for (const status of ["processing", "shipped", "delivered", "awaiting_payment"]) assert.ok(wallet.statusChangeBlocker(refunded, status), status);
+assert.strictEqual(wallet.statusChangeBlocker(refunded, "returned"), null);
+assert.strictEqual(wallet.statusChangeBlocker(refunded, "cancelled"), null);
+assert.strictEqual(wallet.statusChangeBlocker({ walletRefunded: false, status: "processing" }, "delivered"), null);
+assert.strictEqual(wallet.statusChangeBlocker({ status: "cancelled" }, "delivered"), null, "سفارش آنلاین لغوشده (بدون بازگشت به کیف پول) محدود نمی‌شود");
+assert.ok(fs.readFileSync(require("path").join(__dirname, "../src/routes/adminApi.js"), "utf8").includes("walletService.statusChangeBlocker(order, status)"));
 console.log("Wallet audit test passed.");

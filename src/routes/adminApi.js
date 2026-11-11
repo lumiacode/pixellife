@@ -1148,6 +1148,9 @@ router.patch("/orders/:id/status", async (req, res) => {
     if (!allowed.includes(status)) return res.status(400).json({ success: false, message: "وضعیت سفارش معتبر نیست" });
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    // سفارشِ برگشت‌خورده به کیف پول دوباره فعال/تحویل نمی‌شود (هم کالا هم پول برای مشتری).
+    const blocked = walletService.statusChangeBlocker(order, status);
+    if (blocked) return res.status(409).json({ success: false, message: blocked });
     // مرجوعی فقط برای سفارشی معنا دارد که پرداخت شده است.
     if (status === "returned" && order.paymentStatus !== "paid") return res.status(400).json({ success: false, message: "فقط سفارش پرداخت‌شده را می‌توان مرجوع کرد" });
     order.status = status; order.statusHistory.push({ status, note: status === "returned" ? "سفارش مرجوع شد" : "وضعیت توسط ادمین تغییر کرد" });

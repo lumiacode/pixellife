@@ -76,6 +76,14 @@ async function refundOrder(order) {
   return true;
 }
 
+// سفارشی که پولش به کیف پول برگشته (لغو/مرجوع) دوباره «فعال» نمی‌شود؛ وگرنه مشتری هم کالا می‌گیرد هم پولش را.
+// بین دو وضعیت بسته (لغو ↔ مرجوع) جابه‌جایی مجاز است. null یعنی تغییر وضعیت مشکلی ندارد.
+function statusChangeBlocker(order, nextStatus) {
+  if (!order || order.walletRefunded !== true) return null;
+  if (nextStatus === "cancelled" || nextStatus === "returned") return null;
+  return "مبلغ این سفارش قبلاً به کیف پول مشتری برگشته است؛ آن را نمی‌توان دوباره در حال پردازش/ارسال/تحویل کرد. اگر باید ارسال شود، سفارش جدید ثبت شود.";
+}
+
 function parseAmount(value) {
   const normalized = String(value ?? "")
     .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
@@ -84,4 +92,4 @@ function parseAmount(value) {
   return /^\d+$/.test(normalized) ? Number(normalized) : NaN;
 }
 
-module.exports = { MIN_TOPUP, MAX_TOPUP, getBalance, credit, debit, payOrder, refundOrder, parseAmount };
+module.exports = { MIN_TOPUP, MAX_TOPUP, getBalance, credit, debit, payOrder, refundOrder, statusChangeBlocker, parseAmount };
