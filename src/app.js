@@ -15,7 +15,7 @@ const visitTracker = require("./middleware/visitTracker");
 const analyticsRoutes = require("./routes/analytics");
 
 const { SitemapStream, streamToPromise } = require("sitemap");
-const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl } = require("./services/seo");
+const { seoMiddleware, robotsTxt, PAGES, SITE_URL, absoluteUrl, sitemapPaths } = require("./services/seo");
 const { authSessionScript } = require("./middleware/authSessionScript");
 const adminSession = require("./middleware/adminSession");
 
@@ -306,7 +306,8 @@ app.get("/sitemap.xml", async (req, res) => {
     const sitemap = new SitemapStream({ hostname: SITE_URL });
 
     // صفحه‌های ثابت (خانه، دسته‌بندی‌ها، قوانین و تماس)
-    Object.keys(PAGES).forEach((url) => {
+    // دسته‌هایی که هنوز محصولی ندارند در نقشهٔ سایت نمی‌آیند (صفحهٔ خالی = Soft 404).
+    (await sitemapPaths()).forEach((url) => {
       sitemap.write({ url, changefreq: url === "/" || url === "/amazing" ? "daily" : "weekly", priority: url === "/" ? 1 : /^\/(terms|contact)$/.test(url) ? 0.3 : 0.7 });
     });
 

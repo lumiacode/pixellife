@@ -277,7 +277,7 @@ const ENAMAD_HTML = `
   <img
     referrerpolicy="origin"
     src="${ENAMAD_LOGO}"
-    alt=""
+    alt="نماد اعتماد الکترونیکی (اینماد)"
     width="120"
     height="50"
     style="cursor: pointer; display: block; max-height: 48px; width: auto;"
@@ -930,8 +930,8 @@ async function sendSpecialCatalogView(res, options) {
         `<title>${options.title} | PixelLife</title>`,
       )
       .replace(
-        /<div class="iphone-page-title">[\s\S]*?<\/div>/,
-        `<div class="iphone-page-title">${options.heading}</div>`,
+        /<h1 class="iphone-page-title">[\s\S]*?<\/h1>/,
+        `<h1 class="iphone-page-title">${options.heading}</h1>`,
       )
       .replace(
         /<div class="iphone-page-subtitle">[\s\S]*?<\/div>/,
@@ -984,8 +984,8 @@ function sendAccessoryBrandView(res, brand, typeInfo) {
     html = html
       .replace(/<title>[\s\S]*?<\/title>/, `<title>${pageTitle} | PixelLife</title>`)
       .replace(
-        /<div class="iphone-page-title">[\s\S]*?<\/div>/,
-        `<div class="iphone-page-title">${pageTitle}</div>`,
+        /<h1 class="iphone-page-title">[\s\S]*?<\/h1>/,
+        `<h1 class="iphone-page-title">${pageTitle}</h1>`,
       )
       .replace(
         /<div class="iphone-page-subtitle">[\s\S]*?<\/div>/,

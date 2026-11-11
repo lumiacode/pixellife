@@ -19,7 +19,7 @@ stub(src("controllers", "homeController.js"), {
 });
 
 const express = require("express");
-const { seoMiddleware, robotsTxt, setCatalogLoader } = require(src("services", "seo.js"));
+const { seoMiddleware, robotsTxt, setCatalogLoader, sitemapPaths, isCatalogEmpty, PAGES, buildProductSeo } = require(src("services", "seo.js"));
 setCatalogLoader(async (f) => (f.brand === "اپل" ? [{ slug: "iphone-17", name: "آیفون ۱۷", mainImage: "/uploads/a.jpg" }] : []));
 const productPage = require(src("routes", "productPage.js"));
 const { clearProductCaches } = require(src("services", "cacheBus.js"));
@@ -109,7 +109,8 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     html = await (await get("/cart")).text();
     assert.ok(html.includes('<meta name="robots" content="noindex, nofollow" />'));
     html = await (await get("/blog")).text();
-    assert.ok(/<link rel="canonical" href="https:\/\/pixellife\.ir\/" \/>/.test(html) && html.includes("noindex, follow"));
+    // صفحهٔ مستعار: فقط noindex,follow؛ canonical به صفحهٔ دیگر هم‌زمان با noindex سیگنال متناقض است
+    assert.ok(html.includes("noindex, follow") && count(html, /rel="canonical"/g) === 0, "صفحهٔ مستعار نباید canonical داشته باشد");
     r = await get("/admin/products");
     assert.ok(/noindex/.test(r.headers.get("x-robots-tag") || ""));
 
@@ -125,6 +126,45 @@ app.get("/admin/products", (req, res) => res.type("html").send(view("admin-produ
     // دسته‌ای که محصول ندارد چیزی نمی‌سازد (بدون داده ساختگی)
     r = await get("/samsung"); html = await r.text();
     assert.ok(!html.includes("seoCatalog"), "بدون محصول، بدون بلوک");
+    // دستهٔ خالی: noindex,follow و بدون canonical (Soft 404 نشود)؛ دستهٔ دارای محصول ایندکس‌پذیر می‌ماند
+    assert.ok(html.includes('<meta name="robots" content="noindex, follow" />') && count(html, /rel="canonical"/g) === 0, "دستهٔ خالی noindex");
+    assert.ok(!(await (await get("/iphone")).text()).includes('name="robots" content="noindex'), "دستهٔ دارای محصول noindex نیست");
+    const paths = await sitemapPaths();
+    assert.ok(paths.includes("/") && paths.includes("/iphone") && paths.includes("/contact") && !paths.includes("/samsung"), "sitemap بدون دستهٔ خالی");
+    // خطای خواندن فهرست «خالی» حساب نمی‌شود
+    setCatalogLoader(async () => { throw new Error("down"); });
+    assert.strictEqual(await isCatalogEmpty("/samsung"), false);
+    assert.ok(!(await (await get("/samsung")).text()).includes('content="noindex'), "خطای موقت نباید صفحه را noindex کند");
+    // یک h1 در هر صفحهٔ اصلی (HTML سرور، بدون اسکریپت‌ها)
+    setCatalogLoader(async () => [{ slug: "iphone-17", name: "آیفون ۱۷", mainImage: "/uploads/a.jpg" }]);
+    for (const path of ["/", "/iphone", "/samsung", "/product/iphone-17"]) {
+      const page = (await (await get(path)).text());
+      assert.ok(/<html[^>]*lang="fa"[^>]*dir="rtl"|<html[^>]*dir="rtl"[^>]*lang="fa"/.test(page), "lang/dir در " + path);
+      assert.strictEqual(count(page.replace(/<script[\s\S]*?<\/script>/gi, ""), /<h1\b/g), 1, "یک h1 در " + path);
+      assert.strictEqual(count(page, /<meta name="description"/g), 1, "یک description در " + path);
+      assert.ok(page.includes('property="og:image:alt"') && page.includes('property="og:url"'), "og در " + path);
+      assert.strictEqual(count(page.replace(/<script[\s\S]*?<\/script>/gi, ""), /<img\b(?![^>]*\balt=)[^>]*>/g), 0, "img بدون alt در " + path);
+    }
+    // قالب‌های صفحهٔ لیست و صفحه‌های ثابت: lang/dir و دقیقاً یک h1 در خود فایل
+    for (const file of ["iphone.html", "samsung.html", "xiaomi.html", "ipad.html", "samsungtab.html", "xiaomitab.html", "console.html", "amazing.html", "contact.html", "terms.html", "index.html"]) {
+      const raw = view(file);
+      assert.ok(/<html lang="fa" dir="rtl"/.test(raw), "lang/dir در " + file);
+      assert.strictEqual(count(raw.replace(/<script[\s\S]*?<\/script>/gi, ""), /<h1\b/g), 1, "یک h1 در " + file);
+    }
+    // صفحه‌هایی که از قالب iphone.html ساخته می‌شوند تیتر را داخل همان h1 جایگزین می‌کنند
+    const controllerSrc = fs.readFileSync(src("controllers", "homeController.js"), "utf8");
+    assert.strictEqual(count(controllerSrc, /<h1 class="iphone-page-title">\$\{/g), 2);
+    assert.ok(!controllerSrc.includes('<div class="iphone-page-title">'));
+    // عنوان و توضیح یکتا
+    const seen = new Map();
+    for (const [path, page] of Object.entries(PAGES)) {
+      for (const key of ["title", "description"]) { const k = key + ":" + page[key]; assert.ok(!seen.has(k), `${key} تکراری: ${path} و ${seen.get(k)}`); seen.set(k, path); }
+      assert.ok(page.title.length <= 65, "عنوان بلند: " + path + " " + page.title.length);
+      assert.ok(page.description.length >= 50 && page.description.length <= 165, "طول توضیح: " + path + " " + page.description.length);
+    }
+    // توضیح خیلی کوتاه محصول کامل می‌شود
+    const shortSeo = buildProductSeo({ ...products[0], description: "آیفون جدید." });
+    assert.ok(shortSeo.description.length >= 60 && shortSeo.description.includes("آیفون جدید"), shortSeo.description);
     // هدر noindex برای API و صفحه‌های خصوصی
     r = await get("/api/ping"); assert.strictEqual(r.headers.get("x-robots-tag"), "noindex, nofollow");
     r = await get("/cart"); assert.strictEqual(r.headers.get("x-robots-tag"), "noindex, nofollow");

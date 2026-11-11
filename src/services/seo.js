@@ -5,7 +5,7 @@ const env = require("../config/env");
 
 const SITE_NAME = "پیکسل لایف";
 const SITE_URL = String(env.siteUrl || "https://pixellife.ir").replace(/\/+$/, "");
-const DEFAULT_IMAGE = "/images/brand/logo-mark-192.png";
+const DEFAULT_IMAGE = "/images/brand/logo-mark-512.png"; // بزرگ‌ترین نسخهٔ لوگو برای og:image و لوگوی Organization
 
 const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const absoluteUrl = (value) => {
@@ -25,7 +25,7 @@ const safeJson = (data) => JSON.stringify(data).replace(/</g, "\\u003c").replace
 
 // ───────── صفحه‌های ثابت ─────────
 const PAGES = {
-  "/": { name: "خانه", title: "PixelLife | فروشگاه اینترنتی محصولات دیجیتال", description: "PixelLife، فروشگاه اینترنتی محصولات دیجیتال؛ خرید موبایل، تبلت، کنسول و لوازم جانبی با بررسی تخصصی و ارسال مطمئن.", site: true },
+  "/": { name: "خانه", title: "پیکسل لایف | فروشگاه اینترنتی موبایل، تبلت و لوازم جانبی", description: "پیکسل لایف (PixelLife)، فروشگاه اینترنتی محصولات دیجیتال؛ خرید موبایل، تبلت، کنسول و لوازم جانبی با بررسی تخصصی و ارسال مطمئن.", site: true },
   "/iphone": { name: "خرید آیفون", title: "خرید آیفون اپل | قیمت و مشخصات iPhone | پیکسل لایف", description: "خرید انواع گوشی آیفون اپل با گارانتی اصالت و بهترین قیمت، همراه با مشخصات کامل و ارسال سریع به سراسر ایران." },
   "/samsung": { name: "گوشی سامسونگ", title: "خرید گوشی سامسونگ | قیمت گلکسی | پیکسل لایف", description: "خرید گوشی‌های سامسونگ گلکسی (سری S، A و Z) با ضمانت اصالت کالا، قیمت روز و ارسال سریع." },
   "/xiaomi": { name: "گوشی شیائومی", title: "خرید گوشی شیائومی | قیمت ردمی و پوکو | پیکسل لایف", description: "خرید گوشی‌های شیائومی، ردمی و پوکو با گارانتی معتبر، قیمت مناسب و ارسال سریع از پیکسل لایف." },
@@ -82,7 +82,9 @@ let catalogLoader = async (filter) => {
   try {
     const res = await fetch(`http://127.0.0.1:${env.port}/api/products?${params}`, { signal: controller.signal });
     const data = await res.json();
-    return Array.isArray(data.products) ? data.products : [];
+    // پاسخ خطا «خالی» حساب نمی‌شود (وگرنه یک خطای موقت API صفحهٔ دسته را noindex می‌کرد).
+    if (!res.ok || !data || data.success === false || !Array.isArray(data.products)) throw new Error("catalog api error");
+    return data.products;
   } finally { clearTimeout(timer); }
 };
 const setCatalogLoader = (fn) => { catalogLoader = fn; catalogCache.clear(); };
@@ -99,6 +101,24 @@ async function loadCatalogProducts(path) {
   catalogCache.set(path, { items, expires: Date.now() + CATALOG_TTL_MS });
   return items;
 }
+
+// دستهٔ «قطعاً خالی»: فهرست با موفقیت خوانده شده و هیچ محصولی ندارد. چنین صفحه‌ای محتوای مفید ندارد (گوگل آن را Soft 404 می‌بیند)،
+// پس تا وقتی محصولی ثبت نشده noindex,follow می‌شود و در sitemap نمی‌آید. با اولین محصول، خودکار (حداکثر ۵ دقیقه بعد) برمی‌گردد.
+// اگر خواندن فهرست شکست بخورد، وضعیت «نامعلوم» است و صفحه مثل قبل ایندکس‌پذیر می‌ماند.
+async function isCatalogEmpty(path) {
+  if (!CATALOG[path]) return false;
+  const items = await loadCatalogProducts(path);
+  const hit = catalogCache.get(path);
+  return Boolean(hit && hit.expires > Date.now() && hit.items.length === 0 && items.length === 0);
+}
+
+// آدرس‌های ثابتی که باید در sitemap باشند (بدون دسته‌های خالی).
+async function sitemapPaths() {
+  const out = [];
+  for (const path of Object.keys(PAGES)) if (!(await isCatalogEmpty(path))) out.push(path);
+  return out;
+}
+
 
 // لینک‌های قابل‌خزش محصولات + ItemList برای صفحهٔ دسته‌بندی؛ فقط از دادهٔ واقعی دیتابیس.
 function catalogSeo(path, items) {
@@ -126,7 +146,9 @@ const siteJsonLd = () => [
 
 function staticMeta(pathname) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  if (ALIASES[path]) return { canonical: SITE_URL + (ALIASES[path] === "/" ? "/" : ALIASES[path]), noindex: true, follow: true };
+  // صفحه‌های مستعار (محتوای تکراری صفحهٔ دیگر): فقط noindex,follow. canonical به صفحهٔ دیگر هم‌زمان با noindex سیگنال متناقض به گوگل می‌دهد
+  // («Duplicate, Google chose different canonical» در سرچ کنسول)، پس canonical حذف می‌شود.
+  if (ALIASES[path]) return { canonical: "", noindex: true, follow: true };
   if (NOINDEX_PREFIXES.some((p) => path === p || path.startsWith(p + "/"))) return { canonical: "", noindex: true, follow: path.startsWith("/search") || path === "/categories" };
   const page = PAGES[path];
   if (!page) return null;
@@ -167,7 +189,10 @@ function buildProductSeo(p, related = []) {
   const images = [p.mainImage, ...(Array.isArray(p.images) ? p.images : [])].map(absoluteUrl).filter(Boolean);
   const uniqueImages = [...new Set(images)].slice(0, 6);
   const priceText = price > 0 && !out ? ` قیمت ${price.toLocaleString("fa-IR")} تومان.` : "";
-  const baseDescription = plain(p.description) || `خرید ${name} با ضمانت اصالت کالا و ارسال سریع به سراسر ایران.`;
+  const fallbackDescription = `خرید ${name} با ضمانت اصالت کالا و ارسال سریع به سراسر ایران.`;
+  const ownDescription = plain(p.description);
+  // توضیح خیلی کوتاه ادمین (کمتر از ۶۰ نویسه) برای meta description کافی نیست؛ جملهٔ استاندارد به آن اضافه می‌شود.
+  const baseDescription = !ownDescription ? fallbackDescription : ownDescription.length < 60 ? `${ownDescription.replace(/[.؛،\s]+$/, "")}. ${fallbackDescription}` : ownDescription;
   const description = truncate(`${baseDescription}${priceText} خرید از پیکسل لایف.`, 160);
   const brand = plain(p.brand);
   const category = plain(p.category);
@@ -220,7 +245,8 @@ function applySeo(html, meta) {
   if (hasOwn("description")) out = out.replace(/<meta\s+name=["']description["'][^>]*>/i, "");
   if (hasOwn("canonical")) out = out.replace(/<link\s+rel=["']canonical["'][^>]*>/i, "");
   if (hasOwn("title") || hasOwn("description")) out = out.replace(/<meta\s+(?:property|name)=["'](?:og|twitter):[^"']*["'][^>]*>/gi, "");
-  if (meta.noindex) out = out.replace(/<meta\s+name=["']robots["'][^>]*>/i, "");
+  // صفحهٔ noindex نباید canonical داشته باشد (حتی اگر در قالب HTML از قبل نوشته شده باشد).
+  if (meta.noindex) out = out.replace(/<meta\s+name=["']robots["'][^>]*>/i, "").replace(/<link\s+rel=["']canonical["'][^>]*>\s*/gi, "");
 
   const tags = [];
   // آیکن سایت (favicon): گوگل برای نمایش کنار نام سایت در نتایج به لینک rel=icon با اندازهٔ مضرب ۴۸ نیاز دارد.
@@ -235,7 +261,9 @@ function applySeo(html, meta) {
       `<meta property="og:type" content="${meta.ogType || "website"}" />`, `<meta property="og:site_name" content="${SITE_NAME}" />`, `<meta property="og:locale" content="fa_IR" />`,
       `<meta property="og:title" content="${escapeHtml(meta.title)}" />`, `<meta property="og:description" content="${escapeHtml(meta.description)}" />`,
       meta.canonical ? `<meta property="og:url" content="${escapeHtml(meta.canonical)}" />` : "", `<meta property="og:image" content="${escapeHtml(image)}" />`,
-      `<meta name="twitter:card" content="summary_large_image" />`, `<meta name="twitter:title" content="${escapeHtml(meta.title)}" />`, `<meta name="twitter:description" content="${escapeHtml(meta.description)}" />`, `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
+      `<meta property="og:image:alt" content="${escapeHtml(meta.imageAlt || meta.title)}" />`,
+      // کارت بزرگ فقط وقتی تصویر اختصاصی (عکس محصول) داریم؛ لوگوی مربعی در کارت بزرگ بریده می‌شود.
+      `<meta name="twitter:card" content="${meta.image ? "summary_large_image" : "summary"}" />`, `<meta name="twitter:title" content="${escapeHtml(meta.title)}" />`, `<meta name="twitter:description" content="${escapeHtml(meta.description)}" />`, `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
     );
     if (meta.price) tags.push(`<meta property="product:price:amount" content="${meta.price.amount}" />`, `<meta property="product:price:currency" content="${meta.price.currency}" />`);
   }
@@ -259,6 +287,7 @@ async function seoMiddleware(req, res, next) {
     const base = staticMeta(reqPath);
     const cat = base && !base.noindex ? catalogSeo(reqPath, await loadCatalogProducts(reqPath)) : null;
     if (cat) res.locals.seo = { ...base, jsonLd: [...(base.jsonLd || []), cat.itemList], ssr: cat.ssr, ssrAtEnd: true };
+    else if (base && !base.noindex && (await isCatalogEmpty(reqPath))) res.locals.seo = { ...base, canonical: "", noindex: true, follow: true };
   }
   const send = res.send.bind(res);
   res.send = (body) => {
@@ -297,4 +326,4 @@ function robotsTxt() {
   ].join("\n");
 }
 
-module.exports = { SITE_URL, PAGES, CATALOG, setCatalogLoader, staticMeta, buildProductSeo, applySeo, seoMiddleware, robotsTxt, absoluteUrl };
+module.exports = { SITE_URL, PAGES, CATALOG, setCatalogLoader, isCatalogEmpty, sitemapPaths, staticMeta, buildProductSeo, applySeo, seoMiddleware, robotsTxt, absoluteUrl };
