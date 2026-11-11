@@ -215,9 +215,12 @@
     visibility: hidden;
     opacity: 1;
     pointer-events: none;
-    transform: translate3d(0, calc(100% + 24px), 0);
-    will-change: transform;
-    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    /* بسته: به اندازهٔ آیکن دسته‌بندی کوچک و در همان نقطه؛ باز: از دل همان آیکن بزرگ می‌شود */
+    opacity: 0;
+    transform-origin: var(--pl-sheet-ox, 50%) var(--pl-sheet-oy, 100%);
+    transform: scale(0.1);
+    will-change: transform, opacity;
+    transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease, border-radius 460ms ease;
   }
 
   .mobile-category-sheet.is-mounted,
@@ -232,8 +235,14 @@
   }
 
   .mobile-category-sheet.is-open {
-    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transform: none;
   }
+  .mobile-category-sheet:not(.is-open) { border-radius: 40px; }
+  /* محتوا کمی دیرتر پدیدار می‌شود تا ابتدا «پوسته» از دل آیکن بیرون بیاید */
+  .mobile-category-sheet > * { transition: opacity 240ms ease 0ms; opacity: 0; }
+  .mobile-category-sheet.is-open > * { opacity: 1; transition-delay: 140ms; }
+  @media (prefers-reduced-motion: reduce) { .mobile-category-sheet { transition: opacity 150ms ease; transform: none; } }
 
   .mobile-category-sheet.is-dragging {
     transition: none;

@@ -237,6 +237,13 @@
     categorySheet.style.removeProperty("transform");
     categorySheet.classList.add("is-mounted");
     categoryBackdrop.classList.add("is-mounted");
+    // نقطهٔ بزرگ‌شدن: مرکز آیکن دسته‌بندی در نوار پایین (برگه از دل همان دکمه بیرون می‌آید)
+    const iconBox = (categoryItem?.querySelector("svg") || categoryItem)?.getBoundingClientRect();
+    if (iconBox) {
+      const sheetBox = { left: categorySheet.offsetLeft, top: categorySheet.offsetTop }; // بدون اثر transform
+      categorySheet.style.setProperty("--pl-sheet-ox", `${iconBox.left + iconBox.width / 2 - sheetBox.left}px`);
+      categorySheet.style.setProperty("--pl-sheet-oy", `${iconBox.top + iconBox.height / 2 - sheetBox.top}px`);
+    }
     // حالت بسته را یک‌بار رندر می‌کنیم تا مرورگر حتماً حرکت کشویی را اجرا کند.
     void categorySheet.offsetHeight;
     categorySheet.classList.add("is-open");
