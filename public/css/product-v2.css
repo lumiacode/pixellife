@@ -194,3 +194,6 @@ html body #storeAdvantagesSection .advantage-card { flex: 0 0 auto !important; w
 @media (max-width: 768px) {
   html body #storeAdvantagesSection .advantages-grid { gap: 4px 22px !important; }
 }
+
+/* تا رسیدن اطلاعات محصول، بدنهٔ صفحه دست‌کم به ارتفاع صفحه است تا فوتر و بخش «درباره» بعد از بارگذاری به پایین نپرند (CLS) */
+html body main#pageBody.page-body { min-height: 100vh; }

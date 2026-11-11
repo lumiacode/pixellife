@@ -406,6 +406,7 @@
     sortChips.innerHTML = Array.from(sortSelect.options).map((o) => `<button type="button" class="pl-sort-chip" data-sort="${escapeHtml(o.value)}">${escapeHtml(o.textContent)}</button>`).join("");
     const activeFilters = document.createElement("div");
     activeFilters.className = "pl-active-filters";
+    activeFilters.hidden = true; // تا وقتی فیلتری فعال نیست جا نمی‌گیرد (وگرنه با رسیدن محصولات فهرست ۱۲ پیکسل بالا می‌پرید)
     results.querySelector(".pl-catalog-toolbar").after(sortChips, activeFilters);
     const applyBar = document.createElement("div");
     applyBar.className = "pl-filter-apply";
@@ -482,7 +483,7 @@
         if (selected.sort === "rating") return Number(b.rating || 0) - Number(a.rating || 0);
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
-      grid.innerHTML = products.length ? products.map(card).join("") : '<div class="pl-catalog-loading">کالایی با این فیلترها پیدا نشد.</div>';
+      grid.innerHTML = products.length ? products.map(card).join("").replace(/loading="lazy"/, 'loading="eager" fetchpriority="high"').replace(/loading="lazy"/, 'loading="eager"') : '<div class="pl-catalog-loading">کالایی با این فیلترها پیدا نشد.</div>';
       const count = results.querySelector(".pl-catalog-count");
       if (count) count.textContent = products.length.toLocaleString("fa-IR") + " کالا";
       sortChips.querySelectorAll(".pl-sort-chip").forEach((chip) => chip.classList.toggle("is-active", chip.dataset.sort === selected.sort));
