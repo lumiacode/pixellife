@@ -31,21 +31,31 @@ router.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../../views/admin-login.html"));
 });
 
-router.post("/login", (req, res) => {
-  const { password } = req.body;
+// ورود ادمین: حداکثر ۸ تلاش در ۱۵ دقیقه از هر IP؛ مقایسهٔ رمز با زمان ثابت؛ شناسهٔ نشست پس از ورود عوض می‌شود.
+const crypto = require("crypto");
+const { rateLimit } = require("../middleware/security");
+const adminLoginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 8, message: "تلاش برای ورود زیاد بود؛ ۱۵ دقیقهٔ دیگر دوباره امتحان کنید" });
+const safeEqual = (a, b) => {
+  const x = crypto.createHash("sha256").update(String(a)).digest();
+  const y = crypto.createHash("sha256").update(String(b)).digest();
+  return crypto.timingSafeEqual(x, y);
+};
+
+router.post("/login", adminLoginLimiter, (req, res) => {
+  const password = typeof req.body.password === "string" ? req.body.password : "";
   if (!process.env.ADMIN_PASSWORD) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "ADMIN_PASSWORD در .env تنظیم نشده است",
-      });
+    console.error("ADMIN_PASSWORD در .env تنظیم نشده است");
+    return res.status(500).json({ success: false, message: "ورود ادمین پیکربندی نشده است" });
   }
-  if (password === process.env.ADMIN_PASSWORD) {
-    req.session.isAdmin = true;
-    return req.session.save((error) => {
-      if (error) return res.status(500).json({ success: false, message: "نشست ورود ذخیره نشد؛ دوباره تلاش کنید" });
-      return res.json({ success: true });
+  if (password && safeEqual(password, process.env.ADMIN_PASSWORD)) {
+    // شناسهٔ نشست تازه (جلوگیری از session fixation)
+    return req.session.regenerate((regenError) => {
+      if (regenError) return res.status(500).json({ success: false, message: "نشست ورود ذخیره نشد؛ دوباره تلاش کنید" });
+      req.session.isAdmin = true;
+      return req.session.save((error) => {
+        if (error) return res.status(500).json({ success: false, message: "نشست ورود ذخیره نشد؛ دوباره تلاش کنید" });
+        return res.json({ success: true });
+      });
     });
   }
   return res
@@ -55,6 +65,7 @@ router.post("/login", (req, res) => {
 
 router.post("/logout", (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("pl.admin");
     res.json({ success: true });
   });
 });

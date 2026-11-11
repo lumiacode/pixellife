@@ -146,7 +146,7 @@ exports.verifyLoginOtp = async (req, res, next) => {
     const token = tokenService.generateToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || req.secure === true,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -198,7 +198,7 @@ exports.login = async (req, res, next) => {
     const token = tokenService.generateToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || req.secure === true,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -285,7 +285,7 @@ exports.resetPassword = async (req, res, next) => {
     const token = tokenService.generateToken(user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || req.secure === true,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -415,7 +415,7 @@ exports.logout = (req, res, next) => {
     res.clearCookie("token", {
       path: "/",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" || req.secure === true,
       sameSite: "lax",
     });
     res.json({
