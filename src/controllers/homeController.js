@@ -410,7 +410,7 @@ const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=13"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=43" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=44" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
 <script src="/js/mobile-bottom-nav.js?v=43"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `
@@ -487,7 +487,7 @@ function injectBehaviorTracker(html) {
 
 // دستیار خرید در تمام صفحه‌های عمومی فروشگاه درج می‌شود. صفحهٔ محصول از قبل
 // این اسکریپت را دارد؛ شرط زیر از درج دوبارهٔ آن جلوگیری می‌کند.
-const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=22" defer></script>';
+const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=23" defer></script>';
 function injectShoppingAssistant(html) {
   if (!html || html.includes("/js/shopping-assistant.js")) return html;
   return html.includes("</body>")
