@@ -4070,6 +4070,20 @@
         }
       }
       </style>
+      <style>
+        /* موبایل: به‌جای نوار جستجو فقط ذره‌بین و سبد خرید (مثل دیجی‌کالا)؛ مسیر صفحه از دسته شروع می‌شود */
+        .pm-topbar, .breadcrumb-m { display: none; }
+        @media (max-width: 768px) {
+          html body .header .search-bar { display: none !important; }
+          html body .header .pm-topbar { display: flex; align-items: center; justify-content: flex-end; gap: 4px; width: 100%; height: 46px; }
+          .pm-topbar__btn { position: relative; display: grid; place-items: center; width: 44px; height: 44px; color: #1f2937; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+          .pm-topbar__btn svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+          .pm-topbar__badge { position: absolute; top: 3px; left: 1px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #2563eb; color: #fff; font-size: 11.5px; font-weight: 800; line-height: 18px; text-align: center; }
+          .pm-topbar__badge[hidden] { display: none; }
+          html body .breadcrumb:not(.breadcrumb-m) { display: none !important; }
+          html body .breadcrumb-m { display: flex; }
+        }
+      </style>
       <link rel="stylesheet" href="/css/shopping-assistant.css?v=4" />
       <link rel="stylesheet" href="/css/mobile-product-details-sheet.css?v=2" />
     <link rel="stylesheet" href="/css/site-edge-layout.css?v=1" />
@@ -4362,6 +4376,15 @@
           />
           <button class="search-btn"><i class="ti ti-search"></i> جستجو</button>
         </div>
+        <div class="pm-topbar" id="pmTopbar">
+          <a href="/search" class="pm-topbar__btn" aria-label="جستجو">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+          </a>
+          <a href="/cart" class="pm-topbar__btn" aria-label="سبد خرید">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/><path d="M3 4h2.2l2 11h10.4l1.8-8H6.2"/></svg>
+            <span class="pm-topbar__badge" id="pmCartCount" hidden>0</span>
+          </a>
+        </div>
         <div class="header-actions">
           <button class="h-btn"><i class="ti ti-bell"></i></button>
           <button class="btn-auth-pill" id="authPillBtn">
@@ -4483,6 +4506,7 @@
       <i class="ti ti-chevron-left breadcrumb-product-separator" aria-hidden="true"></i>
       <span class="current breadcrumb-product-name" id="breadcrumbCurrent" aria-hidden="true">جزئیات محصول</span>
     </div>
+    <nav class="breadcrumb breadcrumb-m" id="breadcrumbMobile" aria-label="مسیر صفحه"></nav>
 
     <main class="page-body" id="pageBody">
       <!-- Content injected by JS -->
@@ -6164,6 +6188,11 @@
       function updateCartBadge() {
         const cart = getCart();
         const count = cart.reduce((sum, item) => sum + cartQuantity(item), 0);
+        const pmBadge = document.getElementById("pmCartCount");
+        if (pmBadge) {
+          pmBadge.hidden = count <= 0;
+          pmBadge.textContent = count > 99 ? "99+" : count;
+        }
         const badge = document.getElementById("cartCount");
         if (count > 0) {
           badge.style.display = "flex";
@@ -6450,6 +6479,24 @@
           brandLink.textContent = brandName || "برند";
           categoryLink.href = relevantUrl;
           categoryLink.textContent = [categoryMeta.label, brandName].filter(Boolean).join(" ");
+
+          // مسیر موبایل (سبک دیجی‌کالا): دستهٔ اصلی › دسته › برند
+          const crumbRoot = { phone: { label: "موبایل", url: "/mobiles" }, accessories: { label: "لوازم جانبی موبایل", url: "/accessories" } }[categoryMeta.type];
+          const crumbs = [];
+          if (crumbRoot && crumbRoot.label !== categoryMeta.label) crumbs.push(crumbRoot);
+          crumbs.push({ label: categoryMeta.label, url: categoryMeta.route });
+          if (brandName) crumbs.push({ label: brandName, url: relevantUrl });
+          const mobileCrumb = document.getElementById("breadcrumbMobile");
+          if (mobileCrumb) {
+            mobileCrumb.textContent = "";
+            crumbs.forEach((crumb, index) => {
+              if (index) { const sep = document.createElement("i"); sep.className = "ti ti-chevron-left"; mobileCrumb.appendChild(sep); }
+              const link = document.createElement("a");
+              link.href = crumb.url;
+              link.textContent = crumb.label;
+              mobileCrumb.appendChild(link);
+            });
+          }
 
           const firstAvailableVariant = Array.isArray(product.variants)
             ? product.variants.find((variant) => variant.stock > 0) || product.variants[0]
