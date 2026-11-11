@@ -3873,7 +3873,7 @@
         }
         body.mobile-product-flow-active .product-gallery {
           position: sticky;
-          top: 72px;
+          top: 64px;
           z-index: 1;
           height: clamp(242px, 36svh, 310px);
           min-height: 0;
@@ -4018,9 +4018,20 @@
         body.mobile-product-flow-active .section-block + .section-block {
           border-top: 1px solid #e5e9f0;
         }
+        /* فاصلهٔ بین کادرها شفاف بود و گالریِ چسبیده به بالا از لابه‌لایش دیده می‌شد؛ زیر هر کادر یک نوار سفید می‌گذاریم */
+        body.mobile-product-flow-active .section-block::after {
+          content: "";
+          position: absolute;
+          top: 100%;
+          right: 0;
+          left: 0;
+          height: 20px;
+          background: #fff;
+          pointer-events: none;
+        }
         body.mobile-product-flow-active .mobile-product-section-nav {
           position: sticky;
-          top: 72px;
+          top: 64px;
           z-index: 5;
           display: flex;
           align-items: center;
