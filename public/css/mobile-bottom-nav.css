@@ -926,7 +926,15 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
     transition: transform .24s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease;
   }
   html body:has(.mobile-bottom-nav) #plAssistantToggle svg { width: 24px; height: 24px; }
-  html body:has(.mobile-bottom-nav.is-scroll-hidden) #plAssistantToggle { transform: translate3d(0, calc(100% + 24px + env(safe-area-inset-bottom)), 0) !important; }
+  /* نوار پایین و دکمهٔ پشتیبانی دقیقاً با یک شرط، یک مسافت و یک زمان‌بندی پنهان/نمایان می‌شوند
+     (هم با کلاس is-scroll-hidden و هم مستقیم با html.pl-hdr-hidden تا هیچ تأخیری بین‌شان نیفتد) */
+  html.pl-hdr-hidden body .mobile-bottom-nav,
+  html body .mobile-bottom-nav.is-scroll-hidden { transform: translate3d(0, calc(100% + 24px + env(safe-area-inset-bottom)), 0); pointer-events: none; }
+  html body .mobile-bottom-nav { transition: transform 240ms cubic-bezier(.22, 1, .36, 1), background-color .2s ease; }
+  html body:has(.mobile-bottom-nav) #plAssistantToggle { transition: transform 240ms cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease; animation: none !important; will-change: transform; }
+  html.pl-hdr-hidden body:has(.mobile-bottom-nav) #plAssistantToggle,
+  html body:has(.mobile-bottom-nav.is-scroll-hidden) #plAssistantToggle { transform: translate3d(0, calc(100% + 24px + env(safe-area-inset-bottom)), 0) !important; pointer-events: none; }
+  html body:has(.mobile-bottom-nav:not(.is-scroll-hidden)) #plAssistantToggle:hover { transform: none !important; }
   html body:has(.mobile-bottom-nav) #plAssistantMenu { right: auto !important; left: 16px !important; bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
   html body:has(.mobile-bottom-nav) #plAssistant { right: 16px !important; left: auto !important; bottom: calc(76px + env(safe-area-inset-bottom)) !important; max-height: calc(100dvh - 110px) !important; }
 }
