@@ -12,11 +12,16 @@ async function getBalance(userId) {
 }
 
 async function record(userId, type, amount, balanceAfter, meta) {
-  try {
-    await WalletTransaction.create({ user: userId, type, amount, balanceAfter, order: meta.order || null, ref: meta.ref || "", note: meta.note || "" });
-  } catch (error) {
-    // موجودی درست اعمال شده؛ فقط ثبت دفتر خطا داده است.
-    console.error("wallet ledger error:", error.message);
+  const row = { user: userId, type, amount, balanceAfter, order: meta.order || null, ref: meta.ref || "", note: meta.note || "" };
+  // موجودی همین حالا اعمال شده؛ اگر ثبت دفتر شکست بخورد، موجودی و دفتر مغایرت پیدا می‌کنند. برای همین یک بار دوباره تلاش می‌شود و
+  // در صورت شکست، همهٔ مشخصات ردیف با برچسب ثابت در لاگ سرور می‌ماند (و scripts/check-wallets.js مغایرت را نشان می‌دهد).
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      await WalletTransaction.create(row);
+      return;
+    } catch (error) {
+      if (attempt === 2) console.error("[wallet-ledger-missing]", JSON.stringify({ ...row, user: String(row.user), order: row.order ? String(row.order) : null, error: error.message }));
+    }
   }
 }
 

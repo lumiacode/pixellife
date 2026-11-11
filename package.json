@@ -42,7 +42,8 @@
     "test:category-icons": "node tests/category-icons.test.js",
     "test:backup-script": "node tests/backup-script.test.js",
     "test:security": "node tests/security.test.js",
-    "test:performance": "node tests/performance.test.js"
+    "test:performance": "node tests/performance.test.js",
+    "test:wallet-audit": "node tests/wallet-audit.test.js"
   },
   "dependencies": {
     "@adminjs/express": "^6.1.1",
