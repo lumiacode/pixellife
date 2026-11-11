@@ -39,4 +39,8 @@ assert.deepStrictEqual(auditWallet(null, [], []), []);
 // ثبت دفتر شکست‌خورده بی‌صدا نیست
 const fs = require("fs");
 assert.ok(fs.readFileSync(require("path").join(__dirname, "../src/services/wallet.js"), "utf8").includes("[wallet-ledger-missing]"));
+
+// تغییر وضعیت به لغو/مرجوع در پنل ادمین (که بازگشت خودکار پول به کیف پول را می‌زند) بدون تأیید انجام نمی‌شود
+const adminOrders = fs.readFileSync(require("path").join(__dirname, "../views/admin-orders.html"), "utf8");
+assert.ok(adminOrders.includes("s.value==='cancelled'||s.value==='returned'") && adminOrders.includes("خودکار به کیف پول مشتری برمی‌گردد"));
 console.log("Wallet audit test passed.");
