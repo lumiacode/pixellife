@@ -25,8 +25,10 @@ const orderSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true, min: 0 }, deliveryFee: { type: Number, default: 0, min: 0 },
     discount: { type: Number, default: 0, min: 0 }, total: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, enum: ["online", "bale", "wallet"], default: "online" },
-    // مبلغ سفارشِ پرداخت‌شده با کیف پول فقط یک‌بار (با لغو/مرجوعی) به کیف پول برمی‌گردد.
+    // مبلغ سفارشِ پرداخت‌شده با کیف پول فقط با دستور صریح ادمین (دکمهٔ بازگشت وجه) و فقط یک‌بار به کیف پول برمی‌گردد؛ هیچ‌چیز خودکار نیست.
     walletRefunded: { type: Boolean, default: false },
+    // فقط بین «ثبت پرداخت» و «کسر موجودی» true است؛ اگر موجودی کافی نباشد، با همین علامت وضعیت سفارش برمی‌گردد.
+    walletPaying: { type: Boolean },
     paymentStatus: { type: String, enum: ["unpaid", "paid", "failed"], default: "unpaid" },
     status: { type: String, enum: ["awaiting_payment", "processing", "shipped", "delivered", "cancelled", "returned"], default: "awaiting_payment", index: true },
     statusHistory: [{ _id: false, status: String, note: String, changedAt: { type: Date, default: Date.now } }],

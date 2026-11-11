@@ -25,7 +25,8 @@ assert.deepStrictEqual(codes(auditWallet({ balance: 210000 }, refundTxs, [order(
 const double = [...refundTxs, t("refund", 109000, 319000, { order: "o1" })];
 assert.ok(codes(auditWallet({ balance: 319000 }, double, [order("o1", 109000, { status: "returned", walletRefunded: true })])).includes("double-refund"));
 // لغو شده ولی مبلغ برنگشته
-assert.deepStrictEqual(codes(auditWallet({ balance: 101000 }, txs, [order("o1", 109000, { status: "cancelled" })])), ["closed-without-refund"]);
+// لغو بدون بازگشت وجه حالت عادی است (بازگشت فقط با دستور صریح ادمین انجام می‌شود)
+assert.deepStrictEqual(auditWallet({ balance: 101000 }, txs, [order("o1", 109000, { status: "cancelled" })]), []);
 // کسر ردیف ولی مبلغ سفارش فرق دارد
 assert.ok(codes(auditWallet({ balance: 101000 }, txs, [order("o1", 100000)])).includes("purchase-amount"));
 // رقابت: کسر و بلافاصله بازگشت برای سفارش پرداخت‌نشده (خالص صفر) سالم است؛ بدون بازگشت ناسالم
@@ -40,9 +41,9 @@ assert.deepStrictEqual(auditWallet(null, [], []), []);
 const fs = require("fs");
 assert.ok(fs.readFileSync(require("path").join(__dirname, "../src/services/wallet.js"), "utf8").includes("[wallet-ledger-missing]"));
 
-// تغییر وضعیت به لغو/مرجوع در پنل ادمین (که بازگشت خودکار پول به کیف پول را می‌زند) بدون تأیید انجام نمی‌شود
+// تغییر وضعیت به لغو/مرجوع در پنل ادمین بدون تأیید انجام نمی‌شود و پیام می‌گوید پولی خودکار برنمی‌گردد
 const adminOrders = fs.readFileSync(require("path").join(__dirname, "../views/admin-orders.html"), "utf8");
-assert.ok(adminOrders.includes("s.value==='cancelled'||s.value==='returned'") && adminOrders.includes("خودکار به کیف پول مشتری برمی‌گردد"));
+assert.ok(adminOrders.includes("s.value==='cancelled'||s.value==='returned'") && adminOrders.includes("هیچ پولی به کیف پول مشتری برنمی‌گردد"));
 // سفارشِ برگشت‌خورده به کیف پول دوباره تحویل/ارسال نمی‌شود (باگی که هم کالا هم پول را به مشتری می‌داد)
 const wallet = require("../src/services/wallet");
 const refunded = { walletRefunded: true, status: "cancelled" };

@@ -38,7 +38,6 @@ function auditWallet(wallet, txs, orders) {
       else if (Number(purchases[0].amount) !== -Math.round(Number(order.total))) add("purchase-amount", `سفارش ${label}: مبلغ کسرشده ${-purchases[0].amount} با مبلغ سفارش ${order.total} فرق دارد`, { order: label });
       if (refunds.length > 1) add("double-refund", `سفارش ${label}: ${refunds.length} بار مبلغ برگشته است`, { order: label });
       if (refunds.length && !closed) add("refund-while-active", `سفارش ${label}: مبلغ به کیف پول برگشته در حالی که وضعیت سفارش «${order.status}» است (نه لغو/مرجوع) — خطرناک`, { order: label });
-      if (closed && !refunds.length) add("closed-without-refund", `سفارش ${label}: ${order.status} شده ولی مبلغی برنگشته (و walletRefunded=${Boolean(order.walletRefunded)})`, { order: label });
       if (order.walletRefunded && !refunds.length) add("flag-without-row", `سفارش ${label}: علامت بازگشت وجه خورده ولی ردیفی در دفتر نیست`, { order: label });
     } else if (purchases.length && order.paymentStatus !== "paid") {
       // کسر انجام شده ولی سفارش پرداخت‌شده نیست: باید با یک ردیف «بازگشت» خنثی شده باشد

@@ -39,7 +39,10 @@ async function debit(userId, amount, meta = {}) {
   return wallet.balance;
 }
 
-// پرداخت سفارش از کیف پول: ابتدا کسر، سپس تغییر اتمیک سفارش؛ اگر سفارش دیگر قابل پرداخت نبود، مبلغ برگردانده می‌شود.
+// پرداخت سفارش از کیف پول. هیچ مسیر خودکاری پولی به کیف پول برنمی‌گرداند:
+//   ۱) ابتدا سفارش اتمیک «پرداخت‌شده» می‌شود (فقط اگر هنوز در انتظار پرداخت باشد؛ دو درخواست هم‌زمان فقط یکی موفق می‌شود)
+//   ۲) سپس موجودی کم می‌شود. اگر موجودی کافی نبود، فقط «وضعیت سفارش» به حالت قبل برمی‌گردد (پولی جابه‌جا نشده بود).
+// بنابراین هیچ لحظه‌ای نیست که پول کم شده باشد و بعد خودکار برگردد.
 async function payOrder(order) {
   const amount = Math.round(Number(order.total));
   if (!(amount > 0)) {
@@ -47,33 +50,51 @@ async function payOrder(order) {
     error.statusCode = 400;
     throw error;
   }
+  const claimed = await Order.findOneAndUpdate(
+    { _id: order._id, status: "awaiting_payment", paymentStatus: { $ne: "paid" } },
+    { $set: { paymentStatus: "paid", status: "processing", paymentMethod: "wallet", walletPaying: true } },
+    { returnDocument: "after" },
+  );
+  if (!claimed) {
+    const error = new Error("این سفارش دیگر قابل پرداخت نیست (لغو شده یا قبلاً پرداخت شده)");
+    error.statusCode = 409;
+    throw error;
+  }
   const balance = await debit(order.user, amount, { type: "purchase", order: order._id, ref: order.orderNumber, note: `پرداخت سفارش ${order.orderNumber}` });
   if (balance === null) {
+    // پولی کم نشده؛ فقط سفارش به «در انتظار پرداخت» برمی‌گردد تا کاربر بعد از شارژ دوباره پرداخت کند.
+    await Order.updateOne({ _id: order._id, walletPaying: true }, { $set: { paymentStatus: "unpaid", status: "awaiting_payment" }, $unset: { walletPaying: 1 } });
     const error = new Error("موجودی کیف پول برای پرداخت این سفارش کافی نیست");
     error.statusCode = 402;
     throw error;
   }
   const paid = await Order.findOneAndUpdate(
-    { _id: order._id, status: "awaiting_payment", paymentStatus: { $ne: "paid" } },
-    { $set: { paymentStatus: "paid", status: "processing", paymentMethod: "wallet" }, $push: { statusHistory: { status: "processing", note: "پرداخت از کیف پول انجام شد", changedAt: new Date() } } },
+    { _id: order._id },
+    { $unset: { walletPaying: 1 }, $push: { statusHistory: { status: "processing", note: "پرداخت از کیف پول انجام شد", changedAt: new Date() } } },
     { returnDocument: "after" },
   );
-  if (!paid) {
-    await credit(order.user, amount, { type: "refund", order: order._id, ref: order.orderNumber, note: `بازگشت مبلغ؛ سفارش ${order.orderNumber} دیگر قابل پرداخت نبود` });
-    const error = new Error("این سفارش دیگر قابل پرداخت نیست (لغو شده یا قبلاً پرداخت شده)");
-    error.statusCode = 409;
-    throw error;
-  }
-  return { order: paid, balance };
+  return { order: paid || claimed, balance };
 }
 
-// بازگشت مبلغ سفارشِ پرداخت‌شده با کیف پول (لغو/مرجوعی)؛ با claim اتمیک فقط یک‌بار.
-async function refundOrder(order) {
-  if (!order || order.paymentMethod !== "wallet" || order.paymentStatus !== "paid") return false;
+// بازگشت پول سفارشِ پرداخت‌شده با کیف پول به کیف پول مشتری: «فقط» با دستور صریح ادمین (دکمهٔ بازگشت وجه در لیست سفارش‌ها).
+// هیچ تغییر وضعیتی (لغو، مرجوع، تحویل، …) خودش پولی برنمی‌گرداند. مبلغ برگشتی دقیقاً همان مبلغ ردیف «پرداخت» همان سفارش
+// در دفتر است، و با claim اتمیک فقط یک‌بار انجام می‌شود.
+async function adminRefundToWallet(order) {
+  const fail = (statusCode, message) => { const error = new Error(message); error.statusCode = statusCode; throw error; };
+  if (!order || order.paymentMethod !== "wallet" || order.paymentStatus !== "paid") fail(400, "بازگشت وجه فقط برای سفارش پرداخت‌شده با کیف پول ممکن است");
+  if (order.status !== "cancelled" && order.status !== "returned") fail(400, "ابتدا وضعیت سفارش را «لغوشده» یا «مرجوع‌شده» کنید");
+  const purchase = await WalletTransaction.findOne({ user: order.user, order: order._id, type: "purchase" }).lean();
+  if (!purchase || !(Number(purchase.amount) < 0)) fail(409, "ردیف پرداخت این سفارش در دفتر کیف پول پیدا نشد؛ از این سفارش پولی کسر نشده بوده");
+  const amount = -Math.round(Number(purchase.amount));
   const claim = await Order.findOneAndUpdate({ _id: order._id, walletRefunded: { $ne: true } }, { $set: { walletRefunded: true } });
-  if (!claim) return false;
-  await credit(order.user, Math.round(Number(order.total)), { type: "refund", order: order._id, ref: order.orderNumber, note: `بازگشت مبلغ سفارش ${order.orderNumber}` });
-  return true;
+  if (!claim) fail(409, "مبلغ این سفارش قبلاً به کیف پول برگشته است");
+  try {
+    const balance = await credit(order.user, amount, { type: "refund", order: order._id, ref: order.orderNumber, note: `بازگشت مبلغ سفارش ${order.orderNumber} (با دستور ادمین)` });
+    return { amount, balance };
+  } catch (error) {
+    await Order.updateOne({ _id: order._id }, { $set: { walletRefunded: false } }).catch(() => {});
+    throw error;
+  }
 }
 
 // سفارشی که پولش به کیف پول برگشته (لغو/مرجوع) دوباره «فعال» نمی‌شود؛ وگرنه مشتری هم کالا می‌گیرد هم پولش را.
@@ -92,4 +113,4 @@ function parseAmount(value) {
   return /^\d+$/.test(normalized) ? Number(normalized) : NaN;
 }
 
-module.exports = { MIN_TOPUP, MAX_TOPUP, getBalance, credit, debit, payOrder, refundOrder, statusChangeBlocker, parseAmount };
+module.exports = { MIN_TOPUP, MAX_TOPUP, getBalance, credit, debit, payOrder, adminRefundToWallet, statusChangeBlocker, parseAmount };

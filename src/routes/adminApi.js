@@ -1157,10 +1157,23 @@ router.patch("/orders/:id/status", async (req, res) => {
     // مرحله‌های روند ارسال با وضعیت کلی هماهنگ می‌شوند.
     syncStepsWithStatus(order, status);
     await order.save();
-    // سفارش پرداخت‌شده با کیف پول: با لغو یا مرجوعی، مبلغ خودکار (یک‌بار) به کیف پول برمی‌گردد.
-    if (status === "cancelled" || status === "returned") await walletService.refundOrder(order).catch((error) => console.error("wallet refund error:", error.message));
+    // هیچ تغییر وضعیتی پولی به کیف پول برنمی‌گرداند. اگر سفارشِ کیف‌پولی لغو/مرجوع شد، بازگشت وجه فقط با دکمهٔ جدا (مسیر wallet-refund) انجام می‌شود.
     res.json({ success: true, order: { ...(order.toObject ? order.toObject() : order), tracking: trackingView(order) } });
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
+// بازگشت وجه سفارشِ پرداخت‌شده با کیف پول (فقط لغو/مرجوع، فقط یک‌بار، فقط با کلیک صریح ادمین).
+router.post("/orders/:id/wallet-refund", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ success: false, message: "سفارش پیدا نشد" });
+    const result = await walletService.adminRefundToWallet(order);
+    console.log(`[wallet-refund] order=${order.orderNumber} amount=${result.amount} by=admin`);
+    res.json({ success: true, amount: result.amount, balance: result.balance });
+  } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 // موجودی کیف پول کاربران (فقط خواندن) + دفتر تراکنش هر کاربر
