@@ -4019,16 +4019,9 @@
           border-top: 1px solid #e5e9f0;
         }
         /* فاصلهٔ بین کادرها شفاف بود و گالریِ چسبیده به بالا از لابه‌لایش دیده می‌شد؛ زیر هر کادر یک نوار سفید می‌گذاریم */
-        body.mobile-product-flow-active .section-block::after {
-          content: "";
-          position: absolute;
-          top: 100%;
-          right: 0;
-          left: 0;
-          height: 20px;
-          background: #fff;
-          pointer-events: none;
-        }
+        body.mobile-product-flow-active .section-block { box-shadow: 0 20px 0 #fff; }
+        /* فاصلهٔ ۱۴پیکسلی زیر نوار تب‌ها هم گالری را نشان می‌داد؛ اولین کادر مستقیم زیر نوار شروع شود */
+        body.mobile-product-flow-active .mobile-product-section-nav { margin-bottom: -14px; }
         body.mobile-product-flow-active .mobile-product-section-nav {
           position: sticky;
           top: 64px;
@@ -4044,7 +4037,7 @@
           scrollbar-width: none;
           border-top: 1px solid #f0f2f5;
           border-bottom: 1px solid #e8ebef;
-          background: rgba(255, 255, 255, 0.98);
+          background: #fff;
           box-sizing: border-box;
           -webkit-overflow-scrolling: touch;
         }
