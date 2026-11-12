@@ -410,7 +410,7 @@ const SHARED_CATEGORY_SCRIPT = `
 <script src="/js/shared-category-nav.js?v=13"></script>`;
 
 const MOBILE_BOTTOM_NAV_HEAD = `
-<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=46" />`;
+<link rel="stylesheet" href="/css/mobile-bottom-nav.css?v=47" />`;
 const MOBILE_BOTTOM_NAV_SCRIPT = `
 <script src="/js/mobile-bottom-nav.js?v=44"></script>`;
 const MOBILE_PRODUCT_DETAILS_HEAD = `

@@ -189,7 +189,7 @@
         .co-wrap { padding-bottom: 24px; }
         body:has(.co-mobile-bar) { padding-bottom: calc(150px + env(safe-area-inset-bottom)); } /* نوار پرداخت ثابت روی انتهای فوتر نیفتد */
         .co-mobile-bar { display: flex; position: fixed; inset: auto 0 0 0; z-index: 40; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 16px; background: var(--white); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(15, 23, 42, .1); }
-        .co-mobile-bar { bottom: calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)); inset: auto 0 calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)) 0 !important; transition: transform 240ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
+        .co-mobile-bar { bottom: 0; inset: auto 0 0 0 !important; padding-bottom: calc(12px + var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)); /* سفیدی نوار زیر قرص ناوبری ادامه دارد */ transition: transform 240ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
         body:has(.mobile-bottom-nav.is-scroll-hidden) .co-mobile-bar { transform: translate3d(0, calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom)), 0); }
         .co-toast { bottom: calc(214px + env(safe-area-inset-bottom)); } /* بالاتر از دکمهٔ آبی پشتیبانی تا روی هم نیفتند */
         /* اندازهٔ نوار پایین و دکمهٔ آبی دقیقاً مثل صفحهٔ سبد خرید (ارتفاع ۴۶، فونت ۱۴، گوشهٔ ۸، مبلغ آبی ۱۶) */

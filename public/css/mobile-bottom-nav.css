@@ -943,3 +943,15 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
 @media (max-width: 768px) {
   html body .toast, html body .undo-toast, html body .co-toast { pointer-events: none !important; }
 }
+
+/* سبد خرید و پرداخت: نوار «ثبت سفارش» و قرص ناوبری یک کادر سفید می‌شوند؛ دکمهٔ پشتیبانی نمایش داده نمی‌شود و قرص وسط می‌نشیند */
+@media (max-width: 768px) {
+  html body:has(.cart-mobile-bar[style*="display: block"]) #plAssistantToggle,
+  html body:has(.cart-mobile-bar[style*="display: block"]) #plAssistant,
+  html body:has(.cart-mobile-bar[style*="display: block"]) #plAssistantMenu,
+  html body:has(.co-mobile-bar) #plAssistantToggle,
+  html body:has(.co-mobile-bar) #plAssistant,
+  html body:has(.co-mobile-bar) #plAssistantMenu { display: none !important; }
+  html body:has(.cart-mobile-bar[style*="display: block"]) .mobile-bottom-nav,
+  html body:has(.co-mobile-bar) .mobile-bottom-nav { right: 62px; left: 62px; }
+}
