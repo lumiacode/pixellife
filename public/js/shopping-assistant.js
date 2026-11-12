@@ -105,7 +105,8 @@
     // آیکن حباب گفتگو با سه نقطه: دایرهٔ آبی با خطوط سفید (هم‌رنگ تم سایت).
     toggle.innerHTML = '<svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true" focusable="false"><path d="M19 15h26a7 7 0 0 1 7 7v18a7 7 0 0 1-7 7H37l-5 7-5-7h-8a7 7 0 0 1-7-7V22a7 7 0 0 1 7-7z" fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"/><circle cx="23.5" cy="31" r="2.8" fill="#fff"/><circle cx="32" cy="31" r="2.8" fill="#fff"/><circle cx="40.5" cy="31" r="2.8" fill="#fff"/></svg>';
     // موبایل: آیکن هدست (مثل دکمهٔ پشتیبانی دیجیکالا)؛ دسکتاپ همان حباب گفتگو می‌ماند.
-    if (window.matchMedia("(max-width: 768px)").matches) {
+    // صفحهٔ محصول نوار پایین ندارد و همان آیکن قدیمی (حباب گفتگو) را نگه می‌دارد.
+    if (window.matchMedia("(max-width: 768px)").matches && !/^\/product(?:\/|$)/.test(window.location.pathname)) {
       toggle.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.6"/><rect x="17" y="13" width="4" height="6" rx="1.6"/><path d="M19 19v.5a2.5 2.5 0 0 1-2.5 2.5H13"/></svg>';
     }
     const panel = add("section", { id: "plAssistant", ariaLabel: "دستیار PixelLife" });
