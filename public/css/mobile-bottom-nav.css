@@ -238,7 +238,6 @@
     opacity: 1;
     transform: none;
   }
-  .mobile-category-sheet:not(.is-open) { border-radius: 40px; }
   /* محتوا کمی دیرتر پدیدار می‌شود تا ابتدا «پوسته» از دل آیکن بیرون بیاید */
   .mobile-category-sheet > * { transition: opacity 240ms ease 0ms; opacity: 0; }
   .mobile-category-sheet.is-open > * { opacity: 1; transition-delay: 140ms; }
@@ -956,46 +955,34 @@ html body .mobile-bottom-nav__badge { padding-top: 2px !important; }
   html body:has(.co-mobile-bar) .mobile-bottom-nav { right: 62px; left: 62px; }
 }
 
-/* ───────── حرکت برگهٔ دسته‌بندی (نسخهٔ حرفه‌ای‌تر) ─────────
-   باز شدن: پوسته با منحنی «expo-out» از دل آیکن بزرگ می‌شود، پس‌زمینه محو و کمی تار می‌شود، آیکن دسته‌بندی «ضربه» می‌خورد
-   و اجزا (عنوان، جستجو، ردیف دسته‌ها، محتوا) پله‌پله و با تأخیر کم بالا می‌آیند.
-   بستن: سریع‌تر از باز شدن (شتاب‌گیرنده) تا کاربر منتظر نماند. فقط transform/opacity انیمیت می‌شوند (روان روی گوشی ضعیف). */
+/* ───────── حرکت برگهٔ دسته‌بندی (سبک و روان) ─────────
+   فقط transform و opacity انیمیت می‌شوند (روی GPU)؛ بدون تاری پس‌زمینه، بدون تغییر گوشهٔ گرد یا سایه در حین حرکت،
+   و بدون انیمیشن روی ده‌ها المان داخل برگه. نسخهٔ قبلی با این‌ها روی گوشی کند می‌شد. */
 @media (max-width: 768px) {
-  /* بستن (حالت پایه): سریع و شتاب‌گیرنده */
+  html body .mobile-category-sheet { border-radius: 24px 24px 0 0 !important; }
   html body .mobile-category-sheet:not(.is-dragging) {
-    transition: transform 300ms cubic-bezier(.4, 0, .2, 1), opacity 200ms ease 90ms, border-radius 300ms ease !important;
+    transition: transform 280ms cubic-bezier(.4, 0, .2, 1), opacity 160ms ease 60ms !important;
   }
-  /* باز شدن: نرم و با کند شدن در پایان */
   html body .mobile-category-sheet.is-open:not(.is-dragging) {
-    transition: transform 580ms cubic-bezier(.16, 1, .3, 1), opacity 120ms ease, border-radius 580ms ease !important;
-    box-shadow: 0 -22px 60px rgba(15, 23, 42, .28);
+    transition: transform 420ms cubic-bezier(.16, 1, .3, 1), opacity 100ms ease !important;
   }
-  html body .mobile-category-backdrop { transition: opacity 320ms ease !important; }
-  html body .mobile-category-backdrop.is-open { -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); background: rgba(15, 23, 42, .38); }
+  html body .mobile-category-backdrop { transition: opacity 260ms ease !important; }
 
-  @keyframes plSheetRise { from { opacity: 0; transform: translate3d(0, 18px, 0); } to { opacity: 1; transform: none; } }
-  @keyframes plSheetSlide { from { opacity: 0; transform: translate3d(16px, 0, 0); } to { opacity: 1; transform: none; } }
-  @keyframes plNavIconPop { 0% { transform: scale(.82); } 55% { transform: scale(1.16); } 100% { transform: scale(1); } }
+  @keyframes plSheetSlide { from { opacity: 0; transform: translate3d(14px, 0, 0); } to { opacity: 1; transform: none; } }
+  @keyframes plNavIconPop { 0% { transform: scale(.85); } 55% { transform: scale(1.14); } 100% { transform: scale(1); } }
 
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__header { animation: plSheetRise 460ms cubic-bezier(.22, 1, .36, 1) 130ms both; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__search { animation: plSheetRise 460ms cubic-bezier(.22, 1, .36, 1) 190ms both; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item { animation: plSheetSlide 440ms cubic-bezier(.22, 1, .36, 1) both; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(1) { animation-delay: 240ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(2) { animation-delay: 285ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(3) { animation-delay: 330ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(4) { animation-delay: 375ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(5) { animation-delay: 420ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(n+6) { animation-delay: 460ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__content > * { animation: plSheetRise 420ms cubic-bezier(.22, 1, .36, 1) both; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__content > *:nth-child(1) { animation-delay: 270ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__content > *:nth-child(2) { animation-delay: 320ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__content > *:nth-child(3) { animation-delay: 370ms; }
-  html body .mobile-category-sheet.is-open .mobile-category-sheet__content > *:nth-child(n+4) { animation-delay: 420ms; }
+  /* فقط پنج دستهٔ اول ستون سمت راست کمی پله‌پله می‌آیند؛ بقیه و محتوا با خود برگه ظاهر می‌شوند */
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(-n+5) { animation: plSheetSlide 300ms cubic-bezier(.22, 1, .36, 1) both; }
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(1) { animation-delay: 140ms; }
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(2) { animation-delay: 175ms; }
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(3) { animation-delay: 210ms; }
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(4) { animation-delay: 245ms; }
+  html body .mobile-category-sheet.is-open .mobile-category-sheet__rail-item:nth-child(5) { animation-delay: 280ms; }
+  /* محتوا بدون تأخیر زیاد پدیدار شود */
+  html body .mobile-category-sheet.is-open > * { transition-delay: 90ms; }
 
-  /* آیکن دسته‌بندی در نوار پایین هنگام باز شدن «ضربه» می‌خورد */
-  html body .mobile-bottom-nav__item[data-nav="categories"].is-expanded .mobile-bottom-nav__icon { animation: plNavIconPop 480ms cubic-bezier(.34, 1.4, .64, 1); }
+  html body .mobile-bottom-nav__item[data-nav="categories"].is-expanded .mobile-bottom-nav__icon { animation: plNavIconPop 380ms cubic-bezier(.34, 1.4, .64, 1); }
 }
 @media (prefers-reduced-motion: reduce) {
   html body .mobile-category-sheet *, html body .mobile-bottom-nav__icon { animation: none !important; }
-  html body .mobile-category-backdrop.is-open { -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
