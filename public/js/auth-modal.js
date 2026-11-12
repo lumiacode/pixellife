@@ -362,7 +362,7 @@
   }
   function applyLoginState(user, token) {
     if (!user) return;
-    try { if (token) localStorage.setItem("authToken", token); localStorage.setItem("user", JSON.stringify(user)); } catch (e) {}
+    try { if (token) localStorage.setItem("authToken", "1"); localStorage.setItem("user", JSON.stringify(user)); } catch (e) {}
     try { sessionStorage.removeItem("pl_session_synced"); } catch (e) {}
     if (typeof window.applyLogin === "function") { try { window.applyLogin(user, token); } catch (e) {} }
     document.body.classList.add("logged-in");

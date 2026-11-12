@@ -24,6 +24,10 @@ exports.protect = async (req, res, next) => {
       return next(new ApiError(401, "کاربر یافت نشد"));
     }
 
+    if (!tokenService.isCurrent(decoded, user)) {
+      return next(new ApiError(401, "نشست شما منقضی شده است. لطفاً دوباره وارد شوید"));
+    }
+
     if (!user.isActive) {
       return next(new ApiError(403, "حساب کاربری شما غیرفعال شده است"));
     }

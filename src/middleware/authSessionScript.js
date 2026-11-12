@@ -1,8 +1,8 @@
 // اسکریپت هم‌سازی نشست در همهٔ صفحه‌های HTML عمومی تزریق می‌شود (بجز پنل ادمین):
 // دکمهٔ «خروج» هر صفحه حتماً کوکی نشست را هم روی سرور پاک کند، نه فقط وضعیت ظاهری را.
-const TAG = '<script src="/js/auth-session.js?v=1" defer></script>';
+const TAG = '<script src="/js/auth-session.js?v=2" defer></script>';
 // پنجرهٔ ورود | ثبت‌نام مشترک (جایگزین نسخه‌های جداگانهٔ هر صفحه)
-const MODAL_TAG = '<script src="/js/auth-modal.js?v=4" defer></script>';
+const MODAL_TAG = '<script src="/js/auth-modal.js?v=5" defer></script>';
 
 function authSessionScript(req, res, next) {
   if (req.method !== "GET" || req.path.startsWith("/admin") || req.path.startsWith("/api/")) return next();

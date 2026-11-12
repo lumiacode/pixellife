@@ -19,10 +19,14 @@ function dateKey(date = new Date()) {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
-router.post("/track", async (req, res) => {
+// هر IP حداکثر ۱۲۰ ثبت بازدید در ۱۰ دقیقه (جلوگیری از پرکردن دیتابیس با صفحه‌های ساختگی)
+const { rateLimit } = require("../middleware/security");
+const trackLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 120 });
+
+router.post("/track", trackLimiter, async (req, res) => {
   try {
     const requestedPage = typeof req.body?.page === "string" ? req.body.page : "/";
-    const page = requestedPage.startsWith("/") ? requestedPage.slice(0, 180) : "/";
+    const page = requestedPage.startsWith("/") ? requestedPage.split(/[?#]/)[0].replace(/[\u0000-\u001f]/g, "").slice(0, 180) || "/" : "/";
     const visitorId = req.cookies?.pl_visitor || crypto.randomBytes(16).toString("hex");
     const visitorHash = crypto.createHash("sha256").update(visitorId).digest("hex");
 
@@ -57,6 +61,11 @@ const ALLOWED_EVENTS = new Set([
   "begin_checkout",
 ]);
 const eventRateLimits = new Map();
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, state] of eventRateLimits) if (now - state.startedAt > 10 * 60 * 1000) eventRateLimits.delete(key);
+}, 10 * 60 * 1000).unref();
 
 function canTrackEvent(req) {
   const key = req.ip || "unknown";

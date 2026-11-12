@@ -59,8 +59,9 @@ async function optionalAuth(req, res, next) {
     let token = req.cookies?.token;
     if (!token && req.headers.authorization?.startsWith("Bearer")) token = req.headers.authorization.split(" ")[1];
     if (token) {
-      const user = await User.findById(tokenService.verifyToken(token).id);
-      if (user && user.isActive) req.user = user;
+      const decoded = tokenService.verifyToken(token);
+      const user = await User.findById(decoded.id);
+      if (user && user.isActive && tokenService.isCurrent(decoded, user)) req.user = user;
     }
   } catch (_) { /* مهمان */ }
   next();

@@ -66,6 +66,8 @@ const userSchema = new mongoose.Schema(
     baleChatId: { type: String, default: "", index: true },
     baleLinkCode: { type: String, default: "", select: false },
     baleLinkExpiresAt: { type: Date, default: null, select: false },
+    // با تغییر رمز یکی اضافه می‌شود؛ توکن‌های صادرشده با نسخهٔ قبلی دیگر پذیرفته نمی‌شوند.
+    tokenVersion: { type: Number, default: 0 },
     lastLogin: {
       type: Date,
       default: null,

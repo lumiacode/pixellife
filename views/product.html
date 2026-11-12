@@ -5695,7 +5695,7 @@
         document.getElementById("pdropName").textContent = disp;
         const mobileText = user.mobile ? String(user.mobile).replace(/(\d{4})(\d{3})(\d{4})/, "$1 $2 $3") : "";
         document.getElementById("pdropMobile").textContent = disp === user.mobile ? (user.email || "") : (mobileText || user.email || "");
-        if (token) localStorage.setItem("authToken", token);
+        if (token) localStorage.setItem("authToken", "1");
         localStorage.setItem("user", JSON.stringify(user));
       }
 
@@ -6565,16 +6565,17 @@
 
               // فقط نظرهای واقعی ثبت‌شده توسط کاربران نمایش داده می‌شوند.
               demoReviews = data.reviews.map((r) => ({
-                name: r.userName,
-                avatar: r.avatar || "",
-                verified: r.verified,
-                rating: r.rating,
+                // متن‌های کاربر همیشه escape می‌شوند (نظر با innerHTML رندر می‌شود)؛ آواتار فقط از مسیر تصویر خود سایت پذیرفته می‌شود.
+                name: escapeCartText(r.userName || "کاربر"),
+                avatar: /^\/api\/products\/image\/[a-f0-9]{24}$/i.test(String(r.avatar || "")) ? r.avatar : "",
+                verified: r.verified === true,
+                rating: Math.min(5, Math.max(1, Math.round(Number(r.rating) || 0))),
                 date: new Date(r.date).toLocaleDateString("fa-IR"),
-                comment: r.comment,
-                pros: r.pros || [],
-                cons: r.cons || [],
-                helpful: r.helpful || 0,
-                reply: r.reply,
+                comment: escapeCartText(r.comment),
+                pros: (Array.isArray(r.pros) ? r.pros : []).map(escapeCartText),
+                cons: (Array.isArray(r.cons) ? r.cons : []).map(escapeCartText),
+                helpful: Number(r.helpful) || 0,
+                reply: r.reply ? escapeCartText(r.reply) : "",
               }));
               renderReviews(); // رندر کردن نظرات در صفحه
             } catch (error) {

@@ -37,16 +37,31 @@ router.get("/:productId", async (req, res) => {
       .lean();
     res.json({ success: true, reviews: reviews.map(publicReview) });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: "دریافت نظرها انجام نشد" });
   }
 });
 
-router.post("/", protect, upload.single("avatar"), async (req, res) => {
+// هر کاربر حداکثر ۱۰ نظر در ساعت؛ متن‌ها بدون تگ HTML و با سقف طول ذخیره می‌شوند.
+const { rateLimit } = require("../middleware/security");
+const reviewLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, key: (req) => "u:" + String(req.user && req.user._id), message: "تعداد نظرهای ثبت‌شده زیاد بود؛ بعداً دوباره تلاش کنید" });
+const plainText = (value, max) => String(value == null ? "" : value).replace(/<[^>]*>/g, "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
+const normalizeList = (value) => {
+  let list = value;
+  if (typeof value === "string") { try { list = JSON.parse(value || "[]"); } catch (_) { list = []; } }
+  return (Array.isArray(list) ? list : []).slice(0, 8).map((item) => plainText(item, 120)).filter(Boolean);
+};
+
+router.post("/", protect, reviewLimiter, upload.single("avatar"), async (req, res) => {
   try {
     const { productId, rating, comment, pros, cons } = req.body || {};
-    const normalizeList = (value) => Array.isArray(value) ? value : (typeof value === "string" ? JSON.parse(value || "[]") : []);
-    const normalizedProductId = String(productId || "").trim();
-    const normalizedComment = String(comment || "").trim();
+    const requestedProductId = String(productId || "").trim().slice(0, 200);
+    const normalizedComment = plainText(comment, 2000);
+    // نظر فقط برای محصول موجود ثبت می‌شود (شناسهٔ ساختگی = نظر یتیم و دورزدن «یک نظر برای هر محصول»).
+    const productFilter = [{ slug: requestedProductId }, { legacyId: requestedProductId }];
+    if (mongoose.isValidObjectId(requestedProductId)) productFilter.push({ _id: requestedProductId });
+    const reviewedProduct = requestedProductId ? await Product.findOne({ $or: productFilter }).select("_id").lean() : null;
+    if (!reviewedProduct) return res.status(404).json({ success: false, error: "محصول پیدا نشد" });
+    const normalizedProductId = requestedProductId;
     const numericRating = Number(rating);
 
     if (!normalizedProductId || !normalizedComment || !Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
@@ -71,8 +86,8 @@ router.post("/", protect, upload.single("avatar"), async (req, res) => {
       avatar,
       rating: numericRating,
       comment: normalizedComment,
-      pros: normalizeList(pros).map((item) => String(item).trim()).filter(Boolean),
-      cons: normalizeList(cons).map((item) => String(item).trim()).filter(Boolean),
+      pros: normalizeList(pros),
+      cons: normalizeList(cons),
       verified: false,
       status: "pending",
     });
@@ -84,7 +99,8 @@ router.post("/", protect, upload.single("avatar"), async (req, res) => {
     if (error && error.code === 11000) {
       return res.status(409).json({ success: false, error: "شما قبلاً برای این محصول نظر ثبت کرده‌اید" });
     }
-    res.status(400).json({ success: false, error: error.message });
+    console.error("Review create error:", error.message);
+    res.status(400).json({ success: false, error: error && error.name === "ValidationError" ? "اطلاعات نظر معتبر نیست" : "ثبت نظر انجام نشد" });
   }
 });
 

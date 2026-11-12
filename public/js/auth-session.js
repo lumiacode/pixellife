@@ -9,6 +9,12 @@
   var PRIVATE_LOCAL = ["user", "token", "authToken"];
   var PRIVATE_SESSION = ["pl_checkout", "pl_profile_gate_checked"];
 
+  // توکن ورود فقط در کوکی httpOnly نگه داشته می‌شود. نسخه‌های قبلی سایت خودِ توکن را در localStorage می‌گذاشتند
+  // (هر اسکریپت تزریق‌شده‌ای می‌توانست آن را بخواند)؛ اگر هنوز آن‌جاست با یک نشانهٔ بی‌ارزش جایگزین می‌شود.
+  ["token", "authToken"].forEach(function (key) {
+    try { var v = localStorage.getItem(key); if (v && v.length > 20) localStorage.setItem(key, "1"); } catch (e) {}
+  });
+
   function wipeLocal() {
     PRIVATE_LOCAL.forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
     PRIVATE_SESSION.forEach(function (key) { try { sessionStorage.removeItem(key); } catch (e) {} });

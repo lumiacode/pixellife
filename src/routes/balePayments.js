@@ -44,6 +44,7 @@ function cleanItemId(id) {
 async function buildOrder(user, body) {
   const requestedItems = Array.isArray(body.items) ? body.items : [];
   if (!requestedItems.length) throw new Error("سبد خرید خالی است");
+  if (requestedItems.length > 50) throw new Error("تعداد اقلام سبد خرید بیش از حد مجاز است");
   const address = await Address.findOne({ _id: body.addressId, user: user._id }).lean();
   if (!address) throw new Error("برای ثبت سفارش یک آدرس معتبر انتخاب کنید");
 
@@ -51,7 +52,7 @@ async function buildOrder(user, body) {
   if (new Set(productIds).size !== productIds.length) throw new Error("یک کالا بیش از یک‌بار در سفارش ارسال شده است");
 
   const products = await Promise.all(productIds.map((id) => {
-    if (/^[a-f\\d]{24}$/i.test(id)) return Product.findById(id).lean();
+    if (/^[a-f\d]{24}$/i.test(id)) return Product.findById(id).lean();
     return Product.findOne({ $or: [{ slug: id }, { legacyId: id }] }).lean();
   }));
 
@@ -61,11 +62,11 @@ async function buildOrder(user, body) {
     if (!product || product.availability === "out" || Number(product.stock) < quantity) {
       throw new Error(`محصول «${product?.name || "انتخاب‌شده"}» موجود نیست`);
     }
-    const price = Math.round(Number(product.price) * (1 - Math.max(0, Number(product.discount) || 0) / 100));
+    const price = Math.round(Number(product.price) * (1 - Math.min(100, Math.max(0, Number(product.discount) || 0)) / 100));
     return {
       product: product._id, name: product.name, brand: product.brand || "",
       image: product.mainImage || product.images?.[0] || "", price, quantity,
-      color: String(item.color || ""), storage: String(item.storage || ""), warranty: String(item.warranty || ""),
+      color: String(item.color || "").slice(0, 80), storage: String(item.storage || "").slice(0, 80), warranty: String(item.warranty || "").slice(0, 80),
     };
   });
 
@@ -209,14 +210,14 @@ router.post("/bale/webhook/:secret", async (req, res) => {
         String(payment.currency || "").toUpperCase() === "IRR" &&
         Number(payment.total_amount) === Number(order.balePayment?.amountRial));
       if (valid) {
-        order.paymentStatus = "paid";
-        order.status = "processing";
-        order.balePayment.status = "paid";
-        order.balePayment.chargeId = chargeId;
-        order.balePayment.paidAt = new Date();
-        order.statusHistory.push({ status: "processing", note: `پرداخت بله تأیید شد. شناسه تراکنش: ${chargeId}` });
-        await order.save();
-        await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
+        // گذار اتمیک: تکرار همین وب‌هوک یا پرداخت هم‌زمان با روش دیگر، سفارش را دو بار پرداخت‌شده نمی‌کند.
+        const paid = await Order.findOneAndUpdate(
+          { _id: order._id, paymentStatus: "unpaid" },
+          { $set: { paymentStatus: "paid", status: "processing", "balePayment.status": "paid", "balePayment.chargeId": chargeId, "balePayment.paidAt": new Date() }, $push: { statusHistory: { status: "processing", note: `پرداخت بله تأیید شد. شناسه تراکنش: ${chargeId}`, changedAt: new Date() } } },
+          { returnDocument: "after" },
+        );
+        if (paid) await applyOrderStock(paid).catch((error) => console.error("applyOrderStock error:", error.message));
+        else console.error(`[double-payment] order=${order.orderNumber} baleCharge=${chargeId}`);
       }
     }
   } catch (error) {

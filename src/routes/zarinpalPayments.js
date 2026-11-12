@@ -53,9 +53,9 @@ router.post("/request", protect, async (req, res, next) => {
 
 router.get("/callback", async (req, res, next) => {
   try {
-    const authority = String(req.query.Authority || "");
+    const authority = String(req.query.Authority || "").slice(0, 100);
     const status = String(req.query.Status || "").toUpperCase();
-    const order = await Order.findOne({ "zarinpal.authority": authority });
+    const order = authority ? await Order.findOne({ "zarinpal.authority": authority }) : null;
     if (!order) return res.status(404).send("سفارش پرداخت پیدا نشد");
     if (order.paymentStatus === "paid") return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=success`);
     if (status !== "OK") {
@@ -76,15 +76,23 @@ router.get("/callback", async (req, res, next) => {
       return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=failed`);
     }
     // اگر مبلغ از حساب کسر شده، حتی بعد از لغوِ مهلت هم پرداخت پذیرفته می‌شود.
-    if (order.status === "cancelled") order.statusHistory.push({ status: "processing", note: "پرداخت بعد از پایان مهلت انجام شد و سفارش دوباره فعال شد" });
-    order.paymentStatus = "paid";
-    order.status = "processing";
-    order.zarinpal.refId = Number(data.ref_id || 0) || null;
-    order.zarinpal.cardPan = String(data.card_pan || "");
-    order.zarinpal.paidAt = new Date();
-    order.statusHistory.push({ status: "processing", note: `پرداخت زرین‌پال تأیید شد؛ کد رهگیری ${data.ref_id || ""}` });
-    await order.save();
-    await applyOrderStock(order).catch((error) => console.error("applyOrderStock error:", error.message));
+    // گذار به «پرداخت‌شده» اتمیک است: دو بازگشت هم‌زمان از درگاه، یا پرداخت هم‌زمان با کیف پول، فقط یک‌بار سفارش را پرداخت‌شده می‌کند.
+    const now = new Date();
+    const history = [];
+    if (order.status === "cancelled") history.push({ status: "processing", note: "پرداخت بعد از پایان مهلت انجام شد و سفارش دوباره فعال شد", changedAt: now });
+    history.push({ status: "processing", note: `پرداخت زرین‌پال تأیید شد؛ کد رهگیری ${data.ref_id || ""}`, changedAt: now });
+    const paid = await Order.findOneAndUpdate(
+      { _id: order._id, paymentStatus: { $ne: "paid" } },
+      { $set: { paymentStatus: "paid", status: "processing", "zarinpal.refId": Number(data.ref_id || 0) || null, "zarinpal.cardPan": String(data.card_pan || ""), "zarinpal.paidAt": now }, $push: { statusHistory: { $each: history } } },
+      { returnDocument: "after" },
+    );
+    if (!paid) {
+      // سفارش در همین فاصله با روش دیگری پرداخت شده بود؛ این مبلغ درگاه اضافه است و باید دستی به مشتری برگردد.
+      console.error(`[double-payment] order=${order.orderNumber} zarinpalRef=${data.ref_id || ""} amountRial=${rialAmount(order)}`);
+      await Order.updateOne({ _id: order._id }, { $push: { statusHistory: { status: "processing", note: `هشدار: پرداخت دوبارهٔ این سفارش از درگاه زرین‌پال (کد رهگیری ${data.ref_id || ""})؛ مبلغ درگاه باید به مشتری برگردانده شود`, changedAt: now } } }).catch(() => {});
+      return res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=success`);
+    }
+    await applyOrderStock(paid).catch((error) => console.error("applyOrderStock error:", error.message));
     res.redirect(`/checkout/result?order=${encodeURIComponent(order.orderNumber)}&status=success`);
   } catch (error) { next(error); }
 });

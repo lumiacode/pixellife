@@ -42,6 +42,7 @@
     "test:category-icons": "node tests/category-icons.test.js",
     "test:backup-script": "node tests/backup-script.test.js",
     "test:security": "node tests/security.test.js",
+    "test:security-hardening": "node tests/security-hardening.test.js",
     "test:performance": "node tests/performance.test.js",
     "test:wallet-audit": "node tests/wallet-audit.test.js"
   },
