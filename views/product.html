@@ -6207,7 +6207,7 @@
         const pmBadge = document.getElementById("pmCartCount");
         if (pmBadge) {
           pmBadge.hidden = count <= 0;
-          pmBadge.textContent = count > 99 ? "99+" : count;
+          pmBadge.textContent = count > 99 ? "۹۹+" : count.toLocaleString("fa-IR"); // ارقام فارسی، مثل نشان نوار پایین
         }
         const badge = document.getElementById("cartCount");
         if (count > 0) {
