@@ -2529,7 +2529,9 @@
       /* نوار «ثبت سفارش» روی ناوبری پایین می‌نشیند و با آن هم‌زمان پنهان/نمایان می‌شود */
       @media (max-width: 768px) {
         html body .cart-mobile-bar {
-          bottom: calc(var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom));
+          /* پس‌زمینهٔ سفیدِ نوار تا پایین صفحه ادامه دارد و قرصِ ناوبری روی همین سفیدی می‌نشیند (قیمت، دکمه و نوار = یک کادر) */
+          bottom: 0;
+          padding-bottom: calc(12px + var(--mobile-bottom-nav-height, 70px) + env(safe-area-inset-bottom));
           transition: transform 240ms cubic-bezier(.22, 1, .36, 1);
           will-change: transform;
         }
