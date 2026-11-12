@@ -4084,7 +4084,8 @@
           .pm-topbar__close + .pm-topbar__btn { margin-right: auto; }
           .pm-topbar__btn { position: relative; display: grid; place-items: center; width: 44px; height: 44px; color: #1f2937; text-decoration: none; -webkit-tap-highlight-color: transparent; }
           .pm-topbar__btn svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-          .pm-topbar__badge { position: absolute; top: 3px; left: 1px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #2563eb; color: #fff; font-size: 11.5px; font-weight: 800; line-height: 18px; text-align: center; }
+          /* هم‌شکل و هم‌جای نشان سبدِ نوار پایین: بالا-راستِ آیکن، دایرهٔ آبی ۱۸ پیکسلی با عدد بولد */
+          .pm-topbar__badge { position: absolute; top: 1px; left: calc(50% + 2px); min-width: 18px; height: 18px; padding: 2px 5px 0; box-sizing: border-box; border: 0; border-radius: 999px; background: #2563eb; color: #fff; box-shadow: 0 1px 4px rgba(15, 23, 42, .28); display: flex; align-items: center; justify-content: center; font-family: inherit; font-size: 12px; font-weight: 800; line-height: 1; white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
           .pm-topbar__badge[hidden] { display: none; }
           html body .breadcrumb:not(.breadcrumb-m) { display: none !important; }
           html body .breadcrumb-m { display: flex; }
