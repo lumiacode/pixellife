@@ -14,6 +14,13 @@ const { streamProductImage } = require("../utils/productImages");
 const { onProductChange } = require("../services/cacheBus");
 const catalogResponseCache = new Map();
 const CATALOG_CACHE_TTL_MS = 15_000;
+// کلید کش، آدرس درخواست است؛ بدون سقف، درخواست‌های انبوه با query تصادفی حافظه را پر می‌کرد.
+const CATALOG_CACHE_MAX = 400;
+function rememberCatalog(key, payload) {
+  if (String(key).length > 600) return;
+  if (catalogResponseCache.size >= CATALOG_CACHE_MAX) catalogResponseCache.clear();
+  catalogResponseCache.set(key, { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, payload });
+}
 
 // پیشنهاد شگفت‌انگیز پس از زمان پایان، در خود دیتابیس هم غیرفعال شود.
 async function moveCableAndChargerProductsToAccessories() {
@@ -193,7 +200,8 @@ router.get("/", async (req, res) => {
         "microsoft": "ایکس[‌\\s-]*باکس|xbox|microsoft",
       };
       const requestedBrand = normalizeText(brand).toLowerCase();
-      filter.brand = { $regex: brandAliases[requestedBrand] || normalizeText(brand), $options: "i" };
+      // ورودی کاربر هرگز به‌عنوان الگوی خام regex به دیتابیس نمی‌رود (ReDoS).
+      filter.brand = { $regex: brandAliases[requestedBrand] || normalizeText(brand).slice(0, 60).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" };
     }
 
     if (category) {
@@ -234,13 +242,13 @@ router.get("/", async (req, res) => {
         ];
       }
     }
-    if (exclude) filter._id = { $ne: exclude };
+    if (exclude && /^[a-f0-9]{24}$/i.test(String(exclude))) filter._id = { $ne: String(exclude) };
 
     const order = sort === "price-asc" ? { price: 1 } : sort === "price-desc" ? { price: -1 } : { amazingOffer: -1, featured: -1, createdAt: -1 };
     const products = await Product.find(filter).select(PRODUCT_CARD_FIELDS).sort(order).limit(safeLimit(limit)).lean();
 
     const payload = { success: true, products: await withApprovedReviewStats(products.map(serializeProduct)) };
-    catalogResponseCache.set(cacheKey, { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, payload });
+    rememberCatalog(cacheKey, payload);
     res.json(payload);
   } catch (error) {
     console.error("Products catalog error:", error);
@@ -379,7 +387,7 @@ router.get("/home-sections", async (req, res) => {
       .map((section) => ({ key: section.key, title: section.title, products: (selections[section.key] || []).map((id) => byId.get(id)).filter(Boolean) }))
       .filter((section) => section.products.length);
     const payload = { success: true, sections };
-    catalogResponseCache.set(cacheKey, { expiresAt: Date.now() + CATALOG_CACHE_TTL_MS, payload });
+    rememberCatalog(cacheKey, payload);
     res.json(payload);
   } catch (error) {
     console.error("Home sections error:", error);

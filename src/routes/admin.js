@@ -41,8 +41,19 @@ const safeEqual = (a, b) => {
   return crypto.timingSafeEqual(x, y);
 };
 
+// قفل کلی: سقف IP را می‌شود با IPهای زیاد دور زد؛ بعد از ۳۰ رمز اشتباه در ۱۵ دقیقه (از هر جایی)، ورود ادمین ۱۵ دقیقه بسته می‌شود.
+const GLOBAL_FAIL_MAX = 30;
+const GLOBAL_FAIL_WINDOW_MS = 15 * 60 * 1000;
+let globalFails = [];
+const recentGlobalFails = () => (globalFails = globalFails.filter((time) => Date.now() - time < GLOBAL_FAIL_WINDOW_MS));
+if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length < 12) console.warn("⚠️ ADMIN_PASSWORD کوتاه است؛ رمزی تصادفی با دست‌کم ۱۶ نویسه بگذارید.");
+
 router.post("/login", adminLoginLimiter, (req, res) => {
-  const password = typeof req.body.password === "string" ? req.body.password : "";
+  const password = typeof req.body.password === "string" ? req.body.password.slice(0, 500) : "";
+  if (recentGlobalFails().length >= GLOBAL_FAIL_MAX) {
+    console.warn(`[admin-login] locked ip=${req.ip}`);
+    return res.status(429).json({ success: false, message: "ورود ادمین به‌دلیل تلاش‌های ناموفق زیاد موقتاً بسته است؛ ۱۵ دقیقهٔ دیگر دوباره امتحان کنید" });
+  }
   if (!process.env.ADMIN_PASSWORD) {
     console.error("ADMIN_PASSWORD در .env تنظیم نشده است");
     return res.status(500).json({ success: false, message: "ورود ادمین پیکربندی نشده است" });
@@ -54,10 +65,13 @@ router.post("/login", adminLoginLimiter, (req, res) => {
       req.session.isAdmin = true;
       return req.session.save((error) => {
         if (error) return res.status(500).json({ success: false, message: "نشست ورود ذخیره نشد؛ دوباره تلاش کنید" });
+        console.log(`[admin-login] success ip=${req.ip}`);
         return res.json({ success: true });
       });
     });
   }
+  globalFails.push(Date.now());
+  console.warn(`[admin-login] failed ip=${req.ip} ua=${String(req.get("user-agent") || "").slice(0, 80)}`);
   return res
     .status(401)
     .json({ success: false, message: "رمز عبور اشتباه است" });

@@ -23,7 +23,12 @@ const {
 // سقف ارسال پیامک برای هر «شماره» جداگانه در otpService هست؛ این‌ها برای هر IP (و در ورود با رمز، هر حساب) است.
 const { rateLimit } = require("../middleware/security");
 const minutes = (n) => n * 60 * 1000;
-const idOf = (req) => String((req.body && req.body.identifier) || "").trim().toLowerCase().slice(0, 80);
+// شناسه پیش از شمارش یکدست می‌شود تا نوشتن همان شماره با +98 / 0098 / ارقام فارسی / فاصله، شمارندهٔ «هر حساب» را دور نزند.
+const idOf = (req) => {
+  const raw = String((req.body && req.body.identifier) || "").trim().toLowerCase()
+    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[\s-]/g, "");
+  return raw.replace(/^(?:\+98|0098|98)(?=9\d{9}$)/, "0").slice(0, 80);
+};
 router.use("/check-user", rateLimit({ windowMs: minutes(10), max: 40 }));
 router.use(["/send-otp", "/resend-otp", "/forgot-password"], rateLimit({ windowMs: minutes(60), max: 15, message: "درخواست کد از این دستگاه زیاد بود؛ حدود یک ساعت دیگر دوباره تلاش کنید" }));
 router.use(["/verify-login-otp", "/verify-forgot-otp", "/reset-password"], rateLimit({ windowMs: minutes(10), max: 30 }));

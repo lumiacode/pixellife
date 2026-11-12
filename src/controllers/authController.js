@@ -143,7 +143,7 @@ exports.verifyLoginOtp = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // ساخت توکن
-    const token = tokenService.generateToken(user._id);
+    const token = tokenService.generateToken(user._id, user.tokenVersion);
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" || req.secure === true,
@@ -195,7 +195,7 @@ exports.login = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     // ساخت توکن
-    const token = tokenService.generateToken(user._id);
+    const token = tokenService.generateToken(user._id, user.tokenVersion);
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" || req.secure === true,
@@ -279,10 +279,12 @@ exports.resetPassword = async (req, res, next) => {
 
     // بروزرسانی رمز عبور
     user.password = password;
+    // همهٔ نشست‌های قبلی (روی هر دستگاهی) باطل می‌شوند.
+    user.tokenVersion = (Number(user.tokenVersion) || 0) + 1;
     await user.save();
 
     // ساخت توکن جدید
-    const token = tokenService.generateToken(user._id);
+    const token = tokenService.generateToken(user._id, user.tokenVersion);
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" || req.secure === true,

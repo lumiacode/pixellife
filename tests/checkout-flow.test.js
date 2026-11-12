@@ -96,6 +96,14 @@ stub(src("models", "Order.js"), {
     Object.assign(doc, update.$set);
     return { modifiedCount: 1 };
   },
+  // گذار اتمیک «پرداخت‌شده» در بازگشت از درگاه: فقط اگر سفارش هنوز پرداخت‌نشده باشد.
+  findOneAndUpdate: async (cond, update) => {
+    const doc = orders.find((o) => String(o._id) === String(cond._id) && !(cond.paymentStatus && cond.paymentStatus.$ne !== undefined && o.paymentStatus === cond.paymentStatus.$ne));
+    if (!doc) return null;
+    for (const [key, value] of Object.entries(update.$set || {})) doc.set(key, value);
+    for (const [key, value] of Object.entries(update.$push || {})) (value && value.$each ? value.$each : [value]).forEach((item) => doc[key].push(item));
+    return doc;
+  },
   findOne: async (q) => orders.find((o) => (q._id ? String(o._id) === String(q._id) : true) && (q.user ? String(o.user) === String(q.user) : true) && (q["zarinpal.authority"] ? o.zarinpal.authority === q["zarinpal.authority"] : true)) || null,
 });
 

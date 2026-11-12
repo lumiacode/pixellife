@@ -10,10 +10,16 @@ const tokenService = {
    * @param {string} userId - شناسه کاربر
    * @returns {string} توکن JWT
    */
-  generateToken(userId) {
-    return jwt.sign({ id: userId }, env.jwtSecret, {
+  generateToken(userId, tokenVersion = 0) {
+    return jwt.sign({ id: userId, v: Number(tokenVersion) || 0 }, env.jwtSecret, {
       expiresIn: env.jwtExpiresIn,
+      algorithm: "HS256",
     });
+  },
+
+  // توکنِ صادرشده پیش از آخرین تغییر رمز معتبر نیست (توکن‌های قدیمیِ بدون v نسخهٔ ۰ حساب می‌شوند).
+  isCurrent(decoded, user) {
+    return (Number(decoded && decoded.v) || 0) === (Number(user && user.tokenVersion) || 0);
   },
 
   /**
@@ -22,7 +28,7 @@ const tokenService = {
    * @returns {object} payload توکن
    */
   verifyToken(token) {
-    return jwt.verify(token, env.jwtSecret);
+    return jwt.verify(token, env.jwtSecret, { algorithms: ["HS256"] });
   },
 };
 

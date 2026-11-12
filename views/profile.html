@@ -1857,7 +1857,7 @@
         .getElementById("logoutBtn")
         .addEventListener("click", async () => {
           try {
-            await fetch("/api/auth/logout", { credentials: "include" });
+            await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
           } catch (_) {}
           localStorage.removeItem("user");
           localStorage.removeItem("token");

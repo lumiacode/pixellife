@@ -31,7 +31,13 @@ async function loadShippingMethod(id) {
 }
 
 // قیمت‌ها همیشه از دیتابیس خوانده می‌شوند؛ قیمتی که مرورگر می‌فرستد معتبر نیست.
-async function loadLineItems(requestedItems, { collectUnavailable = false } = {}) {
+const MAX_ORDER_LINES = 50;
+const MAX_LINE_QUANTITY = 1000;
+const shortText = (value) => String(value == null ? "" : value).replace(/[<>]/g, "").trim().slice(0, 80);
+async function loadLineItems(rawItems, { collectUnavailable = false } = {}) {
+  const requestedItems = (Array.isArray(rawItems) ? rawItems : []).filter((item) => item && typeof item === "object");
+  if (!requestedItems.length) throw new ApiError(400, "سبد خرید خالی است");
+  if (requestedItems.length > MAX_ORDER_LINES) throw new ApiError(400, "تعداد اقلام سبد خرید بیش از حد مجاز است");
   const products = await Promise.all(requestedItems.map((item) => {
     const id = String(item.productId || "").trim();
     if (OBJECT_ID_RE.test(id)) return Product.findById(id).lean();
@@ -39,11 +45,20 @@ async function loadLineItems(requestedItems, { collectUnavailable = false } = {}
   }));
   const unavailable = [];
   const lines = [];
+  // مجموع تعدادِ هر کالا/تنوع در کل سبد با موجودی سنجیده می‌شود (چند ردیف جدا از یک کالا نباید از سقف موجودی عبور کند).
+  const requestedTotals = new Map();
+  const totalKey = (product, item) => `${product._id}|${String(item.storage || "").trim()}|${String(item.color || "").trim()}`;
   requestedItems.forEach((item, index) => {
     const product = products[index];
-    const quantity = Math.max(1, Math.floor(Number(item.quantity) || 0));
+    if (!product) return;
+    const quantity = Math.min(MAX_LINE_QUANTITY, Math.max(1, Math.floor(Number(item.quantity) || 0)));
+    requestedTotals.set(totalKey(product, item), (requestedTotals.get(totalKey(product, item)) || 0) + quantity);
+  });
+  requestedItems.forEach((item, index) => {
+    const product = products[index];
+    const quantity = Math.min(MAX_LINE_QUANTITY, Math.max(1, Math.floor(Number(item.quantity) || 0)));
     const selection = { storage: item.storage, color: item.color };
-    if (!product || availableStock(product, selection) < quantity) {
+    if (!product || availableStock(product, selection) < Math.max(quantity, requestedTotals.get(totalKey(product, item)) || 0)) {
       if (!collectUnavailable) throw new ApiError(409, `محصول «${product?.name || "انتخاب‌شده"}» موجود نیست`);
       unavailable.push({ productId: String(item.productId || ""), name: product?.name || "", deleted: !product });
       return;
@@ -59,9 +74,9 @@ async function loadLineItems(requestedItems, { collectUnavailable = false } = {}
       price,
       originalPrice,
       quantity,
-      color: String(item.color || ""),
-      storage: String(item.storage || ""),
-      warranty: String(item.warranty || ""),
+      color: shortText(item.color),
+      storage: shortText(item.storage),
+      warranty: shortText(item.warranty),
     });
   });
   return collectUnavailable ? { lines, unavailable } : lines;

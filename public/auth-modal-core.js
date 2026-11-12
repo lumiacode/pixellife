@@ -612,8 +612,8 @@
       });
 
       if (result.token) {
-        localStorage.setItem("token", result.token);
-        localStorage.setItem("authToken", result.token);
+        localStorage.setItem("token", "1");
+        localStorage.setItem("authToken", "1");
       }
       if (result.user) {
         localStorage.setItem("user", JSON.stringify(result.user));
