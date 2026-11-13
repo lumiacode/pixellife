@@ -6,7 +6,8 @@ const { legacyProductHandler } = require("./productPage");
 
 router.get("/", homeController.index);
 router.get("/contact", homeController.contact);
-router.post("/api/contact", homeController.submitContact);
+// فقط با ورود به حساب (کوکی/توکن)؛ بدون ورود ۴۰۱ می‌دهد و هویت فرستنده از حساب خوانده می‌شود.
+router.post("/api/contact", require("../middleware/authMiddleware").protect, homeController.submitContact);
 router.get("/mobiles", homeController.mobiles);
 // یک آدرس اصلی برای کاتالوگ موبایل؛ لینک‌ها و نتایج قدیمی گوگل
 // با ریدایرکت دائمی به همان صفحهٔ واحد منتقل می‌شوند.
