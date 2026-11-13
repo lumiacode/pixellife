@@ -422,6 +422,8 @@
             if (!fullName) return lockForm("برای ارسال پیام، ابتدا نام و نام خانوادگی خود را در پروفایل تکمیل کنید.", "تکمیل پروفایل", () => { window.location.href = "/profile"; });
             $("ctName").value = fullName; $("ctPhone").value = u.mobile || "";
             $("ctName").readOnly = true; $("ctPhone").readOnly = true;
+            // ایمیل هم از حساب می‌آید؛ اگر حساب ایمیل ندارد، فیلد پنهان می‌شود (ایمیل تایپ‌شده ثبت نمی‌شود).
+            if (u.email) { $("ctEmail").value = u.email; $("ctEmail").readOnly = true; } else { const f = $("ctEmail").closest(".ct-field"); if (f) f.hidden = true; $("ctEmail").value = ""; }
             $("ctPhoneHint").textContent = "پیام با همین حساب کاربری ثبت می‌شود و با همین شماره پاسخ می‌دهیم.";
           })
           .catch(() => lockForm("بررسی ورود انجام نشد؛ صفحه را دوباره باز کنید.", "بارگذاری دوباره", () => window.location.reload()));
