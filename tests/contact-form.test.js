@@ -34,8 +34,8 @@ const good = { name: "علی رضایی", phone: "۰۹۱۲۳۴۵۶۷۸۹", email
   r = await call(good, "10.0.0.11", { _id: "u2", firstName: "", lastName: "", mobile: "09120000001" });
   assert.strictEqual(r.status, 403); assert.strictEqual(saved.length, countBefore);
 
-  // اعتبارسنجی
-    [{ email: "abc" }, "ایمیل نامعتبر"],
+  // اعتبارسنجی (نام، شماره و ایمیل از حساب می‌آیند و از فرم خوانده نمی‌شوند)
+  for (const [patch, label] of [
     [{ message: "کوتاه" }, "پیام کوتاه"], [{ message: "x".repeat(1501) }, "پیام بلند"], [{ orderNumber: "سفارش من" }, "شمارهٔ سفارش نامعتبر"],
     [{ subject: "" }, "بدون موضوع"],
   ]) {
