@@ -99,7 +99,13 @@
       body.admin-sidebar-visible .admin-mobile-toggle{opacity:0!important;pointer-events:none!important}
       .admin-mobile-toggle{display:grid!important;place-items:center!important}
       body.admin-standalone-page{padding-right:0!important;padding-top:58px!important}
-      .app-header .navbar-nav:first-child{margin-right:50px!important}
+      /* موبایل: فقط یک دکمهٔ منو (دکمهٔ تیرهٔ شناور). همبرگر کوچکِ داخل نوار بالای بعضی صفحه‌ها حذف می‌شود تا دو منو کنار هم نباشد،
+         و دکمهٔ شناور داخل نوار بالا و هم‌تراز با آن می‌نشیند و روی عنوان صفحه نمی‌افتد. */
+      .app-header .navbar-nav:has([data-lte-toggle="sidebar"]){display:none!important}
+      .app-header{min-height:64px!important;display:flex!important;align-items:center!important}
+      .app-header .container-fluid{padding-right:68px!important;display:flex!important;align-items:center!important;min-height:64px}
+      .admin-mobile-toggle{top:10px!important;right:12px!important}
+      .app-content-header{padding-top:18px!important}
     }
     @media(prefers-reduced-motion:reduce){.admin-unified-sidebar *,.admin-unified-sidebar,.app-main,.app-header{animation:none!important;transition:none!important}}
   `;
