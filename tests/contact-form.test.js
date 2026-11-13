@@ -6,7 +6,7 @@ const saved = [];
 stub("../src/models/ContactMessage", { create: async (doc) => { saved.push(doc); return { _id: "665f1c2ab3c4d5e6f7a8b9c0", ...doc }; } });
 const { submitContact } = require("../src/controllers/homeController");
 
-const account = { _id: "user1", firstName: "علی", lastName: "رضایی", mobile: "09123456789" };
+const account = { _id: "user1", firstName: "علی", lastName: "رضایی", mobile: "09123456789", email: "ali@example.com" };
 const call = async (body, ip = "1.1.1.1", user = account) => {
   let out = { status: 200, json: null };
   const res = { status(code) { out.status = code; return this; }, json(data) { out.json = data; return this; } };
@@ -20,7 +20,7 @@ const good = { name: "علی رضایی", phone: "۰۹۱۲۳۴۵۶۷۸۹", email
   let r = await call(good, "10.0.0.1");
   assert.strictEqual(r.status, 201); assert.ok(r.json.success);
   assert.strictEqual(saved[0].phone, "09123456789");
-  assert.strictEqual(saved[0].email, null);
+  assert.strictEqual(saved[0].email, "ali@example.com", "ایمیل از حساب می‌آید، نه از فرم");
   assert.strictEqual(saved[0].orderNumber, "PL-1730000000000-4821");
   // هویت فرستنده از حساب می‌آید، نه از چیزی که در فرم تایپ شده
   r = await call({ ...good, name: "sasan hedayat", phone: "09990000000" }, "10.0.0.9");
@@ -35,7 +35,6 @@ const good = { name: "علی رضایی", phone: "۰۹۱۲۳۴۵۶۷۸۹", email
   assert.strictEqual(r.status, 403); assert.strictEqual(saved.length, countBefore);
 
   // اعتبارسنجی
-  for (const [patch, label] of [
     [{ email: "abc" }, "ایمیل نامعتبر"],
     [{ message: "کوتاه" }, "پیام کوتاه"], [{ message: "x".repeat(1501) }, "پیام بلند"], [{ orderNumber: "سفارش من" }, "شمارهٔ سفارش نامعتبر"],
     [{ subject: "" }, "بدون موضوع"],

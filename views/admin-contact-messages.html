@@ -49,7 +49,7 @@ function card(m){
   var phone=m.phone?'<a href="'+esc(telHref(m.phone))+'"><i class="ti ti-phone"></i>'+esc(m.phone)+'</a>':'';
   var mail=m.email?'<a href="mailto:'+esc(m.email)+'"><i class="ti ti-mail"></i>'+esc(m.email)+'</a>':'';
   return '<article class="msg-card '+st+'" data-id="'+esc(m._id)+'">'+
-    '<div class="msg-top"><span class="msg-name">'+esc(m.name)+'</span><span class="chip '+st+'">'+STATUS[st]+'</span>'+(m.orderNumber?'<span class="chip order">سفارش '+esc(m.orderNumber)+'</span>':'')+'<span class="msg-date">'+esc(when(m.createdAt))+'</span></div>'+
+    '<div class="msg-top"><span class="msg-name">'+esc(m.name)+'</span>'+(m.user?'<span class="chip" style="background:#dcfce7;color:#166534" title="پیام با حساب ثبت‌نام‌شده ارسال شده">کاربر ثبت‌نام‌شده</span>':'<span class="chip" style="background:#fef3c7;color:#92400e" title="این پیام پیش از الزام ورود ثبت شده؛ نام، شماره و ایمیل را فرستنده خودش تایپ کرده و تأیید نشده است">هویت تأییدنشده</span>')+'<span class="chip '+st+'">'+STATUS[st]+'</span>'+(m.orderNumber?'<span class="chip order">سفارش '+esc(m.orderNumber)+'</span>':'')+'<span class="msg-date">'+esc(when(m.createdAt))+'</span></div>'+
     '<div class="contact-line">'+phone+mail+'</div>'+
     '<div class="msg-subject">'+esc(m.subject)+'</div>'+
     '<div class="msg-body">'+esc(m.message)+'</div>'+

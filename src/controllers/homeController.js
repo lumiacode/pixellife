@@ -1105,7 +1105,8 @@ const homeController = {
     const toLatin = (v) => String(v == null ? "" : v).replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
     const name = accountName.slice(0, 80);
     const phone = toLatin(account.mobile).replace(/[\s-]/g, "");
-    const email = String(body.email || "").trim();
+    // ایمیل هم از حساب می‌آید (اگر حساب ایمیل ندارد، خالی می‌ماند)؛ ایمیلِ تایپ‌شده در فرم نادیده گرفته می‌شود.
+    const email = String(account.email || "").trim();
     const subject = String(body.subject || "").trim();
     const message = String(body.message || "").trim();
     const orderNumber = String(body.orderNumber || "").trim();
