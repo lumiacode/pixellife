@@ -58,6 +58,7 @@ router.get("/brands", homeController.mobiles);
 router.get("/blog", homeController.index);
 router.get("/support", homeController.contact);
 router.get("/terms", homeController.terms);
+router.get("/lifestyle", homeController.lifestyle);
 router.get("/profile", homeController.profile);
 router.get(["/profile/orders", "/profile/orders/:orderNumber"], homeController.profile);
 router.get("/profile/wishlist", homeController.profile);

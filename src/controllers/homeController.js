@@ -742,8 +742,8 @@ function categoryDataTag() {
   if (IS_PRODUCTION && categoryDataInline) return categoryDataInline;
   try {
     const js = fs.readFileSync(path.join(__dirname, "../../public/js/category-data.js"), "utf8").replace(/^\s*\/\*[\s\S]*?\*\/\s*/, "").replace(/\n\s+/g, "");
-    categoryDataInline = js.includes("</script") ? '<script src="/js/category-data.js?v=8"></script>' : `<script id="pl-category-data">${js}</script>`;
-  } catch (_) { categoryDataInline = '<script src="/js/category-data.js?v=8"></script>'; }
+    categoryDataInline = js.includes("</script") ? '<script src="/js/category-data.js?v=10"></script>' : `<script id="pl-category-data">${js}</script>`;
+  } catch (_) { categoryDataInline = '<script src="/js/category-data.js?v=10"></script>'; }
   return categoryDataInline;
 }
 function injectCategoryData(html) {
@@ -1088,6 +1088,8 @@ const homeController = {
   },
   contact: (req, res) => sendViewWithEnamad(res, "contact.html"),
   terms: (req, res) => sendViewWithEnamad(res, "terms.html"),
+  // صفحهٔ موقت «مجله لایف استایل» (noindex) تا لینک منو به ۴۰۴ نخورد؛ با ساخت مجله جایگزین می‌شود.
+  lifestyle: (req, res) => sendViewWithEnamad(res, "lifestyle.html"),
   submitContact: async (req, res) => {
     const body = req.body || {};
     // فقط کاربر ثبت‌نام‌کرده و واردشده می‌تواند پیام بفرستد؛ نام و شمارهٔ تماس از خود حساب گرفته می‌شود (نه از چیزی که فرستنده تایپ می‌کند).
