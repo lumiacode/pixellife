@@ -130,7 +130,7 @@ function catalogSeo(path, items) {
 }
 
 // صفحه‌های بدون ارزش سئو: ایندکس نمی‌شوند. اگر target داشته باشند، canonical به صفحهٔ اصلیِ مشابه اشاره می‌کند.
-const NOINDEX_PREFIXES = ["/cart", "/checkout", "/profile", "/login", "/search", "/categories", "/admin", "/wallet", "/orders"];
+const NOINDEX_PREFIXES = ["/lifestyle", "/cart", "/checkout", "/profile", "/login", "/search", "/categories", "/admin", "/wallet", "/orders"];
 const ALIASES = { "/mobile/apple": "/iphone", "/blog": "/", "/new": "/mobiles", "/bestsellers": "/mobiles", "/brands": "/mobiles", "/support": "/contact", "/offers": "/amazing" };
 
 const breadcrumb = (items) => ({

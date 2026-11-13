@@ -199,5 +199,24 @@ window.PLCategories = [
     ],
     "image": "/images/categories/menu-v3-console.svg",
     "imageActive": "/images/categories/menu-v3-console-active.svg"
+  },
+  {
+    "id": "lifestyle",
+    "name": "مجله لایف استایل",
+    "icon": "ti-news",
+    "groups": [
+      {
+        "title": "مجله لایف استایل",
+        "href": "/lifestyle",
+        "links": [
+          {
+            "label": "راهنمای استایل ساعت و لوازم هوشمند",
+            "href": "/lifestyle"
+          }
+        ]
+      }
+    ],
+    "image": "/images/categories/menu-v3-lifestyle.svg",
+    "imageActive": "/images/categories/menu-v3-lifestyle-active.svg"
   }
 ];
