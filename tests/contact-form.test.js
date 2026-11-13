@@ -6,10 +6,11 @@ const saved = [];
 stub("../src/models/ContactMessage", { create: async (doc) => { saved.push(doc); return { _id: "665f1c2ab3c4d5e6f7a8b9c0", ...doc }; } });
 const { submitContact } = require("../src/controllers/homeController");
 
-const call = async (body, ip = "1.1.1.1") => {
+const account = { _id: "user1", firstName: "علی", lastName: "رضایی", mobile: "09123456789" };
+const call = async (body, ip = "1.1.1.1", user = account) => {
   let out = { status: 200, json: null };
   const res = { status(code) { out.status = code; return this; }, json(data) { out.json = data; return this; } };
-  await submitContact({ body, ip }, res);
+  await submitContact({ body, ip, user }, res);
   return out;
 };
 const good = { name: "علی رضایی", phone: "۰۹۱۲۳۴۵۶۷۸۹", email: "", subject: "پیگیری سفارش", orderNumber: "PL-1730000000000-4821", message: "سلام، سفارش من هنوز ارسال نشده است" };
@@ -21,10 +22,21 @@ const good = { name: "علی رضایی", phone: "۰۹۱۲۳۴۵۶۷۸۹", email
   assert.strictEqual(saved[0].phone, "09123456789");
   assert.strictEqual(saved[0].email, null);
   assert.strictEqual(saved[0].orderNumber, "PL-1730000000000-4821");
+  // هویت فرستنده از حساب می‌آید، نه از چیزی که در فرم تایپ شده
+  r = await call({ ...good, name: "sasan hedayat", phone: "09990000000" }, "10.0.0.9");
+  assert.strictEqual(r.status, 201);
+  assert.strictEqual(saved[1].name, "علی رضایی"); assert.strictEqual(saved[1].phone, "09123456789"); assert.strictEqual(String(saved[1].user), "user1");
+  // بدون ورود: ۴۰۱ و ذخیره نمی‌شود
+  const countBefore = saved.length;
+  r = await call(good, "10.0.0.10", null);
+  assert.strictEqual(r.status, 401); assert.strictEqual(r.json.needLogin, true); assert.strictEqual(saved.length, countBefore);
+  // حساب بدون نام: ۴۰۳
+  r = await call(good, "10.0.0.11", { _id: "u2", firstName: "", lastName: "", mobile: "09120000001" });
+  assert.strictEqual(r.status, 403); assert.strictEqual(saved.length, countBefore);
 
   // اعتبارسنجی
   for (const [patch, label] of [
-    [{ name: "ع" }, "نام کوتاه"], [{ phone: "123" }, "شماره نامعتبر"], [{ email: "abc" }, "ایمیل نامعتبر"],
+    [{ email: "abc" }, "ایمیل نامعتبر"],
     [{ message: "کوتاه" }, "پیام کوتاه"], [{ message: "x".repeat(1501) }, "پیام بلند"], [{ orderNumber: "سفارش من" }, "شمارهٔ سفارش نامعتبر"],
     [{ subject: "" }, "بدون موضوع"],
   ]) {

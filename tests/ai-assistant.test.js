@@ -71,8 +71,11 @@ app.use("/api/ai", require(src("routes", "aiAssistant.js")));
 
     r = await call("/handoff", { history: [{ role: "user", content: "سلام" }] }, { Authorization: "Bearer good" });
     assert.strictEqual(r.status, 201); assert.strictEqual(created[0].phone, "09120000000"); assert.ok(created[0].message.includes("سلام"));
-    r = await call("/handoff", { name: "مهمان", phone: "abc" }, { Authorization: "Bearer bad" });
-    assert.ok(r.status === 400 || r.status === 429, "شمارهٔ نامعتبر پذیرفته نمی‌شود");
+    assert.strictEqual(created[0].name, "علی رضایی", "نام از حساب خوانده می‌شود");
+    r = await call("/handoff", { name: "مهمان", phone: "09990000000" }, { Authorization: "Bearer bad" });
+    assert.ok(r.status === 401 || r.status === 429, "بدون ورود پذیرفته نمی‌شود");
+    r = await call("/handoff", { name: "مهمان", phone: "09990000000" });
+    assert.ok(r.status === 401 || r.status === 429, "مهمان نمی‌تواند به پشتیبان پیام بدهد");
     console.log("AI assistant tests passed.");
   } finally { server.close(); }
 })().catch((e) => { console.error(e); process.exit(1); }).then(() => process.exit(0));

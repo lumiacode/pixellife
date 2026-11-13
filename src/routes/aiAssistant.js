@@ -183,17 +183,18 @@ router.post("/shopping-assistant", optionalAuth, aiLimiter, handleAssistant); //
 router.post("/handoff", optionalAuth, aiLimiter, async (req, res) => {
   try {
     const user = req.user;
-    const fullName = user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "";
-    const name = String(req.body?.name || fullName || "").trim().slice(0, 80);
-    const phone = String(req.body?.phone || user?.mobile || "").trim().slice(0, 20);
+    // فقط کاربر واردشده؛ نام و شماره از حساب خوانده می‌شود (فرستندهٔ ناشناس نمی‌تواند هر نام و شمارهای ثبت کند).
+    if (!user) return res.status(401).json({ success: false, needLogin: true, message: "برای ارسال به پشتیبان ابتدا وارد حساب کاربری خود شوید." });
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.replace(/\s+/g, " ").trim().slice(0, 80);
+    const phone = String(user.mobile || "").trim().slice(0, 20);
     const note = String(req.body?.note || "").trim().slice(0, 500);
     if (!name || !/^[0-9۰-۹+\s-]{8,20}$/.test(phone)) {
-      return res.status(400).json({ success: false, needContact: true, message: "نام و شمارهٔ تماس معتبر را وارد کنید." });
+      return res.status(400).json({ success: false, needProfile: true, message: "برای ارسال به پشتیبان ابتدا نام و نام خانوادگی خود را در پروفایل تکمیل کنید." });
     }
     const transcript = cleanHistory(req.body?.history)
       .map((m) => `${m.role === "user" ? "کاربر" : "دستیار"}: ${m.content}`).join("\n");
     await ContactMessage.create({
-      name, phone,
+      name, phone, user: user._id,
       subject: "درخواست پشتیبانی از چت هوشمند",
       message: [note, transcript && `— گفتگو —\n${transcript}`, user && `کاربر واردشده: ${user._id}`].filter(Boolean).join("\n\n").slice(0, 4000) || "درخواست پیگیری",
     });

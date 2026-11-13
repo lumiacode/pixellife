@@ -266,6 +266,10 @@
             <h2 id="ctFormTitle">ارسال پیام</h2>
             <p class="ct-sub">فیلدهای دارای <span style="color:var(--red)">*</span> ضروری هستند.</p>
             <div class="ct-alert" id="ctAlert" role="alert"></div>
+            <div class="ct-alert show" id="ctGate" role="status" hidden style="display:none;background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
+              <span id="ctGateText" style="display:block">برای ارسال پیام به پشتیبانی، ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید.</span>
+              <button type="button" class="ct-btn primary" id="ctGateBtn" style="margin-top:10px">ورود | ثبت‌نام</button>
+            </div>
             <form class="ct-form" id="ctForm" novalidate autocomplete="on">
               <div class="ct-row">
                 <div class="ct-field">
@@ -401,6 +405,27 @@
         // ارقام فارسی شماره تماس به لاتین
         $("ctPhone").addEventListener("blur", (e) => { e.target.value = toLatin(e.target.value).replace(/\s+/g, ""); });
 
+        // فقط کاربر واردشده می‌تواند پیام بفرستد؛ نام و موبایل از حساب او پر می‌شود و قابل تغییر نیست.
+        const gate = $("ctGate");
+        const lockForm = (text, buttonLabel, handler) => {
+          form.querySelectorAll("input, select, textarea, button").forEach((el) => { el.disabled = true; });
+          $("ctGateText").textContent = text; $("ctGateBtn").textContent = buttonLabel; $("ctGateBtn").onclick = handler;
+          gate.hidden = false; gate.style.display = "";
+        };
+        const openLogin = () => { if (typeof window.openLoginModal === "function") window.openLoginModal(); else window.location.href = "/login"; };
+        fetch("/api/auth/me", { credentials: "same-origin", cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            const u = data && data.user;
+            if (!u) return lockForm("برای ارسال پیام به پشتیبانی، ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید.", "ورود | ثبت‌نام", openLogin);
+            const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ").trim();
+            if (!fullName) return lockForm("برای ارسال پیام، ابتدا نام و نام خانوادگی خود را در پروفایل تکمیل کنید.", "تکمیل پروفایل", () => { window.location.href = "/profile"; });
+            $("ctName").value = fullName; $("ctPhone").value = u.mobile || "";
+            $("ctName").readOnly = true; $("ctPhone").readOnly = true;
+            $("ctPhoneHint").textContent = "پیام با همین حساب کاربری ثبت می‌شود و با همین شماره پاسخ می‌دهیم.";
+          })
+          .catch(() => lockForm("بررسی ورود انجام نشد؛ صفحه را دوباره باز کنید.", "بارگذاری دوباره", () => window.location.reload()));
+
         const rules = {
           ctName: (v) => (v.trim().length < 2 ? "نام را وارد کنید (حداقل ۲ حرف)" : ""),
           ctPhone: (v) => { const p = toLatin(v).replace(/[\s-]/g, ""); if (!p) return "شمارهٔ موبایل را وارد کنید"; return /^09\d{9}$/.test(p) || /^0\d{10}$/.test(p) ? "" : "شمارهٔ معتبر وارد کنید؛ مثلاً 09123456789"; },
@@ -442,6 +467,7 @@
             };
             const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
             let data = {}; try { data = await res.json(); } catch (_) {}
+            if (res.status === 401) return lockForm("نشست ورود شما تمام شده است؛ دوباره وارد شوید.", "ورود | ثبت‌نام", openLogin);
             if (res.status === 429) return showAlert(data.message || "تعداد ارسال‌ها زیاد بوده است؛ کمی بعد دوباره تلاش کنید.");
             if (!res.ok || !data.success) return showAlert(data.message || "ارسال پیام ناموفق بود. اتصال را بررسی و دوباره تلاش کنید.");
             const id = data.data && data.data.id ? String(data.data.id).slice(-6).toUpperCase() : "";

@@ -145,12 +145,13 @@
           return { ok: r.ok, data: await r.json().catch(() => ({})) };
         };
         try {
-          let res = await send({});
-          if (!res.ok && res.data.needContact) {
-            const name = (prompt("نام و نام خانوادگی:") || "").trim();
-            const phone = (prompt("شمارهٔ تماس:") || "").trim();
-            if (!name || !phone) { btn.disabled = false; return; }
-            res = await send({ name, phone });
+          const res = await send({});
+          // فقط کاربر واردشده می‌تواند به پشتیبان پیام بدهد (نام و شماره از حساب او خوانده می‌شود).
+          if (!res.ok && res.data.needLogin) {
+            addMessage("برای ارسال به پشتیبان ابتدا وارد حساب کاربری خود شوید.", "bot");
+            btn.disabled = false;
+            if (typeof window.openLoginModal === "function") window.openLoginModal();
+            return;
           }
           addMessage(res.data.message || (res.ok ? "درخواست ثبت شد." : "ثبت نشد؛ از صفحهٔ تماس با ما اقدام کنید."), "bot");
           if (res.ok) btn.remove(); else btn.disabled = false;

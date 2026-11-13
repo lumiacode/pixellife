@@ -487,7 +487,7 @@ function injectBehaviorTracker(html) {
 
 // دستیار خرید در تمام صفحه‌های عمومی فروشگاه درج می‌شود. صفحهٔ محصول از قبل
 // این اسکریپت را دارد؛ شرط زیر از درج دوبارهٔ آن جلوگیری می‌کند.
-const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=24" defer></script>';
+const SHOPPING_ASSISTANT_SCRIPT = '<script src="/js/shopping-assistant.js?v=25" defer></script>';
 function injectShoppingAssistant(html) {
   if (!html || html.includes("/js/shopping-assistant.js")) return html;
   return html.includes("</body>")
@@ -1090,6 +1090,11 @@ const homeController = {
   terms: (req, res) => sendViewWithEnamad(res, "terms.html"),
   submitContact: async (req, res) => {
     const body = req.body || {};
+    // فقط کاربر ثبت‌نام‌کرده و واردشده می‌تواند پیام بفرستد؛ نام و شمارهٔ تماس از خود حساب گرفته می‌شود (نه از چیزی که فرستنده تایپ می‌کند).
+    const account = req.user;
+    if (!account) return res.status(401).json({ success: false, needLogin: true, message: "برای ارسال پیام ابتدا وارد حساب کاربری خود شوید." });
+    const accountName = `${account.firstName || ""} ${account.lastName || ""}`.replace(/\s+/g, " ").trim();
+    if (!accountName || !account.mobile) return res.status(403).json({ success: false, code: "PROFILE_INCOMPLETE", message: "برای ارسال پیام ابتدا نام و نام خانوادگی خود را در پروفایل تکمیل کنید." });
     // ربات‌ها فیلد پنهان «website» را پر می‌کنند؛ جواب موفق می‌دهیم ولی چیزی ذخیره نمی‌کنیم.
     if (String(body.website || "").trim()) return res.status(201).json({ success: true, message: "پیام شما با موفقیت ثبت شد.", data: {} });
 
@@ -1098,8 +1103,8 @@ const homeController = {
     }
 
     const toLatin = (v) => String(v == null ? "" : v).replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-    const name = String(body.name || "").trim().replace(/\s+/g, " ");
-    const phone = toLatin(body.phone).replace(/[\s-]/g, "");
+    const name = accountName.slice(0, 80);
+    const phone = toLatin(account.mobile).replace(/[\s-]/g, "");
     const email = String(body.email || "").trim();
     const subject = String(body.subject || "").trim();
     const message = String(body.message || "").trim();
@@ -1122,6 +1127,7 @@ const homeController = {
         subject,
         orderNumber,
         message,
+        user: account._id,
       });
 
       return res.status(201).json({
